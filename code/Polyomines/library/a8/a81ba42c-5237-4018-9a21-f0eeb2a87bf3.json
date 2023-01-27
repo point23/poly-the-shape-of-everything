@@ -1,0 +1,41 @@
+{
+  "__type__": "cc.JsonAsset",
+  "_name": "level_01",
+  "_objFlags": 0,
+  "_native": "",
+  "json": {
+    "camera": {
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      }
+    },
+    "game_board": {
+      "grid_size": {
+        "width": 30,
+        "height": 20
+      }
+    },
+    "grounds": [
+      {
+        "coord": {
+          "x": 10,
+          "y": 10
+        }
+      },
+      {
+        "coord": {
+          "x": 11,
+          "y": 10
+        }
+      },
+      {
+        "coord": {
+          "x": 12,
+          "y": 10
+        }
+      }
+    ]
+  }
+}

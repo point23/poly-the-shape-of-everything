@@ -1,0 +1,159 @@
+{
+  "853ae2f5-c612-43e0-956c-9473e9f55188": {
+    "url": "db://assets/material",
+    "value": {}
+  },
+  "204b8b6d-3943-43b5-b973-c007da8536d7": {
+    "url": "db://assets/script",
+    "value": {}
+  },
+  "6616cfc0-9093-47cd-a70a-cf49368b7217": {
+    "url": "db://assets/resources/texture",
+    "value": {}
+  },
+  "153f1c3c-d2bf-48ab-9595-ccdbf02deb4d": {
+    "url": "db://assets/scene.scene",
+    "value": {}
+  },
+  "bea6df03-1d2d-481a-8005-f62c56660dd8": {
+    "url": "db://assets/scene",
+    "value": {}
+  },
+  "0e944e2c-eaaf-46bb-aa41-4ae80e813320": {
+    "url": "db://assets/scene/Prefabs.scene",
+    "value": {}
+  },
+  "0e2753f9-c174-4344-b386-106dbb5e5cdd": {
+    "url": "db://assets/material/Mat_Game_Board.mtl",
+    "value": {
+      "depends": [
+        "1baf0fc9-befa-459c-8bdd-af1a450a0319",
+        "dc67b1b3-d83f-41be-a9cf-5c1d206fa7fb@6c48a"
+      ]
+    }
+  },
+  "dc67b1b3-d83f-41be-a9cf-5c1d206fa7fb": {
+    "url": "db://assets/resources/texture/grid_001.png",
+    "value": {
+      "depends": []
+    }
+  },
+  "dc67b1b3-d83f-41be-a9cf-5c1d206fa7fb@6c48a": {
+    "url": "db://assets/resources/texture/grid_001.png@6c48a",
+    "value": {
+      "depends": [
+        "dc67b1b3-d83f-41be-a9cf-5c1d206fa7fb"
+      ]
+    }
+  },
+  "8eeb1249-7df9-40c4-8a62-80506a32e048": {
+    "url": "db://assets/script/Main.ts",
+    "value": {}
+  },
+  "0c0fa3c0-61dd-454f-b96d-2f600108681c": {
+    "url": "db://assets/script/Game_Board.ts",
+    "value": {}
+  },
+  "012f8326-4daf-42c9-afb0-202db356d124": {
+    "url": "db://assets/scene/Level_001.scene",
+    "value": {
+      "depends": [
+        "012f8326-4daf-42c9-afb0-202db356d124",
+        "aa84cf98-0bad-4e70-83d6-a818490d0a37",
+        "e6a4745e-cd68-4f4c-b5bf-ad04cdbd5283",
+        "57520716-48c8-4a19-8acf-41c9f8777fb0@f9941",
+        "012f8326-4daf-42c9-afb0-202db356d124",
+        "d032ac98-05e1-4090-88bb-eb640dcb5fc1@b47c0",
+        "d032ac98-05e1-4090-88bb-eb640dcb5fc1@b47c0",
+        "6f01cf7f-81bf-4a7e-bd5d-0afc19696480@b47c0"
+      ]
+    }
+  },
+  "32613972-535e-48f1-b54c-862c76d95975": {
+    "url": "db://assets/resources/texture/grid_002.png",
+    "value": {
+      "depends": []
+    }
+  },
+  "32613972-535e-48f1-b54c-862c76d95975@6c48a": {
+    "url": "db://assets/resources/texture/grid_002.png@6c48a",
+    "value": {
+      "depends": [
+        "32613972-535e-48f1-b54c-862c76d95975"
+      ]
+    }
+  },
+  "533f0106-4874-4881-9ac2-a28881e6f7c7": {
+    "url": "db://assets/material/Mat_Ground.mtl",
+    "value": {
+      "depends": [
+        "1baf0fc9-befa-459c-8bdd-af1a450a0319",
+        "32613972-535e-48f1-b54c-862c76d95975@6c48a"
+      ]
+    }
+  },
+  "2d05b536-1872-4164-841e-4bb216a09223": {
+    "url": "db://assets/texture/Tex_Coord.rt",
+    "value": {}
+  },
+  "2d05b536-1872-4164-841e-4bb216a09223@f9941": {
+    "url": "db://assets/texture/Tex_Coord.rt@f9941",
+    "value": {
+      "depends": [
+        "2d05b536-1872-4164-841e-4bb216a09223"
+      ]
+    }
+  },
+  "82982565-58ab-44ba-9227-26cac0cc9727": {
+    "url": "db://assets/material/Mat_Coord.mtl",
+    "value": {}
+  },
+  "0bbd2a77-cd12-4e6d-bfd5-da1af068ed4d": {
+    "url": "db://assets/script/Game_Board.ts",
+    "value": {}
+  },
+  "8bfbee67-9f22-4f0f-8a0e-a9d679d82d9c": {
+    "url": "db://assets/resources/prefab",
+    "value": {}
+  },
+  "aa84cf98-0bad-4e70-83d6-a818490d0a37": {
+    "url": "db://assets/resources/prefab/Game_Board_Region_10x10.prefab",
+    "value": {
+      "depends": [
+        "0e2753f9-c174-4344-b386-106dbb5e5cdd",
+        "1263d74c-8167-4928-91a6-4e2672411f47@2e76e"
+      ]
+    }
+  },
+  "e6a4745e-cd68-4f4c-b5bf-ad04cdbd5283": {
+    "url": "db://assets/resources/prefab/Ground.prefab",
+    "value": {
+      "depends": [
+        "533f0106-4874-4881-9ac2-a28881e6f7c7",
+        "1263d74c-8167-4928-91a6-4e2672411f47@a804a"
+      ]
+    }
+  },
+  "3c8093e1-a264-412a-92ab-841df273cf3c": {
+    "url": "db://assets/resources/data",
+    "value": {}
+  },
+  "a81ba42c-5237-4018-9a21-f0eeb2a87bf3": {
+    "url": "db://assets/resources/data/level_01.json",
+    "value": {
+      "depends": []
+    }
+  },
+  "b4e01d4b-0c22-4ec3-b141-be9066e593fd": {
+    "url": "db://assets/resources",
+    "value": {}
+  },
+  "b3c61c25-ad27-4f31-84f6-bc54b4f21510": {
+    "url": "db://assets/script/Swipe_Camera.ts",
+    "value": {}
+  },
+  "8932867c-f2fe-44cc-b716-67c99b512e31": {
+    "url": "db://assets/script/Entity_Manager.ts",
+    "value": {}
+  }
+}

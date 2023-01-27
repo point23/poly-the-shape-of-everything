@@ -1,7 +1,9 @@
-
-// P2D
-code/Polyominoes_2D/build/
-code/Polyominoes_2D/library/
-code/Polyominoes_2D/temp/
-code/Polyominoes_2D/local/
-code/Polyominoes_2D/creator.d.ts
+# P3D
+code/Polyominoes/library/
+code/Polyominoes/temp/
+code/Polyominoes/local/
+code/Polyominoes/build/
+code/Polyominoes/profiles/
+code/Polyominoes/native
+code/Polyominoes/node_modules/
+.vscode/
