@@ -4,7 +4,7 @@ import {Game_Board} from './Game_Board';
 const {ccclass, property} = _decorator;
 
 /* FIXME Not complete */
-type Entity_Info = {
+export type Entity_Info = {
   prefab_id: string; coord: {x: number, y: number};
 };
 

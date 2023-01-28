@@ -2,7 +2,11 @@ import {_decorator, Component, instantiate, MeshRenderer, Node, Prefab, Size, Ve
 
 const {ccclass, property} = _decorator;
 
-type Coord = {
+export type Game_Board_Info = {
+  grid_size: {width: number, height: number};
+}
+
+export type Coord = {
   x: number; y: number;
 }
 
@@ -23,11 +27,14 @@ type Coord = {
 
   grid_size: Size;
 
-  public show_grids(grid_size: {width: number, height: number}) {
-    this.grid_size = new Size(grid_size.width, grid_size.height);
+  /* FIXME Too much 'game_board_info' */
+  public show_grids(game_board_info: Game_Board_Info) {
+    this.grid_size = new Size(
+        game_board_info.grid_size.width, game_board_info.grid_size.height);
 
-    let cols = grid_size.width / Game_Board.region_size;
-    let rows = grid_size.height / Game_Board.region_size;
+    let cols = game_board_info.grid_size.width / Game_Board.region_size;
+    let rows = game_board_info.grid_size.height / Game_Board.region_size;
+
     let step_z = Game_Board.region_size;
     let step_x = Game_Board.region_size;
     let pos_x = Game_Board.origin_pos.x + Game_Board.half_region_size -

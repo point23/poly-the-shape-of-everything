@@ -2,7 +2,7 @@ import {_decorator, Component, EventKeyboard, EventMouse, input, Input, KeyCode,
 
 const {ccclass, property} = _decorator;
 
-type Camera_Info = {
+export type Camera_Info = {
   position: {x: number, y: number, z: number};
   rotation: {x: number, y: number, z: number, w: number};
 };
@@ -75,8 +75,6 @@ export class Swipe_Camera extends Component {
   }
 
   update_view(info: Camera_Info) {
-    console.log(info);
-
     if (info.position) {
       this.camera_base.setPosition(
           new Vec3(info.position.x, info.position.y, info.position.z));

@@ -1,3 +1,4 @@
+# cocos
 library/
 temp/
 local/
@@ -5,3 +6,7 @@ build/
 native/
 .vscode/
 profiles/
+
+# npm
+node_modules/
+package-lock.json

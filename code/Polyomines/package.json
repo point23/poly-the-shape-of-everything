@@ -5,5 +5,8 @@
   "creator": {
     "version": "3.7.0"
   },
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "fs-extra": "^11.1.0"
+  }
 }
