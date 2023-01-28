@@ -1,7 +1,7 @@
 {
   "preview": {
     "current": {
-      "platform": "gameView"
+      "platform": "simulator"
     },
     "simulator_resolution": 2
   },

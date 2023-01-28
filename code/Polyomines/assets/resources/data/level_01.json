@@ -1,9 +1,15 @@
 {
-  "camera": {
+  "camera_info": {
     "position": {
-      "x": 0,
-      "y": 0,
-      "z": 0
+      "x": -6,
+      "y": 14,
+      "z": 15
+    },
+    "rotation": {
+      "x": -0.29883623873011983,
+      "y": -0.6408563820557892,
+      "z": -0.29883623873011994,
+      "w": 0.6408563820557893
     }
   },
   "game_board": {
@@ -12,20 +18,23 @@
       "height": 20
     }
   },
-  "grounds": [
+  "static_entities": [
     {
+      "prefab_id": "Ground#001",
       "coord": {
         "x": 10,
         "y": 10
       }
     },
     {
+      "prefab_id": "Ground#001",
       "coord": {
         "x": 11,
         "y": 10
       }
     },
     {
+      "prefab_id": "Ground#001",
       "coord": {
         "x": 12,
         "y": 10

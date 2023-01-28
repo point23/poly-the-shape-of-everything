@@ -1,6 +1,8 @@
 # 参考资料：
 
 1. Jonathon Blow, "Discussion: Puzzle Game Movement Systems, with Sean Barrett.", https://www.youtube.com/watch?v=_tMb7OS2TOU&t=1879s. Jan 11, 2023.
+2. Be a Better Dev, "What is a Database Transaction? Be ACID compliant", https://www.youtube.com/watch?v=wHUOeXbZCYA. Jan 28, 2023.
+3. 
 
 
 
@@ -129,7 +131,7 @@ Move_Flag {
 detect_conflicts function: <u>**[TODO] how git check for conflicts**</u>
 
 ```ruby
-detect_conflicts(entity_manager, move_transaction)
+detect_conflicts(entity_manager, move_transaction) -> conflict
 	for other_transaction of entity_manager.move_transactions:
     	for move of move_transaction.moves:
     		for other_move of other_transaction.moves:
@@ -142,3 +144,25 @@ detect_conflicts(entity_manager, move_transaction)
 end
 ```
 
+- and afterwards we are going to solve those conflicts.
+
+# Database Transactions
+
+> Unit of work in DB language.
+
+#### Example Unit
+
+| ID   | OP     |
+| ---- | ------ |
+| 1    | insert |
+| 2    | update |
+
+- Either succeed or fail together as a unit.
+- Nothing can be partially succeed.
+
+#### ACID
+
+- Atomic
+- Consistency
+- Isolation
+- Durability

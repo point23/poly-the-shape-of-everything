@@ -20,12 +20,18 @@
 - 小车Poly，被锁定在轨道上
 
 - Beginning in the middle: 玩家已经解锁了一半关卡
+
 - Projectile Shooter
+
 - 结合Sokoban游戏有角色移动的特点和Tile-Match Game直接旋转方块的特点
   - 启发: 马里奥奥德赛, 附身的行为, 尤其是可以拖长的毛毛虫
 
 - Poly有力量限制
   - 3方格的Poly相比2方格的Poly可以进行更多的操作
+
+- Polyominoes
+
+  ![image-20230128123827144](Game%20Design.assets/image-20230128123827144.png)
 
 - 
 

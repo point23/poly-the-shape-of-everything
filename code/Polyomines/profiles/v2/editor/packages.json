@@ -1,1 +1,8 @@
-{}
+{
+  "disable-packages": {
+    "A:\\code\\poly\\code\\Polyomines\\extensions\\grid-based-entity-management-system": {
+      "name": "grid-based-entity-management-system",
+      "time": 1674905797997
+    }
+  }
+}

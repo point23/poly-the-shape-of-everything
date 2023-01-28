@@ -1,0 +1,61 @@
+{
+    "package_version": 2,
+    "version": "1.0.0",
+    "name": "grid-based-system",
+    "description": "i18n:grid-based-system.description",
+    "main": "./dist/main.js",
+    "dependencies": {
+        "vue": "^3.1.4",
+        "fs-extra": "^10.0.0"
+    },
+    "devDependencies": {
+        "@types/fs-extra": "^9.0.13",
+        "@types/node": "^16.18.11",
+        "typescript": "^4.3.4"
+    },
+    "panels": {
+        "default": {
+            "title": "grid-based-system",
+            "type": "dockable",
+            "main": "dist/panels/default",
+            "size": {
+                "min-width": 400,
+                "min-height": 300,
+                "width": 1024,
+                "height": 600
+            }
+        }
+    },
+    "contributions": {
+        "menu": [
+            {
+                "path": "i18n:menu.panel/grid-based-system",
+                "label": "i18n:grid-based-system.open_panel",
+                "message": "open-panel"
+            },
+            {
+                "path": "i18n:menu.develop/grid-based-system",
+                "label": "i18n:grid-based-system.send_to_panel",
+                "message": "send-to-panel"
+            }
+        ],
+        "messages": {
+            "open-panel": {
+                "methods": [
+                    "openPanel"
+                ]
+            },
+            "send-to-panel": {
+                "methods": [
+                    "default.hello"
+                ]
+            }
+        }
+    },
+    "author": "point23",
+    "editor": ">=3.7.0",
+    "scripts": {
+        "build": "tsc -b",
+        "watch": "tsc -w"
+    }
+}
