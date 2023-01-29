@@ -14,14 +14,21 @@ export class Entity_Prefab_Pair {
   @property(Prefab) prefab = null;
 }
 
+/* NOTE
+  - Manage entity pool
+  - Get and retrieve entities
+  - Detect conflicts between entities
+ */
 @ccclass('Entity_Manager')
 export class Entity_Manager extends Component {
+  private entity_prefab_map: Map<String, Prefab> = new Map;
+
   @property(Game_Board) game_board: Game_Board;
+
   @property(Node) entities_parent_node: Node;
+
   @property([Entity_Prefab_Pair])
   list_entities_prefab: Entity_Prefab_Pair[] = [];
-
-  entity_prefab_map: Map<String, Prefab> = new Map;
 
   onLoad() {
     // Mapping prefabs

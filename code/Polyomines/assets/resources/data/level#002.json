@@ -1,1 +1,1 @@
-{"name":"fs-extra"}
+{"camera_info":{"position":{"x":0,"y":0,"z":0},"rotation":{"x":0,"y":0,"z":0,"w":1}},"game_board":{"grid_size":{"width":30,"height":20}},"static_entities":[{"prefab_id":"Ground#001","coord":{"x":10,"y":10}},{"prefab_id":"Ground#001","coord":{"x":11,"y":10}},{"prefab_id":"Ground#001","coord":{"x":12,"y":10}}]}
