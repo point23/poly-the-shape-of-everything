@@ -11,12 +11,7 @@ const {ccclass, property} = _decorator;
 
 @ccclass('Swipe_Camera_Mode')
 export class Swipe_Camera_Mode extends Game_Mode {
-  @property(Game_Mode) next_mode: Game_Mode = null;
   @property(Camera3D_Controller) camera3d_controller: Camera3D_Controller;
-
-  get next() {
-    return this.next_mode;
-  }
 
   on_enter() {
     Debug_Console.Info('Swipe Camera');

@@ -1,7 +1,7 @@
 [
   {
     "__type__": "cc.Prefab",
-    "_name": "Game_Board_Region_10x10",
+    "_name": "Game_Board_Square",
     "_objFlags": 0,
     "_native": "",
     "data": {
@@ -12,7 +12,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Game_Board_Region_10x10",
+    "_name": "Game_Board_Square",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": null,
@@ -41,9 +41,9 @@
     },
     "_lscale": {
       "__type__": "cc.Vec3",
-      "x": 1,
-      "y": 1,
-      "z": 1
+      "x": 0.1,
+      "y": 0.1,
+      "z": 0.1
     },
     "_mobility": 0,
     "_layer": 1073741824,
@@ -121,7 +121,6 @@
       "__id__": 0
     },
     "fileId": "0eaD+JZiVA45EALlAqRne0",
-    "instance": null,
-    "targetOverrides": null
+    "instance": null
   }
 ]

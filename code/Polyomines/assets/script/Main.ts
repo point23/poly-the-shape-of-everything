@@ -12,7 +12,7 @@ const {ccclass, property} = _decorator;
 export type Level_Config = {
   camera_info: Camera_Info,
   game_board: Game_Board_Info,
-  static_entities: Entity_Info[],
+  entities: Entity_Info[],
 };
 
 @ccclass('Main')
@@ -20,8 +20,9 @@ export class Main extends Component {
   @property(Game_Board) game_board: Game_Board = null;
   @property(Camera3D_Controller)
   camera3d_controller: Camera3D_Controller = null;
-  @property(Entity_Manager) entity_manager: Entity_Manager = null;
+
   /* Singleton instances below: */
+  @property(Entity_Manager) entity_manager: Entity_Manager = null;
   @property(Debug_Console) console_instance: Debug_Console = null;
   @property(Contextual_Manager)
   contextual_manager_instance: Contextual_Manager = null;
@@ -44,8 +45,8 @@ export class Main extends Component {
 
   /** Callback when level config is loaded by Resource Manager  */
   on_level_loaded(target: Main, level_config: Level_Config) {
-    target.game_board.show_grids(level_config.game_board);
-    target.entity_manager.load_static_entities(level_config.static_entities);
+    target.game_board.show_grid(level_config.game_board);
+    target.entity_manager.load_entities(level_config.entities);
     target.camera3d_controller.update_view(level_config.camera_info);
   }
 
@@ -54,5 +55,6 @@ export class Main extends Component {
     Debug_Console.Settle(this.console_instance);
     Contextual_Manager.Settle(this.contextual_manager_instance);
     Resource_Manager.Settle(this.resource_manager_instance);
+    Entity_Manager.Settle(this.entity_manager, this.game_board);
   }
 }

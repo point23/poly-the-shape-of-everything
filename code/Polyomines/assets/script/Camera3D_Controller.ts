@@ -24,13 +24,15 @@ export class Camera3D_Controller extends Component {
 
   public update_view(info: Camera_Info) {
     if (info.position) {
-      this.camera_base.setPosition(
-          new Vec3(info.position.x, info.position.y, info.position.z));
+      this.current_position =
+          new Vec3(info.position.x, info.position.y, info.position.z);
+      this.camera_base.setPosition(this.current_position);
     }
 
     if (info.rotation) {
-      this.camera_base.setRotation(new Quat(
-          info.rotation.x, info.rotation.y, info.rotation.z, info.rotation.w));
+      this.current_rotation = new Quat(
+          info.rotation.x, info.rotation.y, info.rotation.z, info.rotation.w);
+      this.camera_base.setRotation(this.current_rotation);
     }
   }
 
