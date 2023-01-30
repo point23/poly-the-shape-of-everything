@@ -15,6 +15,13 @@ export class Game_Entity extends Component {
   private _selected: boolean = false;
   //#endregion
 
+  init(position: Vec3, rotation: Quat, coord: Vec2, prefab_id: string) {
+    this.position = position;
+    this.rotation = rotation;
+    this._coord = coord;
+    this._prefab_id = prefab_id;
+  }
+
   get prefab_id(): string {
     return this._prefab_id;
   }
@@ -45,13 +52,6 @@ export class Game_Entity extends Component {
     return this._rotation;
   }
 
-  init(position: Vec3, rotation: Quat, coord: Vec2, prefab_id: string) {
-    this.position = position;
-    this.rotation = rotation;
-    this._coord = coord;
-    this._prefab_id = prefab_id;
-  }
-
   set selected(is_selected: boolean) {
     this._selected = is_selected;
     const mat = this.renderable.material;
@@ -65,5 +65,12 @@ export class Game_Entity extends Component {
 
   get selected(): boolean {
     return this._selected;
+  }
+
+  rotate_clockwise() {
+    let new_rot: Quat = new Quat();
+    const rad = 0.5 * Math.PI;
+    Quat.rotateY(new_rot, this.rotation, rad);
+    this.rotation = new_rot;
   }
 }

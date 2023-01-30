@@ -42,11 +42,11 @@ export class Camera3D_Controller extends Component {
     this.camera_base.setPosition(this.current_position);
   }
 
-  public rotate_around_z_axis(theta: number) {
+  public rotate_z(theta: number) {
     let radius = theta / 180 * Math.PI;
     this.last_rotation = this.camera_base.getRotation();
-    this.current_rotation = Quat.rotateAround(
-        this.current_rotation, this.last_rotation, new Vec3(0, 0, 1), radius);
+    this.current_rotation =
+        Quat.rotateZ(this.current_rotation, this.last_rotation, radius);
     this.camera_base.setRotation(this.current_rotation);
   }
 }

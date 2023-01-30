@@ -10,7 +10,7 @@ export class Const {
   static Game_Board_Orgin_Pos = new Vec3(0, 0, 0);
 
   static Mouse_Jiggling_Interval = 0.01;
-  static Double_Click_Time_Interval = 0.3;
+  static Double_Click_Time_Interval = 0.25;
 
   static Selected_Albedo_Scale = new Vec3(4, 1, 1);
   static Normal_Albedo_Scale = new Vec3(1, 1, 1);

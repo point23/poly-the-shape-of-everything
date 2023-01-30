@@ -2,6 +2,7 @@ import {_decorator, Camera, EventKeyboard, EventMouse, geometry, KeyCode, Node, 
 import {Const} from '../Const';
 
 import {Debug_Console} from '../Debug_Console';
+import {Game_Entity} from '../entities/Game_Entity_Base';
 import {Entity_Manager} from '../Entity_Manager';
 import {Game_Board} from '../Game_Board';
 import {Level_Config} from '../Main';
@@ -30,13 +31,14 @@ export class Entity_Edit_Mode extends Game_Mode {
 
   on_exit() {}
 
-  is_selecting: boolean = true;
   is_jiggling: boolean = false;
-  /* FIXME Temporarily fixed double-click problem, find better solution. */
+  is_double_click: boolean = false;
+  selected_entities: Game_Entity[] = [];
+
   handle_mouse_down(event: EventMouse) {
     /* FIXME There is a bug of cocos */
-    // const select: boolean = event.getButton() == EventMouse.BUTTON_LEFT;
-    // const deselect: boolean = event.getButton() == EventMouse.BUTTON_RIGHT;
+    // const left_btn: boolean = event.getButton() == EventMouse.BUTTON_LEFT;
+    // const right_btn: boolean = event.getButton() == EventMouse.BUTTON_RIGHT;
     if (this.is_jiggling) return;
 
     const screen_x = event.getLocationX();
@@ -49,20 +51,22 @@ export class Entity_Edit_Mode extends Game_Mode {
         const item = raycast_results[i];
         let succeed: boolean = false;
         for (let entity of Entity_Manager.instance.entities) {
-          if (item.collider.node == entity.node) {
-            if (this.is_selecting)
-              Entity_Manager.instance.select(entity);
-            else {
-              Entity_Manager.instance.deselect(entity);
-            }
+          if (item.collider.node != entity.node) continue;
 
-            succeed = true;
-            break;
+          if (this.is_double_click) {
+            this.deselect_all();
+
+            entity.rotate_clockwise();
+          } else {
+            if (entity.selected) {
+              this.deselect(entity);
+            } else {
+              this.select(entity);
+            }
           }
+          succeed = true;
         }
-        if (succeed) {
-          break;
-        }
+        if (succeed) break;
       }
     }
 
@@ -71,9 +75,9 @@ export class Entity_Edit_Mode extends Game_Mode {
       this.is_jiggling = false;
     }, Const.Mouse_Jiggling_Interval);
 
-    this.is_selecting = false;
+    this.is_double_click = true;
     this.scheduleOnce(() => {
-      this.is_selecting = true;
+      this.is_double_click = false;
     }, Const.Double_Click_Time_Interval);
   }
 
@@ -81,19 +85,19 @@ export class Entity_Edit_Mode extends Game_Mode {
     let key_code = event.keyCode;
     switch (key_code) {
       case KeyCode.KEY_W:
-        Entity_Manager.instance.move_selected_entities(new Vec2(0, 1));
+        this.move_selected_entities(new Vec2(0, 1));
         break;
       case KeyCode.KEY_S:
-        Entity_Manager.instance.move_selected_entities(new Vec2(0, -1));
+        this.move_selected_entities(new Vec2(0, -1));
         break;
       case KeyCode.KEY_A:
-        Entity_Manager.instance.move_selected_entities(new Vec2(-1, 0));
+        this.move_selected_entities(new Vec2(-1, 0));
         break;
       case KeyCode.KEY_D:
-        Entity_Manager.instance.move_selected_entities(new Vec2(1, 0));
+        this.move_selected_entities(new Vec2(1, 0));
         break;
       case KeyCode.ESCAPE:
-        Entity_Manager.instance.deselect_all();
+        this.deselect_all();
         break;
       // case KeyCode.KEY_Q:
       //   break;
@@ -105,6 +109,41 @@ export class Entity_Edit_Mode extends Game_Mode {
         const entities = Entity_Manager.instance.entities_info();
         updated_level_config.entities = entities;
         Resource_Manager.Save_Level(updated_level_config);
+    }
+  }
+
+  select(entity: Game_Entity) {
+    if (entity.selected) return;
+
+    this.selected_entities.push(entity);
+    entity.selected = true;
+  }
+
+  deselect(entity: Game_Entity) {
+    if (!entity.selected) return;
+
+    const idx = this.selected_entities.indexOf(entity);
+    this.selected_entities.splice(idx, 1);
+    entity.selected = false;
+  }
+
+  deselect_all() {
+    for (let entity of this.selected_entities) {
+      entity.selected = false;
+    }
+    this.selected_entities = [];
+  }
+
+  move_selected_entities(delta: Vec2) {
+    for (let entity of this.selected_entities) {
+      const current_coord = entity.coord.add(delta);
+      /* TODO Handle when across the boundary */
+      const convert_res = this.game_board.coord2world(current_coord);
+      if (convert_res.succeed) {
+        const current_position = convert_res.pos;
+        entity.coord = current_coord;
+        entity.position = current_position;
+      }
     }
   }
 

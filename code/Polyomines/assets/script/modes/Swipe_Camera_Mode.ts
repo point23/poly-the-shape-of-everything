@@ -51,9 +51,9 @@ export class Swipe_Camera_Mode extends Game_Mode {
   handle_mouse_scroll(event: EventMouse) {
     let is_looking_up: boolean = event.getScrollY() > 0;
     if (is_looking_up) {
-      this.camera3d_controller.rotate_around_z_axis(5);
+      this.camera3d_controller.rotate_z(5);
     } else {
-      this.camera3d_controller.rotate_around_z_axis(-5);
+      this.camera3d_controller.rotate_z(-5);
     }
   }
 }

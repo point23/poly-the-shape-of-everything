@@ -40,46 +40,10 @@ export class Entity_Manager extends Component {
   entity_prefab_map: Map<String, Prefab> = new Map;
   game_board: Game_Board;
   entities: Game_Entity[] = [];
-  selected_entities: Game_Entity[] = [];
 
   mapping_prefabs() {
     for (let pair of this.list_entities_prefab) {
       this.entity_prefab_map[pair.id] = pair.prefab;
-    }
-  }
-
-  select(entity: Game_Entity) {
-    if (entity.selected) return;
-
-    this.selected_entities.push(entity);
-    entity.selected = true;
-  }
-
-  deselect(entity: Game_Entity) {
-    if (!entity.selected) return;
-
-    const idx = this.selected_entities.indexOf(entity);
-    this.selected_entities.splice(idx, 1);
-    entity.selected = false;
-  }
-
-  deselect_all() {
-    for (let entity of this.selected_entities) {
-      entity.selected = false;
-    }
-    this.selected_entities = [];
-  }
-
-  move_selected_entities(delta: Vec2) {
-    for (let entity of this.selected_entities) {
-      const current_coord = entity.coord.add(delta);
-      /* TODO Handle when across the boundary */
-      const convert_res = this.game_board.coord2world(current_coord);
-      if (convert_res.succeed) {
-        const current_position = convert_res.pos;
-        entity.coord = current_coord;
-        entity.position = current_position;
-      }
     }
   }
 
@@ -116,9 +80,9 @@ export class Entity_Manager extends Component {
         coord: {x: entity.coord.x, y: entity.coord.y},
         rotation: {
           x: entity.rotation.x,
-          y: entity.rotation.x,
-          z: entity.rotation.x,
-          w: entity.rotation.x
+          y: entity.rotation.y,
+          z: entity.rotation.z,
+          w: entity.rotation.w
         },
         prefab_id: entity.prefab_id,
       };
