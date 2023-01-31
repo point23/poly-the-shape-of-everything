@@ -34,20 +34,18 @@ export class Main extends Component {
   }
 
   start() {
-    Contextual_Manager.Enable();
-    Resource_Manager.Load_Level(
-        Const.Default_Level, this.on_level_loaded, this);
+    /* FIXME Call the instance */
+    Contextual_Manager.instance.enable();
+    Resource_Manager.instance.load_level(Const.Default_Level)
+        .then((level_config: Level_Config) => {
+          this.game_board.show_grid(level_config.game_board);
+          this.camera3d_controller.update_view(level_config.camera_info);
+          this.entity_manager.load_entities(level_config.entities);
+        });
   }
 
   onDestroy() {
-    Contextual_Manager.Dispose();
-  }
-
-  /** Callback when level config is loaded by Resource Manager  */
-  on_level_loaded(target: Main, level_config: Level_Config) {
-    target.game_board.show_grid(level_config.game_board);
-    target.entity_manager.load_entities(level_config.entities);
-    target.camera3d_controller.update_view(level_config.camera_info);
+    Contextual_Manager.instance.dispose();
   }
 
   /** Settle singleton managers manually */

@@ -8,17 +8,19 @@ export class Game_Entity extends Component {
   @property(MeshRenderer) renderable: MeshRenderer = null;
 
   //#region Cache Game Entity info
-  private _position: Vec3 = null;
+  private _world_pos: Vec3 = null;
+  private _local_pos: Vec3 = null;
   private _rotation: Quat = null;
-  private _coord: Vec2 = null;
-  private _prefab_id: string = null;
   private _selected: boolean = false;
+
+  private _prefab_id: string = null;
   //#endregion
 
-  init(position: Vec3, rotation: Quat, coord: Vec2, prefab_id: string) {
-    this.position = position;
+  init(world_pos: Vec3, rotation: Quat, local_pos: Vec3, prefab_id: string) {
+    this.world_pos = world_pos;
     this.rotation = rotation;
-    this._coord = coord;
+    this.local_pos = local_pos;
+
     this._prefab_id = prefab_id;
   }
 
@@ -26,21 +28,21 @@ export class Game_Entity extends Component {
     return this._prefab_id;
   }
 
-  get coord(): Vec2 {
-    return this._coord;
+  get local_pos(): Vec3 {
+    return this._local_pos;
   }
 
-  set coord(coord: Vec2) {
-    this._coord = coord;
+  set local_pos(pos: Vec3) {
+    this._local_pos = pos;
   }
 
-  set position(pos: Vec3) {
-    this._position = pos;
+  set world_pos(pos: Vec3) {
+    this._world_pos = pos;
     this.node.setPosition(pos);
   }
 
-  get position(): Vec3 {
-    return this._position;
+  get world_pos(): Vec3 {
+    return this._world_pos;
   }
 
   set rotation(rot: Quat) {

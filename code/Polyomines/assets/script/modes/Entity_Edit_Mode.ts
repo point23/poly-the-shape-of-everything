@@ -89,21 +89,25 @@ export class Entity_Edit_Mode extends Game_Mode {
 
     switch (key_code) {
       case KeyCode.KEY_W:
-        this.move_selected_entities(new Vec2(0, 1));
+        this.move_selected_entities(new Vec3(0, 1, 0));
         break;
       case KeyCode.KEY_S:
         if (this.last_key_code == KeyCode.CTRL_LEFT) {
           this.save_level();
         } else {
-          this.move_selected_entities(new Vec2(0, -1));
+          this.move_selected_entities(new Vec3(0, -1, 0));
         }
         break;
       case KeyCode.KEY_A:
-        this.move_selected_entities(new Vec2(-1, 0));
+        this.move_selected_entities(new Vec3(-1, 0, 0));
         break;
       case KeyCode.KEY_D:
-        this.move_selected_entities(new Vec2(1, 0));
+        this.move_selected_entities(new Vec3(1, 0, 0));
         break;
+        // case KeyCode.KEY_Q:
+        //   break;
+        // case KeyCode.KEY_E:
+        //   break;
       case KeyCode.ESCAPE:
         this.deselect_all();
         break;
@@ -116,12 +120,6 @@ export class Entity_Edit_Mode extends Game_Mode {
       case KeyCode.DELETE:
         this.delete_selected_entities();
         break;
-        // case KeyCode.KEY_Q:
-        //   break;
-        // case KeyCode.KEY_E:
-        //   break;
-        // case KeyCode.ENTER:
-        //   break;
     }
 
     this.last_key_code = key_code;
@@ -135,10 +133,10 @@ export class Entity_Edit_Mode extends Game_Mode {
 
   save_level() {
     let updated_level_config: Level_Config =
-        Resource_Manager.Current_Level_Config;
+        Resource_Manager.instance.current_level_config;
     const entities = Entity_Manager.instance.entities_info();
     updated_level_config.entities = entities;
-    Resource_Manager.Save_Level(updated_level_config);
+    Resource_Manager.instance.save_level(updated_level_config);
   }
 
   select(entity: Game_Entity) {
@@ -163,16 +161,14 @@ export class Entity_Edit_Mode extends Game_Mode {
     this.selected_entities = [];
   }
 
-  move_selected_entities(delta: Vec2) {
+  move_selected_entities(delta: Vec3) {
     for (let entity of this.selected_entities) {
-      const current_coord = entity.coord.add(delta);
+      const current_pos = entity.local_pos.add(delta);
       /* TODO Handle when across the boundary */
-      const convert_res = this.game_board.coord2world(current_coord);
-      if (convert_res.succeed) {
-        const current_position = convert_res.pos;
-        entity.coord = current_coord;
-        entity.position = current_position;
-      }
+      this.game_board.local2world(current_pos).then(world_pos => {
+        entity.local_pos = current_pos;
+        entity.world_pos = world_pos;
+      });
     }
   }
 

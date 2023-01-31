@@ -23,19 +23,15 @@ export class Contextual_Manager extends Component {
   @property(Game_Mode) default_mode: Game_Mode = null;
   @property(Game_Mode) current_mode: Game_Mode = null;
 
-  static get Default_Mode(): Game_Mode {
-    return Contextual_Manager.instance.default_mode;
+  public enable() {
+    this.register_events();
+    const default_mode = this.default_mode;
+    this.switch_mode(default_mode);
   }
 
-  public static Enable() {
-    Contextual_Manager.instance.register_events();
-    const default_mode = Contextual_Manager.Default_Mode;
-    Contextual_Manager.instance.switch_mode(default_mode);
-  }
-
-  public static Dispose() {
-    Contextual_Manager.instance.unregister_events();
-    Contextual_Manager.instance.switch_mode(null);
+  public dispose() {
+    this.unregister_events();
+    this.switch_mode(null);
   }
 
   register_events() {

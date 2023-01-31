@@ -1,14 +1,14 @@
 import {_decorator, CCString, Component, instantiate, Node, Prefab, profiler, Quat, Vec2, Vec3} from 'cc';
 
 import {Game_Entity} from './entities/Game_Entity_Base';
-import {Coord, Game_Board} from './Game_Board';
+import {Game_Board} from './Game_Board';
 
 const {ccclass, property} = _decorator;
 
 /* FIXME Not complete */
 export type Entity_Info = {
   prefab_id: string,
-  coord: {x: number, y: number},
+  position: {x: number, y: number, z: number},
   rotation: {x: number, y: number, z: number, w: number},
 };
 
@@ -49,26 +49,22 @@ export class Entity_Manager extends Component {
 
   load_entities(entities_info: Entity_Info[]) {
     for (let entitie_info of entities_info) {
-      let node: Node =
-          instantiate(this.entity_prefab_map[entitie_info.prefab_id]);
+      const prefab_id = entitie_info.prefab_id;
+      const pos_info = entitie_info.position;
+      const rot_info = entitie_info.rotation;
+      const local_pos: Vec3 = new Vec3(pos_info.x, pos_info.y, pos_info.z);
+      const rotation: Quat =
+          new Quat(rot_info.x, rot_info.y, rot_info.z, rot_info.w);
+
+      let node: Node = instantiate(this.entity_prefab_map[prefab_id]);
       node.setParent(this.entities_parent_node);
 
       let entity = node.getComponent(Game_Entity);
-      const coord_info = entitie_info.coord;
-      const rotation_info = entitie_info.rotation;
 
-      const prefab_id = entitie_info.prefab_id;
-      const coord: Vec2 = new Vec2(coord_info.x, coord_info.y);
-      const rotation: Quat = new Quat(
-          rotation_info.x, rotation_info.y, rotation_info.z, rotation_info.w);
-      let position: Vec3;
-      let convert_res = this.game_board.coord2world(coord);
-      if (convert_res.succeed) {
-        position = convert_res.pos;
-        entity.init(position, rotation, coord, prefab_id);
-
+      this.game_board.local2world(local_pos).then((world_pos) => {
+        entity.init(world_pos, rotation, local_pos, prefab_id);
         this.entities.push(entity);
-      }
+      });
     }
   }
 
@@ -77,7 +73,11 @@ export class Entity_Manager extends Component {
 
     for (let entity of this.entities) {
       let info = {
-        coord: {x: entity.coord.x, y: entity.coord.y},
+        position: {
+          x: entity.local_pos.x,
+          y: entity.local_pos.y,
+          z: entity.local_pos.z
+        },
         rotation: {
           x: entity.rotation.x,
           y: entity.rotation.y,
