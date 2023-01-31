@@ -4,7 +4,7 @@ const {ccclass, property} = _decorator;
 
 @ccclass('Game_Mode')
 export class Game_Mode extends Component {
-  @property(Game_Mode) next_mode: Game_Mode = null;
+  @property(Game_Mode) next_mode: Game_Mode;
   get next(): Game_Mode {
     return this.next_mode;
   }
@@ -16,6 +16,7 @@ export class Game_Mode extends Component {
   }
   handle_key_down(event: EventKeyboard) {}
   handle_mouse_down(event: EventMouse) {}
+  handle_mouse_move(event: EventMouse) {}
   handle_mouse_scroll(event: EventMouse) {}
   handle_touch_start(event: EventTouch) {}
   handle_touch_move(event: EventTouch) {}

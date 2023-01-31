@@ -2,11 +2,6 @@ import {_decorator, Component, EventKeyboard, EventMouse, input, Input, KeyCode,
 
 const {ccclass, property} = _decorator;
 
-export type Camera_Info = {
-  position: {x: number, y: number, z: number};
-  rotation: {x: number, y: number, z: number, w: number};
-};
-
 @ccclass('Camera3D_Controller')
 export class Camera3D_Controller extends Component {
   @property(Node) camera_base: Node;
@@ -17,22 +12,16 @@ export class Camera3D_Controller extends Component {
   current_position: Vec3 = new Vec3();
   last_position: Vec3 = new Vec3();
 
-  get camera_info(): Camera_Info {
+  get camera_info(): any {
     return {position: this.current_position, rotation: this.current_rotation};
   }
 
-  public update_view(info: Camera_Info) {
-    if (info.position) {
-      this.current_position =
-          new Vec3(info.position.x, info.position.y, info.position.z);
-      this.camera_base.setPosition(this.current_position);
-    }
+  public update_view(info) {
+    this.current_position = info.position;
+    this.camera_base.setPosition(this.current_position);
 
-    if (info.rotation) {
-      this.current_rotation = new Quat(
-          info.rotation.x, info.rotation.y, info.rotation.z, info.rotation.w);
-      this.camera_base.setRotation(this.current_rotation);
-    }
+    this.current_rotation = info.rotation;
+    this.camera_base.setRotation(this.current_rotation);
   }
 
   public transform_position(delta: Vec3) {

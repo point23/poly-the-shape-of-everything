@@ -5,13 +5,6 @@ import {Game_Board} from './Game_Board';
 
 const {ccclass, property} = _decorator;
 
-/* FIXME Not complete */
-export type Entity_Info = {
-  prefab_id: string,
-  position: {x: number, y: number, z: number},
-  rotation: {x: number, y: number, z: number, w: number},
-};
-
 @ccclass('Entity_Prefab_Pair')
 export class Entity_Prefab_Pair {
   @property(CCString) id = '';
@@ -47,7 +40,9 @@ export class Entity_Manager extends Component {
     }
   }
 
-  load_entities(entities_info: Entity_Info[]) {
+  async load_entities(entities_info): Promise<Game_Entity[]> {
+    let newly_generated_entities: Game_Entity[] = [];
+
     for (let entitie_info of entities_info) {
       const prefab_id = entitie_info.prefab_id;
       const pos_info = entitie_info.position;
@@ -61,15 +56,26 @@ export class Entity_Manager extends Component {
 
       let entity = node.getComponent(Game_Entity);
 
-      this.game_board.local2world(local_pos).then((world_pos) => {
+      await this.game_board.local2world(local_pos).then((world_pos) => {
         entity.init(world_pos, rotation, local_pos, prefab_id);
+
         this.entities.push(entity);
+        newly_generated_entities.push(entity);
       });
     }
+
+    return Promise.resolve(newly_generated_entities);
   }
 
-  entities_info(): Entity_Info[] {
-    let entities_info: Entity_Info[] = [];
+  /** TODO Entity Pool */
+  retrive(entity: Game_Entity) {
+    const idx = this.entities.indexOf(entity);
+    this.entities.splice(idx, 1);
+    entity.node.destroy();
+  }
+
+  entities_info(): any {
+    let entities_info = [];
 
     for (let entity of this.entities) {
       let info = {

@@ -1,19 +1,13 @@
 import {_decorator, Component, JsonAsset, resources} from 'cc';
-import {Camera3D_Controller, Camera_Info} from './Camera3D_Controller';
+import {Camera3D_Controller} from './Camera3D_Controller';
 import {Const} from './Const';
 import {Contextual_Manager} from './Contextual_Manager';
 import {Debug_Console} from './Debug_Console';
-import {Entity_Info, Entity_Manager} from './Entity_Manager';
+import {Entity_Manager} from './Entity_Manager';
 import {Game_Board, Game_Board_Info} from './Game_Board';
 import {Resource_Manager} from './Resource_Manager';
 
 const {ccclass, property} = _decorator;
-
-export type Level_Config = {
-  camera_info: Camera_Info,
-  game_board: Game_Board_Info,
-  entities: Entity_Info[],
-};
 
 @ccclass('Main')
 export class Main extends Component {
@@ -21,7 +15,7 @@ export class Main extends Component {
   @property(Camera3D_Controller)
   camera3d_controller: Camera3D_Controller = null;
 
-  /* Singleton instances below: */
+  /* Singleton instances: */
   @property(Entity_Manager) entity_manager: Entity_Manager = null;
   @property(Debug_Console) console_instance: Debug_Console = null;
   @property(Contextual_Manager)
@@ -34,10 +28,9 @@ export class Main extends Component {
   }
 
   start() {
-    /* FIXME Call the instance */
     Contextual_Manager.instance.enable();
     Resource_Manager.instance.load_level(Const.Default_Level)
-        .then((level_config: Level_Config) => {
+        .then((level_config) => {
           this.game_board.show_grid(level_config.game_board);
           this.camera3d_controller.update_view(level_config.camera_info);
           this.entity_manager.load_entities(level_config.entities);

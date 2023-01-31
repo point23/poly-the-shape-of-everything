@@ -7,7 +7,7 @@
     "__uuid__": "1baf0fc9-befa-459c-8bdd-af1a450a0319",
     "__expectedType__": "cc.EffectAsset"
   },
-  "_techIdx": 0,
+  "_techIdx": 1,
   "_defines": [
     {
       "SAMPLE_FROM_RT": true,
@@ -47,10 +47,10 @@
   ],
   "_props": [
     {
-      "roughness": 0.8,
+      "roughness": 0,
       "metallic": 0.6,
       "mainTexture": {
-        "__uuid__": "dc67b1b3-d83f-41be-a9cf-5c1d206fa7fb@6c48a",
+        "__uuid__": "f685aca1-06e2-4b4c-a088-e59d0e2a77e2@6c48a",
         "__expectedType__": "cc.Texture2D"
       }
     },

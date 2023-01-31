@@ -1,11 +1,10 @@
-import {_decorator, Camera, EventKeyboard, EventMouse, geometry, KeyCode, Node, PhysicsSystem, Touch, Vec2, Vec3} from 'cc';
-import {Const} from '../Const';
+import {_decorator, animation, Camera, EventKeyboard, EventMouse, EventTouch, geometry, KeyCode, Node, PhysicsSystem, Quat, Touch, Vec2, Vec3} from 'cc';
 
+import {Const} from '../Const';
 import {Debug_Console} from '../Debug_Console';
 import {Game_Entity} from '../entities/Game_Entity_Base';
 import {Entity_Manager} from '../Entity_Manager';
 import {Game_Board} from '../Game_Board';
-import {Level_Config} from '../Main';
 import {Resource_Manager} from '../Resource_Manager';
 
 import {Game_Mode} from './Game_Mode_Base';
@@ -15,6 +14,7 @@ const {ccclass, property} = _decorator;
 /**
  * NOTE
  * - Select & Deselect
+ * - Move & Rotate
  * - Copy & Paste
  */
 @ccclass('Entity_Edit_Mode')
@@ -23,7 +23,6 @@ export class Entity_Edit_Mode extends Game_Mode {
   @property(Game_Board) readonly game_board!: Game_Board;
 
   private _ray: geometry.Ray = new geometry.Ray();
-  // private _last_coord: Vec2 = Vec2.ZERO;
 
   on_enter() {
     Debug_Console.Info('Entity Edit');
@@ -34,9 +33,34 @@ export class Entity_Edit_Mode extends Game_Mode {
   }
 
   is_jiggling: boolean = false;
-  is_double_click: boolean = false;
+  // is_double_click: boolean = false;
   last_key_code: number = null;
   selected_entities: Game_Entity[] = [];
+  copied_entities: any[] = [];
+
+  handle_touch_move(event: EventTouch) {
+    const screen_x = event.getLocationX();
+    const screen_y = event.getLocationY();
+    this.camera.screenPointToRay(screen_x, screen_y, this._ray);
+    if (PhysicsSystem.instance.raycast(this._ray)) {
+      let raycast_results = PhysicsSystem.instance.raycastResults;
+      raycast_results = raycast_results.sort((a, b) => {
+        return a.distance - b.distance;
+      });
+
+      for (let i = 0; i < raycast_results.length; i++) {
+        const item = raycast_results[i];
+        let succeed: boolean = false;
+        for (let entity of Entity_Manager.instance.entities) {
+          if (item.collider.node != entity.node) continue;
+
+          this.select(entity);
+          succeed = true;
+        }
+        if (succeed) break;
+      }
+    }
+  }
 
   handle_mouse_down(event: EventMouse) {
     /* FIXME There is a bug of cocos */
@@ -49,24 +73,26 @@ export class Entity_Edit_Mode extends Game_Mode {
     this.camera.screenPointToRay(screen_x, screen_y, this._ray);
 
     if (PhysicsSystem.instance.raycast(this._ray)) {
-      const raycast_results = PhysicsSystem.instance.raycastResults;
+      let raycast_results = PhysicsSystem.instance.raycastResults;
+      raycast_results = raycast_results.sort((a, b) => {
+        return a.distance - b.distance;
+      });
+
       for (let i = 0; i < raycast_results.length; i++) {
         const item = raycast_results[i];
+
         let succeed: boolean = false;
+
         for (let entity of Entity_Manager.instance.entities) {
           if (item.collider.node != entity.node) continue;
-
-          if (this.is_double_click) {
-            this.deselect_all();
-
-            entity.rotate_clockwise();
+          // if (this.is_double_click) {
+          // } else {
+          if (entity.selected) {
+            this.deselect(entity);
           } else {
-            if (entity.selected) {
-              this.deselect(entity);
-            } else {
-              this.select(entity);
-            }
+            this.select(entity);
           }
+          // }
           succeed = true;
         }
         if (succeed) break;
@@ -78,10 +104,10 @@ export class Entity_Edit_Mode extends Game_Mode {
       this.is_jiggling = false;
     }, Const.Mouse_Jiggling_Interval);
 
-    this.is_double_click = true;
-    this.scheduleOnce(() => {
-      this.is_double_click = false;
-    }, Const.Double_Click_Time_Interval);
+    // this.is_double_click = true;
+    // this.scheduleOnce(() => {
+    //   this.is_double_click = false;
+    // }, Const.Double_Click_Time_Interval);
   }
 
   handle_key_down(event: EventKeyboard) {
@@ -104,10 +130,15 @@ export class Entity_Edit_Mode extends Game_Mode {
       case KeyCode.KEY_D:
         this.move_selected_entities(new Vec3(1, 0, 0));
         break;
-        // case KeyCode.KEY_Q:
-        //   break;
-        // case KeyCode.KEY_E:
-        //   break;
+      case KeyCode.KEY_Q:
+        this.move_selected_entities(new Vec3(0, 0, -1));
+        break;
+      case KeyCode.KEY_E:
+        this.move_selected_entities(new Vec3(0, 0, 1));
+        break;
+      case KeyCode.KEY_R:
+        this.rotate_selected_entities();
+        break;
       case KeyCode.ESCAPE:
         this.deselect_all();
         break;
@@ -117,7 +148,7 @@ export class Entity_Edit_Mode extends Game_Mode {
       case KeyCode.KEY_V:
         this.paste_copied_entities();
         break;
-      case KeyCode.DELETE:
+      case KeyCode.BACKSPACE:
         this.delete_selected_entities();
         break;
     }
@@ -125,15 +156,46 @@ export class Entity_Edit_Mode extends Game_Mode {
     this.last_key_code = key_code;
   }
 
-  copy_selected_entities() {}
+  copy_selected_entities() {
+    this.copied_entities = [];
 
-  paste_copied_entities() {}
+    for (let entity of this.selected_entities) {
+      this.copied_entities.push({
+        position: entity.local_pos,
+        rotation: entity.rotation,
+        prefab_id: entity.prefab_id
+      });
+    }
+  }
 
-  delete_selected_entities() {}
+  paste_copied_entities() {
+    this.deselect_all();
+
+    Entity_Manager.instance.load_entities(this.copied_entities)
+        .then(entities => {
+          console.log(entities);
+          for (let entity of entities) {
+            this.select(entity);
+          }
+        });
+  }
+
+  delete_selected_entities() {
+    for (let entity of this.selected_entities) {
+      Entity_Manager.instance.retrive(entity);
+    }
+
+    this.deselect_all();
+  }
+
+  rotate_selected_entities() {
+    for (let entity of this.selected_entities) {
+      entity.rotate_clockwise();
+    }
+  }
 
   save_level() {
-    let updated_level_config: Level_Config =
-        Resource_Manager.instance.current_level_config;
+    let updated_level_config = Resource_Manager.instance.current_level_config;
     const entities = Entity_Manager.instance.entities_info();
     updated_level_config.entities = entities;
     Resource_Manager.instance.save_level(updated_level_config);

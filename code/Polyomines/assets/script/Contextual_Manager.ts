@@ -37,6 +37,7 @@ export class Contextual_Manager extends Component {
   register_events() {
     input.on(Input.EventType.KEY_DOWN, this.on_key_down, this);
     input.on(Input.EventType.MOUSE_DOWN, this.on_mouse_down, this);
+    input.on(Input.EventType.MOUSE_MOVE, this.on_mouse_move, this);
     input.on(Input.EventType.MOUSE_WHEEL, this.on_mouse_scroll, this);
     input.on(Input.EventType.TOUCH_START, this.on_touch_start, this);
     input.on(Input.EventType.TOUCH_MOVE, this.on_touch_move, this);
@@ -46,6 +47,7 @@ export class Contextual_Manager extends Component {
   unregister_events() {
     input.off(Input.EventType.KEY_DOWN, this.on_key_down, this);
     input.off(Input.EventType.MOUSE_DOWN, this.on_mouse_down, this);
+    input.off(Input.EventType.MOUSE_MOVE, this.on_mouse_move, this);
     input.off(Input.EventType.MOUSE_WHEEL, this.on_mouse_scroll, this);
     input.off(Input.EventType.TOUCH_START, this.on_touch_start, this);
     input.off(Input.EventType.TOUCH_MOVE, this.on_touch_move, this);
@@ -74,6 +76,10 @@ export class Contextual_Manager extends Component {
 
   on_mouse_down(event: EventMouse) {
     this.current_mode.handle_mouse_down(event);
+  }
+
+  on_mouse_move(event: EventMouse) {
+    this.current_mode.handle_mouse_move(event);
   }
 
   on_mouse_scroll(event: EventMouse) {

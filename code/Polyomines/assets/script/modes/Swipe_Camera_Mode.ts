@@ -2,7 +2,6 @@ import {_decorator, Component, EventKeyboard, EventMouse, KeyCode, Node, Vec3} f
 
 import {Camera3D_Controller} from '../Camera3D_Controller';
 import {Debug_Console} from '../Debug_Console';
-import {Level_Config} from '../Main';
 import {Resource_Manager} from '../Resource_Manager';
 
 import {Game_Mode} from './Game_Mode_Base';
@@ -51,8 +50,7 @@ export class Swipe_Camera_Mode extends Game_Mode {
   }
 
   private save_level() {
-    let updated_level_config: Level_Config =
-        Resource_Manager.instance.current_level_config;
+    let updated_level_config = Resource_Manager.instance.current_level_config;
     updated_level_config.camera_info = this.camera3d_controller.camera_info;
     Resource_Manager.instance.save_level(updated_level_config);
   }
