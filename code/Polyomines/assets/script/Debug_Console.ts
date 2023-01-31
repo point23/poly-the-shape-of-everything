@@ -17,23 +17,31 @@ export class Debug_Console extends Component {
   @property(RichText) log_txt: RichText;
 
   static Info(txt: string) {
-    Debug_Console.instance.Info(txt);
+    Debug_Console.instance.info(txt);
   }
 
-  Info(txt: string) {
+  static Warn(txt: string) {
+    Debug_Console.instance.warn(txt);
+  }
+
+  static Error(txt: string) {
+    Debug_Console.instance.error(txt);
+  }
+
+  info(txt: string) {
     this.log(Log_Mode.INFO, txt);
   }
 
-  Warn(txt: string) {
+  warn(txt: string) {
     this.log(Log_Mode.WARN, txt);
   }
 
-  Error(txt: string) {
+  error(txt: string) {
     this.log(Log_Mode.ERR, txt);
   }
 
   private log(mode: Log_Mode, txt: string) {
-    let color: string = 'white';
+    let color: string = null;
     switch (mode) {
       case Log_Mode.INFO:
         color = 'green';
@@ -43,6 +51,9 @@ export class Debug_Console extends Component {
         break;
       case Log_Mode.ERR:
         color = 'red';
+        break;
+      default:
+        color = 'white';
         break;
     }
 

@@ -19,6 +19,7 @@ export class Swipe_Camera_Mode extends Game_Mode {
 
   on_exit() {}
 
+  last_key_code: number = null;
   handle_key_down(event: EventKeyboard) {
     let key_code = event.keyCode;
     switch (key_code) {
@@ -26,7 +27,11 @@ export class Swipe_Camera_Mode extends Game_Mode {
         this.camera3d_controller.transform_position(new Vec3(1, 0, 0));
         break;
       case KeyCode.KEY_S:
-        this.camera3d_controller.transform_position(new Vec3(-1, 0, 0));
+        if (this.last_key_code == KeyCode.CTRL_LEFT) {
+          this.save_level();
+        } else {
+          this.camera3d_controller.transform_position(new Vec3(-1, 0, 0));
+        }
         break;
       case KeyCode.KEY_A:
         this.camera3d_controller.transform_position(new Vec3(0, 0, -1));
@@ -40,12 +45,16 @@ export class Swipe_Camera_Mode extends Game_Mode {
       case KeyCode.KEY_E:
         this.camera3d_controller.transform_position(new Vec3(0, 1, 0));
         break;
-      case KeyCode.ENTER:
-        let updated_level_config: Level_Config =
-            Resource_Manager.Current_Level_Config;
-        updated_level_config.camera_info = this.camera3d_controller.camera_info;
-        Resource_Manager.Save_Level(updated_level_config);
     }
+
+    this.last_key_code = key_code;
+  }
+
+  private save_level() {
+    let updated_level_config: Level_Config =
+        Resource_Manager.Current_Level_Config;
+    updated_level_config.camera_info = this.camera3d_controller.camera_info;
+    Resource_Manager.Save_Level(updated_level_config);
   }
 
   handle_mouse_scroll(event: EventMouse) {

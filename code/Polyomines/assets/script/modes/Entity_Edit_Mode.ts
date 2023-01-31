@@ -29,10 +29,13 @@ export class Entity_Edit_Mode extends Game_Mode {
     Debug_Console.Info('Entity Edit');
   }
 
-  on_exit() {}
+  on_exit() {
+    this.deselect_all();
+  }
 
   is_jiggling: boolean = false;
   is_double_click: boolean = false;
+  last_key_code: number = null;
   selected_entities: Game_Entity[] = [];
 
   handle_mouse_down(event: EventMouse) {
@@ -83,12 +86,17 @@ export class Entity_Edit_Mode extends Game_Mode {
 
   handle_key_down(event: EventKeyboard) {
     let key_code = event.keyCode;
+
     switch (key_code) {
       case KeyCode.KEY_W:
         this.move_selected_entities(new Vec2(0, 1));
         break;
       case KeyCode.KEY_S:
-        this.move_selected_entities(new Vec2(0, -1));
+        if (this.last_key_code == KeyCode.CTRL_LEFT) {
+          this.save_level();
+        } else {
+          this.move_selected_entities(new Vec2(0, -1));
+        }
         break;
       case KeyCode.KEY_A:
         this.move_selected_entities(new Vec2(-1, 0));
@@ -99,17 +107,38 @@ export class Entity_Edit_Mode extends Game_Mode {
       case KeyCode.ESCAPE:
         this.deselect_all();
         break;
-      // case KeyCode.KEY_Q:
-      //   break;
-      // case KeyCode.KEY_E:
-      //   break;
-      case KeyCode.ENTER:
-        let updated_level_config: Level_Config =
-            Resource_Manager.Current_Level_Config;
-        const entities = Entity_Manager.instance.entities_info();
-        updated_level_config.entities = entities;
-        Resource_Manager.Save_Level(updated_level_config);
+      case KeyCode.KEY_C:
+        this.copy_selected_entities();
+        break;
+      case KeyCode.KEY_V:
+        this.paste_copied_entities();
+        break;
+      case KeyCode.DELETE:
+        this.delete_selected_entities();
+        break;
+        // case KeyCode.KEY_Q:
+        //   break;
+        // case KeyCode.KEY_E:
+        //   break;
+        // case KeyCode.ENTER:
+        //   break;
     }
+
+    this.last_key_code = key_code;
+  }
+
+  copy_selected_entities() {}
+
+  paste_copied_entities() {}
+
+  delete_selected_entities() {}
+
+  save_level() {
+    let updated_level_config: Level_Config =
+        Resource_Manager.Current_Level_Config;
+    const entities = Entity_Manager.instance.entities_info();
+    updated_level_config.entities = entities;
+    Resource_Manager.Save_Level(updated_level_config);
   }
 
   select(entity: Game_Entity) {

@@ -1,6 +1,7 @@
 import {Vec3} from 'cc';
 
 export class Const {
+  /** FIXME Don't use absolute path... */
   static Data_Path: string =
       'A:/code/poly/code/Polyomines/assets/resources/data';
   static Default_Level: string = 'level#001';
