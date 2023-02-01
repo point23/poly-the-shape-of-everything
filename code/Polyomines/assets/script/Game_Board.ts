@@ -1,4 +1,5 @@
-import {_decorator, Component, instantiate, Node, Prefab, Size, Vec3} from 'cc';
+import {_decorator, Component, instantiate, MeshRenderer, Node, Prefab, Quat, Size, Vec3} from 'cc';
+
 import {Const} from './Const';
 
 const {ccclass, property} = _decorator;
@@ -10,12 +11,11 @@ export type Game_Board_Info = {
 /**
  * Main Purpose:
  * - Draw debug info on invalid squares.
- *  - Show grids.
- *  - Transform from board-coords to world-position.
+ * - Show grids.
+ * - Transform from board-coords to world-position.
  */
 @ccclass('Game_Board') export class Game_Board extends Component {
-  @property(Node) squares_layout: Node;
-  @property(Prefab) square_prefab: Prefab;
+  @property(Node) grid: Node = null;
 
   grid_size: Size;
   squares: Node[] = [];
@@ -23,32 +23,26 @@ export type Game_Board_Info = {
   public show_grid(game_board_info: Game_Board_Info) {
     const grid_size = new Size(
         game_board_info.grid_size.width, game_board_info.grid_size.height);
+    this.grid_size = grid_size;
+
     const square_size = Const.Game_Board_Square_Size;
     const half_square_size = Const.Game_Board_Half_Square_Size;
     const origin_pos = Const.Game_Board_Orgin_Pos;
 
-    this.grid_size = grid_size;
-    let cols = grid_size.width;
-    let rows = grid_size.height;
-    let step_z = square_size;
-    let step_x = square_size;
-    let pos_x = origin_pos.x;
+    const grid_pos_z =
+        origin_pos.z - half_square_size + square_size * grid_size.width / 2;
+    const grid_pos_x =
+        origin_pos.x - half_square_size + square_size * grid_size.height / 2;
+    const grid_pos_y = origin_pos.y - half_square_size;
+    const grid_center = new Vec3(grid_pos_x, grid_pos_y, grid_pos_z);
 
-    for (let row = 0; row < rows; row++) {
-      let pos_z = origin_pos.z;
+    this.grid.setPosition(grid_center);
+    this.grid.setScale(grid_size.height / 10, 1, grid_size.width / 10);
 
-      for (let col = 0; col < cols; col++) {
-        let square: Node = instantiate(this.square_prefab);
-
-        square.setParent(this.squares_layout);
-        square.setPosition(new Vec3(pos_x, -half_square_size, pos_z));
-
-        this.squares.push(square);
-
-        pos_z += step_z;
-      }
-      pos_x += step_x;
-    }
+    const renderable = this.grid.getComponent(MeshRenderer);
+    const mat = renderable.material;
+    mat.setProperty(
+        'tilingOffset', new Quat(grid_size.height, grid_size.width, 0, 0));
   }
 
   public local2world(local_pos: Vec3): Promise<Vec3> {

@@ -33,7 +33,6 @@ export class Entity_Edit_Mode extends Game_Mode {
   }
 
   is_jiggling: boolean = false;
-  // is_double_click: boolean = false;
   last_key_code: number = null;
   selected_entities: Game_Entity[] = [];
   copied_entities: any[] = [];
@@ -52,7 +51,7 @@ export class Entity_Edit_Mode extends Game_Mode {
         const item = raycast_results[i];
         let succeed: boolean = false;
         for (let entity of Entity_Manager.instance.entities) {
-          if (item.collider.node != entity.node) continue;
+          if (item.collider.node.parent != entity.node) continue;
 
           this.select(entity);
           succeed = true;
@@ -84,15 +83,12 @@ export class Entity_Edit_Mode extends Game_Mode {
         let succeed: boolean = false;
 
         for (let entity of Entity_Manager.instance.entities) {
-          if (item.collider.node != entity.node) continue;
-          // if (this.is_double_click) {
-          // } else {
-          if (entity.selected) {
+          if (item.collider.node.parent != entity.node) continue;
+
+          if (entity.selected)
             this.deselect(entity);
-          } else {
+          else
             this.select(entity);
-          }
-          // }
           succeed = true;
         }
         if (succeed) break;
@@ -103,11 +99,6 @@ export class Entity_Edit_Mode extends Game_Mode {
     this.scheduleOnce(() => {
       this.is_jiggling = false;
     }, Const.Mouse_Jiggling_Interval);
-
-    // this.is_double_click = true;
-    // this.scheduleOnce(() => {
-    //   this.is_double_click = false;
-    // }, Const.Double_Click_Time_Interval);
   }
 
   handle_key_down(event: EventKeyboard) {

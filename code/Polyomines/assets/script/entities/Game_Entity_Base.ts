@@ -3,6 +3,40 @@ import {Const} from '../Const';
 
 const {ccclass, property} = _decorator;
 
+export enum Polyomino_Type {
+  /* Monomino:
+     _ _ _
+    |     |
+    |  o  |
+    |_ _ _|
+   */
+  MONOMINO,
+  /* Domino:
+     _ _ _ _ _ _
+    |     |     |
+    |  o  |     |
+    |_ _ _|_ _ _|
+   */
+  DOMINO,
+  /* Straight-Tromino:
+     _ _ _ _ _ _ _ _ _
+    |     |     |     |
+    |     |  o  |     |
+    |_ _ _|_ _ _|_ _ _|
+   */
+  STRAIGHT_TROMINO,
+  /* L-Tromino:
+     _ _ _
+    |     |
+    |     |
+    |_ _ _|_ _ _
+    |     |     |
+    |  o  |     |
+    |_ _ _|_ _ _|
+   */
+  L_TROMINO,
+}
+
 @ccclass('Game_Entity')
 export class Game_Entity extends Component {
   @property(MeshRenderer) renderable: MeshRenderer = null;
@@ -11,9 +45,10 @@ export class Game_Entity extends Component {
   private _world_pos: Vec3 = null;
   private _local_pos: Vec3 = null;
   private _rotation: Quat = null;
-  private _selected: boolean = false;
-
   private _prefab_id: string = null;
+  private _poly_type: Polyomino_Type = null;
+
+  private _selected: boolean = false;
   //#endregion
 
   init(world_pos: Vec3, rotation: Quat, local_pos: Vec3, prefab_id: string) {
@@ -71,7 +106,7 @@ export class Game_Entity extends Component {
 
   rotate_clockwise() {
     let new_rot: Quat = new Quat();
-    const rad = 0.5 * Math.PI;
+    const rad = -0.5 * Math.PI;
     Quat.rotateY(new_rot, this.rotation, rad);
     this.rotation = new_rot;
   }

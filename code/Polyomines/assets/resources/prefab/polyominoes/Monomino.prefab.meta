@@ -2,12 +2,12 @@
   "ver": "1.1.43",
   "importer": "prefab",
   "imported": true,
-  "uuid": "aa84cf98-0bad-4e70-83d6-a818490d0a37",
+  "uuid": "021248d3-ef32-4ee3-8c2f-f8d92a65da8c",
   "files": [
     ".json"
   ],
   "subMetas": {},
   "userData": {
-    "syncNodeName": "Game_Board_Square"
+    "syncNodeName": "Monomino"
   }
 }

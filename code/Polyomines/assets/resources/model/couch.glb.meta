@@ -1,0 +1,122 @@
+{
+  "ver": "2.3.2",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "444db3bf-e09a-498e-975e-bf5908da9fc9",
+  "files": [],
+  "subMetas": {
+    "d2971": {
+      "importer": "gltf-mesh",
+      "uuid": "444db3bf-e09a-498e-975e-bf5908da9fc9@d2971",
+      "displayName": "",
+      "id": "d2971",
+      "name": "mesh_couch.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "6436d": {
+      "importer": "gltf-embeded-image",
+      "uuid": "444db3bf-e09a-498e-975e-bf5908da9fc9@6436d",
+      "displayName": "",
+      "id": "6436d",
+      "name": "tex_couch.image",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".png"
+      ],
+      "subMetas": {}
+    },
+    "e39f7": {
+      "importer": "texture",
+      "uuid": "444db3bf-e09a-498e-975e-bf5908da9fc9@e39f7",
+      "displayName": "",
+      "id": "e39f7",
+      "name": "UnnamedTexture.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "444db3bf-e09a-498e-975e-bf5908da9fc9@6436d"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "6153f": {
+      "importer": "gltf-material",
+      "uuid": "444db3bf-e09a-498e-975e-bf5908da9fc9@6153f",
+      "displayName": "",
+      "id": "6153f",
+      "name": "mat_couch.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "2729f": {
+      "importer": "gltf-scene",
+      "uuid": "444db3bf-e09a-498e-975e-bf5908da9fc9@2729f",
+      "displayName": "",
+      "id": "2729f",
+      "name": "couch.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [
+      {
+        "name": "tex_couch",
+        "uri": "444db3bf-e09a-498e-975e-bf5908da9fc9@6436d"
+      }
+    ],
+    "redirect": "444db3bf-e09a-498e-975e-bf5908da9fc9@2729f",
+    "assetFinder": {
+      "meshes": [
+        "444db3bf-e09a-498e-975e-bf5908da9fc9@d2971"
+      ],
+      "skeletons": [],
+      "textures": [
+        "444db3bf-e09a-498e-975e-bf5908da9fc9@e39f7"
+      ],
+      "materials": [
+        "444db3bf-e09a-498e-975e-bf5908da9fc9@6153f"
+      ],
+      "scenes": [
+        "444db3bf-e09a-498e-975e-bf5908da9fc9@2729f"
+      ]
+    }
+  }
+}

@@ -1,3 +1,22 @@
-+ Entity Copy & Paste
+FEATURE:
+- Load and Save Camera
+- Load and Save Level
+- Switch Mode <= State Pattern
+- Entity Copy, Paste, Delete
+
++ Polyominoes
++ Game Object Pool
++ Character Control
 + Supporter and Supportee
-+ Fix Local-Position
++ Falling
++ Redo & Undo <= Command Pattern
++ Move and Transaction
++ Switch Level
+
+FIX:
+- Fix Local-Position
+- Fix Double-Click
+- Draw-Call is too high
+
+CHORE:
++ Mini-Level: Sofa
