@@ -2,7 +2,7 @@ import {_decorator, animation, Camera, EventKeyboard, EventMouse, EventTouch, ge
 
 import {Const} from '../Const';
 import {Debug_Console} from '../Debug_Console';
-import {Game_Entity} from '../entities/Game_Entity_Base';
+import {Direction, Game_Entity} from '../entities/Game_Entity_Base';
 import {Entity_Manager} from '../Entity_Manager';
 import {Game_Board} from '../Game_Board';
 import {Resource_Manager} from '../Resource_Manager';
@@ -106,26 +106,26 @@ export class Entity_Edit_Mode extends Game_Mode {
 
     switch (key_code) {
       case KeyCode.KEY_W:
-        this.move_selected_entities(new Vec3(0, 1, 0));
+        this.move_selected_entities(Direction.BACKWORD);
         break;
       case KeyCode.KEY_S:
         if (this.last_key_code == KeyCode.CTRL_LEFT) {
           this.save_level();
         } else {
-          this.move_selected_entities(new Vec3(0, -1, 0));
+          this.move_selected_entities(Direction.FORWARD);
         }
         break;
       case KeyCode.KEY_A:
-        this.move_selected_entities(new Vec3(-1, 0, 0));
+        this.move_selected_entities(Direction.LEFT);
         break;
       case KeyCode.KEY_D:
-        this.move_selected_entities(new Vec3(1, 0, 0));
+        this.move_selected_entities(Direction.RIGHT);
         break;
       case KeyCode.KEY_Q:
-        this.move_selected_entities(new Vec3(0, 0, -1));
+        this.move_selected_entities(Direction.DOWN);
         break;
       case KeyCode.KEY_E:
-        this.move_selected_entities(new Vec3(0, 0, 1));
+        this.move_selected_entities(Direction.UP);
         break;
       case KeyCode.KEY_R:
         this.rotate_selected_entities();
@@ -154,7 +154,7 @@ export class Entity_Edit_Mode extends Game_Mode {
       this.copied_entities.push({
         position: entity.local_pos,
         rotation: entity.rotation,
-        prefab_id: entity.prefab_id
+        prefab_id: entity.prefab
       });
     }
   }
@@ -164,7 +164,6 @@ export class Entity_Edit_Mode extends Game_Mode {
 
     Entity_Manager.instance.load_entities(this.copied_entities)
         .then(entities => {
-          console.log(entities);
           for (let entity of entities) {
             this.select(entity);
           }
@@ -181,7 +180,7 @@ export class Entity_Edit_Mode extends Game_Mode {
 
   rotate_selected_entities() {
     for (let entity of this.selected_entities) {
-      entity.rotate_clockwise();
+      entity.rotate_clockwise_horizontaly();
     }
   }
 
@@ -214,13 +213,13 @@ export class Entity_Edit_Mode extends Game_Mode {
     this.selected_entities = [];
   }
 
-  move_selected_entities(delta: Vec3) {
+  move_selected_entities(direction: Direction) {
     for (let entity of this.selected_entities) {
-      const current_pos = entity.local_pos.add(delta);
+      entity.logically_move_towards(direction);
+
       /* TODO Handle when across the boundary */
-      this.game_board.local2world(current_pos).then(world_pos => {
-        entity.local_pos = current_pos;
-        entity.world_pos = world_pos;
+      this.game_board.local2world(entity.local_pos).then(world_pos => {
+        entity.move_to(world_pos);
       });
     }
   }

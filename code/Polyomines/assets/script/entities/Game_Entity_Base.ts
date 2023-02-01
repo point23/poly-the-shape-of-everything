@@ -3,6 +3,31 @@ import {Const} from '../Const';
 
 const {ccclass, property} = _decorator;
 
+export class Entity_Info {
+  prefab: string;
+  local_pos: Vec3;
+  world_pos: Vec3;
+  direction: Direction;
+  poly_type: Polyomino_Type;
+
+  public constructor(info: any) {
+    this.prefab = info.prefab;
+    this.local_pos =
+        new Vec3(info.local_pos.x, info.local_pos.y, info.local_pos.z);
+    this.direction = info.direction;
+    this.poly_type = info.poly_type;
+  }
+};
+
+export enum Direction {
+  RIGHT,
+  LEFT,
+  FORWARD,
+  BACKWORD,
+  UP,
+  DOWN,
+}
+
 export enum Polyomino_Type {
   /* Monomino:
      _ _ _
@@ -41,54 +66,74 @@ export enum Polyomino_Type {
 export class Game_Entity extends Component {
   @property(MeshRenderer) renderable: MeshRenderer = null;
 
-  //#region Cache Game Entity info
-  private _world_pos: Vec3 = null;
-  private _local_pos: Vec3 = null;
-  private _rotation: Quat = null;
-  private _prefab_id: string = null;
-  private _poly_type: Polyomino_Type = null;
-
+  _info: Entity_Info;
   private _selected: boolean = false;
-  //#endregion
 
-  init(world_pos: Vec3, rotation: Quat, local_pos: Vec3, prefab_id: string) {
-    this.world_pos = world_pos;
-    this.rotation = rotation;
-    this.local_pos = local_pos;
-
-    this._prefab_id = prefab_id;
+  get info(): Entity_Info {
+    return this._info;
   }
 
-  get prefab_id(): string {
-    return this._prefab_id;
+  set info(info: Entity_Info) {
+    this._info = info;
+
+    this.node.setRTS(
+        Const.Direction2Quat[info.direction], info.world_pos,
+        new Vec3(1, 1, 1));
+  }
+
+  get prefab(): string {
+    return this._info.prefab;
+  }
+
+  get poly_type(): Polyomino_Type {
+    return this._info.poly_type;
   }
 
   get local_pos(): Vec3 {
-    return this._local_pos;
+    return this._info.local_pos;
   }
 
   set local_pos(pos: Vec3) {
-    this._local_pos = pos;
+    this._info.local_pos = pos;
   }
 
-  set world_pos(pos: Vec3) {
-    this._world_pos = pos;
+  logically_move_towards(dir: Direction, step: number = 1) {
+    const delta = Const.Direction2Vec3[dir].multiplyScalar(step);
+    this.local_pos = this.local_pos.add(delta);
+  }
+
+  move_to(pos: Vec3) {
+    this._info.world_pos = pos;
     this.node.setPosition(pos);
   }
 
-  get world_pos(): Vec3 {
-    return this._world_pos;
+  rotate_to(dir: Direction) {
+    this._info.direction = dir;
+    this.node.setRotation(Const.Direction2Quat[dir]);
   }
 
-  set rotation(rot: Quat) {
-    this._rotation = rot;
-    this.node.setRotation(rot);
+  rotate_clockwise_horizontaly() {
+    let new_dir: Direction = null;
+
+    switch (this._info.direction) {
+      case Direction.RIGHT:
+        new_dir = Direction.FORWARD;
+        break;
+      case Direction.FORWARD:
+        new_dir = Direction.LEFT;
+        break;
+      case Direction.LEFT:
+        new_dir = Direction.BACKWORD;
+        break;
+      case Direction.BACKWORD:
+        new_dir = Direction.RIGHT;
+        break;
+    }
+
+    this.rotate_to(new_dir);
   }
 
-  get rotation(): Quat {
-    return this._rotation;
-  }
-
+  // TEST
   set selected(is_selected: boolean) {
     this._selected = is_selected;
     const mat = this.renderable.material;
@@ -102,12 +147,5 @@ export class Game_Entity extends Component {
 
   get selected(): boolean {
     return this._selected;
-  }
-
-  rotate_clockwise() {
-    let new_rot: Quat = new Quat();
-    const rad = -0.5 * Math.PI;
-    Quat.rotateY(new_rot, this.rotation, rad);
-    this.rotation = new_rot;
   }
 }

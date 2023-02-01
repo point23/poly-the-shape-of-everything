@@ -1,6 +1,6 @@
-import {_decorator, CCString, Component, instantiate, Node, Prefab, profiler, Quat, Vec2, Vec3} from 'cc';
+import {_decorator, CCString, Component, computeRatioByType, FogInfo, instantiate, Node, Prefab, profiler, Quat, Vec2, Vec3} from 'cc';
 
-import {Game_Entity} from './entities/Game_Entity_Base';
+import {Entity_Info, Game_Entity} from './entities/Game_Entity_Base';
 import {Game_Board} from './Game_Board';
 
 const {ccclass, property} = _decorator;
@@ -40,25 +40,21 @@ export class Entity_Manager extends Component {
     }
   }
 
-  async load_entities(entities_info): Promise<Game_Entity[]> {
+  async load_entities(entities_info: any[]): Promise<Game_Entity[]> {
     let newly_generated_entities: Game_Entity[] = [];
 
-    for (let entitie_info of entities_info) {
-      const prefab_id = entitie_info.prefab_id;
-      const pos_info = entitie_info.position;
-      const rot_info = entitie_info.rotation;
-      const local_pos: Vec3 = new Vec3(pos_info.x, pos_info.y, pos_info.z);
-      const rotation: Quat =
-          new Quat(rot_info.x, rot_info.y, rot_info.z, rot_info.w);
+    for (let i = 0; i < entities_info.length; i++) {
+      let info = new Entity_Info(entities_info[i]);
 
-      let node: Node = instantiate(this.entity_prefab_map[prefab_id]);
+      let node: Node = instantiate(this.entity_prefab_map[info.prefab]);
       node.setParent(this.entities_parent_node);
 
       let entity = node.getComponent(Game_Entity);
 
-      await this.game_board.local2world(local_pos).then((world_pos) => {
-        entity.init(world_pos, rotation, local_pos, prefab_id);
+      await this.game_board.local2world(info.local_pos).then((world_pos) => {
+        info.world_pos = world_pos;
 
+        entity.info = info;
         this.entities.push(entity);
         newly_generated_entities.push(entity);
       });
@@ -79,18 +75,14 @@ export class Entity_Manager extends Component {
 
     for (let entity of this.entities) {
       let info = {
-        position: {
-          x: entity.local_pos.x,
-          y: entity.local_pos.y,
-          z: entity.local_pos.z
+        local_pos: {
+          x: entity.info.local_pos.x,
+          y: entity.info.local_pos.y,
+          z: entity.info.local_pos.z,
         },
-        rotation: {
-          x: entity.rotation.x,
-          y: entity.rotation.y,
-          z: entity.rotation.z,
-          w: entity.rotation.w
-        },
-        prefab_id: entity.prefab_id,
+        prefab: entity.prefab,
+        direction: entity.info.direction,
+        poly_type: entity.poly_type,
       };
       entities_info.push(info);
     }

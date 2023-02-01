@@ -1,4 +1,4 @@
-import {Vec3} from 'cc';
+import {Quat, Vec3} from 'cc';
 
 export class Const {
   /** FIXME Don't use absolute path... */
@@ -15,4 +15,33 @@ export class Const {
 
   static Selected_Albedo_Scale = new Vec3(4, 1, 1);
   static Normal_Albedo_Scale = new Vec3(1, 1, 1);
+
+  static RADIUS_45: number = 0.25 * Math.PI;
+  static RADIUS_90: number = 0.5 * Math.PI;
+  static RADIUS_135: number = 0.75 * Math.PI;
+  static RADIUS_180: number = Math.PI;
+  static RADIUS_225: number = 1.25 * Math.PI;
+  static RADIUS_270: number = 1.5 * Math.PI;
+  static RADIUS_315: number = 1.75 * Math.PI;
+
+  static Direction2Quat: Quat[] = [
+    /* RIGHT */ new Quat(0, 0, 0, Math.cos(0)),
+    /* LEFT */
+    new Quat(0, Math.sin(this.RADIUS_90), 0, Math.cos(this.RADIUS_90)),
+    /* FORWARD */
+    new Quat(0, Math.sin(-this.RADIUS_45), 0, Math.cos(-this.RADIUS_45)),
+    /* BACKWARD */
+    new Quat(0, Math.sin(this.RADIUS_45), 0, Math.cos(this.RADIUS_45)),
+    /* UP */ new Quat(0, 0, 0, 1),
+    /* DOWN */ new Quat(0, 0, 0, 1),
+  ];
+
+  static Direction2Vec3: Vec3[] = [
+    /* RIGHT */ new Vec3(1, 0, 0),
+    /* LEFT */ new Vec3(-1, 0, 0),
+    /* FORWARD */ new Vec3(0, -1, 0),
+    /* BACKWARD */ new Vec3(0, 1, 0),
+    /* UP */ new Vec3(0, 0, -1),
+    /* DOWN */ new Vec3(0, 0, 1),
+  ];
 }
