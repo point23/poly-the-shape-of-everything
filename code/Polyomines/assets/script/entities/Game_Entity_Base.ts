@@ -67,7 +67,6 @@ export class Game_Entity extends Component {
   @property(MeshRenderer) renderable: MeshRenderer = null;
 
   _info: Entity_Info;
-  private _selected: boolean = false;
 
   get info(): Entity_Info {
     return this._info;
@@ -95,6 +94,47 @@ export class Game_Entity extends Component {
 
   set local_pos(pos: Vec3) {
     this._info.local_pos = pos;
+  }
+
+  get direction(): Direction {
+    return this._info.direction;
+  }
+
+  // TEST
+  /** TODO Rename it */
+  get occupied_positions(): Vec3[] {
+    let result: Vec3[] = [];
+    result.push(this.local_pos);
+
+    if (this.poly_type == Polyomino_Type.MONOMINO) return result;
+
+    for (let delta of Const.Polyomino_Deltas[this.poly_type][this.direction]) {
+      let o = this.local_pos.clone();
+      let p = o.add(delta);
+      result.push(p);
+    }
+
+    return result;
+  }
+
+  private _valid: boolean = false;
+  set valid(is_valid: boolean) {
+    this._valid = is_valid;
+    const mat = this.renderable.material;
+
+    /* FIXME Change them into flags */
+    if (is_valid) {
+      if (!this.selected) {
+        mat.setProperty('albedoScale', Const.Normal_Albedo_Scale);
+      } else {
+        mat.setProperty('albedoScale', Const.Selected_Albedo_Scale);
+      }
+    } else {
+      mat.setProperty('albedoScale', Const.Invalid_Albedo_Scale);
+    }
+  }
+  get valid(): boolean {
+    return this._valid;
   }
 
   logically_move_towards(dir: Direction, step: number = 1) {
@@ -134,14 +174,20 @@ export class Game_Entity extends Component {
   }
 
   // TEST
+  private _selected: boolean = false;
   set selected(is_selected: boolean) {
     this._selected = is_selected;
     const mat = this.renderable.material;
 
+    /* FIXME Change them into flags */
     if (is_selected) {
       mat.setProperty('albedoScale', Const.Selected_Albedo_Scale);
     } else {
-      mat.setProperty('albedoScale', Const.Normal_Albedo_Scale);
+      if (this.valid) {
+        mat.setProperty('albedoScale', Const.Normal_Albedo_Scale);
+      } else {
+        mat.setProperty('albedoScale', Const.Invalid_Albedo_Scale);
+      }
     }
   }
 

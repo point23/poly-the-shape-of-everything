@@ -88,4 +88,33 @@ export class Entity_Manager extends Component {
     }
     return entities_info;
   }
+
+  validate_tiling() {
+    const map = new Map<string, boolean>();
+
+    for (let entity of this.entities) {
+      for (let pos of entity.occupied_positions) {
+        const pos_str = pos.toString();
+        if (map.has(pos_str)) {
+          map.set(pos_str, true);
+        } else {
+          map.set(pos_str, false);
+        }
+      }
+    }
+
+    console.log(map);
+
+    for (let entity of this.entities) {
+      let is_valid = true;
+      /* FIXME Don't Calcu it twice -> occupied_positions */
+      for (let pos of entity.occupied_positions) {
+        if (map.get(pos.toString())) {
+          is_valid = false;
+        }
+      }
+
+      entity.valid = is_valid;
+    }
+  }
 }

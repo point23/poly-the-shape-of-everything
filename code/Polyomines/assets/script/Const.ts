@@ -13,7 +13,8 @@ export class Const {
   static Mouse_Jiggling_Interval = 0.01;
   static Double_Click_Time_Interval = 0.25;
 
-  static Selected_Albedo_Scale = new Vec3(4, 1, 1);
+  static Selected_Albedo_Scale = new Vec3(1, 5, 1);
+  static Invalid_Albedo_Scale = new Vec3(5, 1, 1);
   static Normal_Albedo_Scale = new Vec3(1, 1, 1);
 
   static RADIUS_45: number = 0.25 * Math.PI;
@@ -43,5 +44,19 @@ export class Const {
     /* BACKWARD */ new Vec3(0, 1, 0),
     /* UP */ new Vec3(0, 0, -1),
     /* DOWN */ new Vec3(0, 0, 1),
+  ];
+
+  static Polyomino_Deltas: Vec3[][][] = [
+    /* Monomino */
+    [],
+    /* Domino */
+    [
+      /* RIGHT */[new Vec3(1, 0, 0)],
+      /* LEFT */[new Vec3(-1, 0, 0)],
+      /* FORWARD */[new Vec3(0, -1, 0)],
+      /* BACKWARD */[new Vec3(0, 1, 0)],
+      /* UP */[new Vec3(0, 0, -1)],
+      /* DOWN */[new Vec3(0, 0, 1)],
+    ],
   ];
 }

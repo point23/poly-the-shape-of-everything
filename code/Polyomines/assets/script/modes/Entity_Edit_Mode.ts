@@ -2,7 +2,7 @@ import {_decorator, animation, Camera, EventKeyboard, EventMouse, EventTouch, ge
 
 import {Const} from '../Const';
 import {Debug_Console} from '../Debug_Console';
-import {Direction, Game_Entity} from '../entities/Game_Entity_Base';
+import {Direction, Entity_Info, Game_Entity} from '../entities/Game_Entity_Base';
 import {Entity_Manager} from '../Entity_Manager';
 import {Game_Board} from '../Game_Board';
 import {Resource_Manager} from '../Resource_Manager';
@@ -35,7 +35,7 @@ export class Entity_Edit_Mode extends Game_Mode {
   is_jiggling: boolean = false;
   last_key_code: number = null;
   selected_entities: Game_Entity[] = [];
-  copied_entities: any[] = [];
+  copied_entities: Entity_Info[] = [];
 
   handle_touch_move(event: EventTouch) {
     const screen_x = event.getLocationX();
@@ -145,17 +145,15 @@ export class Entity_Edit_Mode extends Game_Mode {
     }
 
     this.last_key_code = key_code;
+
+    Entity_Manager.instance.validate_tiling();
   }
 
   copy_selected_entities() {
     this.copied_entities = [];
 
     for (let entity of this.selected_entities) {
-      this.copied_entities.push({
-        position: entity.local_pos,
-        rotation: entity.rotation,
-        prefab_id: entity.prefab
-      });
+      this.copied_entities.push(entity.info);
     }
   }
 
@@ -223,44 +221,4 @@ export class Entity_Edit_Mode extends Game_Mode {
       });
     }
   }
-
-  /* FIXME Touch Move to drag an entity, create a river...*/
-  // handle_touch_move(event: EventTouch) {
-  //   const touch = event.touch!;
-  //   const screen_x = touch.getLocationX();
-  //   const screen_y = touch.getLocationY();
-  //   const square_position = this.screen_to_square_position(screen_x,
-  //   screen_y); const convert_res =
-  //   this.game_board.world2coord(square_position); let coord: Vec2; if
-  //   (convert_res.succeed) {
-  //     coord = convert_res.coord;
-
-  //     if (coord != this._last_coord) {
-  //       Entity_Manager.instance.move_selected_entities(
-  //           coord.subtract(this._last_coord));
-  //     }
-  //   }
-  // }
-
-  // handle_touch_end(event: EventTouch) {
-  // }
-
-  // screen_to_square_position(x: number, y: number): Vec3 {
-  //   this.camera.screenPointToRay(x, y, this._ray);
-  //   if (PhysicsSystem.instance.raycast(this._ray)) {
-  //     const raycast_results = PhysicsSystem.instance.raycastResults;
-  //     for (let i = 0; i < raycast_results.length; i++) {
-  //       const item = raycast_results[i];
-  //       let succeed: boolean = false;
-  //       for (let square of this.game_board.squares) {
-  //         if (item.collider.node == square) {
-  //           return square.position;
-  //         }
-  //       }
-  //       if (succeed) {
-  //         break;
-  //       }
-  //     }
-  //   }
-  // }
 }
