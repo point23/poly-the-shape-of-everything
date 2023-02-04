@@ -1,10 +1,12 @@
-import {Quat, Vec3} from 'cc';
+import {Color, Quat, Vec3} from 'cc';
 
 export class Const {
   /** FIXME Don't use absolute path... */
   static Data_Path: string =
       'A:/code/poly/code/Polyomines/assets/resources/data';
   static Default_Level: string = 'level#001';
+
+  static Tick_Interval: number = 0.1;
 
   static Game_Board_Square_Size = 1;
   static Game_Board_Half_Square_Size = 0.5;
@@ -13,9 +15,9 @@ export class Const {
   static Mouse_Jiggling_Interval = 0.01;
   static Double_Click_Time_Interval = 0.25;
 
-  static Selected_Albedo_Scale = new Vec3(1, 5, 1);
-  static Invalid_Albedo_Scale = new Vec3(5, 1, 1);
-  static Normal_Albedo_Scale = new Vec3(1, 1, 1);
+  static Cover_Selected_Color = new Color(0, 255, 0, 64);
+  static Cover_Invalid_Color = new Color(255, 0, 0, 64);
+  static Cover_Normal_Color = new Color(255, 255, 255, 0);
 
   static RADIUS_45: number = 0.25 * Math.PI;
   static RADIUS_90: number = 0.5 * Math.PI;

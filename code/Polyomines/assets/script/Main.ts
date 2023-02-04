@@ -6,6 +6,7 @@ import {Debug_Console} from './Debug_Console';
 import {Entity_Manager} from './Entity_Manager';
 import {Game_Board, Game_Board_Info} from './Game_Board';
 import {Resource_Manager} from './Resource_Manager';
+import {Transaction_Manager} from './Transaction_Manager';
 
 const {ccclass, property} = _decorator;
 
@@ -22,6 +23,8 @@ export class Main extends Component {
   contextual_manager_instance: Contextual_Manager = null;
   @property(Resource_Manager)
   resource_manager_instance: Resource_Manager = null;
+  @property(Transaction_Manager)
+  transaction_manager: Transaction_Manager = null;
 
   onLoad() {
     this.settle_singletons();
@@ -47,5 +50,6 @@ export class Main extends Component {
     Contextual_Manager.Settle(this.contextual_manager_instance);
     Resource_Manager.Settle(this.resource_manager_instance);
     Entity_Manager.Settle(this.entity_manager, this.game_board);
+    Transaction_Manager.Settle(this.transaction_manager);
   }
 }

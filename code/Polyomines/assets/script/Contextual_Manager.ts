@@ -1,4 +1,4 @@
-import {_decorator, Component, EventKeyboard, EventMouse, EventTouch, input, Input, KeyCode, Node} from 'cc';
+import {_decorator, Component, EventKeyboard, EventMouse, EventTouch, game, input, Input, KeyCode, Node} from 'cc';
 
 import {Game_Mode} from './modes/Game_Mode_Base';
 
@@ -20,19 +20,22 @@ export class Contextual_Manager extends Component {
     Contextual_Manager.instance = instance;
   }
 
-  @property(Game_Mode) default_mode: Game_Mode = null;
-  @property(Game_Mode) current_mode: Game_Mode = null;
+  @property([Game_Mode]) game_modes: Game_Mode[] = [];
+  current_mode: Game_Mode = null;
+
+  current_mode_idx: number = 0;
 
   public enable() {
     this.register_events();
-    const default_mode = this.default_mode;
-    this.switch_mode(default_mode);
+    this.mapping_modes();
+    this.switch_mode();
   }
 
   public dispose() {
     this.unregister_events();
-    this.switch_mode(null);
   }
+
+  mapping_modes() {}
 
   register_events() {
     input.on(Input.EventType.KEY_DOWN, this.on_key_down, this);
@@ -54,11 +57,16 @@ export class Contextual_Manager extends Component {
     input.off(Input.EventType.TOUCH_END, this.on_touch_end, this);
   }
 
-  switch_mode(to?: Game_Mode|null) {
+  switch_mode() {
     let from = this.current_mode;
     from?.on_exit();
+
+    let to = this.game_modes[this.current_mode_idx];
     this.current_mode = to;
     to?.on_enter();
+
+    this.current_mode_idx =
+        (this.current_mode_idx + 1) % this.game_modes.length;
   }
 
   on_key_down(event: EventKeyboard) {
@@ -66,7 +74,7 @@ export class Contextual_Manager extends Component {
     const key_code = event.keyCode;
     switch (key_code) {
       case KeyCode.TAB:
-        this.switch_mode(this.current_mode.next);
+        this.switch_mode();
         break;
       default:
         this.current_mode.handle_key_down(event);

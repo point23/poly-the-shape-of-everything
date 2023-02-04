@@ -3,8 +3,9 @@ FEATURE:
 - Load and Save Level
 - Switch Mode <= State Pattern
 - Entity Copy, Paste, Delete
+- Polyominoes
+- Validation
 
-+ Polyominoes
 + Game Object Pool
 + Character Control
 + Supporter and Supportee

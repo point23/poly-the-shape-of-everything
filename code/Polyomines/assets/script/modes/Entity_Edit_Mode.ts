@@ -16,6 +16,7 @@ const {ccclass, property} = _decorator;
  * - Select & Deselect
  * - Move & Rotate
  * - Copy & Paste
+ * - Load Different Levels
  */
 @ccclass('Entity_Edit_Mode')
 export class Entity_Edit_Mode extends Game_Mode {
@@ -50,7 +51,7 @@ export class Entity_Edit_Mode extends Game_Mode {
       for (let i = 0; i < raycast_results.length; i++) {
         const item = raycast_results[i];
         let succeed: boolean = false;
-        for (let entity of Entity_Manager.instance.entities) {
+        for (let entity of Entity_Manager.instance.entities_iterator) {
           if (item.collider.node.parent != entity.node) continue;
 
           this.select(entity);
@@ -82,7 +83,7 @@ export class Entity_Edit_Mode extends Game_Mode {
 
         let succeed: boolean = false;
 
-        for (let entity of Entity_Manager.instance.entities) {
+        for (let entity of Entity_Manager.instance.entities_iterator) {
           if (item.collider.node.parent != entity.node) continue;
 
           if (entity.selected)
@@ -170,7 +171,7 @@ export class Entity_Edit_Mode extends Game_Mode {
 
   delete_selected_entities() {
     for (let entity of this.selected_entities) {
-      Entity_Manager.instance.retrive(entity);
+      Entity_Manager.instance.reclaim(entity);
     }
 
     this.deselect_all();

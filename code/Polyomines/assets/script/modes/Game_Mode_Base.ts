@@ -1,13 +1,9 @@
-import {_decorator, CCClass, Component, EventKeyboard, EventMouse, EventTouch, Node} from 'cc';
+import {_decorator, CCClass, CCString, Component, EventKeyboard, EventMouse, EventTouch, Node} from 'cc';
 
 const {ccclass, property} = _decorator;
 
 @ccclass('Game_Mode')
 export class Game_Mode extends Component {
-  @property(Game_Mode) next_mode: Game_Mode;
-  get next(): Game_Mode {
-    return this.next_mode;
-  }
   on_enter() {
     throw new Error('not implemented');
   }

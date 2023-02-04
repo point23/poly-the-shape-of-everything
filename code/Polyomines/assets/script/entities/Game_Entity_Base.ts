@@ -1,4 +1,5 @@
-import {_decorator, Component, MeshRenderer, Node, profiler, Quat, renderer, Vec2, Vec3} from 'cc';
+import {_decorator, Color, Component, Enum, MeshRenderer, Node, profiler, Quat, renderer, Vec2, Vec3} from 'cc';
+
 import {Const} from '../Const';
 
 const {ccclass, property} = _decorator;
@@ -8,14 +9,12 @@ export class Entity_Info {
   local_pos: Vec3;
   world_pos: Vec3;
   direction: Direction;
-  poly_type: Polyomino_Type;
 
   public constructor(info: any) {
     this.prefab = info.prefab;
     this.local_pos =
         new Vec3(info.local_pos.x, info.local_pos.y, info.local_pos.z);
     this.direction = info.direction;
-    this.poly_type = info.poly_type;
   }
 };
 
@@ -26,6 +25,12 @@ export enum Direction {
   BACKWORD,
   UP,
   DOWN,
+}
+
+export enum Entity_Type {
+  STATIC,
+  DYNAMIC,
+  CHARACTER,
 }
 
 export enum Polyomino_Type {
@@ -64,8 +69,18 @@ export enum Polyomino_Type {
 
 @ccclass('Game_Entity')
 export class Game_Entity extends Component {
-  @property(MeshRenderer) renderable: MeshRenderer = null;
+  static entity_id_seq: number = 0;
+  static get next_id(): number {
+    return this.entity_id_seq++;
+  }
 
+  @property(MeshRenderer) editing_cover: MeshRenderer = null;
+  @property({type: Enum(Polyomino_Type)})
+  polyomino_type: Polyomino_Type = Polyomino_Type.MONOMINO;
+  @property({type: Enum(Entity_Type)})
+  entity_type: Entity_Type = Entity_Type.STATIC;
+
+  entity_id: number;
   _info: Entity_Info;
 
   get info(): Entity_Info {
@@ -82,10 +97,6 @@ export class Game_Entity extends Component {
 
   get prefab(): string {
     return this._info.prefab;
-  }
-
-  get poly_type(): Polyomino_Type {
-    return this._info.poly_type;
   }
 
   get local_pos(): Vec3 {
@@ -106,9 +117,10 @@ export class Game_Entity extends Component {
     let result: Vec3[] = [];
     result.push(this.local_pos);
 
-    if (this.poly_type == Polyomino_Type.MONOMINO) return result;
+    if (this.polyomino_type == Polyomino_Type.MONOMINO) return result;
 
-    for (let delta of Const.Polyomino_Deltas[this.poly_type][this.direction]) {
+    for (let delta of
+             Const.Polyomino_Deltas[this.polyomino_type][this.direction]) {
       let o = this.local_pos.clone();
       let p = o.add(delta);
       result.push(p);
@@ -117,20 +129,20 @@ export class Game_Entity extends Component {
     return result;
   }
 
-  private _valid: boolean = false;
+  private _valid: boolean = true;
   set valid(is_valid: boolean) {
     this._valid = is_valid;
-    const mat = this.renderable.material;
+    const mat = this.editing_cover.material;
 
     /* FIXME Change them into flags */
     if (is_valid) {
       if (!this.selected) {
-        mat.setProperty('albedoScale', Const.Normal_Albedo_Scale);
+        mat.setProperty('mainColor', Const.Cover_Normal_Color);
       } else {
-        mat.setProperty('albedoScale', Const.Selected_Albedo_Scale);
+        mat.setProperty('mainColor', Const.Cover_Selected_Color);
       }
     } else {
-      mat.setProperty('albedoScale', Const.Invalid_Albedo_Scale);
+      mat.setProperty('mainColor', Const.Cover_Invalid_Color);
     }
   }
   get valid(): boolean {
@@ -177,16 +189,16 @@ export class Game_Entity extends Component {
   private _selected: boolean = false;
   set selected(is_selected: boolean) {
     this._selected = is_selected;
-    const mat = this.renderable.material;
+    const mat = this.editing_cover.material;
 
     /* FIXME Change them into flags */
     if (is_selected) {
-      mat.setProperty('albedoScale', Const.Selected_Albedo_Scale);
+      mat.setProperty('mainColor', Const.Cover_Selected_Color);
     } else {
       if (this.valid) {
-        mat.setProperty('albedoScale', Const.Normal_Albedo_Scale);
+        mat.setProperty('mainColor', Const.Cover_Normal_Color);
       } else {
-        mat.setProperty('albedoScale', Const.Invalid_Albedo_Scale);
+        mat.setProperty('mainColor', Const.Cover_Invalid_Color);
       }
     }
   }
