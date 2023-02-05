@@ -1,8 +1,9 @@
 import {_decorator, Vec3} from 'cc';
-import {Direction} from './entities/Game_Entity_Base';
+import {Const} from './Const';
+import {Direction, Game_Entity} from './entities/Game_Entity_Base';
+import {Entity_Manager} from './Entity_Manager';
 
 export enum Move_Type {
-  NONE,
   CONTROLLER,
   PULLED,
   PUSHED,
@@ -29,5 +30,29 @@ export class Single_Move {
 
     this.entity_id = entity_id;
     this.move_info = move_info;
+  }
+
+  get entity(): Game_Entity {
+    return Entity_Manager.instance.id2entity.get(this.entity_id);
+  }
+
+  get type(): Move_Type {
+    return this.move_info.move_type;
+  }
+
+  get direction(): Direction {
+    return this.move_info.direction;
+  }
+
+  get debug_info(): string {
+    let res = '';
+    switch (this.type) {
+      case Move_Type.CONTROLLER:
+        res += 'Move#' + this.move_id.toString();
+        res += ' type: ' + Const.Move_Type_Names[Move_Type.CONTROLLER];
+        res += ' directiuon: ' + Const.Direction_Names[this.direction];
+        break;
+    }
+    return res;
   }
 }

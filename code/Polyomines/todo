@@ -6,12 +6,12 @@ FEATURE:
 - Polyominoes
 - Validation
 
-+ Game Object Pool
-+ Character Control
-+ Supporter and Supportee
-+ Falling
-+ Redo & Undo <= Command Pattern
 + Move and Transaction
++ Character Control
++ Redo & Undo <= Command Pattern
++ Supporter and Supportee
++ Game Object Pool
++ Falling
 + Switch Level
 
 FIX:

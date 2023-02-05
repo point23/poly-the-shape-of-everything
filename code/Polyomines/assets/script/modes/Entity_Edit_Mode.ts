@@ -1,4 +1,4 @@
-import {_decorator, animation, Camera, EventKeyboard, EventMouse, EventTouch, geometry, KeyCode, Node, PhysicsSystem, Quat, Touch, Vec2, Vec3} from 'cc';
+import {_decorator, Camera, EventKeyboard, EventMouse, EventTouch, geometry, KeyCode, Node, PhysicsSystem, Quat, Touch, Vec2, Vec3} from 'cc';
 
 import {Const} from '../Const';
 import {Debug_Console} from '../Debug_Console';
@@ -21,7 +21,6 @@ const {ccclass, property} = _decorator;
 @ccclass('Entity_Edit_Mode')
 export class Entity_Edit_Mode extends Game_Mode {
   @property(Camera) readonly camera!: Camera;
-  @property(Game_Board) readonly game_board!: Game_Board;
 
   private _ray: geometry.Ray = new geometry.Ray();
 
@@ -161,12 +160,11 @@ export class Entity_Edit_Mode extends Game_Mode {
   paste_copied_entities() {
     this.deselect_all();
 
-    Entity_Manager.instance.load_entities(this.copied_entities)
-        .then(entities => {
-          for (let entity of entities) {
-            this.select(entity);
-          }
-        });
+    let new_entities =
+        Entity_Manager.instance.load_entities(this.copied_entities);
+    for (let entity of new_entities) {
+      this.select(entity);
+    }
   }
 
   delete_selected_entities() {
@@ -214,12 +212,7 @@ export class Entity_Edit_Mode extends Game_Mode {
 
   move_selected_entities(direction: Direction) {
     for (let entity of this.selected_entities) {
-      entity.logically_move_towards(direction);
-
-      /* TODO Handle when across the boundary */
-      this.game_board.local2world(entity.local_pos).then(world_pos => {
-        entity.move_to(world_pos);
-      });
+      entity.move_towards(direction);
     }
   }
 }

@@ -1,6 +1,6 @@
 import {_decorator, CCString, Component, instantiate, Node, Prefab, profiler, Quat, Vec2, Vec3} from 'cc';
 
-import {Entity_Info, Entity_Type, Game_Entity} from './entities/Game_Entity_Base';
+import {Direction, Entity_Info, Entity_Type, Game_Entity} from './entities/Game_Entity_Base';
 import {Game_Board} from './Game_Board';
 
 const {ccclass, property} = _decorator;
@@ -12,16 +12,15 @@ export class Entity_Prefab_Pair {
 }
 
 /* NOTE
-  - Manage entity pool
+  - Manage entity pools
   - Get and retrieve entities
-  - Detect conflicts between moves
+  - Move entities
  */
 @ccclass('Entity_Manager')
 export class Entity_Manager extends Component {
   public static instance: Entity_Manager = null;
-  public static Settle(instance: Entity_Manager, game_board: Game_Board) {
+  public static Settle(instance: Entity_Manager) {
     Entity_Manager.instance = instance;
-    Entity_Manager.instance.game_board = game_board;
     Entity_Manager.instance.mapping_prefabs();
   }
 
@@ -30,54 +29,51 @@ export class Entity_Manager extends Component {
   @property([Entity_Prefab_Pair])
   list_entities_prefab: Entity_Prefab_Pair[] = [];
 
-  string2prefab: Map<String, Prefab> = new Map<String, Prefab>();
-  game_board: Game_Board;
-  string2entity: Map<number, Game_Entity> = new Map<number, Game_Entity>();
+  id2prefab: Map<String, Prefab> = new Map<String, Prefab>();
+  id2entity: Map<number, Game_Entity> = new Map<number, Game_Entity>();
 
   /* TODO Rename it... */
   current_character: Game_Entity = null;
 
   get entities_iterator(): IterableIterator<Game_Entity> {
-    return this.string2entity.values();
+    return this.id2entity.values();
   }
 
   mapping_prefabs() {
     for (let pair of this.list_entities_prefab) {
-      this.string2prefab[pair.id] = pair.prefab;
+      this.id2prefab[pair.id] = pair.prefab;
     }
   }
 
-  async load_entities(entities_info: any[]): Promise<Game_Entity[]> {
+  load_entities(entities_info: any): Game_Entity[] {
     let newly_generated_entities: Game_Entity[] = [];
 
     for (let i = 0; i < entities_info.length; i++) {
       let info = new Entity_Info(entities_info[i]);
-      let node: Node = instantiate(this.string2prefab[info.prefab]);
+      let node: Node = instantiate(this.id2prefab[info.prefab]);
       node.setParent(this.entities_parent_node);
 
       let entity = node.getComponent(Game_Entity);
       entity.entity_id = Game_Entity.next_id;
 
-      await this.game_board.local2world(info.local_pos).then((world_pos) => {
-        info.world_pos = world_pos;
+      info.world_pos = Game_Board.instance.local2world(info.local_pos);
+      entity.info = info;
 
-        entity.info = info;
-        this.string2entity.set(entity.entity_id, entity);
-        newly_generated_entities.push(entity);
+      this.id2entity.set(entity.entity_id, entity);
+      newly_generated_entities.push(entity);
 
-        if (entity.entity_type == Entity_Type.CHARACTER) {
-          this.current_character = entity;
-        }
-      });
+      if (entity.entity_type == Entity_Type.CHARACTER) {
+        this.current_character = entity;
+      }
     }
 
-    return Promise.resolve(newly_generated_entities);
+    return newly_generated_entities;
   }
 
   /** TODO Entity Pool */
   reclaim(_entity: Game_Entity) {
-    const entity = this.string2entity.get(_entity.entity_id);
-    this.string2entity.delete(entity.entity_id);
+    const entity = this.id2entity.get(_entity.entity_id);
+    this.id2entity.delete(entity.entity_id);
     entity.node.destroy();
   }
 
@@ -124,5 +120,17 @@ export class Entity_Manager extends Component {
 
       entity.valid = is_valid;
     }
+  }
+
+  locate_entity(target_pos: Vec3): Game_Entity {
+    let target: Game_Entity = null;
+    for (let entity of this.entities_iterator) {
+      for (let pos of entity.occupied_positions) {
+        if (pos.equals(target_pos)) {
+          target = entity;
+        }
+      }
+    }
+    return target;
   }
 }

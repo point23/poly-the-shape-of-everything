@@ -1,10 +1,12 @@
-import {Color, Quat, Vec3} from 'cc';
+import {Color, Quat, Size, Vec3} from 'cc';
 
 export class Const {
   /** FIXME Don't use absolute path... */
   static Data_Path: string =
       'A:/code/poly/code/Polyomines/assets/resources/data';
   static Default_Level: string = 'level#001';
+
+  static Default_Game_Board_Size: Size = new Size(10, 10);
 
   static Tick_Interval: number = 0.1;
 
@@ -61,4 +63,8 @@ export class Const {
       /* DOWN */[new Vec3(0, 0, 1)],
     ],
   ];
+
+  static Move_Type_Names: string[] = ['Controller', 'Push', 'Pull'];
+  static Direction_Names: string[] =
+      ['RIGHT', 'LEFT', 'FORWARD', 'BACKWARD', 'UP', 'DOWN'];
 }

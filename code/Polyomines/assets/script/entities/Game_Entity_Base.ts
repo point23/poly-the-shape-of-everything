@@ -1,6 +1,7 @@
-import {_decorator, Color, Component, Enum, MeshRenderer, Node, profiler, Quat, renderer, Vec2, Vec3} from 'cc';
+import {_decorator, AnimationClip, Color, Component, Enum, MeshRenderer, Node, profiler, Quat, renderer, SkeletalAnimation, tween, Vec2, Vec3} from 'cc';
 
 import {Const} from '../Const';
+import {Game_Board} from '../Game_Board';
 
 const {ccclass, property} = _decorator;
 
@@ -74,6 +75,7 @@ export class Game_Entity extends Component {
     return this.entity_id_seq++;
   }
 
+  @property(SkeletalAnimation) animation: SkeletalAnimation = null;
   @property(MeshRenderer) editing_cover: MeshRenderer = null;
   @property({type: Enum(Polyomino_Type)})
   polyomino_type: Polyomino_Type = Polyomino_Type.MONOMINO;
@@ -111,7 +113,6 @@ export class Game_Entity extends Component {
     return this._info.direction;
   }
 
-  // TEST
   /** TODO Rename it */
   get occupied_positions(): Vec3[] {
     let result: Vec3[] = [];
@@ -129,6 +130,7 @@ export class Game_Entity extends Component {
     return result;
   }
 
+  //#region TEST
   private _valid: boolean = true;
   set valid(is_valid: boolean) {
     this._valid = is_valid;
@@ -149,12 +151,61 @@ export class Game_Entity extends Component {
     return this._valid;
   }
 
-  logically_move_towards(dir: Direction, step: number = 1) {
-    const delta = Const.Direction2Vec3[dir].multiplyScalar(step);
-    this.local_pos = this.local_pos.add(delta);
+  private _selected: boolean = false;
+  set selected(is_selected: boolean) {
+    this._selected = is_selected;
+    const mat = this.editing_cover.material;
+
+    /* FIXME Change them into flags */
+    if (is_selected) {
+      mat.setProperty('mainColor', Const.Cover_Selected_Color);
+    } else {
+      if (this.valid) {
+        mat.setProperty('mainColor', Const.Cover_Normal_Color);
+      } else {
+        mat.setProperty('mainColor', Const.Cover_Invalid_Color);
+      }
+    }
+  }
+  get selected(): boolean {
+    return this._selected;
+  }
+  //#endregion TEST
+
+  /* TODO Naming Issue: separate move with animation in Run-Mode and move in
+   * Edit-Mode  */
+  async move_towards_async(dir: Direction, step: number = 1) {
+    this.local_pos = this.logically_move_towards(dir, step);
+    let world_pos = Game_Board.instance.local2world(this.local_pos);
+    // this.animation.getState('walk').speed = 5;
+    // this.animation.getState('walk').wrapMode = AnimationClip.WrapMode.Normal;
+
+    // this.animation.play('walk');
+    this.physically_move_to_async(world_pos);
   }
 
-  move_to(pos: Vec3) {
+  async face_towards_async(dir: Direction) {
+    /* TEMP  */ this.rotate_to(dir);
+  }
+
+  move_towards(dir: Direction, step: number = 1) {
+    this.local_pos = this.logically_move_towards(dir, step);
+    let world_pos = Game_Board.instance.local2world(this.local_pos);
+    this.physically_move_to(world_pos);
+  }
+
+  logically_move_towards(dir: Direction, step: number = 1): Vec3 {
+    const delta = Const.Direction2Vec3[dir].multiplyScalar(step);
+    let current = this.local_pos.clone();
+    return current.add(delta);
+  }
+
+  async physically_move_to_async(pos: Vec3) {
+    this._info.world_pos = pos;
+    tween().target(this.node).to(0.1, {position: pos}).start();
+  }
+
+  physically_move_to(pos: Vec3) {
     this._info.world_pos = pos;
     this.node.setPosition(pos);
   }
@@ -183,27 +234,5 @@ export class Game_Entity extends Component {
     }
 
     this.rotate_to(new_dir);
-  }
-
-  // TEST
-  private _selected: boolean = false;
-  set selected(is_selected: boolean) {
-    this._selected = is_selected;
-    const mat = this.editing_cover.material;
-
-    /* FIXME Change them into flags */
-    if (is_selected) {
-      mat.setProperty('mainColor', Const.Cover_Selected_Color);
-    } else {
-      if (this.valid) {
-        mat.setProperty('mainColor', Const.Cover_Normal_Color);
-      } else {
-        mat.setProperty('mainColor', Const.Cover_Invalid_Color);
-      }
-    }
-  }
-
-  get selected(): boolean {
-    return this._selected;
   }
 }

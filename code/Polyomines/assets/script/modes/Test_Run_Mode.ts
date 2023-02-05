@@ -64,7 +64,7 @@ export class Test_Run_Mode extends Game_Mode {
   }
 
   main_loop() {
-    Transaction_Manager.instance.process();
+    Transaction_Manager.instance.process_async();
   }
 
   handle_key_down(event: EventKeyboard) {
@@ -76,28 +76,28 @@ export class Test_Run_Mode extends Game_Mode {
         move_info.move_type = Move_Type.CONTROLLER;
         move_info.direction = Direction.BACKWORD;
         const move = new Single_Move(current_character.entity_id, move_info);
-        Transaction_Manager.instance.add_new_move(move);
+        Transaction_Manager.instance.try_add_new_move(move);
       } break;
       case KeyCode.KEY_S: {
         let move_info = new Move_Info();
         move_info.move_type = Move_Type.CONTROLLER;
         move_info.direction = Direction.FORWARD;
         const move = new Single_Move(current_character.entity_id, move_info);
-        Transaction_Manager.instance.add_new_move(move);
+        Transaction_Manager.instance.try_add_new_move(move);
       } break;
       case KeyCode.KEY_A: {
         let move_info = new Move_Info();
         move_info.move_type = Move_Type.CONTROLLER;
         move_info.direction = Direction.LEFT;
         const move = new Single_Move(current_character.entity_id, move_info);
-        Transaction_Manager.instance.add_new_move(move);
+        Transaction_Manager.instance.try_add_new_move(move);
       } break;
       case KeyCode.KEY_D: {
         let move_info = new Move_Info();
         move_info.move_type = Move_Type.CONTROLLER;
         move_info.direction = Direction.RIGHT;
         const move = new Single_Move(current_character.entity_id, move_info);
-        Transaction_Manager.instance.add_new_move(move);
+        Transaction_Manager.instance.try_add_new_move(move);
       } break;
       case KeyCode.KEY_R: {
         let move_info = new Move_Info();

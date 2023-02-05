@@ -1,6 +1,7 @@
-import {_decorator, Component, instantiate, MeshRenderer, Node, Prefab, Quat, Size, Vec3} from 'cc';
+import {_decorator, MeshRenderer, Node, Quat, Size, Vec3} from 'cc';
 
 import {Const} from './Const';
+import {Singleton_Manager} from './Singleton_Manager_Base';
 
 const {ccclass, property} = _decorator;
 
@@ -14,51 +15,58 @@ export type Game_Board_Info = {
  * - Show grids.
  * - Transform from board-coords to world-position.
  */
-@ccclass('Game_Board') export class Game_Board extends Component {
+@ccclass('Game_Board') export class Game_Board extends Singleton_Manager {
+  public static instance: Game_Board = null;
+  public static Settle(instance: Game_Board) {
+    Game_Board.instance = instance;
+  }
+
   @property(Node) grid: Node = null;
 
-  grid_size: Size;
-  squares: Node[] = [];
+  grid_size: Size = Const.Default_Game_Board_Size;
 
-  public show_grid(game_board_info: Game_Board_Info) {
+  resize(game_board_info: Game_Board_Info) {
     const grid_size = new Size(
         game_board_info.grid_size.width, game_board_info.grid_size.height);
     this.grid_size = grid_size;
+  }
 
+  show_grid() {
     const square_size = Const.Game_Board_Square_Size;
     const half_square_size = Const.Game_Board_Half_Square_Size;
     const origin_pos = Const.Game_Board_Orgin_Pos;
 
-    const grid_pos_z =
-        origin_pos.z - half_square_size + square_size * grid_size.width / 2;
-    const grid_pos_x =
-        origin_pos.x - half_square_size + square_size * grid_size.height / 2;
+    const grid_pos_z = origin_pos.z - half_square_size +
+        square_size * this.grid_size.width / 2;
+    const grid_pos_x = origin_pos.x - half_square_size +
+        square_size * this.grid_size.height / 2;
     const grid_pos_y = origin_pos.y - half_square_size;
     const grid_center = new Vec3(grid_pos_x, grid_pos_y, grid_pos_z);
 
     this.grid.setPosition(grid_center);
-    this.grid.setScale(grid_size.height / 10, 1, grid_size.width / 10);
+    this.grid.setScale(
+        this.grid_size.height / 10, 1, this.grid_size.width / 10);
 
     const renderable = this.grid.getComponent(MeshRenderer);
     const mat = renderable.material;
     mat.setProperty(
-        'tilingOffset', new Quat(grid_size.height, grid_size.width, 0, 0));
+        'tilingOffset',
+        new Quat(this.grid_size.height, this.grid_size.width, 0, 0));
   }
 
-  public local2world(local_pos: Vec3): Promise<Vec3> {
-    if (local_pos.x > this.grid_size.width ||
-        local_pos.y > this.grid_size.height) {
-      throw new Error('invalid local pos.');
-    }
-
+  local2world(local_pos: Vec3): Vec3 {
     const square_size = Const.Game_Board_Square_Size;
-    // const half_square_size = Const.Game_Board_Half_Square_Size;
 
     let world_pos = new Vec3(
         local_pos.y * square_size, local_pos.z * square_size,
         local_pos.x * square_size);
 
-    return Promise.resolve(world_pos);
+    return world_pos;
+  }
+
+  validate_pos(local_pos: Vec3): boolean {
+    return local_pos.x >= 0 && local_pos.x < this.grid_size.width &&
+        local_pos.y >= 0 && local_pos.y < this.grid_size.height;
   }
 
   // public world2local(pos: Vec3): {succeed: boolean, coord: Vec2} {
