@@ -9,6 +9,16 @@ export class Const {
   static Default_Game_Board_Size: Size = new Size(10, 10);
 
   static Tick_Interval: number = 0.1;
+  static Ticks_Per_Loop: Map<number, number> = new Map<number, number>([
+    [8, 1],
+    [4, 2],
+    [2, 4],
+    [1, 8],
+    [-1, 16],
+    [-2, 32],
+    [-4, 64],
+    [-8, 128],
+  ]);
 
   static Game_Board_Square_Size = 1;
   static Game_Board_Half_Square_Size = 0.5;

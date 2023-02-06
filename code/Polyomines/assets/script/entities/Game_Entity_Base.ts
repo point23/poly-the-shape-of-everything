@@ -181,11 +181,11 @@ export class Game_Entity extends Component {
     // this.animation.getState('walk').wrapMode = AnimationClip.WrapMode.Normal;
 
     // this.animation.play('walk');
-    this.physically_move_to_async(world_pos);
+    await this.physically_move_to_async(world_pos);
   }
 
   async face_towards_async(dir: Direction) {
-    /* TEMP  */ this.rotate_to(dir);
+    await this.rotate_to_async(dir);
   }
 
   move_towards(dir: Direction, step: number = 1) {
@@ -203,6 +203,14 @@ export class Game_Entity extends Component {
   async physically_move_to_async(pos: Vec3) {
     this._info.world_pos = pos;
     tween().target(this.node).to(0.1, {position: pos}).start();
+  }
+
+  async rotate_to_async(dir: Direction) {
+    this._info.direction = dir;
+    tween()
+        .target(this.node)
+        .to(0.1, {rotation: Const.Direction2Quat[dir]})
+        .start();
   }
 
   physically_move_to(pos: Vec3) {
