@@ -59,7 +59,7 @@ export class Debug_Console extends Component {
 
     let current_log = `<color=${color}>${txt}</color>\n`;
     this.log_txt.string += current_log;
-    let delay = 2;
+    let delay = 5;
     this.scheduleOnce(() => {
       const whole_log = this.log_txt.string;
       this.log_txt.string = whole_log.split(current_log)[1];

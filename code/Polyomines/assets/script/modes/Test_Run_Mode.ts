@@ -44,31 +44,23 @@ export class Test_Run_Mode extends Game_Mode {
     const current_character = Entity_Manager.instance.current_character;
     switch (key_code) {
       case KeyCode.KEY_W: {
-        let move_info = new Move_Info();
-        move_info.direction = Direction.BACKWORD;
-        const move =
-            new Controller_Proc_Move(current_character.entity_id, move_info);
+        const target_dir = Direction.BACKWORD;
+        const move = new Controller_Proc_Move(current_character, target_dir);
         Transaction_Manager.instance.try_add_new_move(move);
       } break;
       case KeyCode.KEY_S: {
-        let move_info = new Move_Info();
-        move_info.direction = Direction.FORWARD;
-        const move =
-            new Controller_Proc_Move(current_character.entity_id, move_info);
+        const target_dir = Direction.FORWARD;
+        const move = new Controller_Proc_Move(current_character, target_dir);
         Transaction_Manager.instance.try_add_new_move(move);
       } break;
       case KeyCode.KEY_A: {
-        let move_info = new Move_Info();
-        move_info.direction = Direction.LEFT;
-        const move =
-            new Controller_Proc_Move(current_character.entity_id, move_info);
+        const target_dir = Direction.LEFT;
+        const move = new Controller_Proc_Move(current_character, target_dir);
         Transaction_Manager.instance.try_add_new_move(move);
       } break;
       case KeyCode.KEY_D: {
-        let move_info = new Move_Info();
-        move_info.direction = Direction.RIGHT;
-        const move =
-            new Controller_Proc_Move(current_character.entity_id, move_info);
+        const target_dir = Direction.RIGHT;
+        const move = new Controller_Proc_Move(current_character, target_dir);
         Transaction_Manager.instance.try_add_new_move(move);
       } break;
     }

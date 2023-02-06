@@ -99,7 +99,7 @@ export class Entity_Manager extends Component {
     const map = new Map<string, boolean>();
 
     for (let entity of this.entities_iterator) {
-      for (let pos of entity.occupied_positions) {
+      for (let pos of entity.occupied_squares) {
         const pos_str = pos.toString();
         if (map.has(pos_str)) {
           map.set(pos_str, true);
@@ -112,7 +112,7 @@ export class Entity_Manager extends Component {
     for (let entity of this.entities_iterator) {
       let is_valid = true;
       /* FIXME Don't Calcu it twice -> occupied_positions */
-      for (let pos of entity.occupied_positions) {
+      for (let pos of entity.occupied_squares) {
         if (map.get(pos.toString())) {
           is_valid = false;
         }
@@ -125,7 +125,7 @@ export class Entity_Manager extends Component {
   locate_entity(target_pos: Vec3): Game_Entity {
     let target: Game_Entity = null;
     for (let entity of this.entities_iterator) {
-      for (let pos of entity.occupied_positions) {
+      for (let pos of entity.occupied_squares) {
         if (pos.equals(target_pos)) {
           target = entity;
         }

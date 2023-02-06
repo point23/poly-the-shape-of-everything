@@ -113,21 +113,21 @@ export class Game_Entity extends Component {
     return this._info.direction;
   }
 
-  /** TODO Rename it */
-  get occupied_positions(): Vec3[] {
-    let result: Vec3[] = [];
-    result.push(this.local_pos);
+  /** TODO Rename it, Support move poly types */
+  get occupied_squares(): Vec3[] {
+    let res: Vec3[] = [];
+    res.push(this.local_pos);
 
-    if (this.polyomino_type == Polyomino_Type.MONOMINO) return result;
+    if (this.polyomino_type == Polyomino_Type.MONOMINO) return res;
 
     for (let delta of
              Const.Polyomino_Deltas[this.polyomino_type][this.direction]) {
       let o = this.local_pos.clone();
       let p = o.add(delta);
-      result.push(p);
+      res.push(p);
     }
 
-    return result;
+    return res;
   }
 
   //#region TEST
@@ -172,10 +172,20 @@ export class Game_Entity extends Component {
   }
   //#endregion TEST
 
+  async move_to_async(target: Vec3) {
+    this.local_pos = target.clone();
+    let world_pos = Game_Board.instance.local2world(this.local_pos);
+    // this.animation.getState('walk').speed = 5;
+    // this.animation.getState('walk').wrapMode = AnimationClip.WrapMode.Normal;
+
+    // this.animation.play('walk');
+    await this.physically_move_to_async(world_pos);
+  }
+
   /* TODO Naming Issue: separate move with animation in Run-Mode and move in
    * Edit-Mode  */
   async move_towards_async(dir: Direction, step: number = 1) {
-    this.local_pos = this.logically_move_towards(dir, step);
+    this.logically_move_towards(dir, step);
     let world_pos = Game_Board.instance.local2world(this.local_pos);
     // this.animation.getState('walk').speed = 5;
     // this.animation.getState('walk').wrapMode = AnimationClip.WrapMode.Normal;
@@ -189,15 +199,37 @@ export class Game_Entity extends Component {
   }
 
   move_towards(dir: Direction, step: number = 1) {
-    this.local_pos = this.logically_move_towards(dir, step);
+    this.logically_move_towards(dir, step);
     let world_pos = Game_Board.instance.local2world(this.local_pos);
     this.physically_move_to(world_pos);
   }
 
-  logically_move_towards(dir: Direction, step: number = 1): Vec3 {
-    const delta = Const.Direction2Vec3[dir].multiplyScalar(step);
+  calcu_future_pos(dir: Direction, step: number = 1): Vec3 {
+    const delta = Const.Direction2Vec3[dir].clone().multiplyScalar(step);
     let current = this.local_pos.clone();
     return current.add(delta);
+  }
+
+  calcu_future_squares(dir: Direction, step: number = 1): Vec3[] {
+    let res = [];
+    const future_pos = this.calcu_future_pos(dir, step);
+    res.push(future_pos);
+
+    if (this.polyomino_type == Polyomino_Type.MONOMINO) return res;
+
+    for (let delta of
+             Const.Polyomino_Deltas[this.polyomino_type][this.direction]) {
+      let o = future_pos.clone();
+      let p = o.add(delta);
+      res.push(p);
+    }
+
+    return res;
+  }
+
+  logically_move_towards(dir: Direction, step: number = 1) {
+    const delta = Const.Direction2Vec3[dir].multiplyScalar(step);
+    this.local_pos = this.local_pos.add(delta);
   }
 
   async physically_move_to_async(pos: Vec3) {

@@ -339,10 +339,12 @@
     "__prefab": {
       "__id__": 15
     },
+    "animation": null,
     "editing_cover": {
       "__id__": 10
     },
     "polyomino_type": 1,
+    "entity_type": 1,
     "_id": ""
   },
   {
