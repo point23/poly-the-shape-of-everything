@@ -130,7 +130,15 @@ export class Controller_Proc_Move extends Single_Move {
     }
   }
 
-  async undo_async() {}
+  async undo_async() {
+    if (!this.start_pos.equals(this.end_pos)) {
+      await this.entity.move_to_async(this.start_pos);
+    }
+
+    if (this.start_dir != this.end_dir) {
+      await this.entity.face_towards_async(this.start_dir);
+    }
+  }
 
   debug_info(): string {
     let res = '';
@@ -185,6 +193,10 @@ export class Pushed_Move extends Single_Move {
 
   async execute_async() {
     await this.entity.move_to_async(this.end_pos);
+  }
+
+  async undo_async() {
+    await this.entity.move_to_async(this.start_pos);
   }
 
   debug_info(): string {

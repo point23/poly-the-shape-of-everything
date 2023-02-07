@@ -36,7 +36,12 @@ export class Transaction_Stack {
   peek(): Move_Transaction {
     return this.storage[this.size() - 1];
   }
+
+  clear() {
+    this.storage = [];
+  }
 }
+
 
 /**
  * NOTE
@@ -62,6 +67,7 @@ export class Transaction_Manager extends Component {
     const new_transaction = new Move_Transaction();
     if (move.try_add_itself(new_transaction)) {
       this.issued_stack.push(new_transaction);
+      this.undo_stack.clear();
     }
   }
 
@@ -90,7 +96,7 @@ export class Transaction_Manager extends Component {
   }
 
   undo_async() {
-    if (this.commited_stack.empty) return;
+    if (this.commited_stack.empty()) return;
 
     const transaction = this.commited_stack.pop();
     for (let move of transaction.moves) {
@@ -98,5 +104,16 @@ export class Transaction_Manager extends Component {
     }
 
     this.undo_stack.push(transaction);
+  }
+
+  redo_async() {
+    if (this.undo_stack.empty()) return;
+
+    const transaction = this.undo_stack.pop();
+    for (let move of transaction.moves) {
+      move.execute_async();
+    }
+
+    this.commited_stack.push(transaction);
   }
 }

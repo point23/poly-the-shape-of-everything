@@ -13,8 +13,8 @@ const {ccclass, property} = _decorator;
 
 @ccclass('Test_Run_Mode')
 export class Test_Run_Mode extends Game_Mode {
-  player: Game_Entity = null;
   ticks_per_loop = 1;
+  last_key_code: number = null;
 
   on_enter() {
     Debug_Console.Info('Test Run');
@@ -41,6 +41,7 @@ export class Test_Run_Mode extends Game_Mode {
 
   handle_key_down(event: EventKeyboard) {
     let key_code = event.keyCode;
+
     const current_character = Entity_Manager.instance.current_character;
     switch (key_code) {
       case KeyCode.KEY_W: {
@@ -63,6 +64,14 @@ export class Test_Run_Mode extends Game_Mode {
         const move = new Controller_Proc_Move(current_character, target_dir);
         Transaction_Manager.instance.try_add_new_move(move);
       } break;
+      case KeyCode.DASH: {
+        Transaction_Manager.instance.undo_async();
+      } break;
+      case KeyCode.EQUAL: {
+        Transaction_Manager.instance.redo_async();
+      } break;
     }
+
+    this.last_key_code = key_code;
   }
 }

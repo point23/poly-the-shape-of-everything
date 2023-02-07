@@ -134,10 +134,14 @@ export class Entity_Edit_Mode extends Game_Mode {
         this.deselect_all();
         break;
       case KeyCode.KEY_C:
-        this.copy_selected_entities();
+        if (this.last_key_code == KeyCode.CTRL_LEFT) {
+          this.copy_selected_entities();
+        }
         break;
       case KeyCode.KEY_V:
-        this.paste_copied_entities();
+        if (this.last_key_code == KeyCode.CTRL_LEFT) {
+          this.paste_copied_entities();
+        }
         break;
       case KeyCode.BACKSPACE:
         this.delete_selected_entities();
