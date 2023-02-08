@@ -41,10 +41,10 @@ export class Const {
 
   static Direction2Quat: Quat[] = [
     /* RIGHT */ new Quat(0, 0, 0, Math.cos(0)),
-    /* LEFT */
-    new Quat(0, Math.sin(this.RADIUS_90), 0, Math.cos(this.RADIUS_90)),
     /* FORWARD */
     new Quat(0, Math.sin(-this.RADIUS_45), 0, Math.cos(-this.RADIUS_45)),
+    /* LEFT */
+    new Quat(0, Math.sin(this.RADIUS_90), 0, Math.cos(this.RADIUS_90)),
     /* BACKWARD */
     new Quat(0, Math.sin(this.RADIUS_45), 0, Math.cos(this.RADIUS_45)),
     /* UP */ new Quat(0, 0, 0, 1),
@@ -53,8 +53,8 @@ export class Const {
 
   static Direction2Vec3: Vec3[] = [
     /* RIGHT */ new Vec3(1, 0, 0),
-    /* LEFT */ new Vec3(-1, 0, 0),
     /* FORWARD */ new Vec3(0, -1, 0),
+    /* LEFT */ new Vec3(-1, 0, 0),
     /* BACKWARD */ new Vec3(0, 1, 0),
     /* UP */ new Vec3(0, 0, -1),
     /* DOWN */ new Vec3(0, 0, 1),
@@ -66,15 +66,14 @@ export class Const {
     /* Domino */
     [
       /* RIGHT */[new Vec3(1, 0, 0)],
-      /* LEFT */[new Vec3(-1, 0, 0)],
       /* FORWARD */[new Vec3(0, -1, 0)],
+      /* LEFT */[new Vec3(-1, 0, 0)],
       /* BACKWARD */[new Vec3(0, 1, 0)],
       /* UP */[new Vec3(0, 0, -1)],
       /* DOWN */[new Vec3(0, 0, 1)],
     ],
   ];
 
-  static Move_Type_Names: string[] = ['Controller', 'Push', 'Pull'];
   static Direction_Names: string[] =
-      ['RIGHT', 'LEFT', 'FORWARD', 'BACKWARD', 'UP', 'DOWN'];
+      ['RIGHT', 'FORWARD', 'LEFT', 'BACKWARD', 'UP', 'DOWN'];
 }

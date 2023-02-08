@@ -39,6 +39,7 @@ export class Contextual_Manager extends Component {
 
   register_events() {
     input.on(Input.EventType.KEY_DOWN, this.on_key_down, this);
+    input.on(Input.EventType.KEY_UP, this.on_key_up, this);
     input.on(Input.EventType.MOUSE_DOWN, this.on_mouse_down, this);
     input.on(Input.EventType.MOUSE_MOVE, this.on_mouse_move, this);
     input.on(Input.EventType.MOUSE_WHEEL, this.on_mouse_scroll, this);
@@ -80,6 +81,10 @@ export class Contextual_Manager extends Component {
         this.current_mode.handle_key_down(event);
         break;
     }
+  }
+
+  on_key_up(event: EventKeyboard) {
+    this.current_mode.handle_key_up(event);
   }
 
   on_mouse_down(event: EventMouse) {

@@ -46,7 +46,7 @@ export class Game_Entity extends Component {
   @property({type: Enum(Entity_Type)})
   entity_type: Entity_Type = Entity_Type.STATIC;
 
-  direction: Direction;
+  direction: Direction = null;
   entity_id: number;
   _info: Entity_Info;
 
@@ -154,12 +154,12 @@ export class Game_Entity extends Component {
   }
 
   async face_towards_async(dir: Direction) {
-    if (this.entity_type == Entity_Type.CHARACTER) {
+    if (this.entity_type != Entity_Type.AVATAR) {
       this._info.rotation = dir;
       await this.body.rotate_to_async(dir);
       this.direction = dir;
       this.indicator.rotate_to(dir);
-    } else if (this.entity_type == Entity_Type.AVATAR) {
+    } else {
       this.direction = dir;
       this.indicator.rotate_to(dir);
     }
@@ -206,7 +206,7 @@ export class Game_Entity extends Component {
 
   //#region Calculation
   /** TODO Rename it, Support more poly types */
-  get occupied_squares(): Vec3[] {
+  occupied_squares(): Vec3[] {
     let res: Vec3[] = [];
     res.push(this.local_pos);
 

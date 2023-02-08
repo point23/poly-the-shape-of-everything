@@ -7,10 +7,13 @@ export class Game_Mode extends Component {
   on_enter() {
     throw new Error('not implemented');
   }
+
   on_exit() {
     throw new Error('not implemented');
   }
+
   handle_key_down(event: EventKeyboard) {}
+  handle_key_up(event: EventKeyboard) {}
   handle_mouse_down(event: EventMouse) {}
   handle_mouse_move(event: EventMouse) {}
   handle_mouse_scroll(event: EventMouse) {}

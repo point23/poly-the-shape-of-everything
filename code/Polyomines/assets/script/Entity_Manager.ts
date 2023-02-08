@@ -1,5 +1,5 @@
 import {_decorator, CCString, Component, instantiate, Node, Prefab, Vec3} from 'cc';
-import {Entity_Type} from './Enums';
+import {Direction, Entity_Type} from './Enums';
 
 import {Game_Board} from './Game_Board';
 import {Entity_Info, Game_Entity} from './Game_Entity';
@@ -88,7 +88,7 @@ export class Entity_Manager extends Component {
           z: entity.info.local_pos.z,
         },
         prefab: entity.prefab,
-        direction: entity.info.rotation,
+        rotation: entity.info.rotation,
       };
       entities_info.push(info);
     }
@@ -99,7 +99,7 @@ export class Entity_Manager extends Component {
     const map = new Map<string, boolean>();
 
     for (let entity of this.entities_iterator) {
-      for (let pos of entity.occupied_squares) {
+      for (let pos of entity.occupied_squares()) {
         const pos_str = pos.toString();
         if (map.has(pos_str)) {
           map.set(pos_str, true);
@@ -112,7 +112,7 @@ export class Entity_Manager extends Component {
     for (let entity of this.entities_iterator) {
       let is_valid = true;
       /* FIXME Don't Calcu it twice -> occupied_positions */
-      for (let pos of entity.occupied_squares) {
+      for (let pos of entity.occupied_squares()) {
         if (map.get(pos.toString())) {
           is_valid = false;
         }
@@ -125,12 +125,48 @@ export class Entity_Manager extends Component {
   locate_entity(target_pos: Vec3): Game_Entity {
     let target: Game_Entity = null;
     for (let entity of this.entities_iterator) {
-      for (let pos of entity.occupied_squares) {
+      for (let pos of entity.occupied_squares()) {
         if (pos.equals(target_pos)) {
           target = entity;
         }
       }
     }
     return target;
+  }
+
+  locate_supporter(pos: Vec3): Game_Entity {
+    return this.locate_entity(pos.clone().subtract(Vec3.UNIT_Z));
+  }
+
+  locate_future_supporters(entity: Game_Entity, dir: Direction) {
+    const future_squares = entity.calcu_future_squares(dir);
+
+    const supporters = [];
+    for (let pos of future_squares) {
+      const supporter = Entity_Manager.instance.locate_supporter(pos);
+      if (supporter != null) {
+        supporters.push(supporter)
+      }
+    }
+
+    return supporters;
+  }
+
+  locate_supportee(pos: Vec3): Game_Entity {
+    return this.locate_entity(pos.clone().add(Vec3.UNIT_Z));
+  }
+
+  locate_current_supportees(entity: Game_Entity) {
+    const squares = entity.occupied_squares();
+
+    const supportees = [];
+    for (let pos of squares) {
+      const supportee = Entity_Manager.instance.locate_supportee(pos);
+      if (supportee != null && supportee.entity_type != Entity_Type.STATIC) {
+        supportees.push(supportee)
+      }
+    }
+
+    return supportees;
   }
 }

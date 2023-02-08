@@ -3,16 +3,19 @@ import {_decorator, Vec3} from 'cc';
 import {Const} from './Const';
 import {Entity_Manager} from './Entity_Manager';
 import {Direction, Entity_Type} from './Enums';
+import {Game_Board} from './Game_Board';
 import {Game_Entity} from './Game_Entity';
 import {Move_Transaction} from './Move_Transaction';
 import {Transaction_Control_Flags, Transaction_Manager} from './Transaction_Manager';
 
 export class Move_Info {
-  duration: number;
+  source_entity_id: number;
+  target_entity_id: number;
   start_pos: Vec3;
   end_pos: Vec3;
   start_dir: Direction;
   end_dir: Direction;
+  reaction_direction: Direction;
 
   public constructor() {}
 }
@@ -25,34 +28,38 @@ export class Move_Info {
 export class Single_Move {
   static move_id_seq: number = 0;
   move_id: number;
-  entity_id: number;
   move_info: Move_Info;
 
-  public constructor(entity_id: number, move_info: Move_Info) {
+  public constructor(move_info: Move_Info) {
     this.move_id = Single_Move.move_id_seq++;
 
-    this.entity_id = entity_id;
     this.move_info = move_info;
   }
 
-  get entity(): Game_Entity {
-    return Entity_Manager.instance.id2entity.get(this.entity_id);
+  get target_entity(): Game_Entity {
+    return Entity_Manager.instance.id2entity.get(
+        this.move_info.target_entity_id);
+  }
+
+  get source_entity(): Game_Entity {
+    return Entity_Manager.instance.id2entity.get(
+        this.move_info.source_entity_id);
   }
 
   get start_dir(): Direction {
     return this.move_info.start_dir;
   }
 
-  set start_dir(dir: Direction) {
-    this.move_info.start_dir = dir;
-  }
-
-  set end_dir(dir: Direction) {
-    this.move_info.end_dir = dir;
-  }
-
   get end_dir(): Direction {
     return this.move_info.end_dir;
+  }
+
+  get dir_delta(): number {
+    return this.end_dir - this.start_dir;
+  }
+
+  get reaction_direction(): Direction {
+    return this.move_info.reaction_direction;
   }
 
   get start_pos(): Vec3 {
@@ -79,32 +86,60 @@ export class Single_Move {
 export class Controller_Proc_Move extends Single_Move {
   public constructor(entity: Game_Entity, dir: Direction, step: number = 1) {
     const move_info = new Move_Info();
+
+    move_info.target_entity_id = entity.entity_id;
     move_info.start_dir = entity.direction;
     move_info.end_dir = dir;
     move_info.start_pos = entity.local_pos;
     move_info.end_pos = entity.calcu_future_pos(dir, step);
-    super(entity.entity_id, move_info);
+    super(move_info);
   }
 
   try_add_itself(transaction: Move_Transaction): boolean {
     if (Transaction_Manager.instance.control_flags &&
         Transaction_Control_Flags
-            .CONTROLLER_MOVE) {  // Already exist an Controller_Move
+            .CONTROLLER_MOVE) {  // Already exist a Controller_Move
       return false;
     }
 
-    const entity = this.entity;
+    const entity = this.target_entity;
     let at_least_rotated = false;
+    const supportees: Game_Entity[] =
+        Entity_Manager.instance.locate_current_supportees(entity);
 
-    if (this.end_dir != this.start_dir) {  // Face towards target dir first
+    if (this.end_dir != this.start_dir) {  // Face towards target-dir first
+      let dir_delta = this.end_dir - this.start_dir;
+
       transaction.moves.push(new Controller_Proc_Move(entity, this.end_dir, 0));
-      this.start_dir = this.end_dir;
+      this.move_info.start_dir = this.end_dir;
       at_least_rotated = true;
+
+      if (entity.entity_type !=
+          Entity_Type.AVATAR) {  // Avator would only rotate it's indicator
+        // Rotate relatively
+        for (let supportee of supportees) {
+          const support_move = new Support_Move(supportee, dir_delta);
+          support_move.try_add_itself(transaction);
+        }
+      }
+    }
+
+    if (this.end_pos.equals(this.start_pos)) {
+      return at_least_rotated;
     }
 
     const future_squares = entity.calcu_future_squares(this.end_dir);
+
+    const supporters =
+        Entity_Manager.instance.locate_future_supporters(entity, this.end_dir);
+    if (supporters.length == 0) {
+      return at_least_rotated;
+    }
+
     for (let pos of future_squares) {
       const other = Entity_Manager.instance.locate_entity(pos);
+      if (other != null) console.log(other.info);
+
       if (other != null && other != entity) {
         const pushed_move = new Pushed_Move(other, this.end_dir);
         if (!pushed_move.try_add_itself(transaction)) {
@@ -118,6 +153,11 @@ export class Controller_Proc_Move extends Single_Move {
     }
 
     transaction.moves.push(this);
+    for (let supportee of supportees) {
+      const support_move = new Support_Move(supportee, 0, this.end_dir, 1);
+      support_move.try_add_itself(transaction);
+    }
+
     Transaction_Manager.instance.control_flags |=
         Transaction_Control_Flags.CONTROLLER_MOVE;
 
@@ -126,27 +166,28 @@ export class Controller_Proc_Move extends Single_Move {
 
   async execute_async() {
     if (!this.start_pos.equals(this.end_pos)) {
-      await this.entity.move_to_async(this.end_pos);
+      await this.target_entity.move_to_async(this.end_pos);
     }
 
     if (this.start_dir != this.end_dir) {
-      await this.entity.face_towards_async(this.end_dir);
+      await this.target_entity.face_towards_async(this.end_dir);
     }
   }
 
   async undo_async() {
     if (!this.start_pos.equals(this.end_pos)) {
-      await this.entity.move_to_async(this.start_pos);
+      await this.target_entity.move_to_async(this.start_pos);
     }
 
     if (this.start_dir != this.end_dir) {
-      await this.entity.face_towards_async(this.start_dir);
+      await this.target_entity.face_towards_async(this.start_dir);
     }
   }
 
   debug_info(): string {
     let res = '';
     res += 'CONTROLLER_PROC#' + this.move_id.toString();
+    res += ' entity#' + this.move_info.target_entity_id.toString();
 
     if (this.start_dir != this.end_dir) {  // Rotation
       res += ' rotation: from ' + Const.Direction_Names[this.start_dir] +
@@ -169,25 +210,156 @@ export class Controller_Proc_Move extends Single_Move {
 export class Pushed_Move extends Single_Move {
   public constructor(entity: Game_Entity, dir: Direction, step: number = 1) {
     const move_info = new Move_Info();
+
+    move_info.target_entity_id = entity.entity_id;
     move_info.start_pos = entity.local_pos;
-    move_info.start_dir = move_info.end_dir = dir;
+    move_info.reaction_direction = dir;
     move_info.end_pos = entity.calcu_future_pos(dir, step);
-    super(entity.entity_id, move_info);
+    super(move_info);
   }
 
   try_add_itself(transaction: Move_Transaction): boolean {
-    const entity = this.entity;
-    const direction = this.end_dir;
+    const entity = this.target_entity;
+    const direction = this.reaction_direction;
 
     if (entity.entity_type == Entity_Type.STATIC) {
       return false;
     }
 
     const future_squares = entity.calcu_future_squares(direction);
+
+    const supporters =
+        Entity_Manager.instance.locate_future_supporters(entity, direction);
+    if (supporters.length == 0) {
+      /* TODO Failing */
+      return false;
+    }
+
     for (let pos of future_squares) {
       const other = Entity_Manager.instance.locate_entity(pos);
       if (other != null && other != entity) {
         return false;
+      }
+    }
+
+    const supportees =
+        Entity_Manager.instance.locate_current_supportees(entity);
+    for (let supportee of supportees) {
+      const support_move = new Support_Move(
+          supportee, this.dir_delta, this.reaction_direction, 1);
+      support_move.try_add_itself(transaction);
+    }
+
+    transaction.moves.push(this);
+    return true;
+  }
+
+  async execute_async() {
+    await this.target_entity.move_to_async(this.end_pos);
+  }
+
+  async undo_async() {
+    await this.target_entity.move_to_async(this.start_pos);
+  }
+
+  debug_info(): string {
+    let res = '';
+    res += 'PUSHED#' + this.move_id.toString();
+    res += ' direction ' + Const.Direction_Names[this.reaction_direction];
+    return res;
+  }
+}
+
+export class Support_Move extends Single_Move {
+  public constructor(
+      entity: Game_Entity, dir_delta: number, reaction_direction: Direction = 0,
+      step: number = 0) {
+    const move_info = new Move_Info();
+
+    move_info.target_entity_id = entity.entity_id;
+    move_info.start_dir = entity.direction;
+    move_info.end_dir = (entity.direction + dir_delta + 4) % 4;
+    move_info.reaction_direction = reaction_direction;
+    move_info.start_pos = entity.local_pos;
+    move_info.end_pos = entity.calcu_future_pos(reaction_direction, step);
+    super(move_info);
+  }
+
+  try_add_itself(transaction: Move_Transaction): boolean {
+    const entity = this.target_entity;
+
+    const supportees =
+        Entity_Manager.instance.locate_current_supportees(entity);
+    for (let supportee of supportees) {
+      const support_move = new Support_Move(
+          supportee, this.dir_delta, this.reaction_direction, 1);
+      support_move.try_add_itself(transaction);
+    }
+
+    transaction.moves.push(this);
+    return true;
+  }
+
+  async execute_async() {
+    if (!this.start_pos.equals(this.end_pos)) {
+      await this.target_entity.move_to_async(this.end_pos);
+    }
+
+    if (this.start_dir != this.end_dir) {
+      await this.target_entity.face_towards_async(this.end_dir);
+    }
+  }
+
+  async undo_async() {
+    if (!this.start_pos.equals(this.end_pos)) {
+      await this.target_entity.move_to_async(this.start_pos);
+    }
+
+    if (this.start_dir != this.end_dir) {
+      await this.target_entity.face_towards_async(this.start_dir);
+    }
+  }
+
+  debug_info(): string {
+    let res = '';
+    res += 'SUPPORT#' + this.move_id.toString();
+    if (this.start_dir != this.end_dir) {  // Rotation
+      res += ' rotation: from ' + Const.Direction_Names[this.start_dir] +
+          ' to ' + Const.Direction_Names[this.end_dir];
+    }
+
+    if (!this.start_pos.equals(this.end_pos)) {  // Movement
+      res += ' movement: from ' + this.start_pos.toString() + ' to ' +
+          this.end_pos.toString();
+    }
+    return res;
+  }
+}
+
+export class Possess_Move extends Single_Move {
+  public constructor(entity: Game_Entity) {
+    const move_info = new Move_Info();
+    move_info.source_entity_id = entity.entity_id;
+    move_info.start_pos = entity.local_pos;
+    move_info.start_dir = move_info.end_dir = entity.direction;
+    super(move_info);
+  }
+
+  try_add_itself(transaction: Move_Transaction): boolean {
+    const entity = this.source_entity;
+    const direction = this.end_dir;
+
+    for (let step = 1, succeed = false; !succeed; step += 1) {
+      const futrue_pos = entity.calcu_future_pos(direction, step);
+
+      if (!Game_Board.instance.verfify_pos(futrue_pos)) {
+        return false;
+      }
+
+      const other = Entity_Manager.instance.locate_entity(futrue_pos);
+      if (other != null) {
+        this.move_info.target_entity_id = other.entity_id;
+        succeed = true;
       }
     }
 
@@ -196,18 +368,10 @@ export class Pushed_Move extends Single_Move {
   }
 
   async execute_async() {
-    await this.entity.move_to_async(this.end_pos);
+    Entity_Manager.instance.reclaim(this.source_entity);
+    this.target_entity.entity_type = Entity_Type.AVATAR;
+    Entity_Manager.instance.current_character = this.target_entity;
   }
 
-  async undo_async() {
-    await this.entity.move_to_async(this.start_pos);
-  }
-
-  debug_info(): string {
-    let res = '';
-    res += 'PUSHED#' + this.move_id.toString();
-    res +=
-        ' from ' + this.start_pos.toString() + ' to ' + this.end_pos.toString();
-    return res;
-  }
+  async undo_async() {}
 }

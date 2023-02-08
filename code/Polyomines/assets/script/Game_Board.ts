@@ -64,7 +64,7 @@ export type Game_Board_Info = {
     return world_pos;
   }
 
-  validate_pos(local_pos: Vec3): boolean {
+  verfify_pos(local_pos: Vec3): boolean {
     return local_pos.x >= 0 && local_pos.x < this.grid_size.width &&
         local_pos.y >= 0 && local_pos.y < this.grid_size.height;
   }
