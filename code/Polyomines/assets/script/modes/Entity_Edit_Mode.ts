@@ -2,9 +2,10 @@ import {_decorator, Camera, EventKeyboard, EventMouse, EventTouch, geometry, Key
 
 import {Const} from '../Const';
 import {Debug_Console} from '../Debug_Console';
-import {Direction, Entity_Info, Game_Entity} from '../entities/Game_Entity_Base';
 import {Entity_Manager} from '../Entity_Manager';
+import {Direction} from '../Enums';
 import {Game_Board} from '../Game_Board';
+import {Entity_Info, Game_Entity} from '../Game_Entity';
 import {Resource_Manager} from '../Resource_Manager';
 
 import {Game_Mode} from './Game_Mode_Base';
@@ -17,6 +18,7 @@ const {ccclass, property} = _decorator;
  * - Move & Rotate
  * - Copy & Paste
  * - Load Different Levels
+ * - Entity Proxy: support editor cover, hightlight when selected/invalid...
  */
 @ccclass('Entity_Edit_Mode')
 export class Entity_Edit_Mode extends Game_Mode {
@@ -51,7 +53,7 @@ export class Entity_Edit_Mode extends Game_Mode {
         const item = raycast_results[i];
         let succeed: boolean = false;
         for (let entity of Entity_Manager.instance.entities_iterator) {
-          if (item.collider.node.parent != entity.node) continue;
+          if (item.collider.node.parent.parent != entity.node) continue;
 
           this.select(entity);
           succeed = true;
@@ -83,7 +85,7 @@ export class Entity_Edit_Mode extends Game_Mode {
         let succeed: boolean = false;
 
         for (let entity of Entity_Manager.instance.entities_iterator) {
-          if (item.collider.node.parent != entity.node) continue;
+          if (item.collider.node.parent.parent != entity.node) continue;
 
           if (entity.selected)
             this.deselect(entity);

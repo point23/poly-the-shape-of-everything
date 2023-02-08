@@ -1,8 +1,9 @@
 import {_decorator, Vec3} from 'cc';
+
 import {Const} from './Const';
-import {Direction, Entity_Type, Game_Entity} from './entities/Game_Entity_Base';
 import {Entity_Manager} from './Entity_Manager';
-import {Game_Board} from './Game_Board';
+import {Direction, Entity_Type} from './Enums';
+import {Game_Entity} from './Game_Entity';
 import {Move_Transaction} from './Move_Transaction';
 import {Transaction_Control_Flags, Transaction_Manager} from './Transaction_Manager';
 
@@ -44,6 +45,10 @@ export class Single_Move {
 
   set start_dir(dir: Direction) {
     this.move_info.start_dir = dir;
+  }
+
+  set end_dir(dir: Direction) {
+    this.move_info.end_dir = dir;
   }
 
   get end_dir(): Direction {
@@ -97,19 +102,18 @@ export class Controller_Proc_Move extends Single_Move {
       at_least_rotated = true;
     }
 
-    const future_pos = this.end_pos;
-    if (!Game_Board.instance.validate_pos(future_pos)) return at_least_rotated;
-
-    const other = Entity_Manager.instance.locate_entity(future_pos);
-    if (other != null) {
-      const pushed_move = new Pushed_Move(other, this.end_dir);
-
-      if (!pushed_move.try_add_itself(transaction)) {
-        /**
-         * NOTE : Interesting bugs(fixed)
-         *  - Walk into a Dynamic-Entity When face towards another dir
-         */
-        return at_least_rotated;
+    const future_squares = entity.calcu_future_squares(this.end_dir);
+    for (let pos of future_squares) {
+      const other = Entity_Manager.instance.locate_entity(pos);
+      if (other != null && other != entity) {
+        const pushed_move = new Pushed_Move(other, this.end_dir);
+        if (!pushed_move.try_add_itself(transaction)) {
+          /**
+           * NOTE : Interesting bugs(fixed)
+           *  - Walk into a Dynamic-Entity When face towards another dir
+           */
+          return at_least_rotated;
+        }
       }
     }
 

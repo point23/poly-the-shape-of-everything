@@ -1,7 +1,9 @@
-import {_decorator, AnimationClip, Color, Component, Enum, MeshRenderer, Node, profiler, Quat, renderer, SkeletalAnimation, tween, Vec2, Vec3} from 'cc';
+import {_decorator, Component, Enum, MeshRenderer, SkeletalAnimation, tween, Vec3} from 'cc';
 
-import {Const} from '../Const';
-import {Game_Board} from '../Game_Board';
+import {Const} from './Const';
+import {Direction, Entity_Type, Polyomino_Type} from './Enums';
+import {Game_Board} from './Game_Board';
+import {Polygon_Entity} from './Polygon_Entity';
 
 const {ccclass, property} = _decorator;
 
@@ -9,65 +11,22 @@ export class Entity_Info {
   prefab: string;
   local_pos: Vec3;
   world_pos: Vec3;
-  direction: Direction;
+  rotation: Direction;
 
   public constructor(info: any) {
     this.prefab = info.prefab;
     this.local_pos =
         new Vec3(info.local_pos.x, info.local_pos.y, info.local_pos.z);
-    this.direction = info.direction;
+    this.rotation = info.rotation;
   }
 };
 
-export enum Direction {
-  RIGHT,
-  LEFT,
-  FORWARD,
-  BACKWORD,
-  UP,
-  DOWN,
-}
-
-export enum Entity_Type {
-  STATIC,
-  DYNAMIC,
-  CHARACTER,
-}
-
-export enum Polyomino_Type {
-  /* Monomino:
-     _ _ _
-    |     |
-    |  o  |
-    |_ _ _|
-   */
-  MONOMINO,
-  /* Domino:
-     _ _ _ _ _ _
-    |     |     |
-    |  o  |     |
-    |_ _ _|_ _ _|
-   */
-  DOMINO,
-  /* Straight-Tromino:
-     _ _ _ _ _ _ _ _ _
-    |     |     |     |
-    |     |  o  |     |
-    |_ _ _|_ _ _|_ _ _|
-   */
-  STRAIGHT_TROMINO,
-  /* L-Tromino:
-     _ _ _
-    |     |
-    |     |
-    |_ _ _|_ _ _
-    |     |     |
-    |  o  |     |
-    |_ _ _|_ _ _|
-   */
-  L_TROMINO,
-}
-
+/**
+ * NOTE
+ * - Rotate to
+ * - Face towards
+ * - Move to
+ */
 @ccclass('Game_Entity')
 export class Game_Entity extends Component {
   static entity_id_seq: number = 0;
@@ -75,13 +34,19 @@ export class Game_Entity extends Component {
     return this.entity_id_seq++;
   }
 
+  //#region Properties
   @property(SkeletalAnimation) animation: SkeletalAnimation = null;
   @property(MeshRenderer) editing_cover: MeshRenderer = null;
+  @property(Polygon_Entity) body: Polygon_Entity = null;
+  @property(Polygon_Entity) indicator: Polygon_Entity = null;
+
   @property({type: Enum(Polyomino_Type)})
   polyomino_type: Polyomino_Type = Polyomino_Type.MONOMINO;
+
   @property({type: Enum(Entity_Type)})
   entity_type: Entity_Type = Entity_Type.STATIC;
 
+  direction: Direction;
   entity_id: number;
   _info: Entity_Info;
 
@@ -91,10 +56,8 @@ export class Game_Entity extends Component {
 
   set info(info: Entity_Info) {
     this._info = info;
-
-    this.node.setRTS(
-        Const.Direction2Quat[info.direction], info.world_pos,
-        new Vec3(1, 1, 1));
+    this.face_towards(info.rotation);
+    this.physically_move_to(info.world_pos);
   }
 
   get prefab(): string {
@@ -105,30 +68,11 @@ export class Game_Entity extends Component {
     return this._info.local_pos;
   }
 
-  set local_pos(pos: Vec3) {
-    this._info.local_pos = pos;
+  get rotation(): Direction {
+    return this._info.rotation;
   }
 
-  get direction(): Direction {
-    return this._info.direction;
-  }
-
-  /** TODO Rename it, Support move poly types */
-  get occupied_squares(): Vec3[] {
-    let res: Vec3[] = [];
-    res.push(this.local_pos);
-
-    if (this.polyomino_type == Polyomino_Type.MONOMINO) return res;
-
-    for (let delta of
-             Const.Polyomino_Deltas[this.polyomino_type][this.direction]) {
-      let o = this.local_pos.clone();
-      let p = o.add(delta);
-      res.push(p);
-    }
-
-    return res;
-  }
+  //#endregion
 
   //#region TEST
   private _valid: boolean = true;
@@ -172,36 +116,110 @@ export class Game_Entity extends Component {
   }
   //#endregion TEST
 
+  //#region Movement
   async move_to_async(target: Vec3) {
-    this.local_pos = target.clone();
+    this._info.local_pos = target.clone();
     let world_pos = Game_Board.instance.local2world(this.local_pos);
-    // this.animation.getState('walk').speed = 5;
-    // this.animation.getState('walk').wrapMode = AnimationClip.WrapMode.Normal;
-
-    // this.animation.play('walk');
     await this.physically_move_to_async(world_pos);
   }
 
-  /* TODO Naming Issue: separate move with animation in Run-Mode and move in
-   * Edit-Mode  */
   async move_towards_async(dir: Direction, step: number = 1) {
     this.logically_move_towards(dir, step);
     let world_pos = Game_Board.instance.local2world(this.local_pos);
     // this.animation.getState('walk').speed = 5;
     // this.animation.getState('walk').wrapMode = AnimationClip.WrapMode.Normal;
-
     // this.animation.play('walk');
     await this.physically_move_to_async(world_pos);
-  }
-
-  async face_towards_async(dir: Direction) {
-    await this.rotate_to_async(dir);
   }
 
   move_towards(dir: Direction, step: number = 1) {
     this.logically_move_towards(dir, step);
     let world_pos = Game_Board.instance.local2world(this.local_pos);
     this.physically_move_to(world_pos);
+  }
+
+  physically_move_to(world_pos: Vec3) {
+    this._info.world_pos = world_pos;
+    this.node.setPosition(world_pos);
+  }
+
+  logically_move_towards(dir: Direction, step: number = 1) {
+    const delta = Const.Direction2Vec3[dir].multiplyScalar(step);
+    this._info.local_pos = this.local_pos.add(delta);
+  }
+
+  async physically_move_to_async(world_pos: Vec3) {
+    this._info.world_pos = world_pos;
+    tween().target(this.node).to(0.1, {position: world_pos}).start();
+  }
+
+  async face_towards_async(dir: Direction) {
+    if (this.entity_type == Entity_Type.CHARACTER) {
+      this._info.rotation = dir;
+      await this.body.rotate_to_async(dir);
+      this.direction = dir;
+      this.indicator.rotate_to(dir);
+    } else if (this.entity_type == Entity_Type.AVATAR) {
+      this.direction = dir;
+      this.indicator.rotate_to(dir);
+    }
+  }
+
+  face_towards(dir: Direction) {
+    this.physically_rotate_to(dir);
+    if (this.entity_type != Entity_Type.STATIC) {
+      this.logically_rotate_to(dir);
+    }
+  }
+
+  logically_rotate_to(dir: Direction) {
+    this.direction = dir;
+    this.indicator.rotate_to(dir);
+  }
+
+  physically_rotate_to(dir: Direction) {
+    this._info.rotation = dir;
+    this.body.rotate_to(dir);
+  }
+
+  rotate_clockwise_horizontaly() {
+    let new_dir: Direction = null;
+
+    switch (this._info.rotation) {
+      case Direction.RIGHT:
+        new_dir = Direction.FORWARD;
+        break;
+      case Direction.FORWARD:
+        new_dir = Direction.LEFT;
+        break;
+      case Direction.LEFT:
+        new_dir = Direction.BACKWORD;
+        break;
+      case Direction.BACKWORD:
+        new_dir = Direction.RIGHT;
+        break;
+    }
+
+    this.face_towards(new_dir);
+  }
+  //#endregion Movement
+
+  //#region Calculation
+  /** TODO Rename it, Support more poly types */
+  get occupied_squares(): Vec3[] {
+    let res: Vec3[] = [];
+    res.push(this.local_pos);
+
+    if (this.polyomino_type == Polyomino_Type.MONOMINO) return res;
+
+    for (let delta of
+             Const.Polyomino_Deltas[this.polyomino_type][this.rotation]) {
+      let o = this.local_pos.clone();
+      let p = o.add(delta);
+      res.push(p);
+    }
+
+    return res;
   }
 
   calcu_future_pos(dir: Direction, step: number = 1): Vec3 {
@@ -218,7 +236,7 @@ export class Game_Entity extends Component {
     if (this.polyomino_type == Polyomino_Type.MONOMINO) return res;
 
     for (let delta of
-             Const.Polyomino_Deltas[this.polyomino_type][this.direction]) {
+             Const.Polyomino_Deltas[this.polyomino_type][this.rotation]) {
       let o = future_pos.clone();
       let p = o.add(delta);
       res.push(p);
@@ -226,53 +244,5 @@ export class Game_Entity extends Component {
 
     return res;
   }
-
-  logically_move_towards(dir: Direction, step: number = 1) {
-    const delta = Const.Direction2Vec3[dir].multiplyScalar(step);
-    this.local_pos = this.local_pos.add(delta);
-  }
-
-  async physically_move_to_async(pos: Vec3) {
-    this._info.world_pos = pos;
-    tween().target(this.node).to(0.1, {position: pos}).start();
-  }
-
-  async rotate_to_async(dir: Direction) {
-    this._info.direction = dir;
-    tween()
-        .target(this.node)
-        .to(0.1, {rotation: Const.Direction2Quat[dir]})
-        .start();
-  }
-
-  physically_move_to(pos: Vec3) {
-    this._info.world_pos = pos;
-    this.node.setPosition(pos);
-  }
-
-  rotate_to(dir: Direction) {
-    this._info.direction = dir;
-    this.node.setRotation(Const.Direction2Quat[dir]);
-  }
-
-  rotate_clockwise_horizontaly() {
-    let new_dir: Direction = null;
-
-    switch (this._info.direction) {
-      case Direction.RIGHT:
-        new_dir = Direction.FORWARD;
-        break;
-      case Direction.FORWARD:
-        new_dir = Direction.LEFT;
-        break;
-      case Direction.LEFT:
-        new_dir = Direction.BACKWORD;
-        break;
-      case Direction.BACKWORD:
-        new_dir = Direction.RIGHT;
-        break;
-    }
-
-    this.rotate_to(new_dir);
-  }
+  //#endregion
 }

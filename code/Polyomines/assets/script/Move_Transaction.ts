@@ -2,8 +2,6 @@ import {_decorator} from 'cc';
 import {Single_Move} from './Single_Move';
 import {Transaction_Manager} from './Transaction_Manager';
 
-
-
 export class Move_Transaction {
   static transaction_id_seq = 0;
 

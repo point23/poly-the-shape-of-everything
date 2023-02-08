@@ -5,19 +5,23 @@ FEATURE:
 - Entity Copy, Paste, Delete
 - Polyominoes
 - Validation
+- Move and Transaction
+- Character Control
+- Redo & Undo <= Command Pattern
 
-+ Move and Transaction
-+ Character Control
-+ Redo & Undo <= Command Pattern
 + Supporter and Supportee
-+ Game Object Pool
++ Beam VFX
++ Control a dynamic poly
++ Entity Proxy
 + Falling
-+ Switch Level
++ Switch Level & New Level
++ Game Object Pool
 
 FIX:
 - Fix Local-Position
 - Fix Double-Click
 - Draw-Call is too high
+- Domino Control
 
 CHORE:
 + Mini-Level: Sofa

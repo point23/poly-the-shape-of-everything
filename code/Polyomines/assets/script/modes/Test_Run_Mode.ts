@@ -2,8 +2,8 @@ import {_decorator, EventKeyboard, KeyCode} from 'cc';
 
 import {Const} from '../Const';
 import {Debug_Console} from '../Debug_Console';
-import {Direction, Game_Entity} from '../entities/Game_Entity_Base';
 import {Entity_Manager} from '../Entity_Manager';
+import {Direction} from '../Enums';
 import {Controller_Proc_Move, Move_Info} from '../Single_Move';
 import {Transaction_Manager} from '../Transaction_Manager';
 

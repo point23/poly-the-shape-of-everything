@@ -1,8 +1,8 @@
-import {_decorator, CCString, Component, instantiate, Node, Prefab, profiler, Quat, Vec2, Vec3} from 'cc';
+import {_decorator, CCString, Component, instantiate, Node, Prefab, Vec3} from 'cc';
+import {Entity_Type} from './Enums';
 
-import {Direction, Entity_Info, Entity_Type, Game_Entity} from './entities/Game_Entity_Base';
 import {Game_Board} from './Game_Board';
-
+import {Entity_Info, Game_Entity} from './Game_Entity';
 const {ccclass, property} = _decorator;
 
 @ccclass('Entity_Prefab_Pair')
@@ -88,7 +88,7 @@ export class Entity_Manager extends Component {
           z: entity.info.local_pos.z,
         },
         prefab: entity.prefab,
-        direction: entity.info.direction,
+        direction: entity.info.rotation,
       };
       entities_info.push(info);
     }
