@@ -2,7 +2,13 @@
 
 1. Jonathon Blow, "Discussion: Puzzle Game Movement Systems, with Sean Barrett.", https://www.youtube.com/watch?v=_tMb7OS2TOU&t=1879s. Jan 11, 2023.
 2. Be a Better Dev, "What is a Database Transaction? Be ACID compliant", https://www.youtube.com/watch?v=wHUOeXbZCYA. Jan 28, 2023.
-3. 
+3. Jonathon Blow, "Game Engine Programming Undo system rewrite", https://www.youtube.com/watch?v=PeF-9H6d7Lg&t=3796s. Feb 9, 2023.
+
+ 
+
+# Grid
+
+- Proximity Grid 
 
 
 
@@ -47,13 +53,15 @@
 
 备注：
 
-​		避免偶然事件：游戏世界基于引擎，但对于游戏玩法的计算，我们需要保证连续性，相同（或近似）输入下要有相同的结果，否则容易引起玩家的误解
+​	避免偶然事件
 
-## Jon Blow's Impl
+- 游戏世界基于引擎，但对于游戏玩法的计算，我们需要保证连续性，相同（或近似）输入下要有相同的结果，否则容易引起玩家的误解
 
-Transaction: 以Transaction的形式提交
+#### Jon's Implementation
 
-```ruby
+Transaction
+
+```
 Move_Transaction {
 	transaction_id;
 	entity_manager;
@@ -66,7 +74,7 @@ Move_Transaction {
 }
 
 Transaction_Flags {
-	PHYSICALLY_MOVED; // ISSUED
+	PHYSICALLY_MOVED;
 	CLOSED;
 	PRE_CLOSED;
 	DONE;
@@ -81,7 +89,7 @@ Transaction_Flags {
 
 Move
 
-```ruby
+```
 Move {
 	move_id;
 	entity_id;
@@ -128,9 +136,9 @@ Move_Flag {
 }
 ```
 
-detect_conflicts function: <u>**[TODO] how git check for conflicts**</u>
+detect_conflicts：
 
-```ruby
+```
 detect_conflicts(entity_manager, move_transaction) -> conflict
 	for other_transaction of entity_manager.move_transactions:
     	for move of move_transaction.moves:
@@ -144,13 +152,15 @@ detect_conflicts(entity_manager, move_transaction) -> conflict
 end
 ```
 
-- and afterwards we are going to solve those conflicts.
 
-# Database Transactions
+
+# Undo System: in Database, Version Control, Editors...
+
+#### Transactions in Database
 
 > Unit of work in DB language.
 
-#### Example Unit
+例子：
 
 | ID   | OP     |
 | ---- | ------ |
@@ -160,9 +170,112 @@ end
 - Either succeed or fail together as a unit.
 - Nothing can be partially succeed.
 
-#### ACID
+ACID
 
 - Atomic
 - Consistency
 - Isolation
 - Durability
+
+
+
+# Undo System
+
+#### Problem
+
+- 运行时游戏和关卡编辑器都需要Undo, 但两者涉及的数据大相径庭，例如运行时保存了：Failing, Dead等Flag，而编辑器保存了Material。
+- 如果编辑器内得操作也是以Move为单位，Move会有太多的Sub-Class
+- 大跨度的撤回：like C-R to reset a level；撤回到某个Major Change：like 推动Block。
+
+#### Entity
+
+```typescript
+// Entity Manager
+class Entity_Manager {
+	entity_array: Bucket_Array(Entity, 100);
+	universe_name: string;
+	
+	manager_id: Manager_Id;
+	
+	next_serial_system: Pid;
+	next_serial_gameplay: Pid;
+	next_serial_for_current_user: Pid;
+	
+	proximity_grid: Proximity_Grid;
+	
+	all_entities: Entity[];
+	potentially_visible_entities: Entity[];
+	moving_entities: Entity[];
+	
+	camera: Camera;
+	
+	active_hero_index: number;
+	
+	undo_handler: Undo_Handler;
+}
+
+class Entity {
+    undoable: Undoable_Entity_Data;
+    // ...
+}
+
+class Undoable_Entity_Data {
+    position: Vector3;
+    scale: number;
+    orientation: Direction;
+    
+    entity_flags: Entity_Flags;
+    entity_name: string;
+    
+    group_id: Pid;
+	supporting_id: Pid;
+    supported_by_id: Pid;
+    
+    bounding_radius: number;
+    bounding_center: Vector3;
+    
+    texture_map: Texture_Map;
+    mesh: Mesh;
+    materials: Materials[];
+    
+    failing: boolean;
+    dead: boolean;
+}
+```
+
+
+
+#### Diff
+
+```typescript
+// serialize:
+diff_entity(e_old, e_new, info) {
+	const type_idx = entity_manager_idx_of_type(e_old.entity_type);
+	const metadata = metadata_per_entity_type[type_idx];
+    
+	for (let item of metadata.leaf_item) {
+        compare_item(item, e_old, e_new, info);
+	}
+}
+
+compare_item(item, e_old, e_new, info) {
+    	const slot_old = metadata_slot(e_old, item);
+		const slot_new = metadata_slot(e_new, item);
+		
+		const differing = memcmp(slot_old, slot_new);
+		if (differing) {
+			const field_idx = item.idx;
+			info.put(field_idx);
+			info.put(slot_old, slot_new);
+            
+            // console.log(...)
+		}
+}
+
+// use case:
+let e_old = new Game_Entity();
+let e_new = new Game_Entity();
+info = new String_Builder();
+diff_entity(old, new, info);
+info.to_string();
+```
