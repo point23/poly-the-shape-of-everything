@@ -1,10 +1,247 @@
-# 参考资料：
+# Struts
 
-1. Jonathon Blow, "Discussion: Puzzle Game Movement Systems, with Sean Barrett.", https://www.youtube.com/watch?v=_tMb7OS2TOU&t=1879s. Jan 11, 2023.
-2. Be a Better Dev, "What is a Database Transaction? Be ACID compliant", https://www.youtube.com/watch?v=wHUOeXbZCYA. Jan 28, 2023.
-3. Jonathon Blow, "Game Engine Programming Undo system rewrite", https://www.youtube.com/watch?v=PeF-9H6d7Lg&t=3796s. Feb 9, 2023.
+#### Table
 
- 
+```typescript
+class Table<Key_Type, Value_Type> {
+    allocated: number;
+    count: number;
+    
+    // allocator
+    
+    keys: Key_Type[];
+    values: Value_Type[];
+    hashes: number[];
+}
+
+// find, remove, add => find and replace
+function table_find(table: Table,
+                    key: table.Key_Type): table.Value_Type {
+    if (!table.allocated) {
+        const dummy: tabel.Value_Type;
+        return dummy;
+    }
+    
+    let hash = get_hash(key);
+    if (hash == 0) hash += 1;
+    
+    let idx = hash % table.allocated;
+    while (table.hashes[idx]) {
+        if (table.hashes[idx] == hash) {
+            if (table.keys[idx] == key) {
+                return table.values[idx];
+            }
+        }
+        idx += 1;
+        if (idx >= table.allocated) idx = 0;
+    }
+    
+    const dummy: tabel.Value_Type;
+    return dummy;
+}
+
+function table_replace(table: Tale,
+                       key: table.Key_Type,
+                       replacement_item: table.Value_Type): boolean {
+}
+```
+
+#### Metadata
+
+```typescript
+enum Manipulator {
+    NONE,
+    TRANSLATION,
+    ROTATION,
+    SCALE,
+    RADIUS,
+    PIVOT,
+    CONE,
+    LOCK,
+    COUNT,
+}
+
+
+class Ui_Page {
+    name: string;
+    page_idx: number;
+    
+    items: Metadata_Item[];
+    num_visible_items: number;
+    
+    // free_page_name: boolean;
+}
+
+class Metadata {
+    info: Type_Info;
+    entity_type: Type;
+    
+    leaf_items: Metadata_Item[];
+    toplevel_items: Metadata_Item[];
+    
+    metadata_flags: number;
+
+    
+    ui_pages: Ui_Page[];
+    current_ui_page_idx;
+}
+
+enum Metadata_Flags {
+    METADATA_TYPE_IS_ONLY_FOR_EDITING,
+    METADATA_MESH_SKINNED_ON_GPU,
+    METADATA_USE_EDITOR_HANDLE,
+    METADATA_CONTAINS_PROATABLE_ID,
+    METADATA_TYPE_HAS_DRAGGABLE_FACES,
+    METADATA_TYPE_DOES_NOT_UPDATE,
+    METADATA_TYPE_DOES_NOT_NEED_MESH_FOR_RAYCAST,
+    METADATA_TYPE_ALWAYS_SKIPS_GAME_DISPLAY,
+    METADATA_TYPE_CAN_BE_PICKED_UP_BY_PLAYER,
+    METADATA_TYPE_IS_ALWAYS_DETAIL,
+    METADATA_TYPE_IS_ALWAYS_DYNAMIC,
+    METADATA_TYPE_DO_NOT_CLUSTER,
+}
+
+class Metadata_Item {
+    iofo: Type_Info;
+    metadata: Meta_Data;
+    byte_offset: number;
+    flags: Flags;
+    name: string;
+    ui_name: string;
+    description: string;
+    // revision stuff
+    ui_manipulator: Manipulator.None;
+    page_idx: number;
+    page_order: number;
+    // imported_from_base_entity: boolean;
+}
+
+metadata_per_entity_type: Metadata[];
+global_base_entity_metadata: Metadata
+```
+
+
+
+
+
+# Entity
+
+#### Entity Structs
+
+```typescript
+class Entity_Manager {
+	entity_array: Bucket_Array(Entity, 100);
+	universe_name: string;
+	
+	manager_id: Manager_Id;
+	
+	next_serial_system: Pid;
+	next_serial_gameplay: Pid;
+	next_serial_for_current_user: Pid;
+	
+	proximity_grid: Proximity_Grid;
+	
+	all_entities: Entity[];
+	potentially_visible_entities: Entity[];
+	moving_entities: Entity[];
+	
+	camera: Camera;
+	
+	active_hero_index: number;
+	
+	undo_handler: Undo_Handler;
+}
+
+function find(manager: Entity_Manager, id: Pid): Entity {
+    for (let bucket of manager.entity_array.buckets) {
+        bucket.occupied.forEach((it, it_idx) => {
+            if (!it) continue;
+            
+            let e = bucket.data[it_idx];
+            if (e.entity_id == id) return e;
+        });
+    }
+    return null;
+}
+
+function copy_entity_data(e: Entity, o: Entity) {
+    assert(e.entity_type == o.entity_type);
+    
+    o.entity_flags = e.entity_flags;
+    
+    let m = get_metadata(e);
+    
+    for (let item of base_entity_metadatas.toplevel_items) {
+        // Compare revision number?
+        copy_slot(e, item, o, item);
+    }
+    
+    
+    for (let item of m.toplevel_items) {
+        // Compare revision number?
+        copy_slot(e, item, o, item);
+    }
+}
+
+function copy_slot (e: Entity, item_e: Metadata_Item, o: Entity, item_o: Metadata_Item) {
+    if (Reflection.is_pod(item_e.info)) {
+        let source = metadata_slot(e, item_e);
+        let dest = metadata_slot(o, item_o);
+        
+        memcpy(dest, source, item_e.info.runtime_size);
+    } else if (item_e.info == type_info(string)) {
+        // ...
+    }
+}
+
+class Entity {
+    undoable: Undoable_Entity_Data;
+    old_undoable: Undoable_Entity_Data;
+    // ...
+}
+
+class Undoable_Entity_Data {
+    position: Vector3;
+    scale: number;
+    orientation: Direction;
+    
+    entity_flags: Entity_Flags;
+    entity_name: string;
+    
+    group_id: Pid;
+	supporting_id: Pid;
+    supported_by_id: Pid;
+    
+    bounding_radius: number;
+    bounding_center: Vector3;
+    
+    texture_map: Texture_Map;
+    mesh: Mesh;
+    materials: Materials[];
+    
+    failing: boolean;
+    dead: boolean;
+}
+```
+
+Life-circle
+
+```typescript
+function schedule_for_destruction (e: Entity) {
+	/* implementMe */ undo_note_destroyed_entity(e);
+    
+    if (e.scheduled_for_destruction) {
+        // Doubly-destructed?
+    }
+    
+    e.scheduled_for_destruction = true;
+    remove_from_grid(e.entity_manager.proximity_grid, e);
+    array_add(e.entity_manager.entities_to_clean_up, e);
+    unregister_entity(e.entity_manager, e);
+}
+```
+
+
 
 # Grid
 
@@ -13,6 +250,10 @@
 
 
 # Moves, Transactions, Conflicts 
+
+参考资料：
+
+- Jonathon Blow, "Discussion: Puzzle Game Movement Systems, with Sean Barrett.": https://www.youtube.com/watch?v=_tMb7OS2TOU&t=1879s
 
 ## 游戏更新的方案
 
@@ -57,12 +298,10 @@
 
 - 游戏世界基于引擎，但对于游戏玩法的计算，我们需要保证连续性，相同（或近似）输入下要有相同的结果，否则容易引起玩家的误解
 
-#### Jon's Implementation
+#### Transaction Struct
 
-Transaction
-
-```
-Move_Transaction {
+```typescript
+class Move_Transaction {
 	transaction_id;
 	entity_manager;
 	issue_time;
@@ -73,7 +312,7 @@ Move_Transaction {
 	moves;
 }
 
-Transaction_Flags {
+enum Transaction_Flags {
 	PHYSICALLY_MOVED;
 	CLOSED;
 	PRE_CLOSED;
@@ -87,10 +326,10 @@ Transaction_Flags {
 }
 ```
 
-Move
+#### Move Struct
 
-```
-Move {
+```typescript
+class Move {
 	move_id;
 	entity_id;
 	move_info;
@@ -99,7 +338,7 @@ Move {
 	?? visual_error;
 }
 
-Move_Info {
+class Move_Info {
 	move_type;
 	duration = -8 to 8;
 	[cached] delta;
@@ -110,13 +349,13 @@ Move_Info {
 	reaction_direction; // Push or Pull
 }
 
-Support_Info {
+class Support_Info {
 	supporter_id;
 	supported;
 	supporter;
 }
 
-Move_Type {
+enum Move_Type {
 	NONE;
 	CONTROLLER_PROC;
 	TELEPORT;
@@ -129,27 +368,97 @@ Move_Type {
 	FOLLOWING;
 }
 
-Move_Flag {
+enum Move_Flag {
 	STRONG_PUSH;
 	MOVED_BY_MIRROR;
 	...
 }
 ```
 
-detect_conflicts：
+#### Process
 
-```
-detect_conflicts(entity_manager, move_transaction) -> conflict
-	for other_transaction of entity_manager.move_transactions:
-    	for move of move_transaction.moves:
-    		for other_move of other_transaction.moves:
-                check if conflicts:
+```typescript
+function detect_conflicts(manager: Entity_Manager,
+                          transaction: Move_Trsaction) -> conflict {
+	for (other of entity_manager.move_transactions) {
+    	if (other == trsanction) continue;
+    
+    	for (single of transaction.single_moves) {
+    		for other_move of other.single_moves {
+            /*    check if conflicts:
                     occupy the same square?
                     manipulate the same entity?
-            end
-        end
-    end
-end
+            */
+            }
+        }
+   }
+}
+
+function xxx() {
+    if (move.action_type != Action_Type.UNDO) {
+        let hero = get_active_hero(manager);
+        if (hero) {
+            let s = `undo at ${hero.pos.fixed(0)}`;
+            let report = game_report(s); // FP?
+            report.fade_in_time = 0.03;
+            report.sustain_time = 0.15;
+            report.fade_out_time = 0.07; 
+        }
+        
+        undo_end_frame(manager);
+    }
+    
+    enact_move(manager, move);
+}
+
+function enact_move(manager: Entity_Manager, move: Bufferd_Move) {
+    // transition_mode == Transition.WAITING_FOR_VIC
+   	
+    if (currently_recording_test) 
+        test_record_one_move(manager, move);
+    
+    if (move.action_type == Action_Type.UNDO) {
+        do_one_undo(manager);
+        // post_undo_reevaluate(manager);
+        return;
+    }
+    
+    transaction_id = manager.next_transaction_id;
+    manager.waiting_on_player_trasaction = transaction_id;
+    // force_dragon_move(manager);
+    
+    if (move.action_type == ACTIVATE) {
+        activated = do_activate(manager, transaction_id);
+        
+        if (!activaed) {
+            toggled = toggle_fridenly_dragon(manager, transaction_id);
+            if (!toggled) {
+                function scuttle_last_undo = (undo: Undo_Handler) => {
+                    if (!undo.undo_records.count) return;
+                    let record = pop(undo.undo_records); // @todo Free it
+                };
+                
+                scuttle_last_undo(manaer.undo_handler);
+            }
+        }
+        return;
+    }
+    
+    if (move.action_type == MAGIC) {
+        used = use_magic (manager, transaction_id);
+        if (!used) {
+            scuttle_last_undo(manaer.undo_handler);
+        }
+        return;
+    }
+    
+    guy_id = move.id;
+    delta = move.delta;
+    // caused_changes = false;
+    // some_not_dead = false;
+    
+    // clones_to_move = get_clones_of(manager, guy_id, can_be_dead:true);
+}
 ```
 
 
@@ -158,7 +467,11 @@ end
 
 #### Transactions in Database
 
-> Unit of work in DB language.
+- Unit of work in DB language.
+
+参考资料:
+
+- Be a Better Dev, "What is a Database Transaction? Be ACID compliant", https://www.youtube.com/watch?v=wHUOeXbZCYA
 
 例子：
 
@@ -177,105 +490,475 @@ ACID
 - Isolation
 - Durability
 
+#### Diff
+
+参考资料:
+
+- git-diff: https://git-scm.com/docs/git-diff
+
+  <img src="Puzzle%20Game%20Movement%20System.assets/image-20230210000315047.png" alt="image-20230210000315047" style="zoom:33%;" />
+
+  - when to use: https://luppeng.wordpress.com/2020/10/10/when-to-use-each-of-the-git-diff-algorithms/
+
+- diff-wiki: https://en.wikipedia.org/wiki/Diff
+
+- delta compression: https://ably.com/blog/practical-guide-to-diff-algorithms
+
+- 
+
 
 
 # Undo System
+
+参考资料：
+
+- Jonathon Blow, "Game Engine Programming Undo system rewrite", https://www.youtube.com/watch?v=PeF-9H6d7Lg&t=3796s
 
 #### Problem
 
 - 运行时游戏和关卡编辑器都需要Undo, 但两者涉及的数据大相径庭，例如运行时保存了：Failing, Dead等Flag，而编辑器保存了Material。
 - 如果编辑器内得操作也是以Move为单位，Move会有太多的Sub-Class
-- 大跨度的撤回：like C-R to reset a level；撤回到某个Major Change：like 推动Block。
+- 大跨度的撤回：like C-R to reset a level
+- 撤回到某个Major Change: like 推动Block
+- Undo的节点问题：
+  - 我们如果基于Command Pattern进行撤回，自动运行的节点变化（如：水流）也需要建立Move
+  - 而如果我们以Entity的方式进行撤回，则在每一次有角色Move的时候才进行Scan Entities的行为
 
-#### Entity
+
+#### Undo Structs
 
 ```typescript
-// Entity Manager
-class Entity_Manager {
-	entity_array: Bucket_Array(Entity, 100);
-	universe_name: string;
-	
-	manager_id: Manager_Id;
-	
-	next_serial_system: Pid;
-	next_serial_gameplay: Pid;
-	next_serial_for_current_user: Pid;
-	
-	proximity_grid: Proximity_Grid;
-	
-	all_entities: Entity[];
-	potentially_visible_entities: Entity[];
-	moving_entities: Entity[];
-	
-	camera: Camera;
-	
-	active_hero_index: number;
-	
-	undo_handler: Undo_Handler;
+class Undo_Handler {
+    entity_manager: Entity_Manager;
+    undo_records: Undo_Record[];
+    
+    current_entity_state: Table(Pid, Entity);
+    
+    dirty: boolean;
+    enabled: boolean;
+} 
+
+class Undo_Record {
+    gameplay_time: number;
+    transaction: string;
+    checkpoint: boolean;
+    
+    editor_info: Undo_Editor_Info;
 }
 
-class Entity {
-    undoable: Undoable_Entity_Data;
-    // ...
+enum Undo_Action_Type {
+	CHANGE,
+    CREATION,
+    DESTRUCTION,
+    OCEAN_CHANGE,
 }
 
-class Undoable_Entity_Data {
-    position: Vector3;
-    scale: number;
-    orientation: Direction;
-    
-    entity_flags: Entity_Flags;
-    entity_name: string;
-    
-    group_id: Pid;
-	supporting_id: Pid;
-    supported_by_id: Pid;
-    
-    bounding_radius: number;
-    bounding_center: Vector3;
-    
-    texture_map: Texture_Map;
-    mesh: Mesh;
-    materials: Materials[];
-    
-    failing: boolean;
-    dead: boolean;
-}
+class Undo_Editor_INfo {
+    description: string;
+    entity_type_info: Type_Info;
+    entity_id: Pid;
+    num_changed;
+};
 ```
+
+#### Process
+
+- Undo mark beginning
+  - Cache every entity
+- Record undo state
+  - Undo end frame
+    - Scan for changed entities
+      - <u>Loop Each Entity</u>: Scan for one entity
+        - Diff entity
+          - <u>Loop Each Metadata Slots</u>: 
+            - Base Entity: Compare item
+            - Derived Entity: Compare item
+        - Replace cached entity if changed
+    - Add undo record
+- Do on undo
+  - Pop the last record
+  - Really do one undo
+    - <u>Switch Each Action</u>: 
+      - [1] Do Entity Changes
+        - <u>Loop Each Entity</u>
+          - Find target entity
+          - Remove it from the grid
+          - Find cache
+          - Copy cache to target
+          - Move target
+          - Apply diff to cache
+            - <u>Loop Each Changed Slots</u>
+              - Skip new one in buffer
+              - Copy the old one to cache
 
 
 
 #### Diff
 
 ```typescript
-// serialize:
-diff_entity(e_old, e_new, info) {
-	const type_idx = entity_manager_idx_of_type(e_old.entity_type);
-	const metadata = metadata_per_entity_type[type_idx];
-    
-	for (let item of metadata.leaf_item) {
-        compare_item(item, e_old, e_new, info);
-	}
+function reset_undo(undo: Undo_Handler) {
+    undo.undo_records.reset();
+    undo.current_entity_state.reset();
 }
 
-compare_item(item, e_old, e_new, info) {
+function undo_mark_beginning(manager: Entity_Manager) {
+    let undo = manager.undo_handler;
+    undo.enabled = true;
+    
+    for (let e of manager.entity_array) {
+        if (e.scheduled_for_destruction) continue;
+        
+        clone = e.clone_via_alloc();
+        undo.current_entity_state.add(e.entity_id, clone);
+    }
+}
+
+function record_eidtor_undo_state(panel: Undo_Panel) {
+    let world = get_open_world();
+    let manager = world.entity_manager;
+    if (world.entity_ids_changed.empty()) return;
+    
+    let undo = entity_manager.undo_handler;
+    
+    world.entity_ids_changed.forEach((it, it_idx) => {
+        let e = manager.find(it);
+        if (!e) continue;
+        // ...
+    });
+    
+    undo_end_frame(manager);
+    
+	// change panel.pending_change_strings
+}
+
+function undo_end_frame(manager: Entity_Manager) {
+    let undo = manager.undo_handler;
+    if (!undo.enabeld) return;
+   	undo.dirty = true;
+    
+    builder = String_Builder();
+    scan_for_changed_entities(undo, builder);
+    
+    record = Undo_Record();
+    record.checkpoint = next_undo_record_is_check_point;
+    next_undo_record_is_check_point = false;
+    record.gameplay_time = get_gameplay_time();
+    record.transaction = builder.to_string();
+    
+    array_add(undo.undo_records, record);
+    /* implementMe */ clear_current_undo_frame(undo);
+}
+
+function scan_for_changed_entities (undo: Undo_Handler,
+                                    builder: String_Builder) {
+    let manager = undo.entity_manager;
+    
+    let counter: number = 0;
+    
+    put(builder, Undo_Action_Type.CHANGE);
+    let entity_count_cursor = get_current_cursor(builder);
+    put(builder, 0); // placeholder
+    
+    for (let entity of manager.entity_array) {
+        scan_one_entity(undo, entity, builder, counter);
+    }
+    
+    { // little endian
+        let low = counter & 0xff;
+        let high = (counter >> 8) & 0xff;
+        
+        entity_count_cursor[0] = low;
+		entity_count_cursor[1] = high;
+    }
+}
+
+function scan_one_entity(undo: Undo_Handler,
+                         e: Entity, 
+                         builder: String_Builder,
+                         counter: number) {
+	if (entity.scheduled_for_destruection) return;
+    
+    type Pack_Info = {
+        builder: String_Builder;
+        slot_count: number;
+        slot_count_cursor: Cursor; // String builder cursor?
+    };
+    
+    let e_old = table_find(undo.current_entity_state, e.entity_id);
+    let pack_info: Pack_Info;
+    pack_info.builder = builder;
+
+    diff_entity(e_old, e, pack_info);
+
+    if (pack_info.slot_count != 0) {
+        counter += 1;
+        
+        // Apply change to the cached entities states
+        let clone = clone_entity_vis_alloc(e);
+        const succeed = table_replace(undo.current_entity_state, e.entity_id, clone);
+        assert(succeed);
+    }
+}
+
+function diff_entity(e_old: Entity,
+                     e_new: Entity,
+                     info: Pack_Info) {
+    function increment_pack_count = (info: Pack_Info, e: Entity) => {
+        if (info.slot_count == 0) {
+            put(info.builder, entity_manager_idx_of_type(e.entity_type));
+            put(info.bulider, e.entity_id);
+           
+            info.slot_count_cursor = get_current_cursor(info.builder);
+			put(info.builder, 0);  // placeholder
+        }
+        
+        info.slot_count += 1;
+    };
+    
+    function compare_item = (item: Metadata_Item,
+                             struct_idx: number,
+                             field_idx: number,
+                             e_old: Entity,
+                             e_new: Entity,
+                             info: Pack_Info) => {        
+        /* implementMe: metadata_slot */
     	const slot_old = metadata_slot(e_old, item);
 		const slot_new = metadata_slot(e_new, item);
 		
 		const differing = memcmp(slot_old, slot_new);
-		if (differing) {
-			const field_idx = item.idx;
-			info.put(field_idx);
-			info.put(slot_old, slot_new);
-            
-            // console.log(...)
+        if (differing) {
+			let bulider = info.builder;
+            if (Reflection.is_pod(item.info)) {
+            	increment_pack_counts(info, e_old);
+                put(builder, struct_idx);
+                put(builder, field_idx);
+                put(builder, slot_old);
+                put(builder, slot_new);
+            } else if (item.info.type == Type_Info_Tag.STRING) {
+                let s_old = cast_to_string(slot_old);
+                let s_new = cast_to_string(slot_new);
+            	increment_pack_counts(info, e_old);
+                put(builder, struct_idx);
+                put(builder, field_idx);
+                put(builder, s_old.count);
+                put(builder, s_old);
+                put(builder, s_new.count);
+                put(builder, s_new);
+            } else {
+                assert(false);
+            }
+		
 		}
+	};
+    
+    const BASE_STRUECT_IDX = 0;
+    const DERIVED_STRUECT_IDX = 1;
+    	const base_type_idx = entity_manager_idx_of_type(e_old.base_entity_type);
+	const base_entity_metadata = metadata_per_entity_type[base_type_idx];
+    
+    const type_idx = entity_manager_idx_of_type(e_old.entity_type);
+	const metadata = metadata_per_entity_type[type_idx];
+    
+    base_entity_metadata.leat_items.forEach((it, it_idx) => {
+		const field_idx = it_idx;
+        compare_item(it, 
+                     BASE_STRUECT_IDX,
+                     field_idx,
+                     e_old,
+                     e_new,
+                     info);
+	});
+    
+	metadata.leat_items.forEach((it, it_idx) => {
+		const field_idx = it_idx;
+        compare_item(it, 
+                     DERIVED_STRUECT_IDX,
+                     field_idx,
+                     e_old,
+                     e_new,
+                     info); 
+	});
+    
+    if (info.slot_count != null) {
+        slot_count_cursor = info.slot_count;
+    }
+}
+```
+
+#### Do Undo
+
+```typescript
+//function play_undo_events_forwards(manager: Entity_Manager) {
+//    let undo = manager.undo_handler;
+//    for (let it of undo.undo_records) {
+//        really_do_one_undo(manager, it, true);
+//    }
+//}
+
+function do_one_undo(manager: Entity_Manager) {
+    let undo  = manager.undo_handler;
+    clear_current_undo_frame(undo);
+    really_do_one_undo();
 }
 
-// use case:
-let e_old = new Game_Entity();
-let e_new = new Game_Entity();
-info = new String_Builder();
-diff_entity(old, new, info);
-info.to_string();
+function really_do_one_undo() {
+    let manager = get_entity_manager();
+    let undo = manager.undo_handler;
+    
+    if (!undo.count) return;
+    
+    record = pop(undo.undo_records);
+    really_do_one_undo(manager, record, flase);
+}
+
+function really_do_one_undo(manager: Entity_Manager,
+                             record: Undo_Record,
+                             is_redo: boolean) {
+   	let undo = manager.undo_handler;
+    let grid = manaager.proximity_grid;
+
+//    // Brutal version
+//    for (let e_dest of manager.entity_array) {
+//    	let cached = table_find(undo.current_entity_state, e_dest.entity_id);
+//        assert(cached);
+//        {
+//            copy_entity_data(cached, e_dest);
+//            {
+//                let e = e_dest;
+//                let new_position = e.undoable_data.position;
+//                move_entity(e, new_position, do_play_sound = false);
+//                update_physical_position(e, new_position);
+//                e.visual_position = e.position;
+//                reset(e.visual_interpolation);
+//                sanity_check();
+//            }
+//        }
+//    }
+   
+    let remaining = record.transactions;
+    while (remaining) {
+        let action = remaining[0];
+        advance(remaining, 1);
+        
+        switch(action) {
+        	case: Undo_Action_Type.CHANGE:
+                let num_entities: number;
+                get(remaining, num_entities);
+                do_entity_changes(manager, num_entities, buffer, is_redo);
+                break;
+            case : Undo_Action_Type.CREATION:
+                break;
+            case: Undo_Action_Type.DESTRUCTION:
+                break;
+			case: Undo_Action_Type.OCEAN_CHANGE:
+                break;
+        }
+    }
+}
+
+function do_entity_changes(manager: Entity_Manager,
+                           num_entities: number,
+                           buffer: string,
+                           apply_forward: boolean) {
+    while (num_entities--) {
+        var entity_type_idx;
+        get(buffer, entity_type_idx);
+        var entity_id;
+        get(buffer, entity_id);
+        var num_slots;
+        get(buffer, num_slots);
+        
+        const undo = manager.undo_handler;
+        var e_dest;
+        find(manager, entity_id);
+        assert(e_dest);
+        remove_from_grid(manager.proximity_grid, e_dest);
+        
+        let entity_type = entity_type_from_idx(entity_type_idx);
+       	assert(entity_type == e_dest.entity_type);
+        
+        let cached = table_find(undo.current_entity_state, e_dest.entity_id);
+        assert(cached);
+        {
+            copy_entity_data(cached, e_dest);
+            {
+                let e = e_dest;
+                let new_position = e.undoable_data.position;
+                move_entity(e, new_position, do_play_sound = false);
+                update_physical_position(e, new_position);
+                e.visual_position = e.position;
+                reset(e.visual_interpolation);
+                sanity_check();
+            }
+        }
+        
+        apply_diff(cached, entity_type_idx, num_slots, buffer, apply_forward);
+    }
+}
+
+apply_diff (e_dest: Entity,
+            entity_type_idx: number,
+            num_slots: number,
+            buffer: string,
+            apply_forward: boolean = false) {
+    let entity_idx = entity_manager_idx_of_type(e.entity);
+    let metadata = metadata_per_entity_type[entity_idx];
+    
+	for (let i = 0; i < num_slots; i++) {
+        var struct_idx;
+        get(buffer, struct_idx);
+        var member_idx;
+        get(buffer, member_idx);
+
+        let metadata: Metadata;
+        if (struct_idx == 0) {
+            metadata = global_base_entity_metadata;
+        } else {
+            metadata = metadata_per_type[entity_type_idx];
+        }
+
+        let item = metadata.leaf_items[member_idx];
+        let slot_dest = metadata_slot(e_dest, item);
+        
+        let size = item.info.runtime_size;
+        if (Refletion.is_pod(item.info)) {
+			if (apply_forward) {
+                advance(buffer, size); // Skip old
+                memcpy(slot_dest, buffer, size);  
+                advance(buffer, size); 
+            } else {
+                memcpy(slot_dest, buffer, size);
+                advance(buffer, size); 
+                advance(buffer, size); // Skip new
+            }
+        } else if (item.info.type == Type_Info_Tag.STRING) {
+			function discard_string = (buffer: string) => {
+                var count;
+                get(buffer, count);
+                advance(buffer, count);
+            };
+            
+            function extract_string = (buffer: string, dest: string) => {
+              	var count;
+             	get(buffer, count);
+                dest.data = alloc(count);
+                memcpy(slot_dest, buffer, count);
+                advance(buffer, count);
+            };
+            
+            var str_dest;
+            if (apply_forward) {
+                discard_string(buffer);
+                extract_string(buffer, str_dest);
+            } else {
+                extract_string(buffer, str_dest);
+                discard_string(buffer);
+            }
+        } else {
+            assert(false);
+        }
+        
+    }
+}
 ```
+

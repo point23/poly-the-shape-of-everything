@@ -46,7 +46,7 @@ export type Game_Board_Info = {
     this.grid.setPosition(grid_center);
     this.grid.setScale(
         this.grid_size.height / 10, 1, this.grid_size.width / 10);
-
+	
     const renderable = this.grid.getComponent(MeshRenderer);
     const mat = renderable.material;
     mat.setProperty(
