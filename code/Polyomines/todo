@@ -8,20 +8,21 @@ FEATURE:
 - Move and Transaction
 - Character Control
 - Redo & Undo <= Command Pattern
+- Supporter and Supportee
 
-+ Supporter and Supportee
-+ Beam VFX
-+ Control a dynamic poly
-+ Entity Proxy
++ Get rid of singletons
++ Proximity grid
++ Diff entities
++ Do undo
++ Serialize undo
++ Beam vfx
++ Control any dynamic poly
++ Entity proxy
 + Falling
-+ Switch Level & New Level
-+ Game Object Pool
++ In game console
 
 FIX:
 - Fix Local-Position
 - Fix Double-Click
 - Draw-Call is too high
 - Domino Control
-
-CHORE:
-+ Mini-Level: Sofa

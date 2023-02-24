@@ -1,9 +1,7 @@
 import { _decorator, Vec3 } from 'cc';
 
 import { Const } from './Const';
-import { Entity_Manager } from './Entity_Manager';
 import { Direction, Entity_Type } from './Enums';
-import { Game_Board } from './Game_Board';
 import { Game_Entity } from './Game_Entity';
 import { Move_Transaction } from './Move_Transaction';
 import { Transaction_Control_Flags, Transaction_Manager } from './Transaction_Manager';
@@ -11,8 +9,10 @@ import { Transaction_Control_Flags, Transaction_Manager } from './Transaction_Ma
 export class Move_Info {
     source_entity_id: number;
     target_entity_id: number;
+
     start_pos: Vec3;
     end_pos: Vec3;
+
     start_dir: Direction;
     end_dir: Direction;
     reaction_direction: Direction;
@@ -34,16 +34,6 @@ export class Single_Move {
         this.move_id = Single_Move.move_id_seq++;
 
         this.move_info = move_info;
-    }
-
-    get target_entity(): Game_Entity {
-        return Entity_Manager.instance.id2entity.get(
-            this.move_info.target_entity_id);
-    }
-
-    get source_entity(): Game_Entity {
-        return Entity_Manager.instance.id2entity.get(
-            this.move_info.source_entity_id);
     }
 
     get start_dir(): Direction {
@@ -72,8 +62,6 @@ export class Single_Move {
 
     execute_async() { }
 
-    undo_async() { }
-
     debug_info(): string {
         return '';
     }
@@ -97,24 +85,27 @@ export class Controller_Proc_Move extends Single_Move {
 
     try_add_itself(transaction: Move_Transaction): boolean {
         if (Transaction_Manager.instance.control_flags &&
-            Transaction_Control_Flags
-                .CONTROLLER_MOVE) {  // Already exist a Controller_Move
+            Transaction_Control_Flags.CONTROLLER_MOVE) {  // Already exist a Controller_Move
             return false;
         }
 
-        const entity = this.target_entity;
+        const manager = transaction.entity_manager;
+
+        // const e_source = manager.find(this.move_info.source_entity_id);
+        const e_target = manager.find(this.move_info.target_entity_id);
+
         let at_least_rotated = false;
         const supportees: Game_Entity[] =
-            Entity_Manager.instance.locate_current_supportees(entity);
+            manager.locate_current_supportees(e_target);
 
         if (this.end_dir != this.start_dir) {  // Face towards target-dir first
             let dir_delta = this.end_dir - this.start_dir;
 
-            transaction.moves.push(new Controller_Proc_Move(entity, this.end_dir, 0));
+            transaction.moves.push(new Controller_Proc_Move(e_target, this.end_dir, 0));
             this.move_info.start_dir = this.end_dir;
             at_least_rotated = true;
 
-            if (entity.entity_type !=
+            if (e_target.entity_type !=
                 Entity_Type.AVATAR) {  // Avator would only rotate it's indicator
                 // Rotate relatively
                 for (let supportee of supportees) {
@@ -128,19 +119,19 @@ export class Controller_Proc_Move extends Single_Move {
             return at_least_rotated;
         }
 
-        const future_squares = entity.calcu_future_squares(this.end_dir);
+        const future_squares = e_target.calcu_future_squares(this.end_dir);
 
         const supporters =
-            Entity_Manager.instance.locate_future_supporters(entity, this.end_dir);
+            manager.locate_future_supporters(e_target, this.end_dir);
         if (supporters.length == 0) {
             return at_least_rotated;
         }
 
         for (let pos of future_squares) {
-            const other = Entity_Manager.instance.locate_entity(pos);
+            const other = manager.locate_entity(pos);
             if (other != null) console.log(other.info);
 
-            if (other != null && other != entity) {
+            if (other != null && other != e_target) {
                 const pushed_move = new Pushed_Move(other, this.end_dir);
                 if (!pushed_move.try_add_itself(transaction)) {
                     /**
@@ -165,23 +156,13 @@ export class Controller_Proc_Move extends Single_Move {
     }
 
     async execute_async() {
-        if (!this.start_pos.equals(this.end_pos)) {
-            await this.target_entity.move_to_async(this.end_pos);
-        }
+        // if (!this.start_pos.equals(this.end_pos)) {
+        //     await this.target_entity.move_to_async(this.end_pos);
+        // }
 
-        if (this.start_dir != this.end_dir) {
-            await this.target_entity.face_towards_async(this.end_dir);
-        }
-    }
-
-    async undo_async() {
-        if (!this.start_pos.equals(this.end_pos)) {
-            await this.target_entity.move_to_async(this.start_pos);
-        }
-
-        if (this.start_dir != this.end_dir) {
-            await this.target_entity.face_towards_async(this.start_dir);
-        }
+        // if (this.start_dir != this.end_dir) {
+        //     await this.target_entity.face_towards_async(this.end_dir);
+        // }
     }
 
     debug_info(): string {
@@ -219,31 +200,31 @@ export class Pushed_Move extends Single_Move {
     }
 
     try_add_itself(transaction: Move_Transaction): boolean {
-        const entity = this.target_entity;
+        const manager = transaction.entity_manager;
+
+        let e_target = manager.find(this.move_info.target_entity_id);
         const direction = this.reaction_direction;
 
-        if (entity.entity_type == Entity_Type.STATIC) {
+        if (e_target.entity_type == Entity_Type.STATIC) {
             return false;
         }
 
-        const future_squares = entity.calcu_future_squares(direction);
+        const future_squares = e_target.calcu_future_squares(direction);
 
-        const supporters =
-            Entity_Manager.instance.locate_future_supporters(entity, direction);
+        const supporters = manager.locate_future_supporters(e_target, direction);
         if (supporters.length == 0) {
             /* TODO Failing */
             return false;
         }
 
         for (let pos of future_squares) {
-            const other = Entity_Manager.instance.locate_entity(pos);
-            if (other != null && other != entity) {
+            const other = manager.locate_entity(pos);
+            if (other != null && other != e_target) {
                 return false;
             }
         }
 
-        const supportees =
-            Entity_Manager.instance.locate_current_supportees(entity);
+        const supportees = manager.locate_current_supportees(e_target);
         for (let supportee of supportees) {
             const support_move = new Support_Move(
                 supportee, this.dir_delta, this.reaction_direction, 1);
@@ -255,11 +236,7 @@ export class Pushed_Move extends Single_Move {
     }
 
     async execute_async() {
-        await this.target_entity.move_to_async(this.end_pos);
-    }
-
-    async undo_async() {
-        await this.target_entity.move_to_async(this.start_pos);
+        // await this.target_entity.move_to_async(this.end_pos);
     }
 
     debug_info(): string {
@@ -286,10 +263,11 @@ export class Support_Move extends Single_Move {
     }
 
     try_add_itself(transaction: Move_Transaction): boolean {
-        const entity = this.target_entity;
+        const manager = transaction.entity_manager;
 
-        const supportees =
-            Entity_Manager.instance.locate_current_supportees(entity);
+        let e_target = manager.find(this.move_info.target_entity_id);
+
+        const supportees = manager.locate_current_supportees(e_target);
         for (let supportee of supportees) {
             const support_move = new Support_Move(
                 supportee, this.dir_delta, this.reaction_direction, 1);
@@ -301,23 +279,13 @@ export class Support_Move extends Single_Move {
     }
 
     async execute_async() {
-        if (!this.start_pos.equals(this.end_pos)) {
-            await this.target_entity.move_to_async(this.end_pos);
-        }
+        // if (!this.start_pos.equals(this.end_pos)) {
+        //     await this.target_entity.move_to_async(this.end_pos);
+        // }
 
-        if (this.start_dir != this.end_dir) {
-            await this.target_entity.face_towards_async(this.end_dir);
-        }
-    }
-
-    async undo_async() {
-        if (!this.start_pos.equals(this.end_pos)) {
-            await this.target_entity.move_to_async(this.start_pos);
-        }
-
-        if (this.start_dir != this.end_dir) {
-            await this.target_entity.face_towards_async(this.start_dir);
-        }
+        // if (this.start_dir != this.end_dir) {
+        //     await this.target_entity.face_towards_async(this.end_dir);
+        // }
     }
 
     debug_info(): string {
@@ -346,32 +314,34 @@ export class Possess_Move extends Single_Move {
     }
 
     try_add_itself(transaction: Move_Transaction): boolean {
-        const entity = this.source_entity;
-        const direction = this.end_dir;
+        // const manager = transaction.entity_manager;
 
-        for (let step = 1, succeed = false; !succeed; step += 1) {
-            const futrue_pos = entity.calcu_future_pos(direction, step);
+        // let e_source = manager.find(this.move_info.source_entity_id);
+        // const direction = this.end_dir;
 
-            if (!Game_Board.instance.verfify_pos(futrue_pos)) {
-                return false;
-            }
+        // for (let step = 1, succeed = false; !succeed; step += 1) {
+        //     const futrue_pos = e_source.calcu_future_pos(direction, step);
 
-            const other = Entity_Manager.instance.locate_entity(futrue_pos);
-            if (other != null) {
-                this.move_info.target_entity_id = other.entity_id;
-                succeed = true;
-            }
-        }
+        //     if (!Game_Board.instance.verfify_pos(futrue_pos)) {
+        //         return false;
+        //     }
 
-        transaction.moves.push(this);
-        return true;
+        //     const other = Entity_Manager.instance.locate_entity(futrue_pos);
+        //     if (other != null) {
+        //         this.move_info.target_entity_id = other.entity_id;
+        //         succeed = true;
+        //     }
+        // }
+
+        // transaction.moves.push(this);
+        // return true;
+
+        return false; // @hack
     }
 
     async execute_async() {
-        Entity_Manager.instance.reclaim(this.source_entity);
-        this.target_entity.entity_type = Entity_Type.AVATAR;
-        Entity_Manager.instance.current_character = this.target_entity;
+        // Entity_Manager.instance.reclaim(this.source_entity);
+        // this.target_entity.entity_type = Entity_Type.AVATAR;
+        // Entity_Manager.instance.current_character = this.target_entity;
     }
-
-    async undo_async() { }
 }

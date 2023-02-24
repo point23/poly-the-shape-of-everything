@@ -1,86 +1,69 @@
-import { _decorator, CCString, Component, instantiate, Node, Prefab, Vec3 } from 'cc';
+import { assert, Vec3 } from 'cc';
 import { Direction, Entity_Type } from './Enums';
 
-import { Game_Board } from './Game_Board';
 import { Entity_Info, Game_Entity } from './Game_Entity';
-const { ccclass, property } = _decorator;
-
-@ccclass('Entity_Prefab_Pair')
-export class Entity_Prefab_Pair {
-    @property(CCString) id = '';
-    @property(Prefab) prefab = null;
-}
+import { Proximity_Grid } from './Proximity_Grid';
+import { Resource_Manager } from './Resource_Manager';
 
 /* NOTE
   - Manage entity pools
   - Get and retrieve entities
   - Move entities
  */
-@ccclass('Entity_Manager')
-export class Entity_Manager extends Component {
-    public static instance: Entity_Manager = null;
-    public static Settle(instance: Entity_Manager) {
-        Entity_Manager.instance = instance;
-        Entity_Manager.instance.mapping_prefabs();
+export class Entity_Manager {
+    hero: Game_Entity = null;
+    proximity_grid: Proximity_Grid;
+    entities: Game_Entity[] = [];
+
+    constructor(g: Proximity_Grid) {
+        this.proximity_grid = g;
     }
 
-    @property(Node) entities_parent_node: Node;
+    load_entities(entities_info: any) {
+        for (let it of entities_info) {
+            let info = new Entity_Info(it);
+            const p_name = info.prefab;
 
-    @property([Entity_Prefab_Pair])
-    list_entities_prefab: Entity_Prefab_Pair[] = [];
+            let node = Resource_Manager.instance.load_prefab(p_name);
 
-    id2prefab: Map<String, Prefab> = new Map<String, Prefab>();
-    id2entity: Map<number, Game_Entity> = new Map<number, Game_Entity>();
-
-    /* TODO Rename it... */
-    current_character: Game_Entity = null;
-
-    get entities_iterator(): IterableIterator<Game_Entity> {
-        return this.id2entity.values();
-    }
-
-    mapping_prefabs() {
-        for (let pair of this.list_entities_prefab) {
-            this.id2prefab[pair.id] = pair.prefab;
-        }
-    }
-
-    load_entities(entities_info: any): Game_Entity[] {
-        let newly_generated_entities: Game_Entity[] = [];
-
-        for (let i = 0; i < entities_info.length; i++) {
-            let info = new Entity_Info(entities_info[i]);
-            let node: Node = instantiate(this.id2prefab[info.prefab]);
-            node.setParent(this.entities_parent_node);
+            assert(node != null, `Fail to load prefab with name: ${p_name}`);
 
             let entity = node.getComponent(Game_Entity);
             entity.entity_id = Game_Entity.next_id;
 
-            info.world_pos = Game_Board.instance.local2world(info.local_pos);
+            info.world_pos = this.proximity_grid.local2world(info.local_pos);
+
             entity.info = info;
 
-            this.id2entity.set(entity.entity_id, entity);
-            newly_generated_entities.push(entity);
+            this.entities.push(entity);
 
-            if (entity.entity_type == Entity_Type.CHARACTER) {
-                this.current_character = entity;
+            if (entity.entity_type == Entity_Type.HERO) {
+                this.hero = entity;
+            }
+        }
+    }
+
+    // @incomplete
+    find(id: number): Game_Entity {
+        for (var e of this.entities) {
+            if (e.entity_id == id) {
+                return e;
             }
         }
 
-        return newly_generated_entities;
+        return null;
     }
 
-    /** TODO Entity Pool */
     reclaim(_entity: Game_Entity) {
-        const entity = this.id2entity.get(_entity.entity_id);
-        this.id2entity.delete(entity.entity_id);
-        entity.node.destroy();
+        // const entity = this.id2entity.get(_entity.entity_id);
+        // this.id2entity.delete(entity.entity_id);
+        // entity.node.destroy();
     }
 
     entities_info(): any {
         let entities_info = [];
 
-        for (let entity of this.entities_iterator) {
+        for (let entity of this.entities) {
             let info = {
                 local_pos: {
                     x: entity.info.local_pos.x,
@@ -98,7 +81,7 @@ export class Entity_Manager extends Component {
     validate_tiling() {
         const map = new Map<string, boolean>();
 
-        for (let entity of this.entities_iterator) {
+        for (let entity of this.entities) {
             for (let pos of entity.occupied_squares()) {
                 const pos_str = pos.toString();
                 if (map.has(pos_str)) {
@@ -109,7 +92,7 @@ export class Entity_Manager extends Component {
             }
         }
 
-        for (let entity of this.entities_iterator) {
+        for (let entity of this.entities) {
             let is_valid = true;
             /* FIXME Don't Calcu it twice -> occupied_positions */
             for (let pos of entity.occupied_squares()) {
@@ -124,7 +107,7 @@ export class Entity_Manager extends Component {
 
     locate_entity(target_pos: Vec3): Game_Entity {
         let target: Game_Entity = null;
-        for (let entity of this.entities_iterator) {
+        for (let entity of this.entities) {
             for (let pos of entity.occupied_squares()) {
                 if (pos.equals(target_pos)) {
                     target = entity;
@@ -143,7 +126,7 @@ export class Entity_Manager extends Component {
 
         const supporters = [];
         for (let pos of future_squares) {
-            const supporter = Entity_Manager.instance.locate_supporter(pos);
+            const supporter = this.locate_supporter(pos);
             if (supporter != null) {
                 supporters.push(supporter)
             }
@@ -161,7 +144,7 @@ export class Entity_Manager extends Component {
 
         const supportees = [];
         for (let pos of squares) {
-            const supportee = Entity_Manager.instance.locate_supportee(pos);
+            const supportee = this.locate_supportee(pos);
             if (supportee != null && supportee.entity_type != Entity_Type.STATIC) {
                 supportees.push(supportee)
             }

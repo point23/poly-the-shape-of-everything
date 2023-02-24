@@ -2,7 +2,6 @@ import { _decorator, Component, Enum, MeshRenderer, SkeletalAnimation, tween, Ve
 
 import { Const } from './Const';
 import { Direction, Entity_Type, Polyomino_Type } from './Enums';
-import { Game_Board } from './Game_Board';
 import { Polygon_Entity } from './Polygon_Entity';
 
 const { ccclass, property } = _decorator;
@@ -29,9 +28,9 @@ export class Entity_Info {
  */
 @ccclass('Game_Entity')
 export class Game_Entity extends Component {
-    static entity_id_seq: number = 0;
+    static next_entity_id: number = 0;
     static get next_id(): number {
-        return this.entity_id_seq++;
+        return this.next_entity_id++;
     }
 
     //#region Properties
@@ -118,24 +117,24 @@ export class Game_Entity extends Component {
 
     //#region Movement
     async move_to_async(target: Vec3) {
-        this._info.local_pos = target.clone();
-        let world_pos = Game_Board.instance.local2world(this.local_pos);
-        await this.physically_move_to_async(world_pos);
+        // this._info.local_pos = target.clone();
+        // let world_pos = Game_Board.instance.local2world(this.local_pos);
+        // await this.physically_move_to_async(world_pos);
     }
 
     async move_towards_async(dir: Direction, step: number = 1) {
-        this.logically_move_towards(dir, step);
-        let world_pos = Game_Board.instance.local2world(this.local_pos);
-        // this.animation.getState('walk').speed = 5;
-        // this.animation.getState('walk').wrapMode = AnimationClip.WrapMode.Normal;
-        // this.animation.play('walk');
-        await this.physically_move_to_async(world_pos);
+        // this.logically_move_towards(dir, step);
+        // let world_pos = Game_Board.instance.local2world(this.local_pos);
+        // // this.animation.getState('walk').speed = 5;
+        // // this.animation.getState('walk').wrapMode = AnimationClip.WrapMode.Normal;
+        // // this.animation.play('walk');
+        // await this.physically_move_to_async(world_pos);
     }
 
     move_towards(dir: Direction, step: number = 1) {
-        this.logically_move_towards(dir, step);
-        let world_pos = Game_Board.instance.local2world(this.local_pos);
-        this.physically_move_to(world_pos);
+        // this.logically_move_towards(dir, step);
+        // let world_pos = Game_Board.instance.local2world(this.local_pos);
+        // this.physically_move_to(world_pos);
     }
 
     physically_move_to(world_pos: Vec3) {
@@ -212,8 +211,7 @@ export class Game_Entity extends Component {
 
         if (this.polyomino_type == Polyomino_Type.MONOMINO) return res;
 
-        for (let delta of
-            Const.Polyomino_Deltas[this.polyomino_type][this.rotation]) {
+        for (let delta of Const.Polyomino_Deltas[this.polyomino_type][this.rotation]) {
             let o = this.local_pos.clone();
             let p = o.add(delta);
             res.push(p);
@@ -235,8 +233,7 @@ export class Game_Entity extends Component {
 
         if (this.polyomino_type == Polyomino_Type.MONOMINO) return res;
 
-        for (let delta of
-            Const.Polyomino_Deltas[this.polyomino_type][this.rotation]) {
+        for (let delta of Const.Polyomino_Deltas[this.polyomino_type][this.rotation]) {
             let o = future_pos.clone();
             let p = o.add(delta);
             res.push(p);

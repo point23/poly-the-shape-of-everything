@@ -4,7 +4,6 @@ import { Const } from '../Const';
 import { Debug_Console } from '../Debug_Console';
 import { Entity_Manager } from '../Entity_Manager';
 import { Direction } from '../Enums';
-import { Game_Board } from '../Game_Board';
 import { Entity_Info, Game_Entity } from '../Game_Entity';
 import { Resource_Manager } from '../Resource_Manager';
 
@@ -40,67 +39,67 @@ export class Entity_Edit_Mode extends Game_Mode {
     copied_entities: Entity_Info[] = [];
 
     handle_touch_move(event: EventTouch) {
-        const screen_x = event.getLocationX();
-        const screen_y = event.getLocationY();
-        this.camera.screenPointToRay(screen_x, screen_y, this._ray);
-        if (PhysicsSystem.instance.raycast(this._ray)) {
-            let raycast_results = PhysicsSystem.instance.raycastResults;
-            raycast_results = raycast_results.sort((a, b) => {
-                return a.distance - b.distance;
-            });
+        // const screen_x = event.getLocationX();
+        // const screen_y = event.getLocationY();
+        // this.camera.screenPointToRay(screen_x, screen_y, this._ray);
+        // if (PhysicsSystem.instance.raycast(this._ray)) {
+        //     let raycast_results = PhysicsSystem.instance.raycastResults;
+        //     raycast_results = raycast_results.sort((a, b) => {
+        //         return a.distance - b.distance;
+        //     });
 
-            for (let i = 0; i < raycast_results.length; i++) {
-                const item = raycast_results[i];
-                let succeed: boolean = false;
-                for (let entity of Entity_Manager.instance.entities_iterator) {
-                    if (item.collider.node.parent.parent != entity.node) continue;
+        //     for (let i = 0; i < raycast_results.length; i++) {
+        //         const item = raycast_results[i];
+        //         let succeed: boolean = false;
+        //         for (let entity of Entity_Manager.instance.entities_iterator) {
+        //             if (item.collider.node.parent.parent != entity.node) continue;
 
-                    this.select(entity);
-                    succeed = true;
-                }
-                if (succeed) break;
-            }
-        }
+        //             this.select(entity);
+        //             succeed = true;
+        //         }
+        //         if (succeed) break;
+        //     }
+        // }
     }
 
     handle_mouse_down(event: EventMouse) {
-        /* FIXME There is a bug of cocos */
-        // const left_btn: boolean = event.getButton() == EventMouse.BUTTON_LEFT;
-        // const right_btn: boolean = event.getButton() == EventMouse.BUTTON_RIGHT;
-        if (this.is_jiggling) return;
+        // /* @fixme There is a bug of cocos */
+        // // const left_btn: boolean = event.getButton() == EventMouse.BUTTON_LEFT;
+        // // const right_btn: boolean = event.getButton() == EventMouse.BUTTON_RIGHT;
+        // if (this.is_jiggling) return;
 
-        const screen_x = event.getLocationX();
-        const screen_y = event.getLocationY();
-        this.camera.screenPointToRay(screen_x, screen_y, this._ray);
+        // const screen_x = event.getLocationX();
+        // const screen_y = event.getLocationY();
+        // this.camera.screenPointToRay(screen_x, screen_y, this._ray);
 
-        if (PhysicsSystem.instance.raycast(this._ray)) {
-            let raycast_results = PhysicsSystem.instance.raycastResults;
-            raycast_results = raycast_results.sort((a, b) => {
-                return a.distance - b.distance;
-            });
+        // if (PhysicsSystem.instance.raycast(this._ray)) {
+        //     let raycast_results = PhysicsSystem.instance.raycastResults;
+        //     raycast_results = raycast_results.sort((a, b) => {
+        //         return a.distance - b.distance;
+        //     });
 
-            for (let i = 0; i < raycast_results.length; i++) {
-                const item = raycast_results[i];
+        //     for (let i = 0; i < raycast_results.length; i++) {
+        //         const item = raycast_results[i];
 
-                let succeed: boolean = false;
+        //         let succeed: boolean = false;
 
-                for (let entity of Entity_Manager.instance.entities_iterator) {
-                    if (item.collider.node.parent.parent != entity.node) continue;
+        //         for (let entity of Entity_Manager.instance.entities_iterator) {
+        //             if (item.collider.node.parent.parent != entity.node) continue;
 
-                    if (entity.selected)
-                        this.deselect(entity);
-                    else
-                        this.select(entity);
-                    succeed = true;
-                }
-                if (succeed) break;
-            }
-        }
+        //             if (entity.selected)
+        //                 this.deselect(entity);
+        //             else
+        //                 this.select(entity);
+        //             succeed = true;
+        //         }
+        //         if (succeed) break;
+        //     }
+        // }
 
-        this.is_jiggling = true;
-        this.scheduleOnce(() => {
-            this.is_jiggling = false;
-        }, Const.Mouse_Jiggling_Interval);
+        // this.is_jiggling = true;
+        // this.scheduleOnce(() => {
+        //     this.is_jiggling = false;
+        // }, Const.Mouse_Jiggling_Interval);
     }
 
     handle_key_down(event: EventKeyboard) {
@@ -155,7 +154,7 @@ export class Entity_Edit_Mode extends Game_Mode {
                 break;
         }
 
-        Entity_Manager.instance.validate_tiling();
+        // Entity_Manager.instance.validate_tiling();
     }
 
     handle_key_up(event: EventKeyboard) {
@@ -177,21 +176,21 @@ export class Entity_Edit_Mode extends Game_Mode {
     }
 
     paste_copied_entities() {
-        this.deselect_all();
+        // this.deselect_all();
 
-        let new_entities =
-            Entity_Manager.instance.load_entities(this.copied_entities);
-        for (let entity of new_entities) {
-            this.select(entity);
-        }
+        // let new_entities =
+        //     Entity_Manager.instance.load_entities(this.copied_entities);
+        // for (let entity of new_entities) {
+        //     this.select(entity);
+        // }
     }
 
     delete_selected_entities() {
-        for (let entity of this.selected_entities) {
-            Entity_Manager.instance.reclaim(entity);
-        }
+        // for (let entity of this.selected_entities) {
+        //     Entity_Manager.instance.reclaim(entity);
+        // }
 
-        this.deselect_all();
+        // this.deselect_all();
     }
 
     rotate_selected_entities() {
@@ -201,10 +200,10 @@ export class Entity_Edit_Mode extends Game_Mode {
     }
 
     save_level() {
-        let updated_level_config = Resource_Manager.instance.current_level_config;
-        const entities = Entity_Manager.instance.entities_info();
-        updated_level_config.entities = entities;
-        Resource_Manager.instance.save_level(updated_level_config);
+        // let updated_level_config = Resource_Manager.instance.current_level_config;
+        // const entities = Entity_Manager.instance.entities_info();
+        // updated_level_config.entities = entities;
+        // Resource_Manager.instance.save_level(updated_level_config);
     }
 
     select(entity: Game_Entity) {

@@ -1,5 +1,5 @@
 {
-    "camera_info": {
+    "camera": {
         "position": {
             "x": -1.5,
             "y": 8,
@@ -12,10 +12,15 @@
             "w": 0.6272113751262536
         }
     },
-    "game_board": {
-        "grid_size": {
+    "grid": {
+        "size": {
             "width": 10,
             "height": 10
+        },
+        "origin": {
+            "x": 0,
+            "y": 0,
+            "z": 0
         }
     },
     "entities": [

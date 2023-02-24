@@ -1,5 +1,6 @@
 import { _decorator, Component } from 'cc';
 import { Debug_Console } from './Debug_Console';
+import { Entity_Manager } from './Entity_Manager';
 import { Move_Transaction } from './Move_Transaction';
 import { Singleton_Manager } from './Singleton_Manager_Base';
 import { Single_Move } from './Single_Move';
@@ -45,7 +46,7 @@ export class Transaction_Stack {
 
 
 /**
- * NOTE
+ * @note
  * - Manage transactions
  * - Detect conflicts between moves
  */
@@ -56,6 +57,7 @@ export class Transaction_Manager extends Singleton_Manager {
         Transaction_Manager.instance = instance;
     }
 
+    entity_manager: Entity_Manager;
     duration: number = 1;
     control_flags = 0;
 
@@ -63,9 +65,9 @@ export class Transaction_Manager extends Singleton_Manager {
     issued_stack: Transaction_Stack = new Transaction_Stack();
     undo_stack: Transaction_Stack = new Transaction_Stack();
 
-    /* TODO A move that might be able to triger a series of moves */
+    /* @todo A move that might be able to triger a series of moves */
     try_add_new_move(move: Single_Move) {
-        const new_transaction = new Move_Transaction();
+        const new_transaction = new Move_Transaction(this.entity_manager); // @hack
         if (move.try_add_itself(new_transaction)) {
             this.issued_stack.push(new_transaction);
             this.undo_stack.clear();
@@ -75,9 +77,9 @@ export class Transaction_Manager extends Singleton_Manager {
     async execute_async() {
         if (this.issued_stack.empty()) return;
 
-        // TODO Detect conflicts
+        // @incomplete Detect conflicts
 
-        const packed = new Move_Transaction();
+        const packed = new Move_Transaction(this.entity_manager); // @hack
 
         while (this.issued_stack.size()) {
             const transaction = this.issued_stack.pop();
@@ -96,25 +98,25 @@ export class Transaction_Manager extends Singleton_Manager {
         Debug_Console.Info(packed.debug_info());
     }
 
-    async undo_async() {
-        if (this.commited_stack.empty()) return;
+    // async undo_async() {
+    //     if (this.commited_stack.empty()) return;
 
-        const transaction = this.commited_stack.pop();
-        for (let move of transaction.moves) {
-            move.undo_async();
-        }
+    //     const transaction = this.commited_stack.pop();
+    //     for (let move of transaction.moves) {
+    //         move.undo_async();
+    //     }
 
-        this.undo_stack.push(transaction);
-    }
+    //     this.undo_stack.push(transaction);
+    // }
 
-    async redo_async() {
-        if (this.undo_stack.empty()) return;
+    // async redo_async() {
+    //     if (this.undo_stack.empty()) return;
 
-        const transaction = this.undo_stack.pop();
-        for (let move of transaction.moves) {
-            move.execute_async();
-        }
+    //     const transaction = this.undo_stack.pop();
+    //     for (let move of transaction.moves) {
+    //         move.execute_async();
+    //     }
 
-        this.commited_stack.push(transaction);
-    }
+    //     this.commited_stack.push(transaction);
+    // }
 }
