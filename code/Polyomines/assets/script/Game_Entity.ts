@@ -1,10 +1,17 @@
 import { _decorator, Component, Enum, MeshRenderer, SkeletalAnimation, tween, Vec3 } from 'cc';
 
-import { Const } from './Const';
+import { Const, Pid } from './Const';
 import { Direction, Entity_Type, Polyomino_Type } from './Enums';
 import { Polygon_Entity } from './Polygon_Entity';
 
 const { ccclass, property } = _decorator;
+
+/* 
+// @implementMe
+type Undoable = {
+    pos: vec3
+};
+ */
 
 export class Entity_Info {
     prefab: string;
@@ -32,6 +39,9 @@ export class Game_Entity extends Component {
     static get next_id(): number {
         return this.next_entity_id++;
     }
+
+    id: Pid;
+    pos: Vec3;
 
     //#region Properties
     @property(SkeletalAnimation) animation: SkeletalAnimation = null;

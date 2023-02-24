@@ -1,4 +1,44 @@
-import { Color, Quat, Size, Vec3 } from 'cc';
+import { Color, Game, Quat, Size, Vec3 } from 'cc';
+import { Game_Entity } from './Game_Entity';
+
+class String_Builder {
+    strings: string[];
+    constructor() {
+        this.strings = [];
+    }
+    append(v: any) {
+        this.strings.push(`${v}`);
+    }
+    to_string(): string {
+        return this.strings.join('');
+    }
+}
+
+export class Pid {
+    static entity = Symbol('entity');
+    static digit_0: Map<symbol, number> = new Map<symbol, number>([
+        [Pid.entity, 0],
+    ]);
+    static digit_1: Map<symbol, number> = new Map<symbol, number>([
+        [Pid.entity, 1],
+    ]); val: string;
+
+    //@incomplete Support other types like Single_Move, Move_Transaction... 
+    constructor(t: any) {
+        let s: symbol;
+        if (t instanceof Game_Entity) {
+            s = Pid.entity;
+        }
+
+        let d_0: number = Pid.digit_0.get(s), d_1: number = Pid.digit_1.get(s);
+        let builder = new String_Builder();
+        builder.append(d_1);
+        builder.append('-');
+        builder.append(d_0);
+        this.val = builder.to_string();
+        Pid.digit_0.set(s, d_0 + 1);
+    }
+}
 
 export class Const {
     /** FIXME Don't use absolute path... */

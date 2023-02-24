@@ -1,4 +1,5 @@
 import { assert, Vec3 } from 'cc';
+import { Pid } from './Const';
 import { Direction, Entity_Type } from './Enums';
 
 import { Entity_Info, Game_Entity } from './Game_Entity';
@@ -40,7 +41,16 @@ export class Entity_Manager {
             if (entity.entity_type == Entity_Type.HERO) {
                 this.hero = entity;
             }
+
+
+            // @hack
+            entity.id = new Pid(entity);
+            entity.pos = entity.local_pos;
+            this.proximity_grid.add_entity(entity);
         }
+
+        // @hack
+        console.log(this.proximity_grid.quad_tree.values[0].id);
     }
 
     // @incomplete

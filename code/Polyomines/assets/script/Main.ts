@@ -1,10 +1,10 @@
-import { _decorator, Component, Camera, Node } from 'cc';
+import { _decorator, Component, Camera, Node, instantiate, Prefab } from 'cc';
 import { Camera3D_Controller } from './Camera3D_Controller';
-import { Const } from './Const';
+import { Const, Pid } from './Const';
 import { Contextual_Manager } from './Contextual_Manager';
 import { Debug_Console } from './Debug_Console';
 import { Entity_Manager } from './Entity_Manager';
-import { Proximity_Grid } from './Proximity_Grid';
+import { debug_render_grid, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
 import { Transaction_Manager } from './Transaction_Manager';
 
@@ -16,7 +16,6 @@ const { ccclass, property } = _decorator;
  */
 @ccclass('Main')
 export class Main extends Component {
-    @property(Node) debug_grid: Node;
     @property(Camera3D_Controller)
     camera3d_controller: Camera3D_Controller = null;
     ticks_per_loop = 1;
@@ -29,6 +28,9 @@ export class Main extends Component {
     @property(Resource_Manager) resource_manager_instance: Resource_Manager = null;
     @property(Transaction_Manager) transaction_manager: Transaction_Manager = null;
 
+    @property(Prefab) debug_grid_prefab: Prefab;
+    @property(Node) debug_stuff: Node;
+
     start() {
         this.settle_singletons();
 
@@ -36,7 +38,11 @@ export class Main extends Component {
             this.camera3d_controller.update_view(config.camera);
 
             let grid = new Proximity_Grid(config.grid);
-            grid.debug_render_grid(this.debug_grid);
+
+            // @implementMe Directives like #PREVIEW or #WINDOWS...
+            let debug_grid_renderer = instantiate(this.debug_grid_prefab);
+            debug_grid_renderer.setParent(this.debug_stuff);
+            debug_render_grid(grid, debug_grid_renderer);
 
             this.entity_manager = new Entity_Manager(grid);
             this.entity_manager.load_entities(config.entities);
