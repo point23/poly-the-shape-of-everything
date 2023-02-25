@@ -124,7 +124,7 @@
     "console_instance": {
       "__id__": 13
     },
-    "contextual_manager_instance": {
+    "contextual_manager": {
       "__id__": 28
     },
     "resource_manager_instance": {
@@ -652,7 +652,7 @@
     "_priority": 1073741824,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 320,
+    "_orthoHeight": 388.7782805429864,
     "_near": 1,
     "_far": 2000,
     "_color": {

@@ -1,5 +1,6 @@
 import { Color, Game, Quat, Size, Vec3 } from 'cc';
 import { Game_Entity } from './Game_Entity';
+import { Single_Move } from './Single_Move';
 
 export class String_Builder {
     strings: string[];
@@ -17,11 +18,15 @@ export class String_Builder {
 
 export class Pid {
     static entity = Symbol('entity');
+    static single_move = Symbol('single move');
+
     static digit_0: Map<symbol, number> = new Map<symbol, number>([
         [Pid.entity, 0],
+        [Pid.single_move, 0],
     ]);
     static digit_1: Map<symbol, number> = new Map<symbol, number>([
         [Pid.entity, 1],
+        [Pid.single_move, 2],
     ]); val: string;
 
     //@incomplete Support other types like Single_Move, Move_Transaction... 
@@ -29,13 +34,13 @@ export class Pid {
         let s: symbol;
         if (t instanceof Game_Entity) {
             s = Pid.entity;
+        } else if (t instanceof Single_Move) {
+            s = Pid.single_move;
         }
 
         let d_0: number = Pid.digit_0.get(s), d_1: number = Pid.digit_1.get(s);
         let builder = new String_Builder();
-        builder.append(d_1);
-        builder.append('-');
-        builder.append(d_0);
+        builder.append(d_1).append('-').append(d_0);
         this.val = builder.to_string();
         Pid.digit_0.set(s, d_0 + 1);
     }
@@ -90,29 +95,6 @@ export class Const {
         new Quat(0, Math.sin(this.RADIUS_45), 0, Math.cos(this.RADIUS_45)),
     /* UP */ new Quat(0, 0, 0, 1),
     /* DOWN */ new Quat(0, 0, 0, 1),
-    ];
-
-    static Direction2Vec3: Vec3[] = [
-    /* RIGHT */ new Vec3(1, 0, 0),
-    /* FORWARD */ new Vec3(0, -1, 0),
-    /* LEFT */ new Vec3(-1, 0, 0),
-    /* BACKWARD */ new Vec3(0, 1, 0),
-    /* UP */ new Vec3(0, 0, -1),
-    /* DOWN */ new Vec3(0, 0, 1),
-    ];
-
-    static Polyomino_Deltas: Vec3[][][] = [
-        /* Monomino */
-        [],
-        /* Domino */
-        [
-      /* RIGHT */[new Vec3(1, 0, 0)],
-      /* FORWARD */[new Vec3(0, -1, 0)],
-      /* LEFT */[new Vec3(-1, 0, 0)],
-      /* BACKWARD */[new Vec3(0, 1, 0)],
-      /* UP */[new Vec3(0, 0, -1)],
-      /* DOWN */[new Vec3(0, 0, 1)],
-        ],
     ];
 
     static Direction_Names: string[] = ['RIGHT', 'FORWARD', 'LEFT', 'BACKWARD', 'UP', 'DOWN'];

@@ -1,4 +1,5 @@
 import { _decorator } from 'cc';
+import { String_Builder } from './Const';
 import { Entity_Manager } from './Entity_Manager';
 import { Single_Move } from './Single_Move';
 import { Transaction_Manager } from './Transaction_Manager';
@@ -24,12 +25,13 @@ export class Move_Transaction {
     }
 
     debug_info(): string {
-        let res = '';
-        res += 'Transaction#' + this.transaction_id.toString();
-        res += ' commited at ' + this.commit_time.toISOString() + '\n';
+        let builder = new String_Builder();
+        builder.append('Transaction#').append(this.transaction_id.toString());
+        builder.append(' commited at ').append(this.commit_time.toISOString());
+        builder.append('\n');
         for (let move of this.moves) {
-            res += '  - ' + move.debug_info() + '\n';
+            builder.append('\t- ').append(move.debug_info()).append('\n');
         }
-        return res;
+        return builder.to_string();
     }
 }

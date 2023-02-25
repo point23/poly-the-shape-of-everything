@@ -9,9 +9,10 @@ FEATURE:
 - Character Control
 - Redo & Undo <= Command Pattern
 - Supporter and Supportee
+- Get rid of singletons
+- Proximity grid
 
-+ Get rid of singletons
-+ Proximity grid
++ Oct-tree
 + Diff entities
 + Do undo
 + Serialize undo

@@ -20,45 +20,45 @@ export class Main extends Component {
     camera3d_controller: Camera3D_Controller = null;
     ticks_per_loop = 1;
     round: number = 0;
-    entity_manager: Entity_Manager;
 
     /* Singleton instances: */
     @property(Debug_Console) console_instance: Debug_Console = null;
-    @property(Contextual_Manager) contextual_manager_instance: Contextual_Manager = null;
+    @property(Contextual_Manager) contextual_manager: Contextual_Manager = null;
     @property(Resource_Manager) resource_manager_instance: Resource_Manager = null;
     @property(Transaction_Manager) transaction_manager: Transaction_Manager = null;
 
     @property(Prefab) debug_grid_prefab: Prefab;
     @property(Node) debug_stuff: Node;
 
-    start() {
+    async start() {
         this.settle_singletons();
 
-        Resource_Manager.instance.load_level(Const.Default_Level).then(config => {
-            this.camera3d_controller.update_view(config.camera);
+        await Resource_Manager.instance.load_level(Const.Default_Level)
+            .then(config => {
+                this.camera3d_controller.update_view(config.camera);
 
-            let grid = new Proximity_Grid(config.grid);
+                const grid = new Proximity_Grid(config.grid);
 
-            // @implementMe Directives like #PREVIEW or #WINDOWS...
-            let debug_grid_renderer = instantiate(this.debug_grid_prefab);
-            debug_grid_renderer.setParent(this.debug_stuff);
-            debug_render_grid(grid, debug_grid_renderer);
+                // @implementMe Directives like #PREVIEW or #WINDOWS...
+                const debug_grid_renderer = instantiate(this.debug_grid_prefab);
+                debug_grid_renderer.setParent(this.debug_stuff);
+                debug_render_grid(grid, debug_grid_renderer);
 
-            this.entity_manager = new Entity_Manager(grid);
-            this.entity_manager.load_entities(config.entities);
+                const entity_manager = new Entity_Manager(grid);
+                entity_manager.load_entities(config.entities);
 
-            this.transaction_manager.entity_manager = this.entity_manager; // @hack
-        });
+                this.contextual_manager.entity_manager = entity_manager;
+                this.transaction_manager.entity_manager = entity_manager;
+            });
 
-        Contextual_Manager.instance.enable();
-
+        this.contextual_manager.enable();
         this.ticks_per_loop =
             Const.Ticks_Per_Loop.get(Transaction_Manager.instance.duration);
         this.schedule(this.tick, Const.Tick_Interval);
     }
 
     onDestroy() {
-        Contextual_Manager.instance.dispose();
+        this.contextual_manager.dispose();
     }
 
     tick() {
@@ -77,7 +77,7 @@ export class Main extends Component {
     // Settle singleton managers manually
     settle_singletons() {
         Debug_Console.Settle(this.console_instance);
-        Contextual_Manager.Settle(this.contextual_manager_instance);
+        Contextual_Manager.Settle(this.contextual_manager);
         Resource_Manager.Settle(this.resource_manager_instance);
         Transaction_Manager.Settle(this.transaction_manager);
     }

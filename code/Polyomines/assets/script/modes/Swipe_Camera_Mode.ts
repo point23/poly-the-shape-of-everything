@@ -63,7 +63,7 @@ export class Swipe_Camera_Mode extends Game_Mode {
 
     private save_level() {
         let updated_level_config = Resource_Manager.instance.current_level_config;
-        updated_level_config.camera_info = this.camera3d_controller.camera_info;
+        updated_level_config.camera = this.camera3d_controller.get_camera_info();
         Resource_Manager.instance.save_level(updated_level_config);
     }
 

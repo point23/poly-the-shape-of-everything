@@ -6,13 +6,12 @@ const { ccclass, property } = _decorator;
 export class Camera3D_Controller extends Component {
     @property(Node) camera_base: Node;
 
-    /** TODO Allocate them all on the HEAP? */
     current_rotation: Quat = new Quat();
     last_rotation: Quat = new Quat();
     current_position: Vec3 = new Vec3();
     last_position: Vec3 = new Vec3();
 
-    get camera_info(): any {
+    get_camera_info(): any {
         return { position: this.current_position, rotation: this.current_rotation };
     }
 

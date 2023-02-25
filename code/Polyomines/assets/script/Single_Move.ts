@@ -1,20 +1,34 @@
 import { _decorator, Vec3 } from 'cc';
 
-import { Const } from './Const';
+import { Const, Pid, String_Builder } from './Const';
 import { Direction, Entity_Type } from './Enums';
-import { Game_Entity } from './Game_Entity';
+import { calcu_entity_future_position, calcu_entity_future_squares, Game_Entity } from './Game_Entity';
 import { Move_Transaction } from './Move_Transaction';
 import { Transaction_Control_Flags, Transaction_Manager } from './Transaction_Manager';
 
-export class Move_Info {
-    source_entity_id: number;
-    target_entity_id: number;
+export enum Move_Flags {
+    ROTATED = 1 << 0,
+    MOVED = 1 << 1,
+}
 
-    start_pos: Vec3;
-    end_pos: Vec3;
+// @hack
+function position_is_equal(a: Vec3, b: Vec3): boolean {
+    return a.x == b.x && a.y == b.y && a.z == b.z;
+}
 
-    start_dir: Direction;
-    end_dir: Direction;
+function calcu_target_direction(d: Direction, delta: number): Direction {
+    return (d + delta + 4) % 4;
+}
+
+class Move_Info {
+    source_entity_id: Pid;
+    target_entity_id: Pid;
+
+    start_position: Vec3;
+    end_position: Vec3;
+
+    start_direction: Direction;
+    end_direction: Direction;
     reaction_direction: Direction;
 
     public constructor() { }
@@ -26,116 +40,86 @@ export class Move_Info {
  * - Execute & Undo
  */
 export class Single_Move {
-    static move_id_seq: number = 0;
-    move_id: number;
-    move_info: Move_Info;
+    id: Pid;
+    info: Move_Info;
+    flags: number;
+
+    get source_entity_id(): Pid { return this.info.source_entity_id; }
+    get target_entity_id(): Pid { return this.info.target_entity_id; }
+    get start_position(): Vec3 { return this.info.start_position; }
+    get end_position(): Vec3 { return this.info.end_position; }
+    get start_direction(): Direction { return this.info.start_direction; }
+    get end_direction(): Direction { return this.info.end_direction; }
+    get reaction_direction(): Direction { return this.info.reaction_direction; }
 
     public constructor(move_info: Move_Info) {
-        this.move_id = Single_Move.move_id_seq++;
-
-        this.move_info = move_info;
+        this.id = new Pid(this);
+        this.flags = 0;
+        this.info = move_info;
     }
 
-    get start_dir(): Direction {
-        return this.move_info.start_dir;
-    }
+    try_add_itself(transaction: Move_Transaction): boolean { return false; }
 
-    get end_dir(): Direction {
-        return this.move_info.end_dir;
-    }
+    execute_async(transaction: Move_Transaction) { }
 
-    get dir_delta(): number {
-        return this.end_dir - this.start_dir;
-    }
-
-    get reaction_direction(): Direction {
-        return this.move_info.reaction_direction;
-    }
-
-    get start_pos(): Vec3 {
-        return this.move_info.start_pos;
-    }
-
-    get end_pos(): Vec3 {
-        return this.move_info.end_pos;
-    }
-
-    execute_async() { }
-
-    debug_info(): string {
-        return '';
-    }
-
-    try_add_itself(transaction: Move_Transaction): boolean {
-        return false;
-    }
+    debug_info(): string { return ''; }
 }
 
 export class Controller_Proc_Move extends Single_Move {
-    public constructor(entity: Game_Entity, dir: Direction, step: number = 1) {
+    public constructor(entity: Game_Entity, direction: Direction, step: number = 1) {
         const move_info = new Move_Info();
-
-        move_info.target_entity_id = entity.entity_id;
-        move_info.start_dir = entity.direction;
-        move_info.end_dir = dir;
-        move_info.start_pos = entity.local_pos;
-        move_info.end_pos = entity.calcu_future_pos(dir, step);
+        move_info.target_entity_id = entity.id;
+        move_info.start_direction = entity.orientation;
+        move_info.end_direction = direction;
+        move_info.start_position = entity.position;
+        move_info.end_position = calcu_entity_future_position(entity, direction, step);
         super(move_info);
     }
 
     try_add_itself(transaction: Move_Transaction): boolean {
-        if (Transaction_Manager.instance.control_flags &&
-            Transaction_Control_Flags.CONTROLLER_MOVE) {  // Already exist a Controller_Move
+        if (Transaction_Manager.instance.control_flags & Transaction_Control_Flags.CONTROLLER_MOVE) {
+            // Already exist a Controller_Move
             return false;
         }
 
         const manager = transaction.entity_manager;
-
-        // const e_source = manager.find(this.move_info.source_entity_id);
-        const e_target = manager.find(this.move_info.target_entity_id);
-
+        const e_target = manager.find(this.info.target_entity_id);
+        const supportees: Game_Entity[] = manager.locate_current_supportees(e_target);
         let at_least_rotated = false;
-        const supportees: Game_Entity[] =
-            manager.locate_current_supportees(e_target);
 
-        if (this.end_dir != this.start_dir) {  // Face towards target-dir first
-            let dir_delta = this.end_dir - this.start_dir;
-
-            transaction.moves.push(new Controller_Proc_Move(e_target, this.end_dir, 0));
-            this.move_info.start_dir = this.end_dir;
+        if (this.end_direction != this.start_direction) {
+            const direction_delta = this.end_direction - this.start_direction;
+            let rotate_move = new Controller_Proc_Move(e_target, this.end_direction, 0)
+            rotate_move.flags |= Move_Flags.ROTATED;
+            transaction.moves.push(rotate_move);
+            this.info.start_direction = this.end_direction;
             at_least_rotated = true;
 
-            if (e_target.entity_type !=
-                Entity_Type.AVATAR) {  // Avator would only rotate it's indicator
-                // Rotate relatively
+            if (e_target.entity_type != Entity_Type.AVATAR) {
+                // Avators would only rotate it's indicator 
                 for (let supportee of supportees) {
-                    const support_move = new Support_Move(supportee, dir_delta);
+                    const support_move = new Support_Move(supportee, direction_delta);
                     support_move.try_add_itself(transaction);
                 }
             }
         }
 
-        if (this.end_pos.equals(this.start_pos)) {
+        if (position_is_equal(this.start_position, this.end_position))
             return at_least_rotated;
-        }
 
-        const future_squares = e_target.calcu_future_squares(this.end_dir);
+        const future_squares = calcu_entity_future_squares(e_target, this.end_direction);
 
-        const supporters =
-            manager.locate_future_supporters(e_target, this.end_dir);
-        if (supporters.length == 0) {
-            return at_least_rotated;
-        }
+        const supporters = manager.locate_future_supporters(e_target, this.end_direction);
+        if (supporters.length == 0) return at_least_rotated;
 
         for (let pos of future_squares) {
             const other = manager.locate_entity(pos);
-            if (other != null) console.log(other.info);
 
             if (other != null && other != e_target) {
-                const pushed_move = new Pushed_Move(other, this.end_dir);
+                const pushed_move = new Pushed_Move(other, this.end_direction);
                 if (!pushed_move.try_add_itself(transaction)) {
                     /**
-                     * NOTE : Interesting bugs(fixed)
+                     * @note : Interesting bugs (fixed)
                      *  - Walk into a Dynamic-Entity When face towards another dir
                      */
                     return at_least_rotated;
@@ -145,41 +129,52 @@ export class Controller_Proc_Move extends Single_Move {
 
         transaction.moves.push(this);
         for (let supportee of supportees) {
-            const support_move = new Support_Move(supportee, 0, this.end_dir, 1);
+            const support_move = new Support_Move(supportee, 0, this.end_direction, 1);
             support_move.try_add_itself(transaction);
         }
 
-        Transaction_Manager.instance.control_flags |=
-            Transaction_Control_Flags.CONTROLLER_MOVE;
-
+        Transaction_Manager.instance.control_flags |= Transaction_Control_Flags.CONTROLLER_MOVE;
+        this.flags |= Move_Flags.MOVED;
         return true;
     }
 
-    async execute_async() {
-        // if (!this.start_pos.equals(this.end_pos)) {
-        //     await this.target_entity.move_to_async(this.end_pos);
-        // }
+    async execute_async(transaction: Move_Transaction) {
+        const manager = transaction.entity_manager;
+        const entity = manager.find(this.target_entity_id);
 
-        // if (this.start_dir != this.end_dir) {
-        //     await this.target_entity.face_towards_async(this.end_dir);
-        // }
+        if (this.flags & Move_Flags.MOVED) {
+            manager.proximity_grid.remove_entity(entity);
+            manager.proximity_grid.move_entity(entity, this.end_position);
+            manager.proximity_grid.add_entity(entity);
+        }
+
+        if (this.flags & Move_Flags.ROTATED) {
+            manager.proximity_grid.rotate_entity(entity, this.end_direction)
+        }
     }
 
     debug_info(): string {
-        let res = '';
-        res += 'CONTROLLER_PROC#' + this.move_id.toString();
-        res += ' entity#' + this.move_info.target_entity_id.toString();
+        let builder = new String_Builder();
+        builder.append('CONTROLLER_PROC#').append(this.id.val);
+        builder.append('\n');
+        builder.append('\tentity#').append(this.info.target_entity_id.val);
+        builder.append('\n');
 
-        if (this.start_dir != this.end_dir) {  // Rotation
-            res += ' rotation: from ' + Const.Direction_Names[this.start_dir] +
-                ' to ' + Const.Direction_Names[this.end_dir];
+        if (this.flags & Move_Flags.ROTATED) {
+            // Rotation
+            builder.append('\trotation: from ').append(Const.Direction_Names[this.start_direction]);
+            builder.append(' to ').append(Const.Direction_Names[Const.Direction_Names[this.end_direction]]);
+            builder.append('\n');
         }
 
-        if (!this.start_pos.equals(this.end_pos)) {  // Movement
-            res += ' movement: from ' + this.start_pos.toString() + ' to ' +
-                this.end_pos.toString();
+        if (this.flags & Move_Flags.MOVED) {
+            // Movement
+            builder.append('\tmovement: from ').append(this.start_position.toString());
+            builder.append(' to ').append(this.end_position.toString());
+            builder.append('\n');
         }
-        return res;
+
+        return builder.to_string();
     }
 }
 
@@ -189,31 +184,30 @@ export class Controller_Proc_Move extends Single_Move {
  *  - Can't push domino
  */
 export class Pushed_Move extends Single_Move {
-    public constructor(entity: Game_Entity, dir: Direction, step: number = 1) {
+    public constructor(entity: Game_Entity, direction: Direction, step: number = 1) {
         const move_info = new Move_Info();
-
-        move_info.target_entity_id = entity.entity_id;
-        move_info.start_pos = entity.local_pos;
-        move_info.reaction_direction = dir;
-        move_info.end_pos = entity.calcu_future_pos(dir, step);
+        move_info.target_entity_id = entity.id;
+        move_info.start_position = entity.position;
+        move_info.reaction_direction = direction;
+        move_info.end_position = calcu_entity_future_position(entity, direction, step);
         super(move_info);
     }
 
     try_add_itself(transaction: Move_Transaction): boolean {
         const manager = transaction.entity_manager;
 
-        let e_target = manager.find(this.move_info.target_entity_id);
+        let e_target = manager.find(this.info.target_entity_id);
         const direction = this.reaction_direction;
 
         if (e_target.entity_type == Entity_Type.STATIC) {
             return false;
         }
 
-        const future_squares = e_target.calcu_future_squares(direction);
+        const future_squares = calcu_entity_future_squares(e_target, this.reaction_direction);
 
         const supporters = manager.locate_future_supporters(e_target, direction);
         if (supporters.length == 0) {
-            /* TODO Failing */
+            /* @todo Failing */
             return false;
         }
 
@@ -225,9 +219,11 @@ export class Pushed_Move extends Single_Move {
         }
 
         const supportees = manager.locate_current_supportees(e_target);
+        const direction_delta = this.end_direction - this.start_direction;
+
         for (let supportee of supportees) {
             const support_move = new Support_Move(
-                supportee, this.dir_delta, this.reaction_direction, 1);
+                supportee, direction_delta, this.reaction_direction, 1);
             support_move.try_add_itself(transaction);
         }
 
@@ -235,81 +231,104 @@ export class Pushed_Move extends Single_Move {
         return true;
     }
 
-    async execute_async() {
-        // await this.target_entity.move_to_async(this.end_pos);
+    async execute_async(transaction: Move_Transaction) {
+        const manager = transaction.entity_manager;
+        const entity = manager.find(this.target_entity_id);
+
+        manager.proximity_grid.remove_entity(entity);
+        manager.proximity_grid.move_entity(entity, this.end_position);
+        manager.proximity_grid.add_entity(entity);
     }
 
     debug_info(): string {
-        let res = '';
-        res += 'PUSHED#' + this.move_id.toString();
-        res += ' direction ' + Const.Direction_Names[this.reaction_direction];
-        return res;
+        let builder = new String_Builder();
+        builder.append('PUSHED#').append(this.id.val).append('\n')
+        builder.append('\tdirection ').append(Const.Direction_Names[this.reaction_direction]);
+        return builder.to_string();
     }
 }
 
 export class Support_Move extends Single_Move {
     public constructor(
-        entity: Game_Entity, dir_delta: number, reaction_direction: Direction = 0,
-        step: number = 0) {
+        entity: Game_Entity, direction_delta: number, reaction_direction: Direction = 0, step: number = 0) {
         const move_info = new Move_Info();
-
-        move_info.target_entity_id = entity.entity_id;
-        move_info.start_dir = entity.direction;
-        move_info.end_dir = (entity.direction + dir_delta + 4) % 4;
+        move_info.target_entity_id = entity.id;
+        move_info.start_direction = entity.orientation;
+        move_info.end_direction = calcu_target_direction(entity.orientation, direction_delta);
         move_info.reaction_direction = reaction_direction;
-        move_info.start_pos = entity.local_pos;
-        move_info.end_pos = entity.calcu_future_pos(reaction_direction, step);
+        move_info.start_position = entity.position;
+        move_info.end_position = calcu_entity_future_position(entity, reaction_direction, step);
         super(move_info);
     }
 
     try_add_itself(transaction: Move_Transaction): boolean {
         const manager = transaction.entity_manager;
 
-        let e_target = manager.find(this.move_info.target_entity_id);
+        let e_target = manager.find(this.info.target_entity_id);
 
         const supportees = manager.locate_current_supportees(e_target);
+        const direction_delta = this.end_direction - this.start_direction;
+
         for (let supportee of supportees) {
-            const support_move = new Support_Move(
-                supportee, this.dir_delta, this.reaction_direction, 1);
+            const support_move = new Support_Move(supportee, direction_delta, this.reaction_direction, 1);
             support_move.try_add_itself(transaction);
         }
 
+        if (!position_is_equal(this.start_position, this.end_position))
+            this.flags |= Move_Flags.MOVED;
+        if (this.start_direction != this.end_direction)
+            this.flags |= Move_Flags.ROTATED;
         transaction.moves.push(this);
         return true;
     }
 
-    async execute_async() {
-        // if (!this.start_pos.equals(this.end_pos)) {
-        //     await this.target_entity.move_to_async(this.end_pos);
-        // }
+    async execute_async(transaction: Move_Transaction) {
+        const manager = transaction.entity_manager;
+        const entity = manager.find(this.target_entity_id);
 
-        // if (this.start_dir != this.end_dir) {
-        //     await this.target_entity.face_towards_async(this.end_dir);
-        // }
+        if (this.flags & Move_Flags.MOVED) {
+            manager.proximity_grid.remove_entity(entity);
+            manager.proximity_grid.move_entity(entity, this.end_position);
+            manager.proximity_grid.add_entity(entity);
+        }
+
+        if (this.flags & Move_Flags.ROTATED) {
+            manager.proximity_grid.rotate_entity(entity, this.end_direction)
+        }
     }
 
     debug_info(): string {
-        let res = '';
-        res += 'SUPPORT#' + this.move_id.toString();
-        if (this.start_dir != this.end_dir) {  // Rotation
-            res += ' rotation: from ' + Const.Direction_Names[this.start_dir] +
-                ' to ' + Const.Direction_Names[this.end_dir];
+        let builder = new String_Builder();
+        builder.append('SUPPORT#').append(this.id.val);
+        builder.append('\n');
+        builder.append('\tentity#').append(this.info.target_entity_id.val);
+        builder.append('\n');
+
+        if (this.flags & Move_Flags.ROTATED) {
+            // Rotation
+            builder.append('\trotation: from ').append(Const.Direction_Names[this.start_direction]);
+            builder.append(' to ').append(Const.Direction_Names[Const.Direction_Names[this.end_direction]]);
+            builder.append('\n');
         }
 
-        if (!this.start_pos.equals(this.end_pos)) {  // Movement
-            res += ' movement: from ' + this.start_pos.toString() + ' to ' +
-                this.end_pos.toString();
+        if (this.flags & Move_Flags.MOVED) {
+            // Movement
+            builder.append('\tmovement: from ').append(this.start_position.toString());
+            builder.append(' to ').append(this.end_position.toString());
+            builder.append('\n');
         }
-        return res;
+
+        return builder.to_string();
     }
 }
 
 export class Possess_Move extends Single_Move {
     public constructor(entity: Game_Entity) {
         const move_info = new Move_Info();
-        move_info.source_entity_id = entity.entity_id;
-        move_info.start_pos = entity.local_pos;
-        move_info.start_dir = move_info.end_dir = entity.direction;
+        move_info.source_entity_id = entity.id;
+        move_info.start_position = entity.position;
+        move_info.start_direction = entity.orientation;
+        move_info.end_direction = entity.orientation;
         super(move_info);
     }
 

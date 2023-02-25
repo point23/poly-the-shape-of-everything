@@ -44,7 +44,6 @@ export class Transaction_Stack {
     }
 }
 
-
 /**
  * @note
  * - Manage transactions
@@ -85,7 +84,7 @@ export class Transaction_Manager extends Singleton_Manager {
             const transaction = this.issued_stack.pop();
 
             for (let move of transaction.moves) {
-                move.execute_async();
+                move.execute_async(transaction);
                 packed.moves.push(move);
             }
         }
@@ -98,25 +97,28 @@ export class Transaction_Manager extends Singleton_Manager {
         Debug_Console.Info(packed.debug_info());
     }
 
-    // async undo_async() {
-    //     if (this.commited_stack.empty()) return;
-
-    //     const transaction = this.commited_stack.pop();
-    //     for (let move of transaction.moves) {
-    //         move.undo_async();
-    //     }
-
-    //     this.undo_stack.push(transaction);
-    // }
-
-    // async redo_async() {
-    //     if (this.undo_stack.empty()) return;
-
-    //     const transaction = this.undo_stack.pop();
-    //     for (let move of transaction.moves) {
-    //         move.execute_async();
-    //     }
-
-    //     this.commited_stack.push(transaction);
-    // }
+    /* 
+        async undo_async() {
+            if (this.commited_stack.empty()) return;
+    
+            const transaction = this.commited_stack.pop();
+            for (let move of transaction.moves) {
+                move.undo_async();
+            }
+    
+            this.undo_stack.push(transaction);
+        }
+    
+        async redo_async() {
+            if (this.undo_stack.empty()) return;
+    
+            const transaction = this.undo_stack.pop();
+            for (let move of transaction.moves) {
+                move.execute_async();
+            }
+    
+            this.commited_stack.push(transaction);
+        }
+    
+     */
 }

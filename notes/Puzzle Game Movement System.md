@@ -80,7 +80,6 @@ class Metadata {
     toplevel_items: Metadata_Item[];
     
     metadata_flags: number;
-
     
     ui_pages: Ui_Page[];
     current_ui_page_idx;

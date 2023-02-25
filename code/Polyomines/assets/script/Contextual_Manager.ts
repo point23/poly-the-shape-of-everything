@@ -1,4 +1,5 @@
 import { _decorator, Component, EventKeyboard, EventMouse, EventTouch, game, input, Input, KeyCode, Node } from 'cc';
+import { Entity_Manager } from './Entity_Manager';
 
 import { Game_Mode } from './modes/Game_Mode_Base';
 
@@ -19,10 +20,12 @@ export class Contextual_Manager extends Component {
     public static Settle(instance: Contextual_Manager) {
         Contextual_Manager.instance = instance;
     }
+
     @property([Game_Mode]) game_modes: Game_Mode[] = [];
     current_mode: Game_Mode = null;
 
     current_mode_idx: number = 0;
+    entity_manager: Entity_Manager;
 
     public enable() {
         this.register_events();

@@ -47,7 +47,7 @@ export class Resource_Manager extends Component {
         return null;
     }
 
-    load_prefab(name: string): Node {
+    instantiate_prefab(name: string): Node {
         let p = this.prefabs.get(name);
         let n = instantiate(p);
         n.setParent(this.entities_parent);
