@@ -1,6 +1,6 @@
-import { _decorator, MeshRenderer, Node, Quat, Size, Vec3 } from 'cc';
+import { _decorator, MeshRenderer, Node, Quat, Size, Vec3, assert, Game } from 'cc';
 
-import { Const, Pid } from './Const';
+import { Const, Pid, String_Builder } from './Const';
 import { Game_Entity } from './Game_Entity';
 
 // @todo Move it to some where else like serialize?
@@ -24,10 +24,78 @@ enum Quadrant {
     SE,
 }
 
+interface Visitor<T> {
+    visit_tree_node(n: Tree_Node): T;
+}
+
+import fs from 'fs-extra'; // @hack
+export class Quad_Tree_Printer implements Visitor<string> {
+    indent_count: number;
+
+    constructor() {
+        this.indent_count = 0;
+    }
+
+    print(n: Tree_Node) {
+        let tree = n.accept(this);
+        const root_path = Const.Data_Path;
+        const file_path = `${root_path}/quad_tree.txt`;
+        fs.outputFile(file_path, tree).catch((err: Error) => { console.error(err) });
+    }
+
+    visualize(pos: Vec3, vals: Node_Val[], children: Tree_Node[]): string {
+        function build_indent(count: number): string {
+            let builder_i = new String_Builder();
+            for (let i = 0; i < count; i++) {
+                builder_i.append("\t");
+            }
+            return builder_i.to_string();
+        }
+
+        let indent = build_indent(this.indent_count);
+        let builder = new String_Builder();
+        builder.append(indent).append("( p: ").append(`(${pos.x},${pos.y})\n`);
+        builder.append(indent).append("  v: [");
+        for (let it of vals) {
+            builder.append(`${it.id.val} `);
+        }
+        builder.append("]\n");
+        builder.append(indent).append("  c: [\n");
+        for (let i = 1; i <= 4; i++) {
+            let it = children[i];
+            this.indent_count += 1;
+            if (it == null) {
+                builder.append(indent).append("null\n");
+            } else {
+                builder.append(it.accept(this)).append("\n");
+            }
+            this.indent_count -= 1;
+        }
+        builder.append(indent).append("])")
+        return builder.to_string();
+    }
+
+    visit_tree_node(n: Tree_Node): string {
+        return this.visualize(n.values[0].pos, n.values, n.children);
+    }
+}
+
 type Node_Val = {
     id: Pid;
     pos: Vec3;
 };
+
+class Region {
+    bounds: [number, number, number, number];
+    get l(): number { return this.bounds[0]; }
+    get r(): number { return this.bounds[1]; }
+    get b(): number { return this.bounds[2]; }
+    get t(): number { return this.bounds[3]; }
+
+    constructor(l: number, r: number, b: number, t: number) {
+        this.bounds = [l, r, b, t];
+    }
+}
 
 class Tree_Node {
     x: number;
@@ -47,24 +115,24 @@ class Tree_Node {
         return (quadrant + 1) % 4 + 1;
     }
 
-    region_search(l: number, r: number, b: number, t: number): Tree_Node[] {
+    region_search(region: Region): Tree_Node[] {
         function search_until(p: Tree_Node, l: number, r: number, b: number, t: number) {
-            function found(n: Tree_Node) {
-                search_result.push(n);
+            function found() {
+                search_result.push(p);
             }
 
-            function in_region(x: number, y: number): boolean {
-                return (l <= x && x <= r) && (b <= y && y <= t);
+            function in_region(xc: number, yc: number): boolean {
+                return (l <= xc && xc <= r) && (b <= yc && yc <= t);
             }
 
-            function overlaps(lp: number, rp: number, bp: number, tp: number) {
+            function overlaps(lp: number, rp: number, bp: number, tp: number): boolean {
                 return (l <= rp) && (r >= lp) && (b <= tp) && (t >= bp);
             }
-
             //#SCOPE
+
             const x = p.x;
             const y = p.y;
-            if (in_region(x, y)) return found(p);
+            if (in_region(x, y)) found();
             //       ___ ___   t
             //      |NW |NE |
             //      |___!___|  y
@@ -87,37 +155,63 @@ class Tree_Node {
                 search_until(p.children[Quadrant.SE], x, r, b, y);
             }
         }
+        //#SCOPE
 
-        let search_result: Tree_Node[];
-        search_until(this, l, r, b, t);
+        let search_result: Tree_Node[] = [];
+        search_until(this, region.l, region.r, region.b, region.t);
         return search_result;
     }
 
-    insert(k: Node_Val) {
-        function compare(): Quadrant {
-            let rx = r.x;
-            let ry = r.y;
-            if (kx == rx && ky == ry) return Quadrant.ORIGIN;
-            if (kx <= rx && ky <= ry) return Quadrant.SW;
-            if (kx >= rx && ky >= ry) return Quadrant.NE;
-            if (kx <= rx && ky >= ry) return Quadrant.NW;
-            if (kx >= rx && ky <= ry) return Quadrant.SE;
-        }
-
-        //#SCOPE
-        const kx = k.pos.x;
-        const ky = k.pos.y;
+    point_search(p: Vec3): Tree_Node {
         let r: Tree_Node = this;
-        let quadrant = compare();
+        const kx = p.x;
+        const ky = p.y;
+        const rx = r.x;
+        const ry = r.y;
+        let quadrant = this.compare(rx, ry, kx, ky);
         while (r.children[quadrant] != null) {
             r = r.children[quadrant];
-            quadrant = compare();
+            const rx = r.x;
+            const ry = r.y;
+            quadrant = this.compare(rx, ry, kx, ky);
+        }
+        if (quadrant == Quadrant.ORIGIN) {
+            return r;
+        }
+        return null;
+    }
+
+    insert(k: Node_Val) {
+        let r: Tree_Node = this;
+        const kx = k.pos.x;
+        const ky = k.pos.y;
+        const rx = r.x;
+        const ry = r.y;
+        let quadrant = this.compare(rx, ry, kx, ky);
+        while (r.children[quadrant] != null) {
+            r = r.children[quadrant];
+            const rx = r.x;
+            const ry = r.y;
+            quadrant = this.compare(rx, ry, kx, ky);
         }
         if (quadrant == Quadrant.ORIGIN) {
             r.values.push(k);
             return;
         }
         r.children[quadrant] = new Tree_Node(k);
+    }
+
+    compare(rx: number, ry: number, kx: number, ky: number): Quadrant {
+        if (kx == rx && ky == ry) return Quadrant.ORIGIN;
+        if (kx <= rx && ky <= ry) return Quadrant.SW;
+        if (kx >= rx && ky >= ry) return Quadrant.NE;
+        if (kx <= rx && ky >= ry) return Quadrant.NW;
+        if (kx >= rx && ky <= ry) return Quadrant.SE;
+    }
+
+    // @note Visitor pattern
+    accept<T>(v: Visitor<T>): T {
+        return v.visit_tree_node(this);
     }
 }
 
@@ -144,6 +238,20 @@ export class Proximity_Grid {
         } else {
             this.quad_tree.insert(e);
         }
+    }
+
+    point_search(p: Vec3): Pid[] {
+        let res = this.quad_tree.point_search(p);
+        return res.values.map(v => v.id);
+    }
+
+    region_search(r: Region): Game_Entity[] {
+        let res = [];
+        const nodes = this.quad_tree.region_search(r);
+        for (let node of nodes) {
+            res.concat(node.values);
+        }
+        return res;
     }
 
     // @todo

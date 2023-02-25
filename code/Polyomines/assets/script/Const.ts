@@ -1,13 +1,14 @@
 import { Color, Game, Quat, Size, Vec3 } from 'cc';
 import { Game_Entity } from './Game_Entity';
 
-class String_Builder {
+export class String_Builder {
     strings: string[];
     constructor() {
         this.strings = [];
     }
-    append(v: any) {
+    append(v: any): String_Builder {
         this.strings.push(`${v}`);
+        return this;
     }
     to_string(): string {
         return this.strings.join('');

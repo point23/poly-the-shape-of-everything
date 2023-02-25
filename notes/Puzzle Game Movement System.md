@@ -394,12 +394,27 @@ function detect_conflicts(manager: Entity_Manager,
    }
 }
 
-function xxx() {
+function enact_next_buffered_move(manager: Entity_Manager, first_call = true) {
+    // transition_mode == Transition.WAITING_FOR_VIC
+    if (!manager.buffered_move.counts) {
+        generate_buffered_moves_from_held_keys(manager);
+        enact_next_buffered_move(manager, false);
+        return;
+    }
+    
+    move = manager.buffered_moves[0];
+    
+    if (arry_find(manager.falling_entites, move.id)) {
+    	// New move won't be consumed as it is falling
+    } 
+    
+    array_ordered_remove_by_idx(manager.buffered_moves, 0);
+    
     if (move.action_type != Action_Type.UNDO) {
         let hero = get_active_hero(manager);
         if (hero) {
             let s = `undo at ${hero.pos.fixed(0)}`;
-            let report = game_report(s); // FP?
+            let report = game_report(s); // FP???
             report.fade_in_time = 0.03;
             report.sustain_time = 0.15;
             report.fade_out_time = 0.07; 
@@ -459,11 +474,67 @@ function enact_move(manager: Entity_Manager, move: Bufferd_Move) {
     
     // clones_to_move = get_clones_of(manager, guy_id, can_be_dead:true);
 }
+
+function maybe_retire_next_transaction(manager: Entity_Manager): bool {
+    let should_do_player_move = true;
+    let id = manager.next_transaction_id_to_retire;
+    if (id == manager.next_transaction_id_to_retire) {
+        return should_do_player_move;
+    }
+    
+    let retired = false;
+    should_do_player_move = false;
+    for (let id = manager.next_transaction_id_to_retire;
+             id < manager.next_transaction_id_to_issue;
+             id++) {
+        let retired_this_id = true;
+        for (let e of manager.moving_entities) {
+            v = e.visual_inetrpolation;
+            if (v.start_time < 0) {
+                continue e; // some jai stuff
+            }
+            
+            if (v.transaction_id == id) {
+                retired_this_id = false;
+                break;
+            }
+            
+            assert(v.transaction_id != 0);
+            assert(v.transaction_id >= manager.next_transaction_id_to_retire)
+        }
+        
+        if (retired_this_id) {
+            retired = true;
+            
+            if (id == next_transaction_id_to_retire)
+                manager.next_transaction_id_to_retire + 1;
+            if (id == manager.waiting_on_player_transaction) {
+                manager.waiting_on_player_transaction = 0;
+                should_do_player_move = true;
+            }
+        }
+    }
+    
+    if (should_do_player_move) {
+        if (should_record_undo(manager)) {
+            undo_end_frame(manager);
+        }
+    }
+}
+
+should_record_undo(manager: Entity_Manager) {
+    let hero = get_active_hero(manager);
+    
+    if (!hero) return false;
+    if (array_find(manager.falling_entities, hero.entity_id)) return false;
+    
+    return true;
+}
 ```
 
 
 
-# Undo System: in Database, Version Control, Editors...
+# Other Undo System
 
 #### Transactions in Database
 
@@ -504,11 +575,9 @@ ACID
 
 - delta compression: https://ably.com/blog/practical-guide-to-diff-algorithms
 
-- 
 
 
-
-# Undo System
+# Puzzle Undo System
 
 参考资料：
 
@@ -516,34 +585,52 @@ ACID
 
 #### Problem
 
-- 运行时游戏和关卡编辑器都需要Undo, 但两者涉及的数据大相径庭，例如运行时保存了：Failing, Dead等Flag，而编辑器保存了Material。
-- 如果编辑器内得操作也是以Move为单位，Move会有太多的Sub-Class
-- 大跨度的撤回：like C-R to reset a level
+运行时游戏和关卡编辑器都需要Undo, 但两者涉及的数据大相径庭，例如运行时保存了：Failing, Dead等Flag，而编辑器保存了Material。
+
+如果编辑器内得操作也是以Move为单位，Move会有太多的Sub-Class
+
+大跨度的撤回：like C-R to reset a level
+
 - 撤回到某个Major Change: like 推动Block
-- Undo的节点问题：
-  - 我们如果基于Command Pattern进行撤回，自动运行的节点变化（如：水流）也需要建立Move
-  - 而如果我们以Entity的方式进行撤回，则在每一次有角色Move的时候才进行Scan Entities的行为
+
+Undo的节点问题：
+- 我们如果基于Command Pattern进行撤回，自动运行的节点变化（如：水流）也需要建立Move
+- 而如果我们以Entity的方式进行撤回，则在每一次有角色Move的时候才进行Scan Entities的行为
+
+- 在角色没有结束当前Move时就发生Undo
+
+#### Global variables
+
+```typescript
+doing_undo: boolean = false;
+next_undo_record_is_check_point: boolean = false;
+```
 
 
-#### Undo Structs
+#### Structs
 
 ```typescript
 class Undo_Handler {
     entity_manager: Entity_Manager;
+    
+    pending_actions: Undo_Action[];
     undo_records: Undo_Record[];
     
-    current_entity_state: Table(Pid, Entity);
+    // @deprecated current_entity_state: Table(Pid, Entity);
+    old_entity_table: Table(Pid, Entity);
     
     dirty: boolean;
     enabled: boolean;
 } 
 
-class Undo_Record {
-    gameplay_time: number;
-    transaction: string;
-    checkpoint: boolean;
-    
-    editor_info: Undo_Editor_Info;
+class Undo_Action {
+    type: Undo_Action_Type;
+    entity_id: Pid;
+    // union {
+    //     move,
+    //	   change,
+    //     ...
+    // }
 }
 
 enum Undo_Action_Type {
@@ -553,44 +640,78 @@ enum Undo_Action_Type {
     OCEAN_CHANGE,
 }
 
-class Undo_Editor_INfo {
+class Undo_Record {
+    gameplay_time: number;
+    transaction: string;
+    checkpoint: boolean;
+    
+    editor_info: Undo_Editor_Info;
+}
+
+class Undo_Editor_Info {
     description: string;
     entity_type_info: Type_Info;
     entity_id: Pid;
     num_changed;
 };
+
+// Create or Destruction
+class Entity_Change {
+    derived_data_diffed: string;
+    entity_type: Type;
+}
+
+class Entity_Creation_Or_Destruction {
+    entity_type: Entity_Type;
+    undoable_data: Undoable_Entity_Data;
+ 	derived_data_diffed: string;
+    is_destruction: boolean;
+}
+
+class Creation_Info {
+    entity_id: Pid;
+	type: Undo_Action_Type;
+    serialized_entity_data: string;
+}
 ```
 
 #### Process
 
-- Undo mark beginning
-  - Cache every entity
-- Record undo state
-  - Undo end frame
-    - Scan for changed entities
-      - <u>Loop Each Entity</u>: Scan for one entity
-        - Diff entity
-          - <u>Loop Each Metadata Slots</u>: 
-            - Base Entity: Compare item
-            - Derived Entity: Compare item
-        - Replace cached entity if changed
-    - Add undo record
-- Do on undo
-  - Pop the last record
-  - Really do one undo
-    - <u>Switch Each Action</u>: 
-      - [1] Do Entity Changes
-        - <u>Loop Each Entity</u>
-          - Find target entity
-          - Remove it from the grid
-          - Find cache
-          - Copy cache to target
-          - Move target
-          - Apply diff to cache
-            - <u>Loop Each Changed Slots</u>
-              - Skip new one in buffer
-              - Copy the old one to cache
-
+Recording:
+$$
+\begin{aligned}
+\\&-undo\space mark\space beginning
+\\&-cache\space every\space entity
+\\&-record\space undo\space state
+\\&-\quad undo\space end\space frame
+\\&-\quad\quad FOREACH\space entity:
+\\&-\quad\quad\quad scan\space for\space one \space entity
+\\&-\quad\quad\quad\quad diff\space entity
+\\&-\quad\quad\quad\quad FOREACH\space metadata\space slots:
+\\&-\quad\quad\quad\quad\quad base:\space compare\space item
+\\&-\quad\quad\quad\quad\quad derived:\space compare\space item
+\\&-\quad\quad\quad\quad replace\space cache
+\\&-\quad\quad\quad add\space undo\space record
+\end{aligned}
+$$ {aligned}
+Undo:
+$$
+\begin{aligned}
+\\&-do\space on\space undo
+\\&-pop\space last\space record 
+\\&-really\space do\space one\space undo
+\\&-\quad SWITCH\space undo\space action\space type:
+\\&-\quad\quad do\space entity\space changes
+\\&-\quad\quad\quad FOREACH\space changed\space entity:
+\\&-\quad\quad\quad\quad find\space entity
+\\&-\quad\quad\quad\quad remove\space it\space from\space grid
+\\&-\quad\quad\quad\quad find\space cache
+\\&-\quad\quad\quad\quad copy\space cache\space to\space entity
+\\&-\quad\quad\quad\quad\quad  FOREACH\space metadata\space slots:
+\\&-\quad\quad\quad\quad\quad\quad skip\space new
+\\&-\quad\quad\quad\quad\quad\quad copy\space old\space to\space cache
+\end{aligned}
+$$
 
 
 #### Diff
@@ -604,6 +725,9 @@ function reset_undo(undo: Undo_Handler) {
 function undo_mark_beginning(manager: Entity_Manager) {
     let undo = manager.undo_handler;
     undo.enabled = true;
+    
+    array_reset(undo.pending_creations);
+    array_reset(undo.pending_destructions);
     
     for (let e of manager.entity_array) {
         if (e.scheduled_for_destruction) continue;
@@ -632,43 +756,50 @@ function record_eidtor_undo_state(panel: Undo_Panel) {
 }
 
 function undo_end_frame(manager: Entity_Manager) {
-    let undo = manager.undo_handler;
+    const undo = manager.undo_handler;
     if (!undo.enabeld) return;
+    
    	undo.dirty = true;
     
-    builder = String_Builder();
-    scan_for_changed_entities(undo, builder);
+    scan_for_changed_entities(undo);
+    let sum = undo.pending_actions.count;
+    if (!sum) return;
     
-    record = Undo_Record();
+    undo.dirty = true;
+    
+    {
+        for (let action of pending_actions) {
+            if (action.type != Undo_Action_Type.CREATION_OR_DESTRUCTION) continue;
+            if (action.creation.is_destruction) continue;
+            
+            const manager = undo.entity_manager;
+            let e = find_entity(manager, action.entity_id);
+            
+            if (e == null) continue;
+            if (e.scheduled_for_destruction) continue;
+        }
+    }
+    
+    let record = new Undo_Record();
     record.checkpoint = next_undo_record_is_check_point;
     next_undo_record_is_check_point = false;
-    record.gameplay_time = get_gameplay_time();
-    record.transaction = builder.to_string();
+    
+    // @note The *const* may just implies that 
+    // we're calling in some other scope...
+    const cs = get_campaign_state();
+    record.gameplay_time = cs.current_time;
+    // Flags like time_next_lily_update?
+    
+    record.actions = undo.pending_actions;
     
     array_add(undo.undo_records, record);
     /* implementMe */ clear_current_undo_frame(undo);
 }
 
-function scan_for_changed_entities (undo: Undo_Handler,
-                                    builder: String_Builder) {
-    let manager = undo.entity_manager;
-    
-    let counter: number = 0;
-    
-    put(builder, Undo_Action_Type.CHANGE);
-    let entity_count_cursor = get_current_cursor(builder);
-    put(builder, 0); // placeholder
-    
+function scan_for_changed_entities (undo: Undo_Handler) {
+    const manager = undo.entity_manager;
     for (let entity of manager.entity_array) {
-        scan_one_entity(undo, entity, builder, counter);
-    }
-    
-    { // little endian
-        let low = counter & 0xff;
-        let high = (counter >> 8) & 0xff;
-        
-        entity_count_cursor[0] = low;
-		entity_count_cursor[1] = high;
+        scan_one_entity(undo, entity);
     }
 }
 
@@ -684,11 +815,11 @@ function scan_one_entity(undo: Undo_Handler,
         slot_count_cursor: Cursor; // String builder cursor?
     };
     
-    let e_old = table_find(undo.current_entity_state, e.entity_id);
+    let old_e = table_find(undo.current_entity_state, e.entity_id);
     let pack_info: Pack_Info;
     pack_info.builder = builder;
 
-    diff_entity(e_old, e, pack_info);
+    diff_entity(old_e, e, pack_info);
 
     if (pack_info.slot_count != 0) {
         counter += 1;
@@ -700,7 +831,7 @@ function scan_one_entity(undo: Undo_Handler,
     }
 }
 
-function diff_entity(e_old: Entity,
+function diff_entity(old_e: Entity,
                      e_new: Entity,
                      info: Pack_Info) {
     function increment_pack_count = (info: Pack_Info, e: Entity) => {
@@ -718,18 +849,18 @@ function diff_entity(e_old: Entity,
     function compare_item = (item: Metadata_Item,
                              struct_idx: number,
                              field_idx: number,
-                             e_old: Entity,
+                             old_e: Entity,
                              e_new: Entity,
                              info: Pack_Info) => {        
         /* implementMe: metadata_slot */
-    	const slot_old = metadata_slot(e_old, item);
+    	const slot_old = metadata_slot(old_e, item);
 		const slot_new = metadata_slot(e_new, item);
 		
 		const differing = memcmp(slot_old, slot_new);
         if (differing) {
 			let bulider = info.builder;
             if (Reflection.is_pod(item.info)) {
-            	increment_pack_counts(info, e_old);
+            	increment_pack_counts(info, old_e);
                 put(builder, struct_idx);
                 put(builder, field_idx);
                 put(builder, slot_old);
@@ -737,7 +868,7 @@ function diff_entity(e_old: Entity,
             } else if (item.info.type == Type_Info_Tag.STRING) {
                 let s_old = cast_to_string(slot_old);
                 let s_new = cast_to_string(slot_new);
-            	increment_pack_counts(info, e_old);
+            	increment_pack_counts(info, old_e);
                 put(builder, struct_idx);
                 put(builder, field_idx);
                 put(builder, s_old.count);
@@ -753,10 +884,10 @@ function diff_entity(e_old: Entity,
     
     const BASE_STRUECT_IDX = 0;
     const DERIVED_STRUECT_IDX = 1;
-    	const base_type_idx = entity_manager_idx_of_type(e_old.base_entity_type);
+    	const base_type_idx = entity_manager_idx_of_type(old_e.base_entity_type);
 	const base_entity_metadata = metadata_per_entity_type[base_type_idx];
     
-    const type_idx = entity_manager_idx_of_type(e_old.entity_type);
+    const type_idx = entity_manager_idx_of_type(old_e.entity_type);
 	const metadata = metadata_per_entity_type[type_idx];
     
     base_entity_metadata.leat_items.forEach((it, it_idx) => {
@@ -764,7 +895,7 @@ function diff_entity(e_old: Entity,
         compare_item(it, 
                      BASE_STRUECT_IDX,
                      field_idx,
-                     e_old,
+                     old_e,
                      e_new,
                      info);
 	});
@@ -774,7 +905,7 @@ function diff_entity(e_old: Entity,
         compare_item(it, 
                      DERIVED_STRUECT_IDX,
                      field_idx,
-                     e_old,
+                     old_e,
                      e_new,
                      info); 
 	});
@@ -847,8 +978,14 @@ function really_do_one_undo(manager: Entity_Manager,
                 do_entity_changes(manager, num_entities, buffer, is_redo);
                 break;
             case : Undo_Action_Type.CREATION:
-                break;
             case: Undo_Action_Type.DESTRUCTION:
+                var entity_id；
+                get(remaining, entity_id);
+                
+                var serialized_size;
+                get(remaining, serialized_size);
+                
+                
                 break;
 			case: Undo_Action_Type.OCEAN_CHANGE:
                 break;
@@ -879,6 +1016,7 @@ function do_entity_changes(manager: Entity_Manager,
         
         let cached = table_find(undo.current_entity_state, e_dest.entity_id);
         assert(cached);
+        
         {
             copy_entity_data(cached, e_dest);
             {
@@ -961,4 +1099,118 @@ apply_diff (e_dest: Entity,
     }
 }
 ```
+
+#### Creation / Destruction
+
+```typescript
+function undo_note_created_entity(e: Entity) {
+	let undo = e.entity_manager.undo_handler;
+    if (!handler.enabled) return;
+    if (doing_undo) return;
+    
+    let ecd = note_ecde(e);
+    ecd.creation.is_destruction = false;
+
+    old_entity = create_old_entity(undo, e);
+    
+	array_add(undo.pending_creations, ecd);
+}
+
+function undo_note_destroyed_entity(e: Entity) {
+    let undo = e.entity_manager.undo_handler;
+    if (!handler.enabled) return;
+    if (doing_undo) return;
+    
+    let count = array_unordered_remove(undo.pending_creations, e.entity_id);
+    
+	for (let it of undo.pending_creations) {
+        assert(it.entity_id != e.entity_id);
+    }
+    for (let it of undo.pending_destructions) {
+        assert(it.entity_id != e.entity_id);
+    }
+    
+    let info: Creation_Info;
+    info.action = Undo_Action_Type.DESTRUCTION;
+    info.entity_id = e.entity_id;
+    info.serialized_entity_data = "";
+    
+	array_add_if_unique(undo.pending_creations, e.entity_id);
+    
+    if (count) {
+        array_add_if_unique(undo.pending_destructions, e.entity_id);
+    }
+}
+
+// Note entity creation or destruction
+function note_ecd(e: Entity): Creation_Info {
+    let result: Undo_Action;
+    result.entity_id = e.entity_id;
+    result.type = Undo_Action_Type.CREATION_OR_DESTRUCTION;
+    
+    let c = result.creation;
+    c.entity_type = e.entity_type;
+    
+    copy_undoable_data(e.undoable_data, c.undoable_data);
+    
+    let type_idx = entity_manager_idx_of_type(e.entity_type);
+    const default = entity_default_states[type_idx];
+    
+    let s = diff_entity(e, default, e.derived_pointer);
+    c.derived_data_diffed = s;
+
+    return result;
+}
+
+function add_entity_creation_or_destruction (builder: String_Builder, manager: Entity_Manager, undo: Undo_Handler, info: Creation_Info) {
+    put(builder, info.action);
+    put(builder, info.id);
+    append(builder, info.serialized_entity_data);
+}
+
+function get_old_entity(undo: Undo_Handler, e: Entity): Entity {
+    let old_e = table_find(undo.old_entity_table, e.entity_id);
+    assert(old_e != null);
+    
+    return old_e;
+}
+
+function create_old_entity(undo: Undo_Handler, e: Entity, optional: false): Entity {
+    let old_e = table_find(undo.old_entity_table, e.entity_id);
+    if (old_e != null) {
+        if (!optional) assert(false);
+
+        return old_e;
+    }
+    
+    let e_copy = new Entity();
+    let result = table_add(undo.old_entity_table, e.entity_id, e_copy);
+    
+    let info = (Type_Info)e.entity_type;
+    derived_size = info.runtime_size;
+    result.derived_pointer = alloc(derived_size);
+    memcpy(result.derived_pointer, e.derived_pointer, derived_size);
+
+    return result;
+}
+
+function remove_old_entity(undo: Undo_Handler, id: Pid) {
+    let old_e = table_find(undo.old_entity_table, e.entity_id);
+    assert(old_e);
+    
+    if (old_e) {
+        free(old_e.derived);
+    }
+    
+    table_clobber_entry(undo.old_entity_table);
+}
+```
+
+
+
+Screenshots
+
+`copy_undoable_data`
+
+![image-20230220223737889](Puzzle%20Game%20Movement%20System.assets/image-20230220223737889.png)
 

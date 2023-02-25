@@ -1,10 +1,18 @@
-import { assert, Vec3 } from 'cc';
-import { Pid } from './Const';
+import { assert, Game, Vec3 } from 'cc';
+import { Const, Pid } from './Const';
+import { Debug_Console } from './Debug_Console';
 import { Direction, Entity_Type } from './Enums';
 
 import { Entity_Info, Game_Entity } from './Game_Entity';
-import { Proximity_Grid } from './Proximity_Grid';
+import { Proximity_Grid, Quad_Tree_Printer } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
+
+
+// @hack
+function compare(a: Pid, b: Pid): boolean {
+    return a.val == b.val;
+}
+
 
 /* NOTE
   - Manage entity pools
@@ -42,7 +50,6 @@ export class Entity_Manager {
                 this.hero = entity;
             }
 
-
             // @hack
             entity.id = new Pid(entity);
             entity.pos = entity.local_pos;
@@ -50,7 +57,20 @@ export class Entity_Manager {
         }
 
         // @hack
-        console.log(this.proximity_grid.quad_tree.values[0].id);
+        // new Quad_Tree_Printer().print(this.proximity_grid.quad_tree);
+        let target = this.proximity_grid.point_search(new Vec3(3, 4, 0));
+        console.log("==================");
+        console.log(target);
+    }
+
+    locate(pid: Pid): Game_Entity { // @hack
+        for (var e of this.entities) {
+            if (compare(e.id, pid)) {
+                return e;
+            }
+        }
+
+        return null;
     }
 
     // @incomplete
