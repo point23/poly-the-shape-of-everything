@@ -3,9 +3,9 @@ import { _decorator, Camera, EventKeyboard, EventMouse, EventTouch, geometry, Ke
 import { Const, Pid } from '../Const';
 import { Contextual_Manager } from '../Contextual_Manager';
 import { Debug_Console } from '../Debug_Console';
+import { Direction, calcu_entity_future_position, rotate_clockwise_horizontaly, get_entity_squares, get_serializable } from '../entity';
 import { Entity_Manager } from '../Entity_Manager';
-import { Direction } from '../Enums';
-import { calcu_entity_future_position, Entity_Serializable, Game_Entity, get_entity_squares, rotate_clockwise_horizontaly } from '../Game_Entity';
+import { Serializable_Entity_Data, Game_Entity } from '../Game_Entity';
 import { Resource_Manager } from '../Resource_Manager';
 
 import { Game_Mode } from './Game_Mode_Base';
@@ -38,7 +38,7 @@ export class Entity_Edit_Mode extends Game_Mode {
     is_jiggling: boolean = false;
     is_shift_down: boolean = false;
     selected_entities: Game_Entity[] = [];
-    copied_entities: Entity_Serializable[] = [];
+    copied_entities: Serializable_Entity_Data[] = [];
 
     handle_touch_move(event: EventTouch) {
         const screen_x = event.getLocationX();
@@ -170,8 +170,8 @@ export class Entity_Edit_Mode extends Game_Mode {
     copy_selected_entities() {
         this.copied_entities = [];
 
-        for (let entity of this.selected_entities) {
-            this.copied_entities.push(entity.get_serializable());
+        for (let e of this.selected_entities) {
+            this.copied_entities.push(get_serializable(e));
         }
     }
 
@@ -223,16 +223,14 @@ export class Entity_Edit_Mode extends Game_Mode {
     move_selected_entities(direction: Direction) {
         for (let entity of this.selected_entities) {
             const p_new = calcu_entity_future_position(entity, direction);
-            this.entity_manager.proximity_grid.remove_entity(entity);
-            this.entity_manager.proximity_grid.move_entity(entity, p_new);
-            this.entity_manager.proximity_grid.add_entity(entity);
+            this.entity_manager.move_entity(entity, p_new);
         }
     }
 
     rotate_selected_entities() {
         for (let entity of this.selected_entities) {
             let r_new = rotate_clockwise_horizontaly(entity.rotation);
-            this.entity_manager.proximity_grid.rotate_entity(entity, r_new);
+            this.entity_manager.rotate_entity(entity, r_new);
         }
     }
 }

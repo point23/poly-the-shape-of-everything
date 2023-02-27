@@ -2,8 +2,8 @@ import { _decorator, EventKeyboard, KeyCode } from 'cc';
 import { Contextual_Manager } from '../Contextual_Manager';
 
 import { Debug_Console } from '../Debug_Console';
+import { Direction } from '../entity';
 import { Entity_Manager } from '../Entity_Manager';
-import { Direction } from '../Enums';
 import { Controller_Proc_Move, Possess_Move } from '../Single_Move';
 import { Transaction_Manager } from '../Transaction_Manager';
 

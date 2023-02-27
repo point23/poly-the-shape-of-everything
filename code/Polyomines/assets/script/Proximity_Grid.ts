@@ -1,6 +1,6 @@
-import { _decorator, MeshRenderer, Node, Quat, Size, Vec3, Game } from 'cc';
+import { _decorator, MeshRenderer, Node, Quat, Size, Vec3, Game, assert } from 'cc';
 import { Const, Pid, String_Builder } from './Const';
-import { Game_Entity, get_entity_squares } from './Game_Entity';
+import { Game_Entity } from './Game_Entity';
 
 // @todo Move it to some where else like serialize?
 //  Implement new version of clone with Reflect...
@@ -27,12 +27,12 @@ interface Visitor<T> {
 }
 
 import fs from 'fs-extra'; // @hack
-import { Direction } from './Enums';
+import { Direction, get_entity_squares } from './entity';
 class Quad_Tree_Printer implements Visitor<string> {
     indent_count: number;
 
     constructor() {
-        this.indent_count = 0;
+        this.indent_count = 1;
     }
 
     print(n: Tree_Node) {
@@ -43,66 +43,57 @@ class Quad_Tree_Printer implements Visitor<string> {
     }
 
     visualize(pos: Vec3, vals: Game_Entity[], children: Tree_Node[]): string {
-        function build_indent(count: number): string {
+        function build_indent(count: number, char: string = "\t"): string {
             let builder_i = new String_Builder();
             for (let i = 0; i < count; i++) {
-                builder_i.append("\t");
+                if (i < count - 1) {
+                    builder_i.append("\t");
+                }
+                else {
+                    builder_i.append(char);
+                }
             }
             return builder_i.to_string();
         }
         //#SCOPE
 
-        let indent = build_indent(this.indent_count);
+        const root_indent = build_indent(this.indent_count, "====");
+        const indent = build_indent(this.indent_count);
+        const previous_indent = build_indent(this.indent_count - 1);
         let builder = new String_Builder();
-        builder.append(indent).append("( p: ").append(`(${pos.x},${pos.y})\n`);
-        builder.append(indent).append("  v: [");
+        builder.append(previous_indent).append("{\n");
+        builder.append(root_indent).append("  p: ").append(`(${pos.x},${pos.y})\n`);
+        builder.append(indent).append("  v: [ ");
         for (let it of vals) {
             builder.append(`${it.id.val} `);
         }
         builder.append("]\n");
         builder.append(indent).append("  c: [\n");
-        for (let i = 1; i <= 4; i++) {
+        for (let i = 0; i <= 4; i++) {
             let it = children[i];
             this.indent_count += 1;
+            switch (i) {
+                case 0: builder.append(indent).append("OO:\n"); break;
+                case 1: builder.append(indent).append("NE:\n"); break;
+                case 2: builder.append(indent).append("NW:\n"); break;
+                case 3: builder.append(indent).append("SW:\n"); break;
+                case 4: builder.append(indent).append("SE:\n"); break;
+            }
             if (it == null) {
-                builder.append(indent).append("null\n");
+                builder.append(indent).append("\tnull\n");
             } else {
                 builder.append(it.accept(this)).append("\n");
             }
             this.indent_count -= 1;
         }
-        builder.append(indent).append("])")
+        builder.append(indent).append("]\n");
+        builder.append(previous_indent).append("}\n");
         return builder.to_string();
     }
 
     visit_tree_node(n: Tree_Node): string {
-        return this.visualize(n.values[0].position, n.values, n.children);
+        return this.visualize(new Vec3(n.x, n.y), n.values, n.children);
     }
-}
-
-class Region {
-    bounds: [number, number, number, number];
-    get l(): number { return this.bounds[0]; }
-    get r(): number { return this.bounds[1]; }
-    get b(): number { return this.bounds[2]; }
-    get t(): number { return this.bounds[3]; }
-
-    constructor(l: number, r: number, b: number, t: number) {
-        this.bounds = [l, r, b, t];
-    }
-}
-
-function compare(rx: number, ry: number, kx: number, ky: number): Quadrant {
-    if (kx == rx && ky == ry) return Quadrant.ORIGIN;
-    if (kx <= rx && ky <= ry) return Quadrant.SW;
-    if (kx >= rx && ky >= ry) return Quadrant.NE;
-    if (kx <= rx && ky >= ry) return Quadrant.NW;
-    if (kx >= rx && ky <= ry) return Quadrant.SE;
-}
-
-function conjugate(quadrant: Quadrant): Quadrant {
-    // NE <=> SW; NW <=> SE
-    return (quadrant + 1) % 4 + 1;
 }
 
 class Tree_Node {
@@ -111,107 +102,141 @@ class Tree_Node {
     values: Game_Entity[];
     children: [Tree_Node, Tree_Node, Tree_Node, Tree_Node, Tree_Node];
 
-    constructor(k: Game_Entity) {
-        this.x = k.position.x;
-        this.y = k.position.y;
+    constructor(k: Game_Entity, kx: number, ky: number) {
+        this.x = kx;
+        this.y = ky;
         this.values = [k];
         this.children = [null, null, null, null, null];
-    }
-    /* 
-        region_search(region: Region): Tree_Node[] {
-            function search_until(p: Tree_Node, l: number, r: number, b: number, t: number) {
-                function found() {
-                    search_result.push(p);
-                }
-                function in_region(xc: number, yc: number): boolean {
-                    return (l <= xc && xc <= r) && (b <= yc && yc <= t);
-                }
-                function overlaps(lp: number, rp: number, bp: number, tp: number): boolean {
-                    return (l <= rp) && (r >= lp) && (b <= tp) && (t >= bp);
-                }
-                //#SCOPE
-    
-                const x = p.x;
-                const y = p.y;
-                if (in_region(x, y)) found();
-                //       ___ ___   t
-                //      |NW |NE |
-                //      |___!___|  y
-                //      |SW |SE |
-                //      |___|___|  b
-                //      l   x   r
-                if (p.children[Quadrant.NE] != null && overlaps(x, r, y, t))
-                    search_until(p.children[Quadrant.NE], x, r, y, t);
-                if (p.children[Quadrant.NW] != null && overlaps(l, x, y, t))
-                    search_until(p.children[Quadrant.NW], l, x, y, t);
-                if (p.children[Quadrant.SW] != null && overlaps(l, x, b, y))
-                    search_until(p.children[Quadrant.SW], l, x, b, y);
-                if (p.children[Quadrant.SE] != null && overlaps(x, r, b, y))
-                    search_until(p.children[Quadrant.SE], x, r, b, y);
-            }
-            //#SCOPE
-    
-            let search_result: Tree_Node[] = [];
-            search_until(this, region.l, region.r, region.b, region.t);
-            return search_result;
-        }
-    */
-    point_search(p: Vec3): Tree_Node {
-        let r: Tree_Node = this;
-        const kx = p.x;
-        const ky = p.y;
-        const rx = r.x;
-        const ry = r.y;
-        let quadrant = compare(rx, ry, kx, ky);
-        while (r.children[quadrant] != null) {
-            r = r.children[quadrant];
-            const rx = r.x;
-            const ry = r.y;
-            quadrant = compare(rx, ry, kx, ky);
-        }
-        if (quadrant == Quadrant.ORIGIN) {
-            return r;
-        }
-        return null;
-    }
-
-    insert(k: Game_Entity) {
-        function insert_once(r: Tree_Node, p: Vec3) {
-            const kx = p.x;
-            const ky = p.y;
-            const rx = r.x;
-            const ry = r.y;
-            let quadrant = compare(rx, ry, kx, ky);
-            while (r.children[quadrant] != null) {
-                r = r.children[quadrant];
-                const rx = r.x;
-                const ry = r.y;
-                quadrant = compare(rx, ry, kx, ky);
-            }
-            if (quadrant == Quadrant.ORIGIN) return r.values.push(k);
-            r.children[quadrant] = new Tree_Node(k);
-        }
-        //#SCOPE
-
-        for (let square of get_entity_squares(k)) {
-            console.log(square);
-            insert_once(this, square);
-        }
-    }
-
-    remove(k: Game_Entity) {
-        let n = this.point_search(k.position);
-        let idx = n.values.indexOf(k);
-        if (idx == -1) {
-            return;
-        }
-        n.values.splice(idx, 1);
     }
 
     // @note Visitor pattern
     accept<T>(v: Visitor<T>): T {
         return v.visit_tree_node(this);
     }
+}
+
+function compare(rx: number, ry: number, kx: number, ky: number): number {
+    if (kx == rx && ky == ry) return Quadrant.ORIGIN;
+    if (kx >= rx && ky >= ry) return Quadrant.NE;
+    if (kx <= rx && ky >= ry) return Quadrant.NW;
+    if (kx <= rx && ky <= ry) return Quadrant.SW;
+    if (kx >= rx && ky <= ry) return Quadrant.SE;
+}
+
+function conjugate(quadrant: Quadrant): Quadrant {
+    // NE <=> SW; NW <=> SE
+    return (quadrant + 1) % 4 + 1;
+}
+
+function point_search(r: Tree_Node, p: Vec3): Tree_Node {
+    const kx = p.x;
+    const ky = p.y;
+    const rx = r.x;
+    const ry = r.y;
+    let quadrant = compare(rx, ry, kx, ky);
+
+    while (r.children[quadrant] != null) {
+        r = r.children[quadrant];
+        const rx = r.x;
+        const ry = r.y;
+        quadrant = compare(rx, ry, kx, ky);
+    }
+
+    if (quadrant == Quadrant.ORIGIN) return r;
+
+    return null;
+}
+
+/* 
+    // @implementMe
+    class Region {
+        bounds: [number, number, number, number];
+        get l(): number { return this.bounds[0]; }
+        get r(): number { return this.bounds[1]; }
+        get b(): number { return this.bounds[2]; }
+        get t(): number { return this.bounds[3]; }
+
+        constructor(l: number, r: number, b: number, t: number) {
+            this.bounds = [l, r, b, t];
+        }
+    }
+
+    function region_search(region: Region): Tree_Node[] {
+        function search_until(p: Tree_Node, l: number, r: number, b: number, t: number) {
+            function found() {
+                search_result.push(p);
+            }
+            function in_region(xc: number, yc: number): boolean {
+                return (l <= xc && xc <= r) && (b <= yc && yc <= t);
+            }
+            function overlaps(lp: number, rp: number, bp: number, tp: number): boolean {
+                return (l <= rp) && (r >= lp) && (b <= tp) && (t >= bp);
+            }
+            //#SCOPE
+
+            const x = p.x;
+            const y = p.y;
+            if (in_region(x, y)) found();
+            //       ___ ___   t
+            //      |NW |NE |
+            //      |___!___|  y
+            //      |SW |SE |
+            //      |___|___|  b
+            //      l   x   r
+            if (p.children[Quadrant.NE] != null && overlaps(x, r, y, t))
+                search_until(p.children[Quadrant.NE], x, r, y, t);
+            if (p.children[Quadrant.NW] != null && overlaps(l, x, y, t))
+                search_until(p.children[Quadrant.NW], l, x, y, t);
+            if (p.children[Quadrant.SW] != null && overlaps(l, x, b, y))
+                search_until(p.children[Quadrant.SW], l, x, b, y);
+            if (p.children[Quadrant.SE] != null && overlaps(x, r, b, y))
+                search_until(p.children[Quadrant.SE], x, r, b, y);
+        }
+        //#SCOPE
+
+        let search_result: Tree_Node[] = [];
+        search_until(this, region.l, region.r, region.b, region.t);
+        return search_result;
+    }
+*/
+
+function insert(n: Tree_Node, k: Game_Entity) {
+    function insert_once(r: Tree_Node, kx: number, ky: number) {
+        const rx = r.x;
+        const ry = r.y;
+        let quadrant = compare(rx, ry, kx, ky);
+
+        while (r.children[quadrant] != null) {
+            r = r.children[quadrant];
+            const rx = r.x;
+            const ry = r.y;
+            quadrant = compare(rx, ry, kx, ky);
+        }
+
+        if (quadrant == Quadrant.ORIGIN) {
+            r.values.push(k);
+            return;
+        }
+
+        r.children[quadrant] = new Tree_Node(k, kx, ky);
+    }
+    //#SCOPE
+
+    for (let square of get_entity_squares(k)) {
+        insert_once(n, square.x, square.y);
+    }
+}
+
+// @incomplete
+function remove(r: Tree_Node, k: Game_Entity) {
+    const n = point_search(r, k.position);
+    if (n == null) return;
+
+    const idx = n.values.indexOf(k);
+    if (idx == -1) {
+        return;
+    }
+    n.values.splice(idx, 1);
 }
 
 /*
@@ -232,30 +257,34 @@ export class Proximity_Grid {
     }
 
     move_entity(e: Game_Entity, p: Vec3) {
-        e.position = p;
         e.physically_move_to(this.local2world(p));
-    }
-
-    rotate_entity(e: Game_Entity, d: Direction) {
-        e.rotation = d;
-        e.face_towards(d);
     }
 
     add_entity(e: Game_Entity) {
         if (this.quad_tree == null) {
-            this.quad_tree = new Tree_Node(e);
+            assert(get_entity_squares(e).length == 1);
+
+            this.quad_tree = new Tree_Node(e, e.position.x, e.position.y);
         } else {
-            this.quad_tree.insert(e);
+            insert(this.quad_tree, e);
         }
     }
 
-    point_search(p: Vec3): Game_Entity[] {
-        const n = this.quad_tree.point_search(p);
-        if (n == null) {
-            return [];
+    // @todo
+    remove_entity(e: Game_Entity) {
+        remove(this.quad_tree, e);
+    }
+
+    point_search(p: Vec3): Game_Entity {
+        const n = point_search(this.quad_tree, p);
+
+        if (n) {
+            for (let k of n.values) {
+                if (k.position.z == p.z) return k;
+            }
         }
 
-        return n.values;
+        return null;
     }
 
     /* 
@@ -269,10 +298,6 @@ export class Proximity_Grid {
         }
     
      */
-    // @todo
-    remove_entity(e: Game_Entity) {
-        this.quad_tree.remove(e);
-    }
 
     local2world(local_pos: Vec3): Vec3 {
         // let type = arguments.callee.caller.name;

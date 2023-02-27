@@ -1,14 +1,9 @@
 import { assert, Vec3 } from 'cc';
-import { Pid } from './Const';
-import { Direction, Entity_Type } from './Enums';
-import { calcu_entity_future_squares, Entity_Serializable, Game_Entity, get_entity_squares } from './Game_Entity';
-import { Proximity_Grid } from './Proximity_Grid';
+import { compare_pid, Pid } from './Const';
+import { Entity_Type, Direction, calcu_entity_future_squares, get_entity_squares, get_serializable, Polyomino_Type } from './entity';
+import { Serializable_Entity_Data, Game_Entity, Undoable_Entity_Data } from './Game_Entity';
+import { debug_print_quad_tree, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
-
-// @hack
-function compare(a: Pid, b: Pid): boolean {
-    return a.val == b.val;
-}
 
 /* 
  @note
@@ -29,6 +24,8 @@ export class Entity_Manager {
         for (let info of entities_info) {
             this.load_entity(info);
         }
+
+        debug_print_quad_tree(this.proximity_grid.quad_tree);
     }
 
     load_entity(info: any): Game_Entity {
@@ -38,19 +35,45 @@ export class Entity_Manager {
 
         const entity = node.getComponent(Game_Entity);
         entity.id = new Pid(entity);
-        entity.prefab = prefab;
-        this.proximity_grid.move_entity(entity, info.position);
-        this.proximity_grid.rotate_entity(entity, info.rotation);
-        this.proximity_grid.add_entity(entity);
+        entity.undoable = new Undoable_Entity_Data();
+        entity.undoable.prefab = prefab;
+        this.rotate_entity(entity, info.rotation);
+        this.move_entity(entity, info.position);
+
         this.all_entities.push(entity);
 
         if (entity.entity_type == Entity_Type.HERO) this.active_hero = entity;
+        /* 
+                if (entity.polyomino_type == Polyomino_Type.DOMINO) {
+                    console.log("==== Debug Print Entity Squares")
+                    console.log(entity.rotation);
+                    console.log(entity.position);
+                    console.log(get_entity_squares(entity));
+                }
+         */
         return entity;
+    }
+
+    move_entity(e: Game_Entity, p: Vec3) {
+        if (this.find(e.id)) {
+            this.proximity_grid.remove_entity(e);
+        }
+
+        e.undoable.position = p;
+        this.proximity_grid.move_entity(e, p);
+        this.proximity_grid.add_entity(e);
+    }
+
+    rotate_entity(e: Game_Entity, d: Direction) {
+        e.undoable.rotation = d;
+        e.undoable.orientation = d;
+
+        e.face_towards(d);
     }
 
     find(pid: Pid): Game_Entity {
         for (var e of this.all_entities) {
-            if (compare(e.id, pid)) {
+            if (compare_pid(e.id, pid)) {
                 return e;
             }
         }
@@ -64,22 +87,18 @@ export class Entity_Manager {
     }
 
     get_entities_info(): any {
-        let entities_info: Entity_Serializable[] = [];
-        for (let entity of this.all_entities) {
+        let entities_info: Serializable_Entity_Data[] = [];
+        for (let e of this.all_entities) {
             // @todo
             // In our own programming language, we should achive that entity
             // can be treat as *target* type and read its metadata at runtime
-            entities_info.push(entity.get_serializable());
+            entities_info.push(get_serializable(e));
         }
         return entities_info;
     }
 
     locate_entity(target: Vec3): Game_Entity {
-        const entities = this.proximity_grid.point_search(target);
-        for (let e of entities) {
-            if (e.position.z == target.z) return e;
-        }
-        return null;
+        return this.proximity_grid.point_search(target);
     }
 
     locate_supporter(pos: Vec3): Game_Entity {

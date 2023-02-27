@@ -1,8 +1,8 @@
 import { _decorator, Vec3 } from 'cc';
 
 import { Const, Pid, String_Builder } from './Const';
-import { Direction, Entity_Type } from './Enums';
-import { calcu_entity_future_position, calcu_entity_future_squares, Game_Entity } from './Game_Entity';
+import { Direction, calcu_entity_future_position, Entity_Type, calcu_entity_future_squares } from './entity';
+import { Game_Entity } from './Game_Entity';
 import { Move_Transaction } from './Move_Transaction';
 import { Transaction_Control_Flags, Transaction_Manager } from './Transaction_Manager';
 
@@ -12,7 +12,7 @@ export enum Move_Flags {
 }
 
 // @hack
-function position_is_equal(a: Vec3, b: Vec3): boolean {
+function same_position(a: Vec3, b: Vec3): boolean {
     return a.x == b.x && a.y == b.y && a.z == b.z;
 }
 
@@ -104,12 +104,12 @@ export class Controller_Proc_Move extends Single_Move {
             }
         }
 
-        if (position_is_equal(this.start_position, this.end_position))
+        if (same_position(this.start_position, this.end_position))
             return at_least_rotated;
 
         const future_squares = calcu_entity_future_squares(e_target, this.end_direction);
-
         const supporters = manager.locate_future_supporters(e_target, this.end_direction);
+
         if (supporters.length == 0) return at_least_rotated;
 
         for (let pos of future_squares) {
@@ -143,13 +143,11 @@ export class Controller_Proc_Move extends Single_Move {
         const entity = manager.find(this.target_entity_id);
 
         if (this.flags & Move_Flags.MOVED) {
-            manager.proximity_grid.remove_entity(entity);
-            manager.proximity_grid.move_entity(entity, this.end_position);
-            manager.proximity_grid.add_entity(entity);
+            manager.move_entity(entity, this.end_position);
         }
 
         if (this.flags & Move_Flags.ROTATED) {
-            manager.proximity_grid.rotate_entity(entity, this.end_direction)
+            manager.rotate_entity(entity, this.end_direction)
         }
     }
 
@@ -235,9 +233,7 @@ export class Pushed_Move extends Single_Move {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
 
-        manager.proximity_grid.remove_entity(entity);
-        manager.proximity_grid.move_entity(entity, this.end_position);
-        manager.proximity_grid.add_entity(entity);
+        manager.move_entity(entity, this.end_position);
     }
 
     debug_info(): string {
@@ -274,7 +270,7 @@ export class Support_Move extends Single_Move {
             support_move.try_add_itself(transaction);
         }
 
-        if (!position_is_equal(this.start_position, this.end_position))
+        if (!same_position(this.start_position, this.end_position))
             this.flags |= Move_Flags.MOVED;
         if (this.start_direction != this.end_direction)
             this.flags |= Move_Flags.ROTATED;
@@ -287,13 +283,11 @@ export class Support_Move extends Single_Move {
         const entity = manager.find(this.target_entity_id);
 
         if (this.flags & Move_Flags.MOVED) {
-            manager.proximity_grid.remove_entity(entity);
-            manager.proximity_grid.move_entity(entity, this.end_position);
-            manager.proximity_grid.add_entity(entity);
+            manager.move_entity(entity, this.end_position);
         }
 
         if (this.flags & Move_Flags.ROTATED) {
-            manager.proximity_grid.rotate_entity(entity, this.end_direction)
+            manager.rotate_entity(entity, this.end_direction)
         }
     }
 

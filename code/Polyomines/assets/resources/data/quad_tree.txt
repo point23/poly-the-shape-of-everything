@@ -1,253 +1,608 @@
-( p: (6,4)
-  v: [1-0 1-9 ]
-  c: [
-	( p: (7,4)
-	  v: [1-7 ]
+{
+====  p: (6,4)
+	  v: [ 1-0 1-9 ]
 	  c: [
-		( p: (7,5)
-		  v: [1-27 ]
+	OO:
+		null
+	NE:
+	{
+	====  p: (7,5)
+		  v: [ 1-1 1-27 ]
 		  c: [
-			( p: (7,6)
-			  v: [1-33 ]
+		OO:
+			null
+		NE:
+		{
+		====  p: (8,5)
+			  v: [ 1-1 1-40 ]
 			  c: [
-				( p: (7,7)
-				  v: [1-39 ]
+			OO:
+				null
+			NE:
+				null
+			NW:
+			{
+			====  p: (7,6)
+				  v: [ 1-33 ]
 				  c: [
-				null
-				null
-				null
-				null
-				])
-			null
-			null
-			null
-			])
-		null
-		null
-		null
-		])
-		( p: (6,5)
-		  v: [1-26 ]
-		  c: [
-			( p: (6,6)
-			  v: [1-32 ]
-			  c: [
-				( p: (6,7)
-				  v: [1-38 ]
-				  c: [
-				null
-				null
-				null
-				null
-				])
-			null
-			null
-			null
-			])
-		null
-		null
-		null
-		])
-	null
-	null
-	])
-	( p: (2,5)
-	  v: [1-22 ]
-	  c: [
-		( p: (3,5)
-		  v: [1-23 ]
-		  c: [
-			( p: (4,5)
-			  v: [1-24 ]
-			  c: [
-				( p: (5,5)
-				  v: [1-25 ]
-				  c: [
-					( p: (5,6)
-					  v: [1-31 ]
+				OO:
+					null
+				NE:
+				{
+				====  p: (7,7)
+					  v: [ 1-39 ]
 					  c: [
-						( p: (5,7)
-						  v: [1-37 ]
+					OO:
+						null
+					NE:
+						null
+					NW:
+						null
+					SW:
+						null
+					SE:
+						null
+					]
+				}
+
+				NW:
+					null
+				SW:
+					null
+				SE:
+					null
+				]
+			}
+
+			SW:
+				null
+			SE:
+				null
+			]
+		}
+
+		NW:
+		{
+		====  p: (6,5)
+			  v: [ 1-26 ]
+			  c: [
+			OO:
+				null
+			NE:
+			{
+			====  p: (6,6)
+				  v: [ 1-32 ]
+				  c: [
+				OO:
+					null
+				NE:
+				{
+				====  p: (6,7)
+					  v: [ 1-38 ]
+					  c: [
+					OO:
+						null
+					NE:
+						null
+					NW:
+						null
+					SW:
+						null
+					SE:
+						null
+					]
+				}
+
+				NW:
+					null
+				SW:
+					null
+				SE:
+					null
+				]
+			}
+
+			NW:
+				null
+			SW:
+				null
+			SE:
+				null
+			]
+		}
+
+		SW:
+		{
+		====  p: (7,4)
+			  v: [ 1-7 ]
+			  c: [
+			OO:
+				null
+			NE:
+				null
+			NW:
+				null
+			SW:
+				null
+			SE:
+				null
+			]
+		}
+
+		SE:
+		{
+		====  p: (8,4)
+			  v: [ 1-41 ]
+			  c: [
+			OO:
+				null
+			NE:
+				null
+			NW:
+				null
+			SW:
+				null
+			SE:
+				null
+			]
+		}
+
+		]
+	}
+
+	NW:
+	{
+	====  p: (3,4)
+		  v: [ 1-2 1-3 1-18 ]
+		  c: [
+		OO:
+			null
+		NE:
+		{
+		====  p: (5,4)
+			  v: [ 1-10 ]
+			  c: [
+			OO:
+				null
+			NE:
+			{
+			====  p: (5,5)
+				  v: [ 1-25 ]
+				  c: [
+				OO:
+					null
+				NE:
+				{
+				====  p: (5,6)
+					  v: [ 1-31 ]
+					  c: [
+					OO:
+						null
+					NE:
+					{
+					====  p: (5,7)
+						  v: [ 1-37 ]
 						  c: [
+						OO:
+							null
+						NE:
+							null
+						NW:
+							null
+						SW:
+							null
+						SE:
+							null
+						]
+					}
+
+					NW:
 						null
+					SW:
 						null
+					SE:
 						null
-						null
-						])
+					]
+				}
+
+				NW:
 					null
+				SW:
 					null
+				SE:
 					null
-					])
-					( p: (4,6)
-					  v: [1-30 ]
+				]
+			}
+
+			NW:
+			{
+			====  p: (4,4)
+				  v: [ 1-15 ]
+				  c: [
+				OO:
+					null
+				NE:
+				{
+				====  p: (4,5)
+					  v: [ 1-24 ]
 					  c: [
-						( p: (4,7)
-						  v: [1-36 ]
+					OO:
+						null
+					NE:
+					{
+					====  p: (4,6)
+						  v: [ 1-30 ]
 						  c: [
+						OO:
+							null
+						NE:
+						{
+						====  p: (4,7)
+							  v: [ 1-36 ]
+							  c: [
+							OO:
+								null
+							NE:
+								null
+							NW:
+								null
+							SW:
+								null
+							SE:
+								null
+							]
+						}
+
+						NW:
+							null
+						SW:
+							null
+						SE:
+							null
+						]
+					}
+
+					NW:
 						null
+					SW:
 						null
+					SE:
 						null
-						null
-						])
-					null
-					null
-					null
-					])
-				null
-				null
-				])
-				( p: (3,6)
-				  v: [1-29 ]
-				  c: [
-					( p: (3,7)
-					  v: [1-35 ]
+					]
+				}
+
+				NW:
+				{
+				====  p: (3,5)
+					  v: [ 1-23 ]
 					  c: [
+					OO:
+						null
+					NE:
+					{
+					====  p: (3,6)
+						  v: [ 1-29 ]
+						  c: [
+						OO:
+							null
+						NE:
+						{
+						====  p: (3,7)
+							  v: [ 1-35 ]
+							  c: [
+							OO:
+								null
+							NE:
+								null
+							NW:
+								null
+							SW:
+								null
+							SE:
+								null
+							]
+						}
+
+						NW:
+							null
+						SW:
+							null
+						SE:
+							null
+						]
+					}
+
+					NW:
+						null
+					SW:
+						null
+					SE:
+						null
+					]
+				}
+
+				SW:
 					null
+				SE:
 					null
+				]
+			}
+
+			SW:
+				null
+			SE:
+				null
+			]
+		}
+
+		NW:
+		{
+		====  p: (2,4)
+			  v: [ 1-21 ]
+			  c: [
+			OO:
+				null
+			NE:
+			{
+			====  p: (2,5)
+				  v: [ 1-22 ]
+				  c: [
+				OO:
 					null
-					null
-					])
-				null
-				null
-				null
-				])
-			null
-			null
-			])
-			( p: (2,6)
-			  v: [1-28 ]
-			  c: [
-				( p: (2,7)
-				  v: [1-34 ]
-				  c: [
-				null
-				null
-				null
-				null
-				])
-			null
-			null
-			null
-			])
-		null
-		null
-		])
-	null
-	null
-	null
-	])
-	( p: (6,2)
-	  v: [1-1 1-5 ]
-	  c: [
-		( p: (6,3)
-		  v: [1-8 ]
-		  c: [
-		null
-		null
-		null
-		null
-		])
-		( p: (3,4)
-		  v: [1-2 1-3 1-18 ]
-		  c: [
-			( p: (5,4)
-			  v: [1-10 ]
-			  c: [
-			null
-			null
-				( p: (4,4)
-				  v: [1-15 ]
-				  c: [
-				null
-				null
-				null
-				null
-				])
-			null
-			])
-		null
-			( p: (3,3)
-			  v: [1-16 ]
-			  c: [
-			null
-				( p: (2,4)
-				  v: [1-21 ]
-				  c: [
-				null
-				null
-				null
-				null
-				])
-				( p: (2,3)
-				  v: [1-19 ]
-				  c: [
-				null
-				null
-				null
-				null
-				])
-			null
-			])
-			( p: (5,3)
-			  v: [1-11 ]
-			  c: [
-			null
-			null
-				( p: (4,3)
-				  v: [1-13 ]
-				  c: [
-				null
-				null
-				null
-				null
-				])
-			null
-			])
-		])
-		( p: (5,2)
-		  v: [1-12 ]
-		  c: [
-		null
-		null
-			( p: (4,2)
-			  v: [1-14 ]
-			  c: [
-			null
-			null
-				( p: (3,2)
-				  v: [1-17 ]
-				  c: [
-				null
-				null
-					( p: (2,2)
-					  v: [1-20 ]
+				NE:
+				{
+				====  p: (2,6)
+					  v: [ 1-28 ]
 					  c: [
+					OO:
+						null
+					NE:
+					{
+					====  p: (2,7)
+						  v: [ 1-34 ]
+						  c: [
+						OO:
+							null
+						NE:
+							null
+						NW:
+							null
+						SW:
+							null
+						SE:
+							null
+						]
+					}
+
+					NW:
+						null
+					SW:
+						null
+					SE:
+						null
+					]
+				}
+
+				NW:
 					null
+				SW:
 					null
+				SE:
 					null
-					null
-					])
+				]
+			}
+
+			NW:
 				null
-				])
+			SW:
+				null
+			SE:
+				null
+			]
+		}
+
+		SW:
 			null
-			])
-		null
-		])
-	null
-	])
-	( p: (7,3)
-	  v: [1-4 ]
-	  c: [
-	null
-	null
-		( p: (7,2)
-		  v: [1-6 ]
+		SE:
+			null
+		]
+	}
+
+	SW:
+	{
+	====  p: (3,3)
+		  v: [ 1-3 1-16 ]
 		  c: [
-		null
-		null
-		null
-		null
-		])
-	null
-	])
-])
+		OO:
+			null
+		NE:
+		{
+		====  p: (6,3)
+			  v: [ 1-8 ]
+			  c: [
+			OO:
+				null
+			NE:
+				null
+			NW:
+			{
+			====  p: (5,3)
+				  v: [ 1-11 ]
+				  c: [
+				OO:
+					null
+				NE:
+					null
+				NW:
+				{
+				====  p: (4,3)
+					  v: [ 1-13 ]
+					  c: [
+					OO:
+						null
+					NE:
+						null
+					NW:
+						null
+					SW:
+						null
+					SE:
+						null
+					]
+				}
+
+				SW:
+					null
+				SE:
+					null
+				]
+			}
+
+			SW:
+				null
+			SE:
+				null
+			]
+		}
+
+		NW:
+		{
+		====  p: (2,3)
+			  v: [ 1-19 ]
+			  c: [
+			OO:
+				null
+			NE:
+				null
+			NW:
+				null
+			SW:
+				null
+			SE:
+				null
+			]
+		}
+
+		SW:
+		{
+		====  p: (3,2)
+			  v: [ 1-17 ]
+			  c: [
+			OO:
+				null
+			NE:
+				null
+			NW:
+			{
+			====  p: (2,2)
+				  v: [ 1-20 ]
+				  c: [
+				OO:
+					null
+				NE:
+					null
+				NW:
+					null
+				SW:
+					null
+				SE:
+					null
+				]
+			}
+
+			SW:
+				null
+			SE:
+				null
+			]
+		}
+
+		SE:
+		{
+		====  p: (6,2)
+			  v: [ 1-5 ]
+			  c: [
+			OO:
+				null
+			NE:
+				null
+			NW:
+			{
+			====  p: (5,2)
+				  v: [ 1-12 ]
+				  c: [
+				OO:
+					null
+				NE:
+					null
+				NW:
+				{
+				====  p: (4,2)
+					  v: [ 1-14 ]
+					  c: [
+					OO:
+						null
+					NE:
+						null
+					NW:
+						null
+					SW:
+						null
+					SE:
+						null
+					]
+				}
+
+				SW:
+					null
+				SE:
+					null
+				]
+			}
+
+			SW:
+				null
+			SE:
+				null
+			]
+		}
+
+		]
+	}
+
+	SE:
+	{
+	====  p: (7,3)
+		  v: [ 1-4 ]
+		  c: [
+		OO:
+			null
+		NE:
+			null
+		NW:
+			null
+		SW:
+		{
+		====  p: (7,2)
+			  v: [ 1-6 ]
+			  c: [
+			OO:
+				null
+			NE:
+				null
+			NW:
+				null
+			SW:
+				null
+			SE:
+				null
+			]
+		}
+
+		SE:
+			null
+		]
+	}
+
+	]
+}

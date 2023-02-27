@@ -1,24 +1,29 @@
 import { _decorator, Component, Enum, MeshRenderer, SkeletalAnimation, tween, Vec3 } from 'cc';
 
 import { Const, Pid } from './Const';
-import { Direction, Entity_Type, Polyomino_Type } from './Enums';
+import { Direction, Polyomino_Type, Entity_Type } from './entity';
 import { Polygon_Entity } from './Polygon_Entity';
 
 const { ccclass, property } = _decorator;
 
 
 // @implementMe
-type Undoable = {
-    position: Vec3,
-    prefab: string,
-    orientation: Direction,
-    rotation: Direction,
+export class Undoable_Entity_Data {
+    position: Vec3;
+    prefab: string;
+    orientation: Direction;
+    rotation: Direction;
+    supporting_id: Pid;
+    supported_by_id: Pid;
+
+    falling: boolean;
+    dead: boolean;
+
+    constructor() { }
 };
 
-export type Entity_Serializable = {
-    prefab: string,
-    position: Vec3,
-    rotation: Direction,
+export class Serializable_Entity_Data {
+    constructor(private prefab: string, private position: Vec3, private rotation: Direction) { }
 }
 
 /**
@@ -30,10 +35,15 @@ export type Entity_Serializable = {
 @ccclass('Game_Entity')
 export class Game_Entity extends Component {
     id: Pid;
-    position: Vec3;
-    prefab: string;
-    orientation: Direction;
-    rotation: Direction;
+    undoable: Undoable_Entity_Data;
+    get prefab(): string { return this.undoable.prefab };
+    get position(): Vec3 { return this.undoable.position };
+    get rotation(): Direction { return this.undoable.rotation };
+    get orientation(): Direction { return this.undoable.orientation };
+    get supporting_id(): Pid { return this.undoable.supporting_id };
+    get supported_by_id(): Pid { return this.undoable.supported_by_id };
+    get falling(): boolean { return this.undoable.falling };
+    get dead(): boolean { return this.undoable.dead };
 
     @property(SkeletalAnimation) animation: SkeletalAnimation = null;
     @property(MeshRenderer) editing_cover: MeshRenderer = null;
@@ -124,97 +134,7 @@ export class Game_Entity extends Component {
     }
 
     logically_rotate_to(dir: Direction) {
-        this.orientation = dir;
         this.indicator.rotate_to(dir);
     }
     //#endregion Movement
-
-    get_serializable(): Entity_Serializable {
-        return {
-            prefab: this.prefab,
-            position: this.position,
-            rotation: this.rotation,
-        };
-    }
 }
-
-//#region CALCULATION
-// @todo Support more types of entity
-const polyomino_deltas: Vec3[][][] = [
-    /* Monomino */
-    [],
-    /* Domino */
-    [
-        /* RIGHT */[new Vec3(1, 0, 0)],
-        /* FORWARD */[new Vec3(0, -1, 0)],
-        /* LEFT */[new Vec3(-1, 0, 0)],
-        /* BACKWARD */[new Vec3(0, 1, 0)],
-        /* UP */[new Vec3(0, 0, -1)],
-        /* DOWN */[new Vec3(0, 0, 1)],
-    ],
-];
-
-const direction_to_vec3: Vec3[] = [
-    /* RIGHT */ new Vec3(1, 0, 0),
-    /* FORWARD */ new Vec3(0, -1, 0),
-    /* LEFT */ new Vec3(-1, 0, 0),
-    /* BACKWARD */ new Vec3(0, 1, 0),
-    /* UP */ new Vec3(0, 0, -1),
-    /* DOWN */ new Vec3(0, 0, 1),
-];
-
-export function get_entity_squares(e: Game_Entity): Vec3[] {
-    let squares: Vec3[] = [];
-    squares.push(new Vec3(e.position));
-    if (e.polyomino_type == Polyomino_Type.MONOMINO) return squares;
-    for (let delta of polyomino_deltas[e.polyomino_type][e.rotation]) {
-        let o = new Vec3(e.position);
-        o.add(delta);
-        squares.push(o);
-    }
-    return squares;
-}
-
-export function calcu_entity_future_position(e: Game_Entity, dir: Direction, step: number = 1): Vec3 {
-    const delta = direction_to_vec3[dir];
-    let o = new Vec3(e.position);
-    for (let i = 0; i < step; i++)
-        o.add(delta);
-    return o;
-}
-
-export function calcu_entity_future_squares(e: Game_Entity, dir: Direction, step: number = 1): Vec3[] {
-    let squares = [];
-    const future_pos = calcu_entity_future_position(e, dir, step);
-    squares.push(future_pos);
-
-    if (e.polyomino_type == Polyomino_Type.MONOMINO) return squares;
-
-    for (let delta of polyomino_deltas[e.polyomino_type][e.rotation]) {
-        let o = new Vec3(future_pos);
-        let p = o.add(delta);
-        squares.push(p);
-    }
-
-    return squares;
-}
-
-export function rotate_clockwise_horizontaly(r: Direction): Direction {
-    let new_dir: Direction = null;
-    switch (r) {
-        case Direction.RIGHT:
-            new_dir = Direction.FORWARD;
-            break;
-        case Direction.FORWARD:
-            new_dir = Direction.LEFT;
-            break;
-        case Direction.LEFT:
-            new_dir = Direction.BACKWORD;
-            break;
-        case Direction.BACKWORD:
-            new_dir = Direction.RIGHT;
-            break;
-    }
-    return new_dir;
-}
-//#endregion CALCULATION

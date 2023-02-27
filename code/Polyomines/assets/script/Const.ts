@@ -16,6 +16,10 @@ export class String_Builder {
     }
 }
 
+export function compare_pid(a: Pid, b: Pid): boolean {
+    return a.val == b.val;
+}
+
 export class Pid {
     static entity = Symbol('entity');
     static single_move = Symbol('single move');
