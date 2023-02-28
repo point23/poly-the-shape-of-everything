@@ -2,8 +2,10 @@ import { _decorator, Component } from 'cc';
 import { Debug_Console } from './Debug_Console';
 import { Entity_Manager } from './Entity_Manager';
 import { Move_Transaction } from './Move_Transaction';
+import { debug_print_quad_tree } from './Proximity_Grid';
 import { Singleton_Manager } from './Singleton_Manager_Base';
 import { Single_Move } from './Single_Move';
+import { undo_end_frame } from './undo';
 const { ccclass, property } = _decorator;
 
 export enum Transaction_Control_Flags {
@@ -77,14 +79,13 @@ export class Transaction_Manager extends Singleton_Manager {
         if (this.issued_stack.empty()) return;
 
         // @incomplete Detect conflicts
-
         const packed = new Move_Transaction(this.entity_manager); // @hack
 
         while (this.issued_stack.size()) {
             const transaction = this.issued_stack.pop();
 
             for (let move of transaction.moves) {
-                move.execute_async(transaction);
+                await move.execute_async(transaction);
                 packed.moves.push(move);
             }
         }
@@ -94,6 +95,9 @@ export class Transaction_Manager extends Singleton_Manager {
 
         this.control_flags = 0;
 
+        debug_print_quad_tree(this.entity_manager.proximity_grid.quad_tree);
+        undo_end_frame(this.entity_manager);
+        // console.log(this.entity_manager.undo_handler.old_entity_state);
         Debug_Console.Info(packed.debug_info());
     }
 

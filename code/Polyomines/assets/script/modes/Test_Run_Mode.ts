@@ -6,6 +6,7 @@ import { Direction } from '../entity';
 import { Entity_Manager } from '../Entity_Manager';
 import { Controller_Proc_Move, Possess_Move } from '../Single_Move';
 import { Transaction_Manager } from '../Transaction_Manager';
+import { undo_end_frame, undo_mark_beginning } from '../undo';
 
 import { Game_Mode } from './Game_Mode_Base';
 
@@ -19,6 +20,8 @@ export class Test_Run_Mode extends Game_Mode {
     on_enter() {
         this.entity_manager = Contextual_Manager.instance.entity_manager;
         Debug_Console.Info('Test Run');
+        undo_mark_beginning(this.entity_manager);
+        // console.log(this.entity_manager.undo_handler.old_entity_state);
     }
 
     on_exit() { }

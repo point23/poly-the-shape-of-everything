@@ -9,15 +9,15 @@ const { ccclass, property } = _decorator;
 
 // @implementMe
 export class Undoable_Entity_Data {
-    position: Vec3;
-    prefab: string;
-    orientation: Direction;
-    rotation: Direction;
-    supporting_id: Pid;
-    supported_by_id: Pid;
+    position: Vec3 = new Vec3(0, 0, 0);
+    prefab: string = "";
+    orientation: Direction = 0;
+    rotation: Direction = 0;
+    supporting_id: Pid = Pid.Default;
+    supported_by_id: Pid = Pid.Default;
 
-    falling: boolean;
-    dead: boolean;
+    falling: boolean = false;
+    dead: boolean = false;
 
     constructor() { }
 };
@@ -36,6 +36,8 @@ export class Serializable_Entity_Data {
 export class Game_Entity extends Component {
     id: Pid;
     undoable: Undoable_Entity_Data;
+    scheduled_for_destruction: boolean = false;
+
     get prefab(): string { return this.undoable.prefab };
     get position(): Vec3 { return this.undoable.position };
     get rotation(): Direction { return this.undoable.rotation };
@@ -49,13 +51,12 @@ export class Game_Entity extends Component {
     @property(MeshRenderer) editing_cover: MeshRenderer = null;
     @property(Polygon_Entity) body: Polygon_Entity = null;
     @property(Polygon_Entity) indicator: Polygon_Entity = null;
-    @property({ type: Enum(Polyomino_Type) })
-    polyomino_type: Polyomino_Type = Polyomino_Type.MONOMINO;
-    @property({ type: Enum(Entity_Type) })
-    entity_type: Entity_Type = Entity_Type.STATIC;
+    @property({ type: Enum(Polyomino_Type) }) polyomino_type: Polyomino_Type = Polyomino_Type.MONOMINO;
+    @property({ type: Enum(Entity_Type) }) entity_type: Entity_Type = Entity_Type.STATIC;
 
     //#region DEBUG STUFF
     private _valid: boolean = true;
+    get valid(): boolean { return this._valid; }
     set valid(is_valid: boolean) {
         this._valid = is_valid;
         const mat = this.editing_cover.material;
@@ -71,11 +72,9 @@ export class Game_Entity extends Component {
             mat.setProperty('mainColor', Const.Cover_Invalid_Color);
         }
     }
-    get valid(): boolean {
-        return this._valid;
-    }
 
     private _selected: boolean = false;
+    get selected(): boolean { return this._selected; }
     set selected(is_selected: boolean) {
         this._selected = is_selected;
         const mat = this.editing_cover.material;
@@ -91,12 +90,9 @@ export class Game_Entity extends Component {
             }
         }
     }
-    get selected(): boolean {
-        return this._selected;
-    }
     //#endregion DEBUG STUFF
 
-    //#region Movement
+    //#region MOVEMENT
     physically_move_to(world_pos: Vec3) {
         this.node.setPosition(world_pos);
     }
@@ -136,5 +132,5 @@ export class Game_Entity extends Component {
     logically_rotate_to(dir: Direction) {
         this.indicator.rotate_to(dir);
     }
-    //#endregion Movement
+    //#endregion MOVEMENT
 }

@@ -7,6 +7,7 @@ import { Entity_Manager } from './Entity_Manager';
 import { debug_render_grid, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
 import { Transaction_Manager } from './Transaction_Manager';
+import { Undo_Handler } from './undo';
 
 const { ccclass, property } = _decorator;
 
@@ -46,6 +47,10 @@ export class Main extends Component {
 
                 const entity_manager = new Entity_Manager(grid);
                 entity_manager.load_entities(config.entities);
+
+                const undo = new Undo_Handler();
+                entity_manager.undo_handler = undo;
+                undo.manager = entity_manager;
 
                 this.contextual_manager.entity_manager = entity_manager;
                 this.transaction_manager.entity_manager = entity_manager;

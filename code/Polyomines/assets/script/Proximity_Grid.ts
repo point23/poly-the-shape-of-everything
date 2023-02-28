@@ -228,15 +228,21 @@ function insert(n: Tree_Node, k: Game_Entity) {
 }
 
 // @incomplete
-function remove(r: Tree_Node, k: Game_Entity) {
-    const n = point_search(r, k.position);
-    if (n == null) return;
+function remove(n: Tree_Node, k: Game_Entity) {
+    function remove_once(r: Tree_Node, kx: number, ky: number) {
+        const p = point_search(r, new Vec3(kx, ky));
+        if (p == null) return;
 
-    const idx = n.values.indexOf(k);
-    if (idx == -1) {
-        return;
+        const idx = p.values.indexOf(k);
+        if (idx == -1) {
+            return;
+        }
+        p.values.splice(idx, 1);
     }
-    n.values.splice(idx, 1);
+
+    for (let square of get_entity_squares(k)) {
+        remove_once(n, square.x, square.y);
+    }
 }
 
 /*

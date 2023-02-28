@@ -116,12 +116,9 @@ export class Controller_Proc_Move extends Single_Move {
             const other = manager.locate_entity(pos);
 
             if (other != null && other != e_target) {
-                const pushed_move = new Pushed_Move(other, this.end_direction);
+                const pushed_move = new Pushed_Move(e_target, other, this.end_direction);
+
                 if (!pushed_move.try_add_itself(transaction)) {
-                    /**
-                     * @note : Interesting bugs (fixed)
-                     *  - Walk into a Dynamic-Entity When face towards another dir
-                     */
                     return at_least_rotated;
                 }
             }
@@ -182,12 +179,13 @@ export class Controller_Proc_Move extends Single_Move {
  *  - Can't push domino
  */
 export class Pushed_Move extends Single_Move {
-    public constructor(entity: Game_Entity, direction: Direction, step: number = 1) {
+    public constructor(source: Game_Entity, target: Game_Entity, direction: Direction, step: number = 1) {
         const move_info = new Move_Info();
-        move_info.target_entity_id = entity.id;
-        move_info.start_position = entity.position;
+        move_info.source_entity_id = source.id;
+        move_info.target_entity_id = target.id;
+        move_info.start_position = target.position;
         move_info.reaction_direction = direction;
-        move_info.end_position = calcu_entity_future_position(entity, direction, step);
+        move_info.end_position = calcu_entity_future_position(target, direction, step);
         super(move_info);
     }
 
@@ -217,11 +215,9 @@ export class Pushed_Move extends Single_Move {
         }
 
         const supportees = manager.locate_current_supportees(e_target);
-        const direction_delta = this.end_direction - this.start_direction;
 
         for (let supportee of supportees) {
-            const support_move = new Support_Move(
-                supportee, direction_delta, this.reaction_direction, 1);
+            const support_move = new Support_Move(supportee, 0, this.reaction_direction, 1);
             support_move.try_add_itself(transaction);
         }
 
@@ -232,7 +228,6 @@ export class Pushed_Move extends Single_Move {
     async execute_async(transaction: Move_Transaction) {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
-
         manager.move_entity(entity, this.end_position);
     }
 
@@ -245,8 +240,7 @@ export class Pushed_Move extends Single_Move {
 }
 
 export class Support_Move extends Single_Move {
-    public constructor(
-        entity: Game_Entity, direction_delta: number, reaction_direction: Direction = 0, step: number = 0) {
+    public constructor(entity: Game_Entity, direction_delta: number, reaction_direction: Direction = 0, step: number = 0) {
         const move_info = new Move_Info();
         move_info.target_entity_id = entity.id;
         move_info.start_direction = entity.orientation;
@@ -287,7 +281,7 @@ export class Support_Move extends Single_Move {
         }
 
         if (this.flags & Move_Flags.ROTATED) {
-            manager.rotate_entity(entity, this.end_direction)
+            manager.rotate_entity(entity, this.end_direction);
         }
     }
 

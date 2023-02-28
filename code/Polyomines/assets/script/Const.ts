@@ -2,48 +2,122 @@ import { Color, Game, Quat, Size, Vec3 } from 'cc';
 import { Game_Entity } from './Game_Entity';
 import { Single_Move } from './Single_Move';
 
-export class String_Builder {
-    strings: string[];
-    constructor() {
-        this.strings = [];
+/** Global Flags */
+export class $ {
+    static S_doing_undo = Symbol("doing_undo");
+    static S_next_undo_record_is_checkpoint = Symbol("next_undo_record_is_checkpoint");
+
+    static [s: symbol]: boolean;
+    static get doing_undo(): boolean { return $[$.S_doing_undo]; }
+    static get next_undo_record_is_checkpoint(): boolean { return $[$.S_doing_undo]; }
+
+    static {
+        $[$.S_doing_undo] = true;
+        $[$.S_next_undo_record_is_checkpoint] = false;
     }
+
+    static take(s: symbol): boolean {
+        let r = $[s];
+        $[s] = false;
+        return r;
+    }
+
+    static flip(s: symbol) {
+        let r = $[s];
+        $[s] = !r;
+    }
+}
+
+export class String_Builder {
+    constructor(private strings: string[] = []) { }
     append(v: any): String_Builder {
         this.strings.push(`${v}`);
         return this;
     }
+
+    get_cursor(): number {
+        return this.strings.length;
+    }
+
+    set(i: number, v: any) {
+        if (i >= this.strings.length) return;
+        this.strings[i] = `${v}`;
+    }
+
     to_string(): string {
         return this.strings.join('');
     }
 }
 
-export function compare_pid(a: Pid, b: Pid): boolean {
-    return a.val == b.val;
+export function compare_all_slots(a: any, b: any): boolean {
+    // @tested
+    for (let k of Reflect.ownKeys(a)) {
+        const a_v = Reflect.get(a, k);
+        const b_v = Reflect.get(b, k);
+
+        if (a_v instanceof Object) {
+            let res = compare_all_slots(a_v, b_v);
+            if (!res) return false;
+        } else {
+            // Literial
+            let res = (a_v == b_v);
+            if (!res) return false;
+        }
+    }
+    return true;
+}
+
+export function clone_all_slots(s: any, d: any) {
+    // @tested
+    for (let k of Reflect.ownKeys(s)) {
+        let s_v = Reflect.get(s, k);
+        if (s_v instanceof Object) {
+            let d_v = Object.create(s_v);
+            clone_all_slots(s_v, d_v);
+            Reflect.set(d, k, d_v);
+        } else { // Literial
+            Reflect.set(d, k, s_v);
+        }
+    }
 }
 
 export class Pid {
-    static entity = Symbol('entity');
-    static single_move = Symbol('single move');
+    static get Default(): Pid { return new Pid(); }
+    static S_entity = Symbol('entity');
+    static S_single_move = Symbol('single move');
+    val: string = "";
 
     static digit_0: Map<symbol, number> = new Map<symbol, number>([
-        [Pid.entity, 0],
-        [Pid.single_move, 0],
+        [Pid.S_entity, 0],
+        [Pid.S_single_move, 0],
     ]);
     static digit_1: Map<symbol, number> = new Map<symbol, number>([
-        [Pid.entity, 1],
-        [Pid.single_move, 2],
-    ]); val: string;
+        [Pid.S_entity, 1],
+        [Pid.S_single_move, 2],
+    ]);
 
     //@incomplete Support other types like Single_Move, Move_Transaction... 
-    constructor(t: any) {
-        let s: symbol;
-        if (t instanceof Game_Entity) {
-            s = Pid.entity;
-        } else if (t instanceof Single_Move) {
-            s = Pid.single_move;
+    constructor(t: any = null) {
+        if (t == null) {
+            this.val = "nil-nil";
+            return;
         }
 
-        let d_0: number = Pid.digit_0.get(s), d_1: number = Pid.digit_1.get(s);
-        let builder = new String_Builder();
+        let s = null;
+        if (t instanceof Game_Entity) {
+            s = Pid.S_entity;
+        } else if (t instanceof Single_Move) {
+            s = Pid.S_single_move;
+        }
+
+        if (s == null) return;
+
+        let d_0 = Pid.digit_0.get(s);
+        let d_1 = Pid.digit_1.get(s);
+
+        if (d_0 == undefined || d_1 == undefined) return;
+
+        const builder = new String_Builder();
         builder.append(d_1).append('-').append(d_0);
         this.val = builder.to_string();
         Pid.digit_0.set(s, d_0 + 1);

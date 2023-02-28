@@ -1,5 +1,6 @@
 import { Vec3 } from "cc";
-import { Game_Entity, Serializable_Entity_Data } from "./Game_Entity";
+import { clone_all_slots } from "./Const";
+import { Game_Entity, Serializable_Entity_Data, Undoable_Entity_Data } from "./Game_Entity";
 
 export enum Direction {
     RIGHT,
@@ -51,10 +52,15 @@ export enum Polyomino_Type {
     L_TROMINO,
 }
 
-
 export function get_serializable(e: Game_Entity): Serializable_Entity_Data {
     const data = e.undoable;
     return new Serializable_Entity_Data(data.prefab, data.position, data.rotation);
+}
+
+export function clone_ued(e: Game_Entity): Undoable_Entity_Data {
+    let clone = new Undoable_Entity_Data();
+    clone_all_slots(e.undoable, clone);
+    return clone;
 }
 
 //#region CALCULATION

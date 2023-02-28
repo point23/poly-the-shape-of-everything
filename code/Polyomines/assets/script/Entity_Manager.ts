@@ -1,9 +1,10 @@
 import { assert, Vec3 } from 'cc';
-import { compare_pid, Pid } from './Const';
+import { compare_all_slots, Pid } from './Const';
 import { Entity_Type, Direction, calcu_entity_future_squares, get_entity_squares, get_serializable, Polyomino_Type } from './entity';
 import { Serializable_Entity_Data, Game_Entity, Undoable_Entity_Data } from './Game_Entity';
 import { debug_print_quad_tree, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
+import { Undo_Handler } from './undo';
 
 /* 
  @note
@@ -14,6 +15,7 @@ import { Resource_Manager } from './Resource_Manager';
 export class Entity_Manager {
     active_hero: Game_Entity = null;
     proximity_grid: Proximity_Grid;
+    undo_handler: Undo_Handler;
     all_entities: Game_Entity[] = [];
 
     constructor(g: Proximity_Grid) {
@@ -38,7 +40,7 @@ export class Entity_Manager {
         entity.undoable = new Undoable_Entity_Data();
         entity.undoable.prefab = prefab;
         this.rotate_entity(entity, info.rotation);
-        this.move_entity(entity, info.position);
+        this.move_entity(entity, new Vec3(info.position));
 
         this.all_entities.push(entity);
 
@@ -73,7 +75,7 @@ export class Entity_Manager {
 
     find(pid: Pid): Game_Entity {
         for (var e of this.all_entities) {
-            if (compare_pid(e.id, pid)) {
+            if (compare_all_slots(e.id, pid)) {
                 return e;
             }
         }
