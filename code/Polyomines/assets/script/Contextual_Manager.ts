@@ -2,6 +2,7 @@ import { _decorator, Component, EventKeyboard, EventMouse, EventTouch, game, inp
 import { Entity_Manager } from './Entity_Manager';
 
 import { Game_Mode } from './modes/Game_Mode_Base';
+import { really_do_one_undo, undo_mark_beginning } from './undo';
 
 const { ccclass, property } = _decorator;
 
@@ -30,6 +31,7 @@ export class Contextual_Manager extends Component {
     public enable() {
         this.register_events();
         this.switch_mode();
+        undo_mark_beginning(this.entity_manager);
     }
 
     public dispose() {
@@ -76,6 +78,14 @@ export class Contextual_Manager extends Component {
             case KeyCode.TAB:
                 this.switch_mode();
                 break;
+            case KeyCode.DASH: {
+                really_do_one_undo(this.entity_manager);
+            } break;
+            /* 
+                    case KeyCode.EQUAL: {
+                        Transaction_Manager.instance.redo_async();
+                    } break;
+             */
             default:
                 this.current_mode.handle_key_down(event);
                 break;

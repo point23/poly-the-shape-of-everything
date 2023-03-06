@@ -7,6 +7,7 @@ import { Direction, calcu_entity_future_position, rotate_clockwise_horizontaly, 
 import { Entity_Manager } from '../Entity_Manager';
 import { Serializable_Entity_Data, Game_Entity } from '../Game_Entity';
 import { Resource_Manager } from '../Resource_Manager';
+import { undo_end_frame, undo_mark_beginning } from '../undo';
 
 import { Game_Mode } from './Game_Mode_Base';
 
@@ -29,6 +30,7 @@ export class Entity_Edit_Mode extends Game_Mode {
     on_enter() {
         this.entity_manager = Contextual_Manager.instance.entity_manager;
         Debug_Console.Info('Entity Edit');
+        undo_mark_beginning(this.entity_manager);
     }
 
     on_exit() {
@@ -225,6 +227,8 @@ export class Entity_Edit_Mode extends Game_Mode {
             const p_new = calcu_entity_future_position(entity, direction);
             this.entity_manager.move_entity(entity, p_new);
         }
+
+        undo_end_frame(this.entity_manager);
     }
 
     rotate_selected_entities() {
@@ -232,6 +236,8 @@ export class Entity_Edit_Mode extends Game_Mode {
             let r_new = rotate_clockwise_horizontaly(entity.rotation);
             this.entity_manager.rotate_entity(entity, r_new);
         }
+
+        undo_end_frame(this.entity_manager);
     }
 }
 

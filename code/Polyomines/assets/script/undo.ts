@@ -1,4 +1,5 @@
 import { $, clone_all_slots, compare_all_slots, Pid, String_Builder } from "./Const";
+import { Debug_Console } from "./Debug_Console";
 import { clone_ued, copy_ued } from "./entity";
 import { Entity_Manager } from "./Entity_Manager";
 import { Game_Entity, Undoable_Entity_Data } from "./Game_Entity";
@@ -35,6 +36,7 @@ export function undo_mark_beginning(manager: Entity_Manager) {
     if ($.doing_undo == false) return;
     const undo = manager.undo_handler;
 
+    clear_current_undo_frame(undo);
     // undo.pending_actions = [];
 
     for (let e of manager.all_entities) {
@@ -155,7 +157,6 @@ function really_do_one_undo_record(manager: Entity_Manager, record: Undo_Record,
                     let member_idx = get_number();
                     let slot_old = get_number();
                     let slot_new = get_number();
-                    console.log(`i: ${member_idx}, o: ${slot_old}, n ${slot_new}`);
                     cached_ued.memory[member_idx] = slot_old;
                 }
             }
@@ -169,10 +170,7 @@ function really_do_one_undo_record(manager: Entity_Manager, record: Undo_Record,
 
             apply_diff(num_slots);
 
-            console.log(e_dest.undoable);
-            console.log(cached_ued);
             copy_ued(cached_ued, e_dest.undoable);
-            console.log(e_dest.undoable);
 
             manager.move_entity(e_dest, e_dest.position);
             manager.rotate_entity(e_dest, e_dest.rotation);
@@ -189,6 +187,7 @@ function really_do_one_undo_record(manager: Entity_Manager, record: Undo_Record,
         switch (action) {
             case Undo_Action_Type.CHANGE: {
                 let num_entities = get_number();
+                Debug_Console.Info(`Undo: ${num_entities}`)
                 do_entity_changes(num_entities);
             } break;
         }
@@ -196,4 +195,5 @@ function really_do_one_undo_record(manager: Entity_Manager, record: Undo_Record,
 }
 
 function clear_current_undo_frame(undo: Undo_Handler) {
+    undo.undo_records = [];
 }
