@@ -6,20 +6,53 @@ import { Polygon_Entity } from './Polygon_Entity';
 
 const { ccclass, property } = _decorator;
 
+type vec3_t = {
+    x: number;
+    y: number;
+    z: number;
+};
 
 // @implementMe
+/* 
+    Memory:
+    Int32 [
+        0: x,
+        1: y,
+        2: z,
+        3: orientation,
+        4: rotation,
+        5: supporting_id_0,
+        6: supporting_id_1,
+        7: supported_by_id_0,
+        8: supported_by_id_1,
+        9: flags,
+    ]
+*/
 export class Undoable_Entity_Data {
-    position: Vec3 = new Vec3(0, 0, 0);
-    prefab: string = "";
-    orientation: Direction = 0;
-    rotation: Direction = 0;
-    supporting_id: Pid = Pid.Default;
-    supported_by_id: Pid = Pid.Default;
+    // position: Vec3 = new Vec3(0, 0, 0);
+    // orientation: Direction = 0;
+    // rotation: Direction = 0;
+    // supporting_id: Pid = new Pid();
+    // supported_by_id: Pid = new Pid();
+    // falling: boolean = false;
+    // dead: boolean = false;
+    constructor(public memory: Int32Array = new Int32Array(10)) { }
 
-    falling: boolean = false;
-    dead: boolean = false;
+    get position(): Vec3 {
+        return new Vec3(this.memory[0], this.memory[1], this.memory[2]);
+    }
 
-    constructor() { }
+    set position(p: vec3_t) {
+        this.memory[0] = p.x;
+        this.memory[1] = p.y;
+        this.memory[2] = p.z;
+    }
+
+    get orientation(): Direction { return this.memory[3]; }
+    set orientation(d: number) { this.memory[3] = d % 6; }
+
+    get rotation(): Direction { return this.memory[4]; }
+    set rotation(d: number) { this.memory[4] = d % 6; }
 };
 
 export class Serializable_Entity_Data {
@@ -37,15 +70,15 @@ export class Game_Entity extends Component {
     id: Pid;
     undoable: Undoable_Entity_Data;
     scheduled_for_destruction: boolean = false;
+    prefab: string = "";
 
-    get prefab(): string { return this.undoable.prefab };
     get position(): Vec3 { return this.undoable.position };
     get rotation(): Direction { return this.undoable.rotation };
     get orientation(): Direction { return this.undoable.orientation };
-    get supporting_id(): Pid { return this.undoable.supporting_id };
-    get supported_by_id(): Pid { return this.undoable.supported_by_id };
-    get falling(): boolean { return this.undoable.falling };
-    get dead(): boolean { return this.undoable.dead };
+    // get supporting_id(): Pid { return this.undoable.supporting_id };
+    // get supported_by_id(): Pid { return this.undoable.supported_by_id };
+    // get falling(): boolean { return this.undoable.falling };
+    // get dead(): boolean { return this.undoable.dead };
 
     @property(SkeletalAnimation) animation: SkeletalAnimation = null;
     @property(MeshRenderer) editing_cover: MeshRenderer = null;

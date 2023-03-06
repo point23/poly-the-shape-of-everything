@@ -36,9 +36,9 @@ export class Entity_Manager {
         assert(node != null, `Failed to instantiate prefab: ${prefab}`);
 
         const entity = node.getComponent(Game_Entity);
+        entity.prefab = prefab;
         entity.id = new Pid(entity);
         entity.undoable = new Undoable_Entity_Data();
-        entity.undoable.prefab = prefab;
         this.rotate_entity(entity, info.rotation);
         this.move_entity(entity, new Vec3(info.position));
 

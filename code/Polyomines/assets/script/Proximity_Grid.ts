@@ -65,7 +65,7 @@ class Quad_Tree_Printer implements Visitor<string> {
         builder.append(root_indent).append("  p: ").append(`(${pos.x},${pos.y})\n`);
         builder.append(indent).append("  v: [ ");
         for (let it of vals) {
-            builder.append(`${it.id.val} `);
+            builder.append(it.id);
         }
         builder.append("]\n");
         builder.append(indent).append("  c: [\n");

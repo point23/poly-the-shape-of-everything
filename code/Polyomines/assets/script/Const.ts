@@ -1,4 +1,4 @@
-import { Color, Game, Quat, Size, Vec3 } from 'cc';
+import { Color, Game, memop, Quat, Size, Vec3 } from 'cc';
 import { Game_Entity } from './Game_Entity';
 import { Single_Move } from './Single_Move';
 
@@ -44,8 +44,8 @@ export class String_Builder {
         this.strings[i] = `${v}`;
     }
 
-    to_string(): string {
-        return this.strings.join('');
+    to_string(s: string = ''): string {
+        return this.strings.join(s);
     }
 }
 
@@ -82,45 +82,41 @@ export function clone_all_slots(s: any, d: any) {
 }
 
 export class Pid {
-    static get Default(): Pid { return new Pid(); }
-    static S_entity = Symbol('entity');
-    static S_single_move = Symbol('single move');
-    val: string = "";
-
-    static digit_0: Map<symbol, number> = new Map<symbol, number>([
-        [Pid.S_entity, 0],
-        [Pid.S_single_move, 0],
-    ]);
-    static digit_1: Map<symbol, number> = new Map<symbol, number>([
-        [Pid.S_entity, 1],
-        [Pid.S_single_move, 2],
+    static serial_idx = new Map<number, number>([
+        [0, 1],
+        [1, 1],
+        [2, 1]
     ]);
 
-    //@incomplete Support other types like Single_Move, Move_Transaction... 
-    constructor(t: any = null) {
-        if (t == null) {
-            this.val = "nil-nil";
-            return;
-        }
-
-        let s = null;
+    static type_idx(t: any): number {
         if (t instanceof Game_Entity) {
-            s = Pid.S_entity;
-        } else if (t instanceof Single_Move) {
-            s = Pid.S_single_move;
+            return 1;
         }
 
-        if (s == null) return;
+        return 0;
+    }
 
-        let d_0 = Pid.digit_0.get(s);
-        let d_1 = Pid.digit_1.get(s);
+    memory: Uint32Array = new Uint32Array(2);
+    get digit_0() { return this.memory[0]; }
+    get digit_1() { return this.memory[1]; }
 
-        if (d_0 == undefined || d_1 == undefined) return;
+    toString(): string {
+        return `${this.digit_1}-${this.digit_0}`;
+    }
 
-        const builder = new String_Builder();
-        builder.append(d_1).append('-').append(d_0);
-        this.val = builder.to_string();
-        Pid.digit_0.set(s, d_0 + 1);
+    static clone(d0: number, d1: number): Pid {
+        const c = new Pid();
+        c.memory[0] = d0;
+        c.memory[1] = d1;
+        return c;
+    }
+
+    constructor(t: any = null) {
+        const type_idx = Pid.type_idx(t);
+        const serial_idx = Pid.serial_idx.get(type_idx);
+        this.memory[0] = serial_idx;
+        this.memory[1] = type_idx;
+        Pid.serial_idx.set(type_idx, serial_idx + 1);
     }
 }
 

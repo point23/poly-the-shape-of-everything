@@ -54,13 +54,23 @@ export enum Polyomino_Type {
 
 export function get_serializable(e: Game_Entity): Serializable_Entity_Data {
     const data = e.undoable;
-    return new Serializable_Entity_Data(data.prefab, data.position, data.rotation);
+    return new Serializable_Entity_Data(e.prefab, data.position, data.rotation);
 }
 
 export function clone_ued(e: Game_Entity): Undoable_Entity_Data {
+    const memory = e.undoable.memory;
     let clone = new Undoable_Entity_Data();
-    clone_all_slots(e.undoable, clone);
+    for (let i = 0; i < memory.length; i++) {
+        clone.memory[i] = memory[i];
+    }
     return clone;
+}
+
+export function copy_ued(s: Undoable_Entity_Data, d: Undoable_Entity_Data) {
+    const memory = s.memory;
+    for (let i = 0; i < memory.length; i++) {
+        d.memory[i] = memory[i];
+    }
 }
 
 //#region CALCULATION

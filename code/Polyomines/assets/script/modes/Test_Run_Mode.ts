@@ -6,7 +6,7 @@ import { Direction } from '../entity';
 import { Entity_Manager } from '../Entity_Manager';
 import { Controller_Proc_Move, Possess_Move } from '../Single_Move';
 import { Transaction_Manager } from '../Transaction_Manager';
-import { undo_end_frame, undo_mark_beginning } from '../undo';
+import { really_do_one_undo, undo_end_frame, undo_mark_beginning } from '../undo';
 
 import { Game_Mode } from './Game_Mode_Base';
 
@@ -63,15 +63,15 @@ export class Test_Run_Mode extends Game_Mode {
                 const move = new Possess_Move(active_hero);
                 Transaction_Manager.instance.try_add_new_move(move);
             } break;
-            /* 
-                case KeyCode.DASH: {
-                    Transaction_Manager.instance.undo_async();
-                } break;
 
-                case KeyCode.EQUAL: {
-                    Transaction_Manager.instance.redo_async();
-                } break; 
-            */
+            case KeyCode.DASH: {
+                really_do_one_undo(this.entity_manager);
+            } break;
+            /* 
+                    case KeyCode.EQUAL: {
+                        Transaction_Manager.instance.redo_async();
+                    } break;
+             */
 
             case KeyCode.SHIFT_LEFT:
             case KeyCode.SHIFT_RIGHT:
