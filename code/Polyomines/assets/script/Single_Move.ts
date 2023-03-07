@@ -1,8 +1,6 @@
 import { _decorator, Vec3 } from 'cc';
-
-import { Const, Pid, String_Builder } from './Const';
-import { Direction, calcu_entity_future_position, Entity_Type, calcu_entity_future_squares } from './entity';
-import { Game_Entity } from './Game_Entity';
+import { Const, String_Builder } from './Const';
+import { calcu_entity_future_position, calcu_entity_future_squares, Direction, Entity_Type, Game_Entity } from './Game_Entity';
 import { Move_Transaction } from './Move_Transaction';
 import { Transaction_Control_Flags, Transaction_Manager } from './Transaction_Manager';
 
@@ -21,8 +19,8 @@ function calcu_target_direction(d: Direction, delta: number): Direction {
 }
 
 class Move_Info {
-    source_entity_id: Pid;
-    target_entity_id: Pid;
+    source_entity_id: number;
+    target_entity_id: number;
 
     start_position: Vec3;
     end_position: Vec3;
@@ -40,12 +38,15 @@ class Move_Info {
  * - Execute & Undo
  */
 export class Single_Move {
-    id: Pid;
+    static serial_idx = 1;
+    static get next_id(): number { return Single_Move.serial_idx++ };
+
+    id: number;
     info: Move_Info;
     flags: number;
 
-    get source_entity_id(): Pid { return this.info.source_entity_id; }
-    get target_entity_id(): Pid { return this.info.target_entity_id; }
+    get source_entity_id(): number { return this.info.source_entity_id; }
+    get target_entity_id(): number { return this.info.target_entity_id; }
     get start_position(): Vec3 { return this.info.start_position; }
     get end_position(): Vec3 { return this.info.end_position; }
     get start_direction(): Direction { return this.info.start_direction; }
@@ -53,7 +54,7 @@ export class Single_Move {
     get reaction_direction(): Direction { return this.info.reaction_direction; }
 
     public constructor(move_info: Move_Info) {
-        this.id = new Pid(this);
+        this.id = Single_Move.next_id;
         this.flags = 0;
         this.info = move_info;
     }
@@ -150,9 +151,9 @@ export class Controller_Proc_Move extends Single_Move {
 
     debug_info(): string {
         let builder = new String_Builder();
-        builder.append('CONTROLLER_PROC#').append(this.id.val);
+        builder.append('CONTROLLER_PROC#').append(this.id);
         builder.append('\n');
-        builder.append('\tentity#').append(this.info.target_entity_id.val);
+        builder.append('\tentity#').append(this.info.target_entity_id);
         builder.append('\n');
 
         if (this.flags & Move_Flags.ROTATED) {
@@ -233,7 +234,7 @@ export class Pushed_Move extends Single_Move {
 
     debug_info(): string {
         let builder = new String_Builder();
-        builder.append('PUSHED#').append(this.id.val).append('\n')
+        builder.append('PUSHED#').append(this.id).append('\n')
         builder.append('\tdirection ').append(Const.Direction_Names[this.reaction_direction]);
         return builder.to_string();
     }
@@ -287,9 +288,9 @@ export class Support_Move extends Single_Move {
 
     debug_info(): string {
         let builder = new String_Builder();
-        builder.append('SUPPORT#').append(this.id.val);
+        builder.append('SUPPORT#').append(this.id);
         builder.append('\n');
-        builder.append('\tentity#').append(this.info.target_entity_id.val);
+        builder.append('\tentity#').append(this.info.target_entity_id);
         builder.append('\n');
 
         if (this.flags & Move_Flags.ROTATED) {

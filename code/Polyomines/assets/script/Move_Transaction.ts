@@ -5,9 +5,10 @@ import { Single_Move } from './Single_Move';
 import { Transaction_Manager } from './Transaction_Manager';
 
 export class Move_Transaction {
-    static next_transaction_id = 0;
+    static serial_idx = 1;
+    static get next_id(): number { return Move_Transaction.serial_idx++ };
 
-    transaction_id: number;
+    id: number;
 
     duration: number;
     moves: Single_Move[];
@@ -18,7 +19,7 @@ export class Move_Transaction {
 
     public constructor(entity_manager: Entity_Manager) {
         this.issue_time = new Date(Date.now());
-        this.transaction_id = Move_Transaction.next_transaction_id++;
+        this.id = Move_Transaction.next_id;
         this.duration = Transaction_Manager.instance.duration;
         this.moves = [];
         this.entity_manager = entity_manager;
@@ -26,7 +27,7 @@ export class Move_Transaction {
 
     debug_info(): string {
         let builder = new String_Builder();
-        builder.append('Transaction#').append(this.transaction_id.toString());
+        builder.append('Transaction#').append(this.id);
         builder.append(' commited at ').append(this.commit_time.toISOString());
         builder.append('\n');
         for (let move of this.moves) {

@@ -1,6 +1,6 @@
 import { _decorator, MeshRenderer, Node, Quat, Size, Vec3, Game, assert } from 'cc';
-import { Const, Pid, String_Builder } from './Const';
-import { Game_Entity } from './Game_Entity';
+import { Const, String_Builder } from './Const';
+import { Game_Entity, get_entity_squares } from './Game_Entity';
 
 // @todo Move it to some where else like serialize?
 //  Implement new version of clone with Reflect...
@@ -27,7 +27,6 @@ interface Visitor<T> {
 }
 
 import fs from 'fs-extra'; // @hack
-import { Direction, get_entity_squares } from './entity';
 class Quad_Tree_Printer implements Visitor<string> {
     indent_count: number;
 

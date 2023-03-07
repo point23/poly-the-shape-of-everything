@@ -2,11 +2,11 @@ import { _decorator, EventKeyboard, KeyCode } from 'cc';
 import { Contextual_Manager } from '../Contextual_Manager';
 
 import { Debug_Console } from '../Debug_Console';
-import { Direction } from '../entity';
 import { Entity_Manager } from '../Entity_Manager';
+import { Direction } from '../Game_Entity';
 import { Controller_Proc_Move, Possess_Move } from '../Single_Move';
 import { Transaction_Manager } from '../Transaction_Manager';
-import { undo_mark_beginning } from '../undo';
+import { really_do_one_undo, undo_mark_beginning } from '../undo';
 
 import { Game_Mode } from './Game_Mode_Base';
 
@@ -62,6 +62,10 @@ export class Test_Run_Mode extends Game_Mode {
             case KeyCode.ENTER: {
                 const move = new Possess_Move(active_hero);
                 Transaction_Manager.instance.try_add_new_move(move);
+            } break;
+
+            case KeyCode.DASH: {
+                really_do_one_undo(this.entity_manager);
             } break;
 
             case KeyCode.SHIFT_LEFT:

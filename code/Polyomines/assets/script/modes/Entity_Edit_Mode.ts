@@ -1,13 +1,11 @@
-import { _decorator, Camera, EventKeyboard, EventMouse, EventTouch, geometry, KeyCode, Node, PhysicsSystem, Quat, Touch, Vec2, Vec3, instantiate } from 'cc';
-
-import { Const, Pid } from '../Const';
+import { _decorator, Camera, EventKeyboard, EventMouse, EventTouch, geometry, KeyCode, PhysicsSystem } from 'cc';
+import { Const } from '../Const';
 import { Contextual_Manager } from '../Contextual_Manager';
 import { Debug_Console } from '../Debug_Console';
-import { Direction, calcu_entity_future_position, rotate_clockwise_horizontaly, get_entity_squares, get_serializable } from '../entity';
 import { Entity_Manager } from '../Entity_Manager';
-import { Serializable_Entity_Data, Game_Entity } from '../Game_Entity';
+import { Serializable_Entity_Data, Game_Entity, calcu_entity_future_position, debug_validate_tiling, Direction, get_selected_entities, get_serializable, note_entity_is_deselected, note_entity_is_selected, rotate_clockwise_horizontaly } from '../Game_Entity';
 import { Resource_Manager } from '../Resource_Manager';
-import { undo_end_frame, undo_mark_beginning } from '../undo';
+import { note_entity_creation, note_entity_destruction, really_do_one_undo, undo_end_frame, undo_mark_beginning } from '../undo';
 
 import { Game_Mode } from './Game_Mode_Base';
 
@@ -39,7 +37,6 @@ export class Entity_Edit_Mode extends Game_Mode {
 
     is_jiggling: boolean = false;
     is_shift_down: boolean = false;
-    selected_entities: Game_Entity[] = [];
     copied_entities: Serializable_Entity_Data[] = [];
 
     handle_touch_move(event: EventTouch) {
@@ -56,10 +53,10 @@ export class Entity_Edit_Mode extends Game_Mode {
             for (let i = 0; i < raycast_results.length; i++) {
                 const item = raycast_results[i];
                 let succeed: boolean = false;
-                for (let entity of this.entity_manager.all_entities) {
-                    if (item.collider.node.parent.parent != entity.node) continue;
+                for (let e of this.entity_manager.all_entities) {
+                    if (item.collider.node.parent.parent != e.node) continue;
 
-                    this.select(entity);
+                    this.select(e);
                     succeed = true;
                 }
                 if (succeed) break;
@@ -88,10 +85,12 @@ export class Entity_Edit_Mode extends Game_Mode {
                 const item = raycast_results[i];
                 let succeed: boolean = false;
 
-                for (let entity of this.entity_manager.all_entities) {
-                    if (item.collider.node.parent.parent != entity.node) continue;
-                    if (entity.selected) this.deselect(entity);
-                    else this.select(entity);
+                for (let e of this.entity_manager.all_entities) {
+                    if (item.collider.node.parent.parent != e.node) continue;
+                    if (e.is_selected)
+                        this.deselect(e);
+                    else
+                        this.select(e);
                     succeed = true;
                 }
 
@@ -149,7 +148,9 @@ export class Entity_Edit_Mode extends Game_Mode {
             case KeyCode.BACKSPACE:
                 this.delete_selected_entities();
                 break;
-
+            case KeyCode.DASH: {
+                really_do_one_undo(this.entity_manager);
+            } break;
             case KeyCode.SHIFT_LEFT:
             case KeyCode.SHIFT_RIGHT:
                 this.is_shift_down = true;
@@ -171,26 +172,33 @@ export class Entity_Edit_Mode extends Game_Mode {
 
     copy_selected_entities() {
         this.copied_entities = [];
-
-        for (let e of this.selected_entities) {
+        for (let e of get_selected_entities(this.entity_manager)) {
             this.copied_entities.push(get_serializable(e));
         }
     }
 
     paste_copied_entities() {
+        if (this.copied_entities.length == 0) return;
         this.deselect_all();
+
         for (let info of this.copied_entities) {
             const e = this.entity_manager.load_entity(info);
+            note_entity_creation(this.entity_manager, e);
+
             this.select(e);
         }
+
+        undo_end_frame(this.entity_manager);
     }
 
     delete_selected_entities() {
-        for (let entity of this.selected_entities) {
-            this.entity_manager.reclaim(entity);
+        for (let e of get_selected_entities(this.entity_manager)) {
+            this.entity_manager.reclaim(e);
+            note_entity_destruction(this.entity_manager, e);
         }
 
         this.deselect_all();
+        undo_end_frame(this.entity_manager);
     }
 
     save_level() {
@@ -200,72 +208,45 @@ export class Entity_Edit_Mode extends Game_Mode {
         Resource_Manager.instance.save_level(updated_level_config);
     }
 
-    select(entity: Game_Entity) {
-        if (entity.selected) return;
+    select(e: Game_Entity) {
+        if (e.is_selected) return;
+        note_entity_is_selected(e);
 
-        this.selected_entities.push(entity);
-        entity.selected = true;
+        // undo_end_frame(this.entity_manager); // @hack
     }
 
-    deselect(entity: Game_Entity) {
-        if (!entity.selected) return;
-
-        const idx = this.selected_entities.indexOf(entity);
-        this.selected_entities.splice(idx, 1);
-        entity.selected = false;
+    deselect(e: Game_Entity) {
+        if (!e.is_selected) return;
+        note_entity_is_deselected(e);
+        // undo_end_frame(this.entity_manager); // @hack
     }
 
     deselect_all() {
-        for (let entity of this.selected_entities) {
-            entity.selected = false;
+        const entities = get_selected_entities(this.entity_manager);
+        if (entities.length == 0) return;
+        for (let e of entities) {
+            note_entity_is_deselected(e);
         }
-        this.selected_entities = [];
+        undo_end_frame(this.entity_manager); // @hack
     }
 
     move_selected_entities(direction: Direction) {
-        for (let entity of this.selected_entities) {
-            const p_new = calcu_entity_future_position(entity, direction);
-            this.entity_manager.move_entity(entity, p_new);
+        const selected = get_selected_entities(this.entity_manager);
+        if (selected.length == 0) return;
+        for (let e of selected) {
+            const p_new = calcu_entity_future_position(e, direction);
+            this.entity_manager.move_entity(e, p_new);
         }
-
         undo_end_frame(this.entity_manager);
     }
 
     rotate_selected_entities() {
-        for (let entity of this.selected_entities) {
-            let r_new = rotate_clockwise_horizontaly(entity.rotation);
-            this.entity_manager.rotate_entity(entity, r_new);
+        const selected = get_selected_entities(this.entity_manager);
+        if (selected.length == 0) return;
+        for (let e of selected) {
+            let r_new = rotate_clockwise_horizontaly(e.rotation);
+            this.entity_manager.rotate_entity(e, r_new);
         }
-
         undo_end_frame(this.entity_manager);
     }
 }
-
-
-//#region DEBUG STUFF
-function debug_validate_tiling(manager: Entity_Manager) {
-    const map = new Map<string, boolean>();
-
-    for (let entity of manager.all_entities) {
-        for (let pos of get_entity_squares(entity)) {
-            const pos_str = pos.toString();
-            if (map.has(pos_str)) {
-                map.set(pos_str, true);
-            } else {
-                map.set(pos_str, false);
-            }
-        }
-    }
-
-    for (let entity of manager.all_entities) {
-        let is_valid = true;
-        for (let pos of get_entity_squares(entity)) {
-            if (map.get(pos.toString())) {
-                is_valid = false;
-            }
-        }
-
-        entity.valid = is_valid;
-    }
-}
-//#endregion DEBUG STUFF

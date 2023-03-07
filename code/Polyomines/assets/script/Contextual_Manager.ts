@@ -78,9 +78,6 @@ export class Contextual_Manager extends Component {
             case KeyCode.TAB:
                 this.switch_mode();
                 break;
-            case KeyCode.DASH: {
-                really_do_one_undo(this.entity_manager);
-            } break;
             /* 
                     case KeyCode.EQUAL: {
                         Transaction_Manager.instance.redo_async();

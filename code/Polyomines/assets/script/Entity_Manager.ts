@@ -1,7 +1,5 @@
 import { assert, Vec3 } from 'cc';
-import { compare_all_slots, Pid } from './Const';
-import { Entity_Type, Direction, calcu_entity_future_squares, get_entity_squares, get_serializable, Polyomino_Type } from './entity';
-import { Serializable_Entity_Data, Game_Entity, Undoable_Entity_Data } from './Game_Entity';
+import { Serializable_Entity_Data, Game_Entity, Undoable_Entity_Data, calcu_entity_future_squares, Direction, Entity_Type, get_entity_squares, get_serializable } from './Game_Entity';
 import { debug_print_quad_tree, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
 import { Undo_Handler } from './undo';
@@ -26,18 +24,20 @@ export class Entity_Manager {
         for (let info of entities_info) {
             this.load_entity(info);
         }
-
-        debug_print_quad_tree(this.proximity_grid.quad_tree);
     }
 
-    load_entity(info: any): Game_Entity {
+    load_entity(info: any, id: number = null): Game_Entity {
         const prefab: string = info.prefab;
         const node = Resource_Manager.instance.instantiate_prefab(prefab);
         assert(node != null, `Failed to instantiate prefab: ${prefab}`);
 
         const entity = node.getComponent(Game_Entity);
         entity.prefab = prefab;
-        entity.id = new Pid(entity);
+        if (id == null)
+            entity.id = Game_Entity.next_id;
+        else
+            entity.id = id;
+
         entity.undoable = new Undoable_Entity_Data();
         this.rotate_entity(entity, info.rotation);
         this.move_entity(entity, new Vec3(info.position));
@@ -45,14 +45,8 @@ export class Entity_Manager {
         this.all_entities.push(entity);
 
         if (entity.entity_type == Entity_Type.HERO) this.active_hero = entity;
-        /* 
-                if (entity.polyomino_type == Polyomino_Type.DOMINO) {
-                    console.log("==== Debug Print Entity Squares")
-                    console.log(entity.rotation);
-                    console.log(entity.position);
-                    console.log(get_entity_squares(entity));
-                }
-         */
+
+        // debug_print_quad_tree(this.proximity_grid.quad_tree);
         return entity;
     }
 
@@ -73,19 +67,19 @@ export class Entity_Manager {
         e.face_towards(d);
     }
 
-    find(pid: Pid): Game_Entity {
+    find(id: number): Game_Entity {
         for (var e of this.all_entities) {
-            if (compare_all_slots(e.id, pid)) {
-                return e;
-            }
+            if (e.id == id) return e;
         }
         return null;
     }
 
-    reclaim(entity: Game_Entity) {
-        const idx = this.all_entities.indexOf(entity);
+    reclaim(e: Game_Entity) {
+        const idx = this.all_entities.indexOf(e);
         this.all_entities.splice(idx, 1);
-        entity.node.destroy();
+
+        this.undo_handler.old_entity_state.delete(`${e.id}`);
+        e.node.destroy();
     }
 
     get_entities_info(): any {

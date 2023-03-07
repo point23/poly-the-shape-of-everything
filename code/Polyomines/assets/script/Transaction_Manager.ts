@@ -98,7 +98,7 @@ export class Transaction_Manager extends Singleton_Manager {
         debug_print_quad_tree(this.entity_manager.proximity_grid.quad_tree);
         undo_end_frame(this.entity_manager);
         // console.log(this.entity_manager.undo_handler.old_entity_state);
-        Debug_Console.Info(packed.debug_info());
+        Debug_Console.Print_Transaction(packed.debug_info());
     }
 
     /* 

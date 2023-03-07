@@ -1,6 +1,4 @@
-import { Color, Game, memop, Quat, Size, Vec3 } from 'cc';
-import { Game_Entity } from './Game_Entity';
-import { Single_Move } from './Single_Move';
+import { Color, Quat, Size, Vec3 } from 'cc';
 
 /** Global Flags */
 export class $ {
@@ -34,6 +32,8 @@ export class String_Builder {
         this.strings.push(`${v}`);
         return this;
     }
+
+    get size(): number { return this.strings.length };
 
     get_cursor(): number {
         return this.strings.length;
@@ -78,45 +78,6 @@ export function clone_all_slots(s: any, d: any) {
         } else { // Literial
             Reflect.set(d, k, s_v);
         }
-    }
-}
-
-export class Pid {
-    static serial_idx = new Map<number, number>([
-        [0, 1],
-        [1, 1],
-        [2, 1]
-    ]);
-
-    static type_idx(t: any): number {
-        if (t instanceof Game_Entity) {
-            return 1;
-        }
-
-        return 0;
-    }
-
-    memory: Uint32Array = new Uint32Array(2);
-    get digit_0() { return this.memory[0]; }
-    get digit_1() { return this.memory[1]; }
-
-    toString(): string {
-        return `${this.digit_1}-${this.digit_0}`;
-    }
-
-    static clone(d0: number, d1: number): Pid {
-        const c = new Pid();
-        c.memory[0] = d0;
-        c.memory[1] = d1;
-        return c;
-    }
-
-    constructor(t: any = null) {
-        const type_idx = Pid.type_idx(t);
-        const serial_idx = Pid.serial_idx.get(type_idx);
-        this.memory[0] = serial_idx;
-        this.memory[1] = type_idx;
-        Pid.serial_idx.set(type_idx, serial_idx + 1);
     }
 }
 
