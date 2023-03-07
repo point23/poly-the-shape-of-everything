@@ -89,7 +89,7 @@ export class Const {
 
     static Default_Game_Board_Size: Size = new Size(10, 10);
 
-    static Tick_Interval: number = 0.1;
+    static Tick_Interval: number = 0.0125;
     static Ticks_Per_Loop: Map<number, number> = new Map<number, number>([
         [8, 1],
         [4, 2],

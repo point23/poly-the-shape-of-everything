@@ -82,12 +82,11 @@ export class Serializable_Entity_Data {
         3: orientation,
         4: rotation,
         5: flags,
-        6: supporting_id,
-        7: supported_by_id,
+        ...
     ]
 */
 export class Undoable_Entity_Data {
-    constructor(public memory: Int32Array = new Int32Array(8)) { }
+    constructor(public memory: Int32Array = new Int32Array(10)) { }
 
     get position(): Vec3 {
         return new Vec3(this.memory[0], this.memory[1], this.memory[2]);
@@ -107,12 +106,6 @@ export class Undoable_Entity_Data {
 
     get flags(): number { return this.memory[5]; }
     set flags(f: number) { this.memory[5] = f; }
-
-    get supporting_id(): number { return this.memory[6]; }
-    set supporting_id(i: number) { this.memory[6] = i; }
-
-    get supported_by_id(): number { return this.memory[7]; }
-    set supported_by_id(i: number) { this.memory[7] = i; }
 };
 
 /**
@@ -135,8 +128,6 @@ export class Game_Entity extends Component {
     get rotation(): Direction { return this.undoable.rotation };
     get orientation(): Direction { return this.undoable.orientation; };
     get flags(): number { return this.undoable.flags; }
-    get supporting_id(): number { return this.undoable.supporting_id };
-    get supported_by_id(): number { return this.undoable.supported_by_id };
 
     @property(SkeletalAnimation) animation: SkeletalAnimation = null;
     @property(MeshRenderer) editing_cover: MeshRenderer = null;
@@ -276,8 +267,8 @@ const polyomino_deltas: Vec3[][][] = [
         /* FORWARD */[new Vec3(0, -1, 0)],
         /* LEFT */[new Vec3(-1, 0, 0)],
         /* BACKWARD */[new Vec3(0, 1, 0)],
-        /* UP */[new Vec3(0, 0, -1)],
-        /* DOWN */[new Vec3(0, 0, 1)],
+        /* UP */[new Vec3(0, 0, 1)],
+        /* DOWN */[new Vec3(0, 0, -1)],
     ],
 ];
 
@@ -286,8 +277,8 @@ const direction_to_vec3: Vec3[] = [
     /* FORWARD */ new Vec3(0, -1, 0),
     /* LEFT */ new Vec3(-1, 0, 0),
     /* BACKWARD */ new Vec3(0, 1, 0),
-    /* UP */ new Vec3(0, 0, -1),
-    /* DOWN */ new Vec3(0, 0, 1),
+    /* UP */ new Vec3(0, 0, 1),
+    /* DOWN */ new Vec3(0, 0, -1),
 ];
 
 export function get_entity_squares(e: Game_Entity): Vec3[] {

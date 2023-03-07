@@ -1,14 +1,6 @@
-import { _decorator, MeshRenderer, Node, Quat, Size, Vec3, Game, assert } from 'cc';
-import { Const, String_Builder } from './Const';
+import { _decorator, MeshRenderer, Node, Quat, Size, Vec3, assert } from 'cc';
+import { clone_all_slots, Const, String_Builder } from './Const';
 import { Game_Entity, get_entity_squares } from './Game_Entity';
-
-// @todo Move it to some where else like serialize?
-//  Implement new version of clone with Reflect...
-function clone(src: Vec3, dst: Vec3) {
-    dst.x = src.y;
-    dst.y = src.y;
-    dst.z = src.z;
-}
 
 enum Quadrant {
     //       NW  |  NE
@@ -26,7 +18,7 @@ interface Visitor<T> {
     visit_tree_node(n: Tree_Node): T;
 }
 
-import fs from 'fs-extra'; // @hack
+import fs from 'fs-extra';
 class Quad_Tree_Printer implements Visitor<string> {
     indent_count: number;
 
@@ -64,7 +56,7 @@ class Quad_Tree_Printer implements Visitor<string> {
         builder.append(root_indent).append("  p: ").append(`(${pos.x},${pos.y})\n`);
         builder.append(indent).append("  v: [ ");
         for (let it of vals) {
-            builder.append(it.id);
+            builder.append(it.id).append(" ");
         }
         builder.append("]\n");
         builder.append(indent).append("  c: [\n");
@@ -228,8 +220,8 @@ function insert(n: Tree_Node, k: Game_Entity) {
 
 // @incomplete
 function remove(n: Tree_Node, k: Game_Entity) {
-    function remove_once(r: Tree_Node, kx: number, ky: number) {
-        const p = point_search(r, new Vec3(kx, ky));
+    function remove_once(kx: number, ky: number) {
+        const p = point_search(n, new Vec3(kx, ky));
         if (p == null) return;
 
         const idx = p.values.indexOf(k);
@@ -240,7 +232,7 @@ function remove(n: Tree_Node, k: Game_Entity) {
     }
 
     for (let square of get_entity_squares(k)) {
-        remove_once(n, square.x, square.y);
+        remove_once(square.x, square.y);
     }
 }
 
@@ -307,10 +299,9 @@ export class Proximity_Grid {
     local2world(local_pos: Vec3): Vec3 {
         // let type = arguments.callee.caller.name;
         // console.log(type);
-
         const square_size = Const.Game_Board_Square_Size;
         let p = new Vec3;
-        clone(this.origin, p);
+        clone_all_slots(this.origin, p);
         let d = new Vec3(local_pos.y * square_size, local_pos.z * square_size, local_pos.x * square_size);
         return p.add(d);
     }

@@ -46,7 +46,7 @@ export class Entity_Manager {
 
         if (entity.entity_type == Entity_Type.HERO) this.active_hero = entity;
 
-        // debug_print_quad_tree(this.proximity_grid.quad_tree);
+        debug_print_quad_tree(this.proximity_grid.quad_tree);
         return entity;
     }
 
@@ -63,7 +63,6 @@ export class Entity_Manager {
     rotate_entity(e: Game_Entity, d: Direction) {
         e.undoable.rotation = d;
         e.undoable.orientation = d;
-
         e.face_towards(d);
     }
 
@@ -97,19 +96,23 @@ export class Entity_Manager {
         return this.proximity_grid.point_search(target);
     }
 
-    locate_supporter(pos: Vec3): Game_Entity {
-        return this.locate_entity(new Vec3(pos).subtract(Vec3.UNIT_Z));
+    locate_supporter(pos: Vec3, depth: number): Game_Entity {
+        return this.locate_entity(new Vec3(pos).subtract(new Vec3(0, 0, depth)));
     }
 
-    locate_future_supporters(entity: Game_Entity, dir: Direction) {
+    locate_future_supporters(entity: Game_Entity, dir: Direction, max_depth: number = 1) {
         const future_squares = calcu_entity_future_squares(entity, dir);
 
         const supporters = [];
-        for (let pos of future_squares) {
-            const supporter = this.locate_supporter(pos);
-            if (supporter != null) {
-                supporters.push(supporter)
+        for (let d = 1; d <= max_depth; d++) {
+            for (let pos of future_squares) {
+                const supporter = this.locate_supporter(pos, d);
+                if (supporter != null) {
+                    supporters.push(supporter)
+                }
             }
+
+            if (supporters.length != 0) return supporters;
         }
 
         return supporters;

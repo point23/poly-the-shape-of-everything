@@ -100,7 +100,7 @@ export class Controller_Proc_Move extends Single_Move {
                 // Avators would only rotate it's indicator 
                 for (let supportee of supportees) {
                     const support_move = new Support_Move(supportee, direction_delta);
-                    support_move.try_add_itself(transaction);
+                    support_move.try_add_itself(transaction); // @todo Handle if failed to move the supportees
                 }
             }
         }
@@ -111,7 +111,12 @@ export class Controller_Proc_Move extends Single_Move {
         const future_squares = calcu_entity_future_squares(e_target, this.end_direction);
         const supporters = manager.locate_future_supporters(e_target, this.end_direction);
 
-        if (supporters.length == 0) return at_least_rotated;
+        if (supporters.length == 0) {
+            const falling_move = new Falling_Move(e_target, this.end_direction);
+            if (falling_move.try_add_itself(transaction))
+                return true;
+            return at_least_rotated;
+        }
 
         for (let pos of future_squares) {
             const other = manager.locate_entity(pos);
@@ -126,8 +131,10 @@ export class Controller_Proc_Move extends Single_Move {
         }
 
         transaction.moves.push(this);
+
+        const position_delta = new Vec3(this.end_position).subtract(this.start_position);
         for (let supportee of supportees) {
-            const support_move = new Support_Move(supportee, 0, this.end_direction, 1);
+            const support_move = new Support_Move(supportee, 0, position_delta);
             support_move.try_add_itself(transaction);
         }
 
@@ -174,11 +181,6 @@ export class Controller_Proc_Move extends Single_Move {
     }
 }
 
-/**
- * NOTE
- * Interesting bugs(fixed)
- *  - Can't push domino
- */
 export class Pushed_Move extends Single_Move {
     public constructor(source: Game_Entity, target: Game_Entity, direction: Direction, step: number = 1) {
         const move_info = new Move_Info();
@@ -203,8 +205,11 @@ export class Pushed_Move extends Single_Move {
         const future_squares = calcu_entity_future_squares(e_target, this.reaction_direction);
 
         const supporters = manager.locate_future_supporters(e_target, direction);
+
         if (supporters.length == 0) {
-            /* @todo Failing */
+            const falling_move = new Falling_Move(e_target, this.reaction_direction);
+            if (falling_move.try_add_itself(transaction))
+                return true;
             return false;
         }
 
@@ -216,9 +221,10 @@ export class Pushed_Move extends Single_Move {
         }
 
         const supportees = manager.locate_current_supportees(e_target);
+        const position_delta = new Vec3(this.end_position).subtract(this.start_position);
 
         for (let supportee of supportees) {
-            const support_move = new Support_Move(supportee, 0, this.reaction_direction, 1);
+            const support_move = new Support_Move(supportee, 0, position_delta);
             support_move.try_add_itself(transaction);
         }
 
@@ -241,14 +247,13 @@ export class Pushed_Move extends Single_Move {
 }
 
 export class Support_Move extends Single_Move {
-    public constructor(entity: Game_Entity, direction_delta: number, reaction_direction: Direction = 0, step: number = 0) {
+    public constructor(entity: Game_Entity, direction_delta: number, position_delta: Vec3 = Vec3.ZERO) {
         const move_info = new Move_Info();
         move_info.target_entity_id = entity.id;
         move_info.start_direction = entity.orientation;
         move_info.end_direction = calcu_target_direction(entity.orientation, direction_delta);
-        move_info.reaction_direction = reaction_direction;
         move_info.start_position = entity.position;
-        move_info.end_position = calcu_entity_future_position(entity, reaction_direction, step);
+        move_info.end_position = new Vec3(move_info.start_position).add(position_delta)
         super(move_info);
     }
 
@@ -259,9 +264,10 @@ export class Support_Move extends Single_Move {
 
         const supportees = manager.locate_current_supportees(e_target);
         const direction_delta = this.end_direction - this.start_direction;
+        const position_delta = new Vec3(this.end_position).subtract(this.start_position);
 
         for (let supportee of supportees) {
-            const support_move = new Support_Move(supportee, direction_delta, this.reaction_direction, 1);
+            const support_move = new Support_Move(supportee, direction_delta, position_delta);
             support_move.try_add_itself(transaction);
         }
 
@@ -307,6 +313,60 @@ export class Support_Move extends Single_Move {
             builder.append('\n');
         }
 
+        return builder.to_string();
+    }
+}
+
+export class Falling_Move extends Single_Move {
+    public constructor(entity: Game_Entity, direction: Direction) {
+        const move_info = new Move_Info();
+        move_info.target_entity_id = entity.id;
+        move_info.start_position = entity.position;
+        move_info.start_direction = move_info.end_direction = direction;
+        super(move_info);
+    }
+
+    try_add_itself(transaction: Move_Transaction): boolean {
+        const manager = transaction.entity_manager;
+
+        const entity = manager.find(this.target_entity_id);
+        const dir = this.start_direction;
+
+        const supporters = manager.locate_future_supporters(entity, dir, 10);
+
+        if (supporters.length == 0)
+            return false;
+
+        let future_pos = calcu_entity_future_position(entity, dir);
+        future_pos.z = supporters[0].position.z + 1;
+        this.info.end_position = future_pos;
+        transaction.moves.push(this);
+
+        const supportees = manager.locate_current_supportees(entity);
+        const position_delta = new Vec3(this.end_position).subtract(this.start_position);
+        for (let supportee of supportees) {
+            const support_move = new Support_Move(supportee, 0, position_delta);
+            support_move.try_add_itself(transaction);
+        }
+
+        return true;
+    }
+
+    async execute_async(transaction: Move_Transaction) {
+        const manager = transaction.entity_manager;
+        const entity = manager.find(this.target_entity_id);
+        manager.move_entity(entity, this.end_position);
+    }
+
+    debug_info(): string {
+        let builder = new String_Builder();
+        builder.append('FALLING#').append(this.id);
+        builder.append('\n');
+        builder.append('\tentity#').append(this.info.target_entity_id);
+        builder.append('\n');
+        builder.append('\nfrom ').append(this.start_position.toString());
+        builder.append(' to ').append(this.end_position.toString());
+        builder.append('\n');
         return builder.to_string();
     }
 }

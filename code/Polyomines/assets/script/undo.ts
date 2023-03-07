@@ -3,6 +3,7 @@ import { $, clone_all_slots, compare_all_slots, String_Builder } from "./Const";
 import { Debug_Console } from "./Debug_Console";
 import { Entity_Manager } from "./Entity_Manager";
 import { clone_undoable_data, copy_undoable_data, Game_Entity, get_serialized_data, note_entity_is_invalid, note_entity_is_valid, Serializable_Entity_Data, Undoable_Entity_Data } from "./Game_Entity";
+import { debug_print_quad_tree } from "./Proximity_Grid";
 
 export class Undo_Handler {
     manager: Entity_Manager = null;
@@ -20,7 +21,7 @@ export class Undo_Record {
     checkpoint: boolean = false;;
 }
 
-enum Undo_Action_Type {
+export enum Undo_Action_Type {
     CHANGE,
     CREATION,
     DESTRUCTION,
@@ -93,6 +94,8 @@ export function really_do_one_undo(manager: Entity_Manager) {
 
     const record = undo.undo_records.pop();
     really_do_one_undo_record(manager, record, false);
+
+    debug_print_quad_tree(manager.proximity_grid.quad_tree);
 }
 
 export function note_entity_creation(m: Entity_Manager, e: Game_Entity) {
@@ -225,11 +228,13 @@ function really_do_one_undo_record(manager: Entity_Manager, record: Undo_Record,
 
             apply_diff(num_slots);
 
+            manager.proximity_grid.remove_entity(e_dest);
             copy_undoable_data(cached_ued, e_dest.undoable);
 
             update_entity_edit_cover(e_dest);
-            manager.move_entity(e_dest, e_dest.position);
+
             manager.rotate_entity(e_dest, e_dest.rotation);
+            manager.move_entity(e_dest, e_dest.position);
         }
     }
 
