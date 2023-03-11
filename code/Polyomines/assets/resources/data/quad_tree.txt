@@ -1,54 +1,38 @@
 {
 ====  p: (6,2)
-	  v: [ 5 43 ]
+	  v: [ 6 43 ]
 	  c: [
 	OO:
 		null
 	NE:
 	{
-	====  p: (6,5)
-		  v: [ 2 16 ]
+	====  p: (7,5)
+		  v: [ 2 18 ]
 		  c: [
 		OO:
 			null
 		NE:
 		{
-		====  p: (7,5)
-			  v: [ 2 17 ]
+		====  p: (8,5)
+			  v: [ 2 27 ]
 			  c: [
 			OO:
 				null
 			NE:
 			{
-			====  p: (7,7)
-				  v: [ 25 42 ]
+			====  p: (8,7)
+				  v: [ 45 46 ]
 				  c: [
 				OO:
 					null
 				NE:
-				{
-				====  p: (8,7)
-					  v: [ 45 46 ]
-					  c: [
-					OO:
-						null
-					NE:
-						null
-					NW:
-						null
-					SW:
-						null
-					SE:
-						null
-					]
-				}
-
+					null
 				NW:
 					null
 				SW:
 				{
-				====  p: (7,6)
-					  v: [ 85 ]
+				====  p: (8,6)
+					  v: [ 86 ]
 					  c: [
 					OO:
 						null
@@ -64,53 +48,25 @@
 				}
 
 				SE:
-				{
-				====  p: (8,5)
-					  v: [ 26 3 ]
-					  c: [
-					OO:
-						null
-					NE:
-					{
-					====  p: (8,6)
-						  v: [ 86 ]
-						  c: [
-						OO:
-							null
-						NE:
-							null
-						NW:
-							null
-						SW:
-							null
-						SE:
-							null
-						]
-					}
-
-					NW:
-						null
-					SW:
-						null
-					SE:
-						null
-					]
-				}
-
+					null
 				]
 			}
 
 			NW:
 			{
-			====  p: (6,6)
-				  v: [ 19 59 ]
+			====  p: (7,7)
+				  v: [ 26 42 ]
 				  c: [
 				OO:
 					null
 				NE:
+					null
+				NW:
+					null
+				SW:
 				{
-				====  p: (6,7)
-					  v: [ 24 41 ]
+				====  p: (7,6)
+					  v: [ 59 85 ]
 					  c: [
 					OO:
 						null
@@ -125,10 +81,6 @@
 					]
 				}
 
-				NW:
-					null
-				SW:
-					null
 				SE:
 					null
 				]
@@ -142,27 +94,37 @@
 		}
 
 		NW:
-			null
-		SW:
 		{
-		====  p: (6,4)
-			  v: [ 81 ]
+		====  p: (6,5)
+			  v: [ 17 ]
 			  c: [
 			OO:
 				null
 			NE:
-				null
-			NW:
-				null
-			SW:
 			{
-			====  p: (6,3)
-				  v: [ 83 ]
+			====  p: (6,6)
+				  v: [ 20 ]
 				  c: [
 				OO:
 					null
 				NE:
-					null
+				{
+				====  p: (6,7)
+					  v: [ 25 41 ]
+					  c: [
+					OO:
+						null
+					NE:
+						null
+					NW:
+						null
+					SW:
+						null
+					SE:
+						null
+					]
+				}
+
 				NW:
 					null
 				SW:
@@ -172,37 +134,23 @@
 				]
 			}
 
+			NW:
+				null
+			SW:
+				null
 			SE:
 				null
 			]
 		}
 
-		SE:
+		SW:
 		{
-		====  p: (8,3)
-			  v: [ 30 51 ]
+		====  p: (7,2)
+			  v: [ 7 44 1 ]
 			  c: [
 			OO:
 				null
 			NE:
-			{
-			====  p: (8,4)
-				  v: [ 27 28 ]
-				  c: [
-				OO:
-					null
-				NE:
-					null
-				NW:
-					null
-				SW:
-					null
-				SE:
-					null
-				]
-			}
-
-			NW:
 			{
 			====  p: (7,4)
 				  v: [ 82 ]
@@ -236,17 +184,21 @@
 				]
 			}
 
-			SW:
+			NW:
 			{
-			====  p: (7,2)
-				  v: [ 6 44 ]
+			====  p: (6,4)
+				  v: [ 81 ]
 				  c: [
 				OO:
 					null
 				NE:
+					null
+				NW:
+					null
+				SW:
 				{
-				====  p: (8,2)
-					  v: [ 29 32 ]
+				====  p: (6,3)
+					  v: [ 83 ]
 					  c: [
 					OO:
 						null
@@ -261,6 +213,54 @@
 					]
 				}
 
+				SE:
+					null
+				]
+			}
+
+			SW:
+				null
+			SE:
+				null
+			]
+		}
+
+		SE:
+		{
+		====  p: (8,3)
+			  v: [ 30 51 ]
+			  c: [
+			OO:
+				null
+			NE:
+			{
+			====  p: (8,4)
+				  v: [ 28 3 ]
+				  c: [
+				OO:
+					null
+				NE:
+					null
+				NW:
+					null
+				SW:
+					null
+				SE:
+					null
+				]
+			}
+
+			NW:
+				null
+			SW:
+			{
+			====  p: (8,2)
+				  v: [ 29 32 ]
+				  c: [
+				OO:
+					null
+				NE:
+					null
 				NW:
 					null
 				SW:
@@ -280,211 +280,85 @@
 
 	NW:
 	{
-	====  p: (2,4)
-		  v: [ 13 34 ]
+	====  p: (4,6)
+		  v: [ 4 65 94 4 ]
 		  c: [
 		OO:
 			null
 		NE:
 		{
-		====  p: (3,4)
-			  v: [ 10 53 ]
+		====  p: (4,7)
+			  v: [ 23 39 ]
 			  c: [
 			OO:
 				null
 			NE:
 			{
-			====  p: (3,5)
-				  v: [ 15 87 ]
+			====  p: (5,7)
+				  v: [ 24 40 ]
+				  c: [
+				OO:
+					null
+				NE:
+					null
+				NW:
+					null
+				SW:
+					null
+				SE:
+					null
+				]
+			}
+
+			NW:
+				null
+			SW:
+				null
+			SE:
+			{
+			====  p: (5,6)
+				  v: [ 72 ]
+				  c: [
+				OO:
+					null
+				NE:
+					null
+				NW:
+					null
+				SW:
+					null
+				SE:
+					null
+				]
+			}
+
+			]
+		}
+
+		NW:
+		{
+		====  p: (1,6)
+			  v: [ 19 ]
+			  c: [
+			OO:
+				null
+			NE:
+			{
+			====  p: (1,7)
+				  v: [ 21 ]
 				  c: [
 				OO:
 					null
 				NE:
 				{
 				====  p: (3,7)
-					  v: [ 21 38 ]
+					  v: [ 22 38 ]
 					  c: [
 					OO:
 						null
 					NE:
-					{
-					====  p: (4,7)
-						  v: [ 22 39 ]
-						  c: [
-						OO:
-							null
-						NE:
-						{
-						====  p: (5,7)
-							  v: [ 23 40 ]
-							  c: [
-							OO:
-								null
-							NE:
-								null
-							NW:
-								null
-							SW:
-								null
-							SE:
-								null
-							]
-						}
-
-						NW:
-							null
-						SW:
-							null
-						SE:
-							null
-						]
-					}
-
+						null
 					NW:
-						null
-					SW:
-					{
-					====  p: (3,6)
-						  v: [ 54 ]
-						  c: [
-						OO:
-							null
-						NE:
-							null
-						NW:
-							null
-						SW:
-							null
-						SE:
-							null
-						]
-					}
-
-					SE:
-					{
-					====  p: (4,6)
-						  v: [ 65 ]
-						  c: [
-						OO:
-							null
-						NE:
-						{
-						====  p: (5,6)
-							  v: [ 72 ]
-							  c: [
-							OO:
-								null
-							NE:
-								null
-							NW:
-								null
-							SW:
-								null
-							SE:
-								null
-							]
-						}
-
-						NW:
-							null
-						SW:
-						{
-						====  p: (4,5)
-							  v: [ 66 ]
-							  c: [
-							OO:
-								null
-							NE:
-								null
-							NW:
-								null
-							SW:
-								null
-							SE:
-								null
-							]
-						}
-
-						SE:
-						{
-						====  p: (5,5)
-							  v: [ 73 ]
-							  c: [
-							OO:
-								null
-							NE:
-								null
-							NW:
-								null
-							SW:
-								null
-							SE:
-								null
-							]
-						}
-
-						]
-					}
-
-					]
-				}
-
-				NW:
-					null
-				SW:
-					null
-				SE:
-				{
-				====  p: (4,4)
-					  v: [ 67 ]
-					  c: [
-					OO:
-						null
-					NE:
-					{
-					====  p: (5,4)
-						  v: [ 74 ]
-						  c: [
-						OO:
-							null
-						NE:
-							null
-						NW:
-							null
-						SW:
-							null
-						SE:
-							null
-						]
-					}
-
-					NW:
-						null
-					SW:
-						null
-					SE:
-						null
-					]
-				}
-
-				]
-			}
-
-			NW:
-			{
-			====  p: (2,5)
-				  v: [ 14 35 ]
-				  c: [
-				OO:
-					null
-				NE:
-				{
-				====  p: (2,6)
-					  v: [ 36 ]
-					  c: [
-					OO:
-						null
-					NE:
 					{
 					====  p: (2,7)
 						  v: [ 37 ]
@@ -502,8 +376,6 @@
 						]
 					}
 
-					NW:
-						null
 					SW:
 						null
 					SE:
@@ -516,10 +388,44 @@
 				SW:
 					null
 				SE:
-					null
+				{
+				====  p: (2,6)
+					  v: [ 36 ]
+					  c: [
+					OO:
+						null
+					NE:
+					{
+					====  p: (3,6)
+						  v: [ 54 ]
+						  c: [
+						OO:
+							null
+						NE:
+							null
+						NW:
+							null
+						SW:
+							null
+						SE:
+							null
+						]
+					}
+
+					NW:
+						null
+					SW:
+						null
+					SE:
+						null
+					]
+				}
+
 				]
 			}
 
+			NW:
+				null
 			SW:
 				null
 			SE:
@@ -527,41 +433,41 @@
 			]
 		}
 
-		NW:
+		SW:
 		{
-		====  p: (1,6)
-			  v: [ 18 ]
+		====  p: (4,5)
+			  v: [ 4 47 66 93 95 4 95 95 95 ]
 			  c: [
 			OO:
 				null
 			NE:
-			{
-			====  p: (1,7)
-				  v: [ 20 ]
-				  c: [
-				OO:
-					null
-				NE:
-					null
-				NW:
-					null
-				SW:
-					null
-				SE:
-					null
-				]
-			}
-
-			NW:
 				null
-			SW:
+			NW:
 			{
-			====  p: (1,4)
-				  v: [ 55 57 ]
+			====  p: (2,5)
+				  v: [ 15 35 ]
 				  c: [
 				OO:
 					null
 				NE:
+				{
+				====  p: (3,5)
+					  v: [ 16 87 ]
+					  c: [
+					OO:
+						null
+					NE:
+						null
+					NW:
+						null
+					SW:
+						null
+					SE:
+						null
+					]
+				}
+
+				NW:
 				{
 				====  p: (1,5)
 					  v: [ 56 58 ]
@@ -579,40 +485,6 @@
 					]
 				}
 
-				NW:
-					null
-				SW:
-					null
-				SE:
-					null
-				]
-			}
-
-			SE:
-				null
-			]
-		}
-
-		SW:
-		{
-		====  p: (2,3)
-			  v: [ 11 52 ]
-			  c: [
-			OO:
-				null
-			NE:
-				null
-			NW:
-			{
-			====  p: (1,3)
-				  v: [ 88 ]
-				  c: [
-				OO:
-					null
-				NE:
-					null
-				NW:
-					null
 				SW:
 					null
 				SE:
@@ -622,17 +494,15 @@
 
 			SW:
 			{
-			====  p: (2,2)
-				  v: [ 12 33 ]
+			====  p: (4,2)
+				  v: [ 8 ]
 				  c: [
 				OO:
 					null
 				NE:
-					null
-				NW:
 				{
-				====  p: (1,2)
-					  v: [ 89 ]
+				====  p: (4,4)
+					  v: [ 67 ]
 					  c: [
 					OO:
 						null
@@ -641,7 +511,169 @@
 					NW:
 						null
 					SW:
+					{
+					====  p: (4,3)
+						  v: [ 68 ]
+						  c: [
+						OO:
+							null
+						NE:
+							null
+						NW:
+							null
+						SW:
+							null
+						SE:
+							null
+						]
+					}
+
+					SE:
 						null
+					]
+				}
+
+				NW:
+				{
+				====  p: (3,3)
+					  v: [ 9 ]
+					  c: [
+					OO:
+						null
+					NE:
+					{
+					====  p: (3,4)
+						  v: [ 11 53 ]
+						  c: [
+						OO:
+							null
+						NE:
+							null
+						NW:
+							null
+						SW:
+							null
+						SE:
+							null
+						]
+					}
+
+					NW:
+					{
+					====  p: (2,3)
+						  v: [ 12 52 4 ]
+						  c: [
+						OO:
+							null
+						NE:
+						{
+						====  p: (2,4)
+							  v: [ 14 34 47 4 ]
+							  c: [
+							OO:
+								null
+							NE:
+								null
+							NW:
+								null
+							SW:
+								null
+							SE:
+								null
+							]
+						}
+
+						NW:
+						{
+						====  p: (1,4)
+							  v: [ 55 57 ]
+							  c: [
+							OO:
+								null
+							NE:
+								null
+							NW:
+								null
+							SW:
+							{
+							====  p: (1,3)
+								  v: [ 88 ]
+								  c: [
+								OO:
+									null
+								NE:
+									null
+								NW:
+									null
+								SW:
+									null
+								SE:
+									null
+								]
+							}
+
+							SE:
+								null
+							]
+						}
+
+						SW:
+							null
+						SE:
+							null
+						]
+					}
+
+					SW:
+					{
+					====  p: (3,2)
+						  v: [ 10 ]
+						  c: [
+						OO:
+							null
+						NE:
+							null
+						NW:
+						{
+						====  p: (2,2)
+							  v: [ 13 33 96 ]
+							  c: [
+							OO:
+								null
+							NE:
+								null
+							NW:
+							{
+							====  p: (1,2)
+								  v: [ 89 ]
+								  c: [
+								OO:
+									null
+								NE:
+									null
+								NW:
+									null
+								SW:
+									null
+								SE:
+									null
+								]
+							}
+
+							SW:
+								null
+							SE:
+								null
+							]
+						}
+
+						SW:
+							null
+						SE:
+							null
+						]
+					}
+
 					SE:
 						null
 					]
@@ -661,44 +693,26 @@
 
 		SE:
 		{
-		====  p: (4,2)
-			  v: [ 7 47 ]
+		====  p: (5,2)
+			  v: [ 69 ]
 			  c: [
 			OO:
 				null
 			NE:
 			{
-			====  p: (4,3)
-				  v: [ 68 ]
+			====  p: (5,5)
+				  v: [ 73 ]
 				  c: [
 				OO:
 					null
 				NE:
-				{
-				====  p: (5,3)
-					  v: [ 75 ]
-					  c: [
-					OO:
-						null
-					NE:
-						null
-					NW:
-						null
-					SW:
-						null
-					SE:
-						null
-					]
-				}
-
+					null
 				NW:
 					null
 				SW:
-					null
-				SE:
 				{
-				====  p: (5,2)
-					  v: [ 69 ]
+				====  p: (5,4)
+					  v: [ 74 ]
 					  c: [
 					OO:
 						null
@@ -707,49 +721,35 @@
 					NW:
 						null
 					SW:
-						null
+					{
+					====  p: (5,3)
+						  v: [ 75 ]
+						  c: [
+						OO:
+							null
+						NE:
+							null
+						NW:
+							null
+						SW:
+							null
+						SE:
+							null
+						]
+					}
+
 					SE:
 						null
 					]
 				}
 
+				SE:
+					null
 				]
 			}
 
 			NW:
-			{
-			====  p: (3,3)
-				  v: [ 8 4 ]
-				  c: [
-				OO:
-					null
-				NE:
-					null
-				NW:
-					null
-				SW:
-				{
-				====  p: (3,2)
-					  v: [ 9 4 ]
-					  c: [
-					OO:
-						null
-					NE:
-						null
-					NW:
-						null
-					SW:
-						null
-					SE:
-						null
-					]
-				}
-
-				SE:
-					null
-				]
-			}
-
+				null
 			SW:
 				null
 			SE:
@@ -762,27 +762,43 @@
 
 	SW:
 	{
-	====  p: (4,1)
-		  v: [ 48 50 1 ]
+	====  p: (4,0)
+		  v: [ 62 ]
 		  c: [
 		OO:
 			null
 		NE:
 		{
-		====  p: (5,1)
-			  v: [ 70 ]
+		====  p: (4,1)
+			  v: [ 48 5 50 ]
 			  c: [
 			OO:
 				null
 			NE:
 			{
-			====  p: (6,1)
-				  v: [ 76 ]
+			====  p: (5,1)
+				  v: [ 70 ]
 				  c: [
 				OO:
 					null
 				NE:
-					null
+				{
+				====  p: (6,1)
+					  v: [ 76 ]
+					  c: [
+					OO:
+						null
+					NE:
+						null
+					NW:
+						null
+					SW:
+						null
+					SE:
+						null
+					]
+				}
+
 				NW:
 					null
 				SW:
@@ -797,7 +813,39 @@
 			SW:
 				null
 			SE:
-				null
+			{
+			====  p: (5,0)
+				  v: [ 71 ]
+				  c: [
+				OO:
+					null
+				NE:
+				{
+				====  p: (6,0)
+					  v: [ 78 ]
+					  c: [
+					OO:
+						null
+					NE:
+						null
+					NW:
+						null
+					SW:
+						null
+					SE:
+						null
+					]
+				}
+
+				NW:
+					null
+				SW:
+					null
+				SE:
+					null
+				]
+			}
+
 			]
 		}
 
@@ -845,22 +893,6 @@
 			}
 
 			SW:
-				null
-			SE:
-				null
-			]
-		}
-
-		SW:
-		{
-		====  p: (4,0)
-			  v: [ 62 ]
-			  c: [
-			OO:
-				null
-			NE:
-				null
-			NW:
 			{
 			====  p: (2,0)
 				  v: [ 63 ]
@@ -910,38 +942,34 @@
 				]
 			}
 
-			SW:
-				null
 			SE:
 				null
 			]
 		}
 
+		SW:
+			null
 		SE:
+			null
+		]
+	}
+
+	SE:
+	{
+	====  p: (8,0)
+		  v: [ 31 80 ]
+		  c: [
+		OO:
+			null
+		NE:
 		{
-		====  p: (5,0)
-			  v: [ 71 ]
+		====  p: (8,1)
+			  v: [ 49 92 ]
 			  c: [
 			OO:
 				null
 			NE:
-			{
-			====  p: (6,0)
-				  v: [ 78 ]
-				  c: [
-				OO:
-					null
-				NE:
-					null
-				NW:
-					null
-				SW:
-					null
-				SE:
-					null
-				]
-			}
-
+				null
 			NW:
 				null
 			SW:
@@ -951,18 +979,6 @@
 			]
 		}
 
-		]
-	}
-
-	SE:
-	{
-	====  p: (8,1)
-		  v: [ 31 49 ]
-		  c: [
-		OO:
-			null
-		NE:
-			null
 		NW:
 		{
 		====  p: (7,1)
@@ -975,23 +991,9 @@
 			NW:
 				null
 			SW:
-				null
-			SE:
-				null
-			]
-		}
-
-		SW:
-		{
-		====  p: (7,0)
-			  v: [ 79 ]
-			  c: [
-			OO:
-				null
-			NE:
 			{
-			====  p: (8,0)
-				  v: [ 80 ]
+			====  p: (7,0)
+				  v: [ 79 ]
 				  c: [
 				OO:
 					null
@@ -1006,15 +1008,13 @@
 				]
 			}
 
-			NW:
-				null
-			SW:
-				null
 			SE:
 				null
 			]
 		}
 
+		SW:
+			null
 		SE:
 			null
 		]

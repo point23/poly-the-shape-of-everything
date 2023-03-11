@@ -7,6 +7,7 @@ import { Transaction_Control_Flags, Transaction_Manager } from './Transaction_Ma
 export enum Move_Flags {
     ROTATED = 1 << 0,
     MOVED = 1 << 1,
+    DEFERRED = 1 << 2,
 }
 
 // @hack
@@ -43,7 +44,10 @@ export class Single_Move {
 
     id: number;
     info: Move_Info;
+
+    // Flags
     flags: number;
+    get is_deferred(): boolean { return (this.flags & Move_Flags.DEFERRED) != 0; }
 
     get source_entity_id(): number { return this.info.source_entity_id; }
     get target_entity_id(): number { return this.info.target_entity_id; }
@@ -116,6 +120,12 @@ export class Controller_Proc_Move extends Single_Move {
             if (falling_move.try_add_itself(transaction))
                 return true;
             return at_least_rotated;
+        }
+
+        for (let s of supporters) {
+            if (s.entity_type == Entity_Type.CHECKPOINT) {
+                manager.pending_win = true;
+            }
         }
 
         for (let pos of future_squares) {

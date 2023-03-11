@@ -4,7 +4,8 @@
   "general": {
     "highQuality": true,
     "designResolution": {
-      "width": 960
+      "width": 1080,
+      "height": 720
     }
   }
 }

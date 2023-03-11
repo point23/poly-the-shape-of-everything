@@ -1,4 +1,4 @@
-import { assert, Vec3 } from 'cc';
+import { assert, Game, Vec3 } from 'cc';
 import { Serializable_Entity_Data, Game_Entity, Undoable_Entity_Data, calcu_entity_future_squares, Direction, Entity_Type, get_entity_squares, get_serializable } from './Game_Entity';
 import { debug_print_quad_tree, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
@@ -12,9 +12,12 @@ import { Undo_Handler } from './undo';
  */
 export class Entity_Manager {
     active_hero: Game_Entity = null;
-    proximity_grid: Proximity_Grid;
-    undo_handler: Undo_Handler;
+    proximity_grid: Proximity_Grid = null;
+    undo_handler: Undo_Handler = null;
     all_entities: Game_Entity[] = [];
+    checkpoints: Game_Entity[] = [];
+
+    pending_win: boolean = false; // @hack
 
     constructor(g: Proximity_Grid) {
         this.proximity_grid = g;
@@ -44,6 +47,7 @@ export class Entity_Manager {
 
         this.all_entities.push(entity);
 
+        if (entity.entity_type == Entity_Type.CHECKPOINT) this.checkpoints.push(entity);
         if (entity.entity_type == Entity_Type.HERO) this.active_hero = entity;
 
         debug_print_quad_tree(this.proximity_grid.quad_tree);

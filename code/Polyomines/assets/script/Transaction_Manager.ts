@@ -1,10 +1,12 @@
 import { _decorator, Component } from 'cc';
+import { Contextual_Manager } from './Contextual_Manager';
 import { Debug_Console } from './Debug_Console';
 import { Entity_Manager } from './Entity_Manager';
 import { Move_Transaction } from './Move_Transaction';
 import { debug_print_quad_tree } from './Proximity_Grid';
 import { Singleton_Manager } from './Singleton_Manager_Base';
 import { Single_Move } from './Single_Move';
+import { UI_Manager } from './UI_Manager';
 import { undo_end_frame } from './undo';
 const { ccclass, property } = _decorator;
 
@@ -96,6 +98,13 @@ export class Transaction_Manager extends Singleton_Manager {
         this.control_flags = 0;
 
         debug_print_quad_tree(this.entity_manager.proximity_grid.quad_tree);
+
+        if (this.entity_manager.pending_win) {
+            UI_Manager.instance.show_winning();
+            Contextual_Manager.instance.switch_mode();
+            Contextual_Manager.instance.switch_mode(); // @hack
+            return;
+        }
 
         undo_end_frame(this.entity_manager);
         // console.log(this.entity_manager.undo_handler.old_entity_state);

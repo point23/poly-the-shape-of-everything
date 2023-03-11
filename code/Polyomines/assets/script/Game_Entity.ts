@@ -32,6 +32,7 @@ export enum Entity_Type {
     DYNAMIC,
     HERO,
     AVATAR,
+    CHECKPOINT,
 }
 
 export enum Polyomino_Type {
@@ -339,7 +340,9 @@ export function rotate_clockwise_horizontaly(r: Direction): Direction {
 export function debug_validate_tiling(manager: Entity_Manager) {
     const map = new Map<string, boolean>();
 
+    // Check for non check point entities;
     for (let e of manager.all_entities) {
+        if (e.entity_type == Entity_Type.CHECKPOINT) continue; // @incomplete What about 2 checkpoint in the same square?
         for (let pos of get_entity_squares(e)) {
             const pos_str = pos.toString();
             if (map.has(pos_str)) {

@@ -49,7 +49,7 @@ export class Debug_Console extends Component {
         let color: string = null;
         switch (mode) {
             case Log_Mode.INFO:
-                color = 'green';
+                color = '#DBCCB4';
                 break;
             case Log_Mode.WARN:
                 color = 'yellow';

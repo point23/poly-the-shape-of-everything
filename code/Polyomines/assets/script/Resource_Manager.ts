@@ -59,8 +59,9 @@ export class Resource_Manager extends Component {
         const root_path = Const.Data_Path;
         const level_name = this.current_level_name;
         const file_path = `${root_path}/${level_name}.json`;
+
         fs.writeJson(file_path, level_config)
-            .then(() => { Debug_Console.Info('Saved') })
+            .then(() => { Debug_Console.Info('Saved.') })
             .catch((err: Error) => { console.error(err) });
     };
 }

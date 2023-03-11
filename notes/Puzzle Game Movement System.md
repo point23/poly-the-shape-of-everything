@@ -61,7 +61,6 @@ enum Manipulator {
     COUNT,
 }
 
-
 class Ui_Page {
     name: string;
     page_idx: number;

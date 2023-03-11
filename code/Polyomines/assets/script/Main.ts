@@ -7,6 +7,7 @@ import { Entity_Manager } from './Entity_Manager';
 import { debug_render_grid, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
 import { Transaction_Manager } from './Transaction_Manager';
+import { UI_Manager } from './UI_Manager';
 import { Undo_Handler } from './undo';
 
 const { ccclass, property } = _decorator;
@@ -27,6 +28,7 @@ export class Main extends Component {
     @property(Contextual_Manager) contextual_manager: Contextual_Manager = null;
     @property(Resource_Manager) resource_manager_instance: Resource_Manager = null;
     @property(Transaction_Manager) transaction_manager: Transaction_Manager = null;
+    @property(UI_Manager) ui_manager: UI_Manager = null;
 
     @property(Prefab) debug_grid_prefab: Prefab;
     @property(Node) debug_stuff: Node;
@@ -84,5 +86,6 @@ export class Main extends Component {
         Contextual_Manager.Settle(this.contextual_manager);
         Resource_Manager.Settle(this.resource_manager_instance);
         Transaction_Manager.Settle(this.transaction_manager);
+        UI_Manager.Settle(this.ui_manager);
     }
 }
