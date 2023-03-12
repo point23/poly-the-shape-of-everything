@@ -82,9 +82,8 @@ export function clone_all_slots(s: any, d: any) {
 }
 
 export class Const {
-    /** FIXME Don't use absolute path... */
-    static Data_Path: string =
-        'A:/code/poly/code/Polyomines/assets/resources/data';
+    /** @fixme Don't use absolute path... */
+    static Data_Path: string = 'data';
     static Default_Level: string = 'level#001';
 
     static Default_Game_Board_Size: Size = new Size(10, 10);

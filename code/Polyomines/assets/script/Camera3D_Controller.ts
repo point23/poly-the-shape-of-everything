@@ -4,8 +4,7 @@ const { ccclass, property } = _decorator;
 
 @ccclass('Camera3D_Controller')
 export class Camera3D_Controller extends Component {
-    @property(Node) camera_base: Node;
-
+    @property(Node) camera_base: Node = null;
     current_rotation: Quat = new Quat();
     last_rotation: Quat = new Quat();
     current_position: Vec3 = new Vec3();

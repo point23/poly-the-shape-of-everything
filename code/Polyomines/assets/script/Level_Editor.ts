@@ -16,12 +16,14 @@ const { ccclass, property } = _decorator;
  * @note
  * - Game Loop
  */
-@ccclass('Main')
-export class Main extends Component {
-    @property(Camera3D_Controller)
-    camera3d_controller: Camera3D_Controller = null;
+@ccclass('Level_Editor')
+export class Level_Editor extends Component {
+    @property(Camera3D_Controller) camera3d_controller: Camera3D_Controller = null;
     ticks_per_loop = 1;
     round: number = 0;
+
+    @property(Prefab) debug_grid_prefab: Prefab;
+    @property(Node) debug_stuff: Node;
 
     /* Singleton instances: */
     @property(Debug_Console) console_instance: Debug_Console = null;
@@ -30,33 +32,35 @@ export class Main extends Component {
     @property(Transaction_Manager) transaction_manager: Transaction_Manager = null;
     @property(UI_Manager) ui_manager: UI_Manager = null;
 
-    @property(Prefab) debug_grid_prefab: Prefab;
-    @property(Node) debug_stuff: Node;
-
-    async start() {
+    onLoad() {
         this.settle_singletons();
+        Resource_Manager.instance.load_level(Const.Default_Level, () => {
+            this.init();
+        });
+    }
 
-        await Resource_Manager.instance.load_level(Const.Default_Level)
-            .then(config => {
-                this.camera3d_controller.update_view(config.camera);
+    init() {
+        const config = Resource_Manager.instance.current_level_config;
+        console.log(config);
 
-                const grid = new Proximity_Grid(config.grid);
+        this.camera3d_controller.update_view(config.camera);
 
-                // @implementMe Directives like #PREVIEW or #WINDOWS...
-                const debug_grid_renderer = instantiate(this.debug_grid_prefab);
-                debug_grid_renderer.setParent(this.debug_stuff);
-                debug_render_grid(grid, debug_grid_renderer);
+        const grid = new Proximity_Grid(config.grid);
 
-                const entity_manager = new Entity_Manager(grid);
-                entity_manager.load_entities(config.entities);
+        // @implementMe Directives like #PREVIEW or #WINDOWS...
+        const debug_grid_renderer = instantiate(this.debug_grid_prefab);
+        debug_grid_renderer.setParent(this.debug_stuff);
+        debug_render_grid(grid, debug_grid_renderer);
 
-                const undo = new Undo_Handler();
-                entity_manager.undo_handler = undo;
-                undo.manager = entity_manager;
+        const entity_manager = new Entity_Manager(grid);
+        entity_manager.load_entities(config.entities);
 
-                this.contextual_manager.entity_manager = entity_manager;
-                this.transaction_manager.entity_manager = entity_manager;
-            });
+        const undo = new Undo_Handler();
+        entity_manager.undo_handler = undo;
+        undo.manager = entity_manager;
+
+        this.contextual_manager.entity_manager = entity_manager;
+        this.transaction_manager.entity_manager = entity_manager;
 
         this.contextual_manager.enable();
         this.ticks_per_loop =

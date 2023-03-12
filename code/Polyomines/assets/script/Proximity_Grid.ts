@@ -18,7 +18,6 @@ interface Visitor<T> {
     visit_tree_node(n: Tree_Node): T;
 }
 
-import fs from 'fs-extra';
 class Quad_Tree_Printer implements Visitor<string> {
     indent_count: number;
 
@@ -27,10 +26,8 @@ class Quad_Tree_Printer implements Visitor<string> {
     }
 
     print(n: Tree_Node) {
-        let tree = n.accept(this);
-        const root_path = Const.Data_Path;
-        const file_path = `${root_path}/quad_tree.txt`;
-        fs.outputFile(file_path, tree).catch((err: Error) => { console.error(err) });
+        const tree = n.accept(this);
+        console.log(tree);
     }
 
     visualize(pos: Vec3, vals: Game_Entity[], children: Tree_Node[]): string {

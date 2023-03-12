@@ -1,0 +1,19 @@
+{
+    "levels": [
+        {
+            "id": 0,
+            "name": "entities",
+            "successor": "nil"
+        },
+        {
+            "id": 1,
+            "name": "level1",
+            "successor": "nil"
+        },
+        {
+            "id": 1,
+            "name": "level2",
+            "successor": "nil"
+        }
+    ]
+}

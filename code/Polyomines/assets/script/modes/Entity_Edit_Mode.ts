@@ -5,7 +5,6 @@ import { Debug_Console } from '../Debug_Console';
 import { Entity_Manager } from '../Entity_Manager';
 import { Serializable_Entity_Data, Game_Entity, calcu_entity_future_position, debug_validate_tiling, Direction, get_selected_entities, get_serializable, note_entity_is_deselected, note_entity_is_selected, rotate_clockwise_horizontaly } from '../Game_Entity';
 import { Resource_Manager } from '../Resource_Manager';
-import { Entity_Edit_Panel } from '../ui/Entity_Edit_Panel';
 import { note_entity_creation, note_entity_destruction, really_do_one_undo, undo_end_frame, undo_mark_beginning } from '../undo';
 
 import { Game_Mode } from './Game_Mode_Base';
@@ -23,7 +22,6 @@ const { ccclass, property } = _decorator;
 @ccclass('Entity_Edit_Mode')
 export class Entity_Edit_Mode extends Game_Mode {
     @property(Camera) readonly camera!: Camera;
-    @property(Entity_Edit_Panel) panel: Entity_Edit_Panel;
 
     ray: geometry.Ray = new geometry.Ray();
     entity_manager: Entity_Manager;
@@ -32,14 +30,10 @@ export class Entity_Edit_Mode extends Game_Mode {
         this.entity_manager = Contextual_Manager.instance.entity_manager;
         Debug_Console.Info('Entity Edit');
         undo_mark_beginning(this.entity_manager);
-
-        this.panel.mode = this;
-        this.panel.show();
     }
 
     on_exit() {
         this.deselect_all();
-        this.panel.hide();
     }
 
     is_jiggling: boolean = false;
