@@ -11,6 +11,8 @@ import { Undo_Handler } from './undo';
   - Move entities
  */
 export class Entity_Manager {
+    static current: Entity_Manager = null;
+
     active_hero: Game_Entity = null;
     proximity_grid: Proximity_Grid = null;
     undo_handler: Undo_Handler = null;

@@ -25,12 +25,20 @@ export class Contextual_Manager extends Component {
     @property([Game_Mode]) game_modes: Game_Mode[] = [];
     current_mode: Game_Mode = null;
 
-    current_mode_idx: number = 0;
-    entity_manager: Entity_Manager;
+    current_mode_idx: number = -1;
+    get entity_manager(): Entity_Manager {
+        return Entity_Manager.current;
+    }
+
+    is_enabled: boolean = false;
 
     public enable() {
-        this.register_events();
-        this.switch_mode();
+        if (!this.is_enabled) {
+            this.register_events();
+            this.is_enabled = true;
+        };
+
+        this.switch_mode(0);
         undo_mark_beginning(this.entity_manager);
     }
 
@@ -59,16 +67,22 @@ export class Contextual_Manager extends Component {
         input.off(Input.EventType.TOUCH_END, this.on_touch_end, this);
     }
 
-    switch_mode() {
+    switch_mode(idx: number = null) {
         let from = this.current_mode;
         from?.on_exit();
+
+        this.current_mode_idx = (this.current_mode_idx + 1) % this.game_modes.length;
+        if (idx != null) {
+            this.current_mode_idx = idx;
+        }
 
         let to = this.game_modes[this.current_mode_idx];
         this.current_mode = to;
         to?.on_enter();
+    }
 
-        this.current_mode_idx =
-            (this.current_mode_idx + 1) % this.game_modes.length;
+    save_level() {
+        this.current_mode.save_level();
     }
 
     on_key_down(event: EventKeyboard) {

@@ -1,7 +1,8 @@
-import { _decorator, Component, Prefab, resources, instantiate, Node, CCString, JsonAsset } from 'cc';
+import { _decorator, Component, Prefab, resources, instantiate, Node, CCString, JsonAsset, sys } from 'cc';
 import { Debug_Console } from './Debug_Console';
 import { Singleton_Manager } from './Singleton_Manager_Base';
 import { Const } from './Const';
+import { Level_Editor } from './Level_Editor';
 
 const { ccclass, property } = _decorator;
 
@@ -24,9 +25,14 @@ export class Resource_Manager extends Singleton_Manager {
 
     @property(Node) entities_parent: Node;
 
-    is_ready: boolean = false;
+    levels: any[] = [];
+    current_level_idx = 0;
     current_level_config: any = null;
-    current_level_name: string = "";
+    get num_levels(): number { return this.levels.length; }
+    get next_level_idx(): number { return (this.current_level_idx + 1) % this.num_levels; }
+    get prev_level_idx(): number { return (this.current_level_idx - 1 + this.num_levels) % this.num_levels; }
+    get current_level(): any { return this.levels[this.current_level_idx]; }
+    get current_level_name(): string { return this.current_level.name; }
 
     mapping_prefabs() {
         this.prefab_pairs.forEach(it => {
@@ -34,17 +40,43 @@ export class Resource_Manager extends Singleton_Manager {
         });
     }
 
-    load_level(level_name: string, callback: () => void) {
-        this.current_level_name = level_name;
-        const root_path = Const.Data_Path;
-        const file_path: string = `${root_path}/${level_name}`;
+    load_levels(caller: any, callback: (any) => void) {
+        const file_path: string = `${Const.Data_Path}/levels`;
+        resources.load(file_path, JsonAsset, (e, asset) => {
+            const result = asset.json;
+            this.levels = result.levels;
+
+            this.current_level_idx = 0;
+
+            this.load_current_level(caller, callback);
+        });
+    }
+
+    load_succeed_level(caller: any = null, callback: (any) => void = null) {
+        this.current_level_idx = this.current_level.successor;
+        this.load_current_level(caller, callback);
+    }
+
+    load_prev_level(caller: any = null, callback: (any) => void = null) {
+        this.current_level_idx = this.prev_level_idx;
+        this.load_current_level(caller, callback);
+    }
+
+    load_next_level(caller: any = null, callback: (any) => void = null) {
+        this.current_level_idx = this.next_level_idx;
+        this.load_current_level(caller, callback);
+    }
+
+    load_current_level(caller: any, callback: (any) => void) {
+        const level_name = this.current_level_name;
+        const file_path: string = `${Const.Data_Path}/${level_name}`;
 
         resources.load(file_path, JsonAsset, (e, asset) => {
             const result = asset.json;
             this.current_level_config = result;
-            this.is_ready = true;
 
-            callback();
+            if (callback != null)
+                callback(caller);
         });
     }
 
@@ -57,12 +89,25 @@ export class Resource_Manager extends Singleton_Manager {
 
     save_level(level_config) {
         this.current_level_config = level_config;
-        // const root_path = Const.Data_Path;
-        // const level_name = this.current_level_name;
-        // const file_path = `${root_path}/${level_name}.json`;
-
-        // fs.writeJson(file_path, level_config)
-        //     .then(() => { Debug_Console.Info('Saved.') })
-        //     .catch((err: Error) => { console.error(err) });
     };
+
+    download_config() {
+        if (!sys.isBrowser) return;
+        const level_config = this.current_level_config;
+
+        let text_file_as_blob = new Blob([JSON.stringify(level_config)], { type: 'application/json' });
+        let download_link = document.createElement("a");
+        download_link.download = this.current_level_name;
+        download_link.innerHTML = "Download File";
+
+        if (window.webkitURL != null) {
+            download_link.href = window.webkitURL.createObjectURL(text_file_as_blob);
+        } else {
+            download_link.href = window.URL.createObjectURL(text_file_as_blob);
+            download_link.style.display = "none";
+            document.body.appendChild(download_link);
+        }
+
+        download_link.click();
+    }
 }

@@ -4,6 +4,7 @@ const { ccclass, property } = _decorator;
 @ccclass('Button_Group')
 export class Button_Group extends Component {
     @property([Button]) btns: Button[] = [];
+    events: EventHandler[] = [];
 
     onLoad() {
         this.btns.forEach((it, it_idx) => {
@@ -16,7 +17,10 @@ export class Button_Group extends Component {
         });
     }
 
-    on_btn_click(event: Event, customEventData: string) {
-        console.log(customEventData);
+    on_btn_click(event: Event, idx: string) {
+        this.events.forEach((it) => {
+            it.customEventData = idx;
+            it.emit([idx]);
+        });
     }
 }

@@ -8,8 +8,6 @@ export class Level_Manager extends Singleton_Manager {
     public static Settle(instance: Level_Manager) {
         Level_Manager.instance = instance;
     }
-
-
 }
 
 

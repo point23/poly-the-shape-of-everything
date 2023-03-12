@@ -16,7 +16,9 @@ export class Swipe_Camera_Mode extends Game_Mode {
         Debug_Console.Info('Swipe Camera');
     }
 
-    on_exit() { }
+    on_exit() {
+        this.save_level();
+    }
 
     is_shift_down: boolean = false;
     handle_key_down(event: EventKeyboard) {

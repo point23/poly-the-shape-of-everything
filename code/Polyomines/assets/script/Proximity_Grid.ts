@@ -27,7 +27,7 @@ class Quad_Tree_Printer implements Visitor<string> {
 
     print(n: Tree_Node) {
         const tree = n.accept(this);
-        console.log(tree);
+        // console.log(tree);
     }
 
     visualize(pos: Vec3, vals: Game_Entity[], children: Tree_Node[]): string {

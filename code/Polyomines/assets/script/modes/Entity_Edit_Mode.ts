@@ -24,21 +24,23 @@ export class Entity_Edit_Mode extends Game_Mode {
     @property(Camera) readonly camera!: Camera;
 
     ray: geometry.Ray = new geometry.Ray();
-    entity_manager: Entity_Manager;
+    get entity_manager(): Entity_Manager {
+        return Entity_Manager.current;
+    };
+
+    is_jiggling: boolean = false;
+    is_shift_down: boolean = false;
+    copied_entities: Serializable_Entity_Data[] = [];
 
     on_enter() {
-        this.entity_manager = Contextual_Manager.instance.entity_manager;
         Debug_Console.Info('Entity Edit');
         undo_mark_beginning(this.entity_manager);
     }
 
     on_exit() {
+        this.save_level();
         this.deselect_all();
     }
-
-    is_jiggling: boolean = false;
-    is_shift_down: boolean = false;
-    copied_entities: Serializable_Entity_Data[] = [];
 
     handle_touch_move(event: EventTouch) {
         const screen_x = event.getLocationX();
@@ -112,11 +114,7 @@ export class Entity_Edit_Mode extends Game_Mode {
                 this.move_selected_entities(Direction.BACKWORD);
                 break;
             case KeyCode.KEY_S:
-                if (this.is_shift_down) {
-                    this.save_level();
-                } else {
-                    this.move_selected_entities(Direction.FORWARD);
-                }
+                this.move_selected_entities(Direction.FORWARD);
                 break;
             case KeyCode.KEY_A:
                 this.move_selected_entities(Direction.LEFT);
@@ -203,6 +201,10 @@ export class Entity_Edit_Mode extends Game_Mode {
     }
 
     save_level() {
+        console.log("+++++");
+        console.log(this.entity_manager);
+        if (this.entity_manager == null || this.entity_manager == undefined) return;
+
         const updated_level_config = Resource_Manager.instance.current_level_config;
         const entities = this.entity_manager.get_entities_info();
         updated_level_config.entities = entities;

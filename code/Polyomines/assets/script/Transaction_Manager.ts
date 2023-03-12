@@ -2,8 +2,10 @@ import { _decorator, Component } from 'cc';
 import { Contextual_Manager } from './Contextual_Manager';
 import { Debug_Console } from './Debug_Console';
 import { Entity_Manager } from './Entity_Manager';
+import { Level_Editor } from './Level_Editor';
 import { Move_Transaction } from './Move_Transaction';
 import { debug_print_quad_tree } from './Proximity_Grid';
+import { Resource_Manager } from './Resource_Manager';
 import { Singleton_Manager } from './Singleton_Manager_Base';
 import { Single_Move } from './Single_Move';
 import { UI_Manager } from './UI_Manager';
@@ -60,7 +62,9 @@ export class Transaction_Manager extends Singleton_Manager {
         Transaction_Manager.instance = instance;
     }
 
-    entity_manager: Entity_Manager;
+    get entity_manager(): Entity_Manager {
+        return Entity_Manager.current;
+    }
     duration: number = 1;
     control_flags = 0;
 
@@ -100,9 +104,8 @@ export class Transaction_Manager extends Singleton_Manager {
         debug_print_quad_tree(this.entity_manager.proximity_grid.quad_tree);
 
         if (this.entity_manager.pending_win) {
-            UI_Manager.instance.show_winning();
-            Contextual_Manager.instance.switch_mode();
-            Contextual_Manager.instance.switch_mode(); // @hack
+            // UI_Manager.instance.show_winning();
+            Level_Editor.instance.load_succeed_level();
             return;
         }
 
