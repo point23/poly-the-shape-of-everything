@@ -8,6 +8,7 @@ import { debug_render_grid, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
 import { Transaction_Manager } from './Transaction_Manager';
 import { Level_Editor_Panel } from './ui/Level_Editor_Panel';
+import { Navigator } from './ui/Navigator';
 import { UI_Manager } from './UI_Manager';
 import { Undo_Handler } from './undo';
 
@@ -78,6 +79,7 @@ export class Level_Editor extends Component {
         manager.all_entities.forEach((it) => { it.node.destroy(); });
         Entity_Manager.current = null;
 
+        clear_ui(this);
         this.debug_grid.destroy();
         this.debug_grid = null;
     }
@@ -106,13 +108,22 @@ export class Level_Editor extends Component {
     }
 }
 
+function clear_ui(editor: Level_Editor) {
+    const panel = editor.panel;
+    panel.btn_save.clickEvents = [];
+
+    panel.levels.clear();
+    panel.undos.clear();
+
+    UI_Manager.instance.transaction_panel.clear();
+}
+
 function init(editor: Level_Editor) {
-    function init_levels_navigator(panel: Level_Editor_Panel) {
-        const levels = panel.levels;
-        levels.label.string = "levels";
+    function init_levels_navigator(navigator: Navigator) {
+        navigator.label.string = "levels";
         // levels.btn_label.interactable = false;
 
-        levels.label_current.string = Resource_Manager.instance.current_level_name;
+        navigator.label_current.string = Resource_Manager.instance.current_level_name;
         // levels.btn_current.interactable = false;
 
         { // Navigate to previous level
@@ -120,7 +131,7 @@ function init(editor: Level_Editor) {
             e.target = editor.node;
             e.component = "Level_Editor";
             e.handler = 'load_prev_level';
-            levels.btn_prev.clickEvents.push(e);
+            navigator.btn_prev.clickEvents.push(e);
         }
 
         { // Navigate to next level
@@ -128,13 +139,30 @@ function init(editor: Level_Editor) {
             e.target = editor.node;
             e.component = "Level_Editor";
             e.handler = 'load_next_level';
-            levels.btn_next.clickEvents.push(e);
+            navigator.btn_next.clickEvents.push(e);
         }
     }
-    //#SCOPE 
+
+    function init_undos_navigator(navigator: Navigator) {
+        navigator.label.string = "undos";
+
+        navigator.label_current.string = "0 changes";
+
+        { // Really do one undo
+            const e = new EventHandler();
+            e.target = editor.transaction_manager.node;
+            e.component = 'Transaction_Manager';
+            e.handler = 'undo_async';
+            navigator.btn_prev.clickEvents.push(e);
+        }
+    }
+    //#SCOPE
 
     const config = Resource_Manager.instance.current_level_config;
-    init_levels_navigator(editor.panel);
+
+    init_levels_navigator(editor.panel.levels);
+    init_undos_navigator(editor.panel.undos);
+    UI_Manager.instance.transaction_panel.init();
 
     editor.camera3d_controller.update_view(config.camera);
 

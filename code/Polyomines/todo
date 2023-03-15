@@ -1,29 +1,62 @@
-FEATURE:
+@todo ###
+LEVEL EDITOR ===
 - Load and Save Camera
 - Load and Save Level
 - Switch Mode <= State Pattern
 - Entity Copy, Paste, Delete
-- Polyominoes
 - Validation
-- Move and Transaction
-- Character Control
-- Redo & Undo <= Command Pattern
-- Supporter and Supportee
 - Get rid of singletons
-- Proximity grid
-
-+ Oct-tree
-+ Diff entities
-+ Do undo
-+ Serialize undo
-+ Beam vfx
-+ Control any dynamic poly
-+ Entity proxy
-+ Falling
+- Diff entities
+- Do undo
+- Serialize undo
 + In game console
 
-FIX:
-- Fix Local-Position
-- Fix Double-Click
-- Draw-Call is too high
-- Domino Control
+UI ===
+- button group
+- navigator
+- transactions panel
++ undo panel
+
+GAMEPLAY === 
+- Polyominoes
+- Moves and Transactions
+- Character Control
+    CONTROLLER_PROC_MOVE: rotate + move
+- Supporter and Supportee
+- Proximity grid
+- Falling
++ Assign difficulty of current level
++ Better camera controller
++ Beam vfx
++ Capee / POCCESS MOVE
++ Ocean
++ River
+
+AI STUFF ===
++ What about monsters? how they react?
++ Sanity check
++ Audio!!!
++ Animation!!!
+
+ART STUFF===
++ More realistic rocks
++ Character model of V and F
++ Character model of monsters
++ Character model of policemen
++ Plants
+
+@deprecated ###
+- Redo & Undo <= Command Pattern
+
+@fixme ### 
+- 2d local position is limited
+    change it from 2d to 3d
+- Sth wrong with double-click:
+    fire a scheduler to disable it after a very short interval.
++ Failed to move onto entities just created in the editor
++ Domino control
++ Clear transaction stack when load new level
++ Repeatedly bind the callback function!!!
+
+@optimize ###
++ Draw-Call is too high

@@ -169,22 +169,22 @@ export class Controller_Proc_Move extends Single_Move {
     debug_info(): string {
         let builder = new String_Builder();
         builder.append('CONTROLLER_PROC#').append(this.id);
-        builder.append('\n');
-        builder.append('\tentity#').append(this.info.target_entity_id);
-        builder.append('\n');
+        builder.append('\n-   entity#').append(this.info.target_entity_id);
 
         if (this.flags & Move_Flags.ROTATED) {
             // Rotation
-            builder.append('\trotation: from ').append(Const.Direction_Names[this.start_direction]);
-            builder.append(' to ').append(Const.Direction_Names[Const.Direction_Names[this.end_direction]]);
-            builder.append('\n');
+            builder.append('\n-   rotation: from ')
+                .append(Const.Direction_Names[this.start_direction])
+                .append(' to ')
+                .append(Const.Direction_Names[this.end_direction]);
         }
 
         if (this.flags & Move_Flags.MOVED) {
             // Movement
-            builder.append('\tmovement: from ').append(this.start_position.toString());
-            builder.append(' to ').append(this.end_position.toString());
-            builder.append('\n');
+            builder.append('\n-   movement: from ')
+                .append(this.start_position.toString())
+                .append(' to ')
+                .append(this.end_position.toString());
         }
 
         return builder.to_string();
@@ -208,7 +208,8 @@ export class Pushed_Move extends Single_Move {
         let e_target = manager.find(this.info.target_entity_id);
         const direction = this.reaction_direction;
 
-        if (e_target.entity_type == Entity_Type.STATIC) {
+        if (e_target.entity_type == Entity_Type.STATIC ||
+            e_target.entity_type == Entity_Type.CHECKPOINT) {
             return false;
         }
 
@@ -250,8 +251,10 @@ export class Pushed_Move extends Single_Move {
 
     debug_info(): string {
         let builder = new String_Builder();
-        builder.append('PUSHED#').append(this.id).append('\n')
-        builder.append('\tdirection ').append(Const.Direction_Names[this.reaction_direction]);
+        builder.append('PUSHED#').append(this.id);
+        builder.append('\n-   direction ')
+            .append(Const.Direction_Names[this.reaction_direction]);
+
         return builder.to_string();
     }
 }
@@ -305,22 +308,21 @@ export class Support_Move extends Single_Move {
     debug_info(): string {
         let builder = new String_Builder();
         builder.append('SUPPORT#').append(this.id);
-        builder.append('\n');
-        builder.append('\tentity#').append(this.info.target_entity_id);
-        builder.append('\n');
-
+        builder.append('\n-   entity#').append(this.info.target_entity_id);
         if (this.flags & Move_Flags.ROTATED) {
             // Rotation
-            builder.append('\trotation: from ').append(Const.Direction_Names[this.start_direction]);
-            builder.append(' to ').append(Const.Direction_Names[Const.Direction_Names[this.end_direction]]);
-            builder.append('\n');
+            builder.append('\n-   rotation: from ')
+                .append(Const.Direction_Names[this.start_direction])
+                .append(' to ')
+                .append(Const.Direction_Names[this.end_direction]);
         }
 
         if (this.flags & Move_Flags.MOVED) {
             // Movement
-            builder.append('\tmovement: from ').append(this.start_position.toString());
-            builder.append(' to ').append(this.end_position.toString());
-            builder.append('\n');
+            builder.append('\n-   movement: from ')
+                .append(this.start_position.toString())
+                .append(' to ')
+                .append(this.end_position.toString());
         }
 
         return builder.to_string();
@@ -371,12 +373,12 @@ export class Falling_Move extends Single_Move {
     debug_info(): string {
         let builder = new String_Builder();
         builder.append('FALLING#').append(this.id);
-        builder.append('\n');
-        builder.append('\tentity#').append(this.info.target_entity_id);
-        builder.append('\n');
-        builder.append('\nfrom ').append(this.start_position.toString());
-        builder.append(' to ').append(this.end_position.toString());
-        builder.append('\n');
+        builder.append('\n-   entity#').append(this.info.target_entity_id);
+        builder.append('\n-   from ')
+            .append(this.start_position.toString())
+            .append(' to ')
+            .append(this.end_position.toString());
+
         return builder.to_string();
     }
 }

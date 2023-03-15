@@ -130,3 +130,62 @@
      <img src="Game%20Design.assets/image-20230311135043360.png" alt="image-20230311135043360" style="zoom:25%;" />
 
 3.   
+
+## Bonfire Peak
+
+#### 目标
+
+将私人物品(Belongings)放入篝火(Bonfire)中
+
+#### 货箱
+
+1.   玩家不能将多个骨牌分开举起
+
+2.   栈的抽象
+
+     <img src="Game%20Design.assets/image-20230311204948034.png" alt="image-20230311204948034" style="zoom:33%;" />
+
+3.   
+
+#### 移动
+
+​	举起箱子后主角和箱子的方块会被视为一个整体，移动模式发生了变化
+
+1.   倒退
+
+     <img src="Game%20Design.assets/image-20230311200545356.png" alt="image-20230311200545356" style="zoom:33%;" />
+
+2.   旋转
+
+     <img src="Game%20Design.assets/image-20230311202255681.png" alt="image-20230311202255681" style="zoom:33%;" />
+
+     旋转时箱子会有碰撞行为
+
+3.   “跳跃” / “击掌”
+
+     玩家没有跳跃行为，但越过间隙时箱子会碰撞同高度处间隔格子处的物品
+
+     <img src="Game%20Design.assets/image-20230311202744748.png" alt="image-20230311202744748" style="zoom: 33%;" />
+
+#### 多格骨牌的应用
+
+1.   造“桥”
+
+     1.   有高度差的隐性造桥
+
+          <img src="Game%20Design.assets/image-20230311203154887.png" alt="image-20230311203154887" style="zoom:50%;" />
+
+     2.   不连通的显性造桥
+
+          <img src="Game%20Design.assets/image-20230311203743002.png" alt="image-20230311203743002" style="zoom:50%;" />
+
+2.   “梯子”
+
+     <img src="Game%20Design.assets/image-20230311213804454.png" alt="image-20230311213804454" style="zoom:33%;" />
+
+     *Crate Expectation*
+
+3.   
+
+
+

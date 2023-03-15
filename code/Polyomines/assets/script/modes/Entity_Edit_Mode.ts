@@ -5,7 +5,7 @@ import { Debug_Console } from '../Debug_Console';
 import { Entity_Manager } from '../Entity_Manager';
 import { Serializable_Entity_Data, Game_Entity, calcu_entity_future_position, debug_validate_tiling, Direction, get_selected_entities, get_serializable, note_entity_is_deselected, note_entity_is_selected, rotate_clockwise_horizontaly } from '../Game_Entity';
 import { Resource_Manager } from '../Resource_Manager';
-import { note_entity_creation, note_entity_destruction, really_do_one_undo, undo_end_frame, undo_mark_beginning } from '../undo';
+import { note_entity_creation, note_entity_destruction, do_one_undo, undo_end_frame, undo_mark_beginning } from '../undo';
 
 import { Game_Mode } from './Game_Mode_Base';
 
@@ -147,9 +147,6 @@ export class Entity_Edit_Mode extends Game_Mode {
             case KeyCode.BACKSPACE:
                 this.delete_selected_entities();
                 break;
-            case KeyCode.DASH: {
-                really_do_one_undo(this.entity_manager);
-            } break;
             case KeyCode.SHIFT_LEFT:
             case KeyCode.SHIFT_RIGHT:
                 this.is_shift_down = true;
@@ -201,8 +198,6 @@ export class Entity_Edit_Mode extends Game_Mode {
     }
 
     save_level() {
-        console.log("+++++");
-        console.log(this.entity_manager);
         if (this.entity_manager == null || this.entity_manager == undefined) return;
 
         const updated_level_config = Resource_Manager.instance.current_level_config;

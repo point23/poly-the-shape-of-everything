@@ -1,5 +1,6 @@
 import { _decorator, Component, Node } from 'cc';
 import { Singleton_Manager } from './Singleton_Manager_Base';
+import { Transaction_Panel } from './ui/Transaction_Panel';
 const { ccclass, property } = _decorator;
 
 @ccclass('UI_Manager')
@@ -9,19 +10,5 @@ export class UI_Manager extends Singleton_Manager {
         UI_Manager.instance = instance;
     }
 
-    @property(Node) winning_panel: Node = null;
-
-    start() {
-        this.winning_panel.active = false;
-    }
-
-    show_winning() {
-        this.winning_panel.active = true;
-    }
-
-    hide_winning() {
-        this.winning_panel.active = false;
-    }
+    @property(Transaction_Panel) transaction_panel: Transaction_Panel = null;
 }
-
-

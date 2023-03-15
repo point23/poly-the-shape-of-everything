@@ -49,6 +49,44 @@ export class String_Builder {
     }
 }
 
+export class Stack<T> {
+    private storage: T[] = []; // @todo Refactor this into sth like memory impl by Uint32Array...
+
+    constructor(private capacity: number = Infinity) { }
+
+    get(i: number): T {
+        return this.storage[i];
+    }
+
+    empty(): boolean {
+        return this.size() == 0;
+    }
+
+    size(): number {
+        return this.storage.length;
+    }
+
+    push(item: T) {
+        if (this.size() === this.capacity) {
+            throw Error('Reached max capacity');
+        }
+        this.storage.push(item);
+    }
+
+    pop(): T {
+        return this.storage.pop();
+    }
+
+    peek(): T {
+        return this.storage[this.size() - 1];
+    }
+
+    clear() {
+        this.storage = [];
+    }
+}
+
+
 export function compare_all_slots(a: any, b: any): boolean {
     // @tested
     for (let k of Reflect.ownKeys(a)) {
