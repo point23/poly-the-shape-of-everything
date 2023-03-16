@@ -1,0 +1,92 @@
+{
+  "ver": "2.3.3",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "f39150a9-8cc4-4e15-86e3-de728860405a",
+  "files": [],
+  "subMetas": {
+    "42929": {
+      "importer": "gltf-scene",
+      "uuid": "f39150a9-8cc4-4e15-86e3-de728860405a@42929",
+      "displayName": "",
+      "id": "42929",
+      "name": "mushroom#001.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "477d8": {
+      "importer": "gltf-mesh",
+      "uuid": "f39150a9-8cc4-4e15-86e3-de728860405a@477d8",
+      "displayName": "",
+      "id": "477d8",
+      "name": "Cylinder.056.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "dd4af": {
+      "importer": "gltf-material",
+      "uuid": "f39150a9-8cc4-4e15-86e3-de728860405a@dd4af",
+      "displayName": "",
+      "id": "dd4af",
+      "name": "Mushroom5_1.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "bb105": {
+      "importer": "gltf-material",
+      "uuid": "f39150a9-8cc4-4e15-86e3-de728860405a@bb105",
+      "displayName": "",
+      "id": "bb105",
+      "name": "Mushroom5_2.material",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "redirect": "f39150a9-8cc4-4e15-86e3-de728860405a@42929",
+    "assetFinder": {
+      "meshes": [
+        "f39150a9-8cc4-4e15-86e3-de728860405a@477d8"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "f39150a9-8cc4-4e15-86e3-de728860405a@dd4af",
+        "f39150a9-8cc4-4e15-86e3-de728860405a@bb105"
+      ],
+      "scenes": [
+        "f39150a9-8cc4-4e15-86e3-de728860405a@42929"
+      ]
+    }
+  }
+}

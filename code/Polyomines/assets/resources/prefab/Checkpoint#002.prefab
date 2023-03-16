@@ -1,7 +1,7 @@
 [
   {
     "__type__": "cc.Prefab",
-    "_name": "Checkpoint#001",
+    "_name": "Checkpoint#002",
     "_objFlags": 0,
     "_native": "",
     "data": {
@@ -12,7 +12,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Checkpoint#001",
+    "_name": "Checkpoint#002",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": null,
@@ -174,7 +174,7 @@
     },
     "_materials": [
       {
-        "__uuid__": "aefe1bf0-7009-46e0-adee-5e8311f54c5e",
+        "__uuid__": "2ae36629-80a0-4fd1-98eb-e9cbab8ec21e",
         "__expectedType__": "cc.Material"
       }
     ],

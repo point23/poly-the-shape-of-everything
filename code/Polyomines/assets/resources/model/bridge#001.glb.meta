@@ -1,0 +1,92 @@
+{
+  "ver": "2.3.3",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "981fbd0e-2497-43d1-803a-4a3fd2195342",
+  "files": [],
+  "subMetas": {
+    "2f471": {
+      "importer": "gltf-mesh",
+      "uuid": "981fbd0e-2497-43d1-803a-4a3fd2195342@2f471",
+      "displayName": "",
+      "id": "2f471",
+      "name": "Circle.007.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f4b62": {
+      "importer": "gltf-material",
+      "uuid": "981fbd0e-2497-43d1-803a-4a3fd2195342@f4b62",
+      "displayName": "",
+      "id": "f4b62",
+      "name": "Bridge1_2.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "7df6a": {
+      "importer": "gltf-material",
+      "uuid": "981fbd0e-2497-43d1-803a-4a3fd2195342@7df6a",
+      "displayName": "",
+      "id": "7df6a",
+      "name": "Bridge1_1.material",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "c94e9": {
+      "importer": "gltf-scene",
+      "uuid": "981fbd0e-2497-43d1-803a-4a3fd2195342@c94e9",
+      "displayName": "",
+      "id": "c94e9",
+      "name": "bridge#001.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "redirect": "981fbd0e-2497-43d1-803a-4a3fd2195342@c94e9",
+    "assetFinder": {
+      "meshes": [
+        "981fbd0e-2497-43d1-803a-4a3fd2195342@2f471"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "981fbd0e-2497-43d1-803a-4a3fd2195342@f4b62",
+        "981fbd0e-2497-43d1-803a-4a3fd2195342@7df6a"
+      ],
+      "scenes": [
+        "981fbd0e-2497-43d1-803a-4a3fd2195342@c94e9"
+      ]
+    }
+  }
+}

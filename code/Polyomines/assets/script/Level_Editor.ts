@@ -155,13 +155,22 @@ function init(editor: Level_Editor) {
             e.handler = 'undo_async';
             navigator.btn_prev.clickEvents.push(e);
         }
+
+        { // Really do one redo
+            const e = new EventHandler();
+            e.target = editor.transaction_manager.node;
+            e.component = 'Transaction_Manager';
+            e.handler = 'redo_async';
+            navigator.btn_next.clickEvents.push(e);
+        }
     }
     //#SCOPE
 
     const config = Resource_Manager.instance.current_level_config;
 
     init_levels_navigator(editor.panel.levels);
-    init_undos_navigator(editor.panel.undos);
+    init_undos_navigator(editor.panel.undos); // @todo move it to UI_Manager
+
     UI_Manager.instance.transaction_panel.init();
 
     editor.camera3d_controller.update_view(config.camera);
@@ -181,6 +190,8 @@ function init(editor: Level_Editor) {
     const undo = new Undo_Handler();
     entity_manager.undo_handler = undo;
     undo.manager = entity_manager;
+
+    editor.transaction_manager.clear();
 
     editor.contextual_manager.enable();
 }

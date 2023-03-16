@@ -39,8 +39,13 @@ export class String_Builder {
         return this.strings.length;
     }
 
+    get(i: number) {
+        if (i >= this.size) return null;
+        return this.strings[i];
+    }
+
     set(i: number, v: any) {
-        if (i >= this.strings.length) return;
+        if (i >= this.size) return;
         this.strings[i] = `${v}`;
     }
 

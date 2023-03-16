@@ -1,0 +1,126 @@
+{
+  "ver": "2.3.3",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "12e909de-8491-494a-a06e-fe47e8f6a780",
+  "files": [],
+  "subMetas": {
+    "79664": {
+      "importer": "gltf-mesh",
+      "uuid": "12e909de-8491-494a-a06e-fe47e8f6a780@79664",
+      "displayName": "",
+      "id": "79664",
+      "name": "Cube.054.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "2cc43": {
+      "importer": "gltf-material",
+      "uuid": "12e909de-8491-494a-a06e-fe47e8f6a780@2cc43",
+      "displayName": "",
+      "id": "2cc43",
+      "name": "Ruins1_1.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "afd44": {
+      "importer": "gltf-material",
+      "uuid": "12e909de-8491-494a-a06e-fe47e8f6a780@afd44",
+      "displayName": "",
+      "id": "afd44",
+      "name": "Mushroom1_1.material",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "031f7": {
+      "importer": "gltf-material",
+      "uuid": "12e909de-8491-494a-a06e-fe47e8f6a780@031f7",
+      "displayName": "",
+      "id": "031f7",
+      "name": "Mushroom1_2.material",
+      "userData": {
+        "gltfIndex": 2
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e56cd": {
+      "importer": "gltf-material",
+      "uuid": "12e909de-8491-494a-a06e-fe47e8f6a780@e56cd",
+      "displayName": "",
+      "id": "e56cd",
+      "name": "Grass1_1.001.material",
+      "userData": {
+        "gltfIndex": 3
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "5d482": {
+      "importer": "gltf-scene",
+      "uuid": "12e909de-8491-494a-a06e-fe47e8f6a780@5d482",
+      "displayName": "",
+      "id": "5d482",
+      "name": "ruin#001.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "redirect": "12e909de-8491-494a-a06e-fe47e8f6a780@5d482",
+    "assetFinder": {
+      "meshes": [
+        "12e909de-8491-494a-a06e-fe47e8f6a780@79664"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "12e909de-8491-494a-a06e-fe47e8f6a780@2cc43",
+        "12e909de-8491-494a-a06e-fe47e8f6a780@afd44",
+        "12e909de-8491-494a-a06e-fe47e8f6a780@031f7",
+        "12e909de-8491-494a-a06e-fe47e8f6a780@e56cd"
+      ],
+      "scenes": [
+        "12e909de-8491-494a-a06e-fe47e8f6a780@5d482"
+      ]
+    }
+  }
+}

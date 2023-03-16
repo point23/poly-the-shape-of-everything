@@ -1,9 +1,10 @@
-import { Vec3 } from "cc";
+import { UI, Vec3 } from "cc";
 import { $, clone_all_slots, compare_all_slots, Stack, String_Builder } from "./Const";
 import { Debug_Console } from "./Debug_Console";
 import { Entity_Manager } from "./Entity_Manager";
 import { clone_undoable_data, copy_undoable_data, Game_Entity, get_serialized_data, note_entity_is_invalid, note_entity_is_valid, Serializable_Entity_Data, Undoable_Entity_Data } from "./Game_Entity";
 import { debug_print_quad_tree } from "./Proximity_Grid";
+import { UI_Manager } from "./UI_Manager";
 
 export class Undo_Handler {
     manager: Entity_Manager = null;
@@ -88,6 +89,12 @@ export function undo_end_frame(manager: Entity_Manager) {
         }
         undo.pending_destructions = [];
     }
+
+    // Count changes
+    let num_changes = Number(builder.get(1));
+    num_changes += undo.pending_creations.length;
+    num_changes += undo.pending_destructions.length;
+    UI_Manager.instance.undo_panel.note_changes(num_changes);
 
     record.transaction = builder.to_string(' '); // @hack
     undo.undo_records.push(record);
@@ -280,32 +287,43 @@ function really_do_one_undo(manager: Entity_Manager, record: Undo_Record, is_red
     const undo = manager.undo_handler;
     const remaining = record.transaction.split(' ');
     let idx = 0;
+
+    // Count changes
+    let num_changes = 0;
     while (idx < remaining.length) {
         let action = take_number();
 
         switch (action) {
             case Undo_Action_Type.CHANGE: {
                 let num_entities = take_number();
-                Debug_Console.Info(`Undo: ${num_entities}`);
+                num_changes += num_entities;
+
                 do_entity_changes(num_entities);
             } break;
 
             case Undo_Action_Type.CREATION: {
                 let num_entities = take_number();
-                Debug_Console.Info(`Undo: ${num_entities}`);
+                num_changes += num_entities;
+
                 do_entity_creations_or_destructions(num_entities, is_redo);
             } break;
 
             case Undo_Action_Type.DESTRUCTION: {
                 let num_entities = take_number();
-                Debug_Console.Info(`Undo: ${num_entities}`);
+                num_changes += num_entities;
+
                 do_entity_creations_or_destructions(num_entities, !is_redo);
             } break;
         }
     }
+
+    if (!is_redo) num_changes = -num_changes;
+    UI_Manager.instance.undo_panel.note_changes(num_changes); // Count changes
 }
 
 function clear_current_undo_frame(undo: Undo_Handler) {
     undo.undo_records.clear();
     undo.redo_records.clear();
+
+    UI_Manager.instance.undo_panel.reset();
 }

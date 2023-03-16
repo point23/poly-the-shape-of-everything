@@ -1,0 +1,75 @@
+{
+  "ver": "2.3.3",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "e505a8a4-d8b3-44cc-b272-b4573e143e78",
+  "files": [],
+  "subMetas": {
+    "323cf": {
+      "importer": "gltf-mesh",
+      "uuid": "e505a8a4-d8b3-44cc-b272-b4573e143e78@323cf",
+      "displayName": "",
+      "id": "323cf",
+      "name": "Cylinder.016.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "809a3": {
+      "importer": "gltf-material",
+      "uuid": "e505a8a4-d8b3-44cc-b272-b4573e143e78@809a3",
+      "displayName": "",
+      "id": "809a3",
+      "name": "Fence1_1.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "9911d": {
+      "importer": "gltf-scene",
+      "uuid": "e505a8a4-d8b3-44cc-b272-b4573e143e78@9911d",
+      "displayName": "",
+      "id": "9911d",
+      "name": "fence#001.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "redirect": "e505a8a4-d8b3-44cc-b272-b4573e143e78@9911d",
+    "assetFinder": {
+      "meshes": [
+        "e505a8a4-d8b3-44cc-b272-b4573e143e78@323cf"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "e505a8a4-d8b3-44cc-b272-b4573e143e78@809a3"
+      ],
+      "scenes": [
+        "e505a8a4-d8b3-44cc-b272-b4573e143e78@9911d"
+      ]
+    }
+  }
+}

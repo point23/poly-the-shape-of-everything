@@ -1,0 +1,75 @@
+{
+  "ver": "2.3.3",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "58a7e17d-f4b3-40df-be7b-b870c58fb4e6",
+  "files": [],
+  "subMetas": {
+    "cce37": {
+      "importer": "gltf-mesh",
+      "uuid": "58a7e17d-f4b3-40df-be7b-b870c58fb4e6@cce37",
+      "displayName": "",
+      "id": "cce37",
+      "name": "Cube.028.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "2bf27": {
+      "importer": "gltf-material",
+      "uuid": "58a7e17d-f4b3-40df-be7b-b870c58fb4e6@2bf27",
+      "displayName": "",
+      "id": "2bf27",
+      "name": "Ruins1_2.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "10dd2": {
+      "importer": "gltf-scene",
+      "uuid": "58a7e17d-f4b3-40df-be7b-b870c58fb4e6@10dd2",
+      "displayName": "",
+      "id": "10dd2",
+      "name": "ruin#002.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "redirect": "58a7e17d-f4b3-40df-be7b-b870c58fb4e6@10dd2",
+    "assetFinder": {
+      "meshes": [
+        "58a7e17d-f4b3-40df-be7b-b870c58fb4e6@cce37"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "58a7e17d-f4b3-40df-be7b-b870c58fb4e6@2bf27"
+      ],
+      "scenes": [
+        "58a7e17d-f4b3-40df-be7b-b870c58fb4e6@10dd2"
+      ]
+    }
+  }
+}

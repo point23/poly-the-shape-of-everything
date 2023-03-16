@@ -33,6 +33,9 @@ export enum Entity_Type {
     HERO,
     AVATAR,
     CHECKPOINT,
+    CHANNEL,
+    BRIDGE,
+    GATE,
 }
 
 export enum Polyomino_Type {
@@ -73,7 +76,7 @@ export class Serializable_Entity_Data {
     constructor(private prefab: string, private position: Vec3, private rotation: Direction) { }
 }
 
-// @implementMe
+// @incomplete
 /* 
     Memory:
     Int32 [
@@ -270,6 +273,15 @@ const polyomino_deltas: Vec3[][][] = [
         /* BACKWARD */[new Vec3(0, 1, 0)],
         /* UP */[new Vec3(0, 0, 1)],
         /* DOWN */[new Vec3(0, 0, -1)],
+    ],
+    /* STRAIGHT_TROMINO */
+    [
+            /* RIGHT */[new Vec3(-1, 0, 0), new Vec3(1, 0, 0)],
+            /* FORWARD */[new Vec3(0, 1, 0), new Vec3(0, -1, 0)],
+            /* RIGHT */[new Vec3(-1, 0, 0), new Vec3(1, 0, 0)],
+            /* FORWARD */[new Vec3(0, 1, 0), new Vec3(0, -1, 0)],
+            /* UP */[new Vec3(0, 0, 1)], // @implementMe
+            /* DOWN */[new Vec3(0, 0, -1)], // @implementMe
     ],
 ];
 

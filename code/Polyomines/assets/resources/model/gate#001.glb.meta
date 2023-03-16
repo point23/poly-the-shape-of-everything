@@ -1,0 +1,92 @@
+{
+  "ver": "2.3.3",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "2126664c-1608-40e5-9cf0-a88eb7074f18",
+  "files": [],
+  "subMetas": {
+    "ce9cf": {
+      "importer": "gltf-mesh",
+      "uuid": "2126664c-1608-40e5-9cf0-a88eb7074f18@ce9cf",
+      "displayName": "",
+      "id": "ce9cf",
+      "name": "Cube.023.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "2cc43": {
+      "importer": "gltf-material",
+      "uuid": "2126664c-1608-40e5-9cf0-a88eb7074f18@2cc43",
+      "displayName": "",
+      "id": "2cc43",
+      "name": "Ruins1_1.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "2bf27": {
+      "importer": "gltf-material",
+      "uuid": "2126664c-1608-40e5-9cf0-a88eb7074f18@2bf27",
+      "displayName": "",
+      "id": "2bf27",
+      "name": "Ruins1_2.material",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "00da4": {
+      "importer": "gltf-scene",
+      "uuid": "2126664c-1608-40e5-9cf0-a88eb7074f18@00da4",
+      "displayName": "",
+      "id": "00da4",
+      "name": "gate#001.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "redirect": "2126664c-1608-40e5-9cf0-a88eb7074f18@00da4",
+    "assetFinder": {
+      "meshes": [
+        "2126664c-1608-40e5-9cf0-a88eb7074f18@ce9cf"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "2126664c-1608-40e5-9cf0-a88eb7074f18@2cc43",
+        "2126664c-1608-40e5-9cf0-a88eb7074f18@2bf27"
+      ],
+      "scenes": [
+        "2126664c-1608-40e5-9cf0-a88eb7074f18@00da4"
+      ]
+    }
+  }
+}

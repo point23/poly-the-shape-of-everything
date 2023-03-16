@@ -31,10 +31,10 @@
                 "y": 2,
                 "z": 2
             },
-            "rotation": 1
+            "rotation": 0
         },
         {
-            "prefab": "Couch",
+            "prefab": "Ruin#001",
             "position": {
                 "x": 7,
                 "y": 5,
@@ -43,7 +43,7 @@
             "rotation": 0
         },
         {
-            "prefab": "Monomino",
+            "prefab": "Stump#001",
             "position": {
                 "x": 8,
                 "y": 3,
@@ -333,33 +333,6 @@
         {
             "prefab": "Ground#001",
             "position": {
-                "x": 3,
-                "y": 7,
-                "z": 1
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 4,
-                "y": 7,
-                "z": 1
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 5,
-                "y": 7,
-                "z": 1
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
                 "x": 6,
                 "y": 7,
                 "z": 1
@@ -502,7 +475,7 @@
             "rotation": 0
         },
         {
-            "prefab": "Monomino",
+            "prefab": "Ruin#002",
             "position": {
                 "x": 7,
                 "y": 6,
@@ -799,7 +772,7 @@
             "rotation": 0
         },
         {
-            "prefab": "Monomino",
+            "prefab": "Mushroom#001",
             "position": {
                 "x": 2,
                 "y": 4,
@@ -808,7 +781,7 @@
             "rotation": 1
         },
         {
-            "prefab": "Domino",
+            "prefab": "Stump#002",
             "position": {
                 "x": 2,
                 "y": 4,
@@ -831,6 +804,15 @@
                 "x": 7,
                 "y": 2,
                 "z": 1
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Bridge#001",
+            "position": {
+                "x": 4,
+                "y": 7,
+                "z": 2
             },
             "rotation": 2
         }

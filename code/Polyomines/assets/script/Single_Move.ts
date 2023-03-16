@@ -1,6 +1,6 @@
 import { _decorator, Vec3 } from 'cc';
 import { Const, String_Builder } from './Const';
-import { calcu_entity_future_position, calcu_entity_future_squares, Direction, Entity_Type, Game_Entity } from './Game_Entity';
+import { calcu_entity_future_position, calcu_entity_future_squares, Direction, Entity_Type, Game_Entity, Polyomino_Type } from './Game_Entity';
 import { Move_Transaction } from './Move_Transaction';
 import { Transaction_Control_Flags, Transaction_Manager } from './Transaction_Manager';
 
@@ -92,6 +92,7 @@ export class Controller_Proc_Move extends Single_Move {
         const supportees: Game_Entity[] = manager.locate_current_supportees(e_target);
         let at_least_rotated = false;
 
+        // Face to target direction if it's not currently oriented to that direction.
         if (this.end_direction != this.start_direction) {
             const direction_delta = this.end_direction - this.start_direction;
             let rotate_move = new Controller_Proc_Move(e_target, this.end_direction, 0)
@@ -112,44 +113,70 @@ export class Controller_Proc_Move extends Single_Move {
         if (same_position(this.start_position, this.end_position))
             return at_least_rotated;
 
+        let walk_on_bridge: boolean = false;
         const future_squares = calcu_entity_future_squares(e_target, this.end_direction);
-        const supporters = manager.locate_future_supporters(e_target, this.end_direction);
 
-        if (supporters.length == 0) {
-            const falling_move = new Falling_Move(e_target, this.end_direction);
-            if (falling_move.try_add_itself(transaction))
-                return true;
-            return at_least_rotated;
+        // Detect if there are any existed entity in target position.
+        for (let pos of future_squares) {
+            const other = manager.locate_entity(pos);
+
+            if (other == null) continue;
+            if (other == e_target) continue;
+
+            // Can pass through the channel entities like bridge, gate... 
+            if (other.entity_type == Entity_Type.BRIDGE) {
+                walk_on_bridge = true;
+                continue;
+                // @implementMe You can only cross the bridge in certain directions...
+            };
+
+            if (other.entity_type == Entity_Type.GATE) {
+                // If it's a gate, then only monominoes can pass through 
+                if (same_position(other.position, pos) && e_target.polyomino_type == Polyomino_Type.MONOMINO)
+                    continue;
+                else {
+                    return at_least_rotated;
+                }
+            }
+
+            const pushed_move = new Pushed_Move(e_target, other, this.end_direction);
+
+            if (!pushed_move.try_add_itself(transaction)) {
+                return at_least_rotated;
+            }
         }
 
+        const supporters = manager.locate_future_supporters(e_target, this.end_direction);
+        if (!walk_on_bridge) {
+            // Fall if there're no valid supporters
+            if (supporters.length == 0) {
+                const falling_move = new Falling_Move(e_target, this.end_direction);
+                if (falling_move.try_add_itself(transaction))
+                    return true;
+                return at_least_rotated;
+            }
+        }
+
+        // Reached the checkpoint, hey, you win...
         for (let s of supporters) {
             if (s.entity_type == Entity_Type.CHECKPOINT) {
                 manager.pending_win = true;
             }
         }
 
-        for (let pos of future_squares) {
-            const other = manager.locate_entity(pos);
-
-            if (other != null && other != e_target) {
-                const pushed_move = new Pushed_Move(e_target, other, this.end_direction);
-
-                if (!pushed_move.try_add_itself(transaction)) {
-                    return at_least_rotated;
-                }
-            }
-        }
-
         transaction.moves.push(this);
 
+        // Update entities that are supported by target entity
         const position_delta = new Vec3(this.end_position).subtract(this.start_position);
         for (let supportee of supportees) {
             const support_move = new Support_Move(supportee, 0, position_delta);
             support_move.try_add_itself(transaction);
         }
 
+        // Update transaction control flags
         Transaction_Manager.instance.control_flags |= Transaction_Control_Flags.CONTROLLER_MOVE;
         this.flags |= Move_Flags.MOVED;
+
         return true;
     }
 

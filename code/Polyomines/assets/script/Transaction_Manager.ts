@@ -38,6 +38,11 @@ export class Transaction_Manager extends Singleton_Manager {
     commited_stack: Transaction_Stack = new Stack<Move_Transaction>();
     issued_stack: Transaction_Stack = new Stack<Move_Transaction>();
 
+    clear() {
+        this.commited_stack.clear();
+        this.issued_stack.clear();
+    }
+
     // @note A move that might be able to triger a series of moves
     try_add_new_move(move: Single_Move) {
         const new_transaction = new Move_Transaction(this.entity_manager); // @hack
