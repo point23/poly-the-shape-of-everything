@@ -39,6 +39,10 @@ export class String_Builder {
         return this.strings.length;
     }
 
+    clear() {
+        this.strings = [];
+    }
+
     get(i: number) {
         if (i >= this.size) return null;
         return this.strings[i];

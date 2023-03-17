@@ -1,5 +1,5 @@
 import { assert, Game, Vec3 } from 'cc';
-import { Serializable_Entity_Data, Game_Entity, Undoable_Entity_Data, calcu_entity_future_squares, Direction, Entity_Type, get_entity_squares, get_serializable } from './Game_Entity';
+import { Serializable_Entity_Data, Game_Entity, Undoable_Entity_Data, calcu_entity_future_squares, Direction, Entity_Type, get_entity_squares, get_serializable, clone_undoable_data } from './Game_Entity';
 import { debug_print_quad_tree, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
 import { Undo_Handler } from './undo';
@@ -49,6 +49,9 @@ export class Entity_Manager {
 
         this.all_entities.push(entity);
 
+        const clone = clone_undoable_data(entity);
+        this.undo_handler.old_entity_state.set(entity.id, clone);
+
         if (entity.entity_type == Entity_Type.CHECKPOINT) this.checkpoints.push(entity);
         if (entity.entity_type == Entity_Type.HERO) this.active_hero = entity;
 
@@ -83,7 +86,8 @@ export class Entity_Manager {
         const idx = this.all_entities.indexOf(e);
         this.all_entities.splice(idx, 1);
 
-        this.undo_handler.old_entity_state.delete(`${e.id}`);
+        this.undo_handler.old_entity_state.delete(e.id);
+        this.proximity_grid.remove_entity(e);
         e.node.destroy();
     }
 

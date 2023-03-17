@@ -1,6 +1,5 @@
-import { UI, Vec3 } from "cc";
-import { $, clone_all_slots, compare_all_slots, Stack, String_Builder } from "./Const";
-import { Debug_Console } from "./Debug_Console";
+import { assert, UI, Vec3 } from "cc";
+import { $, compare_all_slots, Stack, String_Builder } from "./Const";
 import { Entity_Manager } from "./Entity_Manager";
 import { clone_undoable_data, copy_undoable_data, Game_Entity, get_serialized_data, note_entity_is_invalid, note_entity_is_valid, Serializable_Entity_Data, Undoable_Entity_Data } from "./Game_Entity";
 import { debug_print_quad_tree } from "./Proximity_Grid";
@@ -8,12 +7,12 @@ import { UI_Manager } from "./UI_Manager";
 
 export class Undo_Handler {
     manager: Entity_Manager = null;
-    pending_creations: Undo_Action[] = [];
-    pending_destructions: Undo_Action[] = [];
+    pending_creations: CD_Action[] = [];
+    pending_destructions: CD_Action[] = [];
     undo_records: Stack<Undo_Record> = new Stack<Undo_Record>;
     redo_records: Stack<Undo_Record> = new Stack<Undo_Record>;
 
-    old_entity_state = new Map<string, Undoable_Entity_Data>();
+    old_entity_state = new Map<number, Undoable_Entity_Data>();
     dirty: boolean = false;
     enabled: boolean = true;;
 }
@@ -31,7 +30,7 @@ export enum Undo_Action_Type {
     OCEAN_CHANGE,
 }
 
-export class Undo_Action {
+export class CD_Action {
     // type: Undo_Action_Type;
     entity_id: number = 0;
     serialized_data: string = '';
@@ -50,7 +49,7 @@ export function undo_mark_beginning(manager: Entity_Manager) {
         if (e.scheduled_for_destruction) continue;
 
         const clone = clone_undoable_data(e);
-        undo.old_entity_state.set(`${e.id}`, clone);
+        undo.old_entity_state.set(e.id, clone);
     }
 }
 
@@ -60,8 +59,6 @@ export function undo_end_frame(manager: Entity_Manager) {
 
     undo.dirty = false;
     const builder = scan_for_changed_entities(manager);
-    if (!builder.size) return;
-    undo.dirty = true;
 
     // Reset redo stack
     undo.redo_records.clear();
@@ -69,12 +66,22 @@ export function undo_end_frame(manager: Entity_Manager) {
     const record = new Undo_Record();
     // record.checkpoint = $.take($.S_next_undo_record_is_checkpoint);
 
+    // Count changes
+    let num_changes = Number(builder.get(1));
+    if (num_changes == 0) builder.clear(); // Apprantly we don't want the useless '0 0' prefix... 
+
+    num_changes += undo.pending_creations.length;
+    num_changes += undo.pending_destructions.length;
+    if (num_changes == 0)
+        return;
+
+    undo.dirty = true;
     // @todo Combine them together?
+
     if (undo.pending_creations.length != 0) {
         builder.append(Undo_Action_Type.CREATION);
         builder.append(undo.pending_creations.length);
         for (let action of undo.pending_creations) {
-            builder.append(action.entity_id);
             builder.append(action.serialized_data);
         }
         undo.pending_creations = [];
@@ -84,20 +91,16 @@ export function undo_end_frame(manager: Entity_Manager) {
         builder.append(Undo_Action_Type.DESTRUCTION);
         builder.append(undo.pending_destructions.length);
         for (let action of undo.pending_destructions) {
-            builder.append(action.entity_id);
             builder.append(action.serialized_data);
         }
         undo.pending_destructions = [];
     }
 
-    // Count changes
-    let num_changes = Number(builder.get(1));
-    num_changes += undo.pending_creations.length;
-    num_changes += undo.pending_destructions.length;
     UI_Manager.instance.undo_panel.note_changes(num_changes);
-
     record.transaction = builder.to_string(' '); // @hack
     undo.undo_records.push(record);
+
+    debug_print_quad_tree(manager.proximity_grid.quad_tree);
 }
 
 export function do_one_undo(manager: Entity_Manager) {
@@ -108,7 +111,7 @@ export function do_one_undo(manager: Entity_Manager) {
     really_do_one_undo(manager, record, false);
     undo.redo_records.push(record);
 
-    // debug_print_quad_tree(manager.proximity_grid.quad_tree);
+    debug_print_quad_tree(manager.proximity_grid.quad_tree);
 }
 
 export function do_one_redo(manager: Entity_Manager) {
@@ -117,20 +120,16 @@ export function do_one_redo(manager: Entity_Manager) {
 
     const record = undo.redo_records.pop();
     really_do_one_undo(manager, record, true);
-
     undo.undo_records.push(record);
-    // debug_print_quad_tree(manager.proximity_grid.quad_tree);
+
+    debug_print_quad_tree(manager.proximity_grid.quad_tree);
 }
 
 export function note_entity_creation(m: Entity_Manager, e: Game_Entity) {
     const undo = m.undo_handler;
 
-    let action = new Undo_Action();
-    action.entity_id = e.id;
-    action.serialized_data = get_serialized_data(e);
-
-    const clone = clone_undoable_data(e);
-    undo.old_entity_state.set(`${e.id}`, clone);
+    let action = new CD_Action();
+    action.serialized_data = get_cd_data(e);
 
     undo.pending_creations.push(action);
 }
@@ -138,15 +137,62 @@ export function note_entity_creation(m: Entity_Manager, e: Game_Entity) {
 export function note_entity_destruction(m: Entity_Manager, e: Game_Entity) {
     const undo = m.undo_handler;
 
-    let action = new Undo_Action();
-    action.entity_id = e.id;
-    action.serialized_data = get_serialized_data(e);
+    let action = new CD_Action();
+    action.serialized_data = get_cd_data(e);
 
-    undo.old_entity_state.delete(`${e.id}`);
     undo.pending_destructions.push(action);
 }
 
 // ==== private functions ==== 
+function get_cd_data(e: Game_Entity): string {
+    // @todo Maybe create a Pack_Info object, so that we can increment pack 
+    // count by ref, so that we can extract this function...
+    type ued = Undoable_Entity_Data;
+    function increment_pack_count() {
+        if (slot_count == 0) {
+            slot_count_cursor = builder.get_cursor();
+            builder.append(0); // Placeholder
+        }
+        slot_count += 1;
+    }
+
+    function diff_entity(e_old: ued, e_new: ued) {
+        function compare_item(it_idx: number) {
+            const slot_old = e_old.memory[it_idx];
+            const slot_new = e_new.memory[it_idx];
+            const differing: boolean = slot_old != slot_new;
+            if (differing) {
+                increment_pack_count();
+
+                builder.append(it_idx);
+                builder.append(slot_old);
+                builder.append(slot_new);
+            }
+        }
+        //#SCOPE
+
+        for (let i = 0; i < e_old.memory.length; i++) {
+            compare_item(i);
+        }
+    }
+    //#SCOPE
+
+    if (e.scheduled_for_destruction) return;
+
+    const builder = new String_Builder();
+    builder.append(e.id);
+    builder.append(e.prefab);
+
+    let slot_count = 0;
+    let slot_count_cursor = 0;
+    diff_entity(e.undoable, Undoable_Entity_Data.default);
+    if (slot_count != 0) {
+        builder.set(slot_count_cursor, slot_count);
+    }
+
+    return builder.to_string(' ');
+}
+
 function scan_for_changed_entities(manager: Entity_Manager): String_Builder {
     function scan_one_entity(e: Game_Entity) {
         type ued = Undoable_Entity_Data;
@@ -182,7 +228,7 @@ function scan_for_changed_entities(manager: Entity_Manager): String_Builder {
 
         if (e.scheduled_for_destruction) return;
 
-        const e_old = undo.old_entity_state.get(`${e.id}`);
+        const e_old = undo.old_entity_state.get(e.id);
         if (e_old == null) return;
 
         let slot_count = 0;
@@ -204,8 +250,10 @@ function scan_for_changed_entities(manager: Entity_Manager): String_Builder {
     builder.append(0); // Placeholder
     builder.append(0); // Placeholder
     for (let e of manager.all_entities) { scan_one_entity(e); }
+
     builder.set(0, Undo_Action_Type.CHANGE);
     builder.set(1, count);
+
     return builder;
 }
 
@@ -218,44 +266,41 @@ function really_do_one_undo(manager: Entity_Manager, record: Undo_Record, is_red
         return remaining[idx++];
     }
 
-    function take_vec3(): Vec3 {
-        return new Vec3(take_number(), take_number(), take_number());
+    function apply_diff(num_slots: number, consume: boolean, cached_ued: Undoable_Entity_Data) {
+        while (num_slots--) {
+            let member_idx = take_number();
+            let slot_old = take_number();
+            let slot_new = take_number();
+            if (!consume) {
+                if (is_redo) {
+                    cached_ued.memory[member_idx] = slot_new;
+                } else {
+                    cached_ued.memory[member_idx] = slot_old;
+                }
+            }
+
+        }
+    }
+
+    function update_entity_edit_cover(e: Game_Entity) {
+        if (e.is_valid) {
+            note_entity_is_valid(e);
+        } else {
+            note_entity_is_invalid(e);
+        }
     }
 
     function do_entity_changes(num_entities: number) {
         while (num_entities--) {
-            function apply_diff(num_slots: number) {
-                while (num_slots--) {
-                    let member_idx = take_number();
-                    let slot_old = take_number();
-                    let slot_new = take_number();
-
-                    if (is_redo) {
-                        cached_ued.memory[member_idx] = slot_new;
-                    } else {
-                        cached_ued.memory[member_idx] = slot_old;
-                    }
-                }
-            }
-
-            function update_entity_edit_cover(e: Game_Entity) {
-                if (e.is_valid) {
-                    note_entity_is_valid(e);
-                } else {
-                    note_entity_is_invalid(e);
-                }
-            }
-            //#SCOPE
-
             const entity_id = take_number();
             const num_slots = take_number();
 
             const e_dest = manager.find(entity_id);
-            const cached_ued = undo.old_entity_state.get(`${entity_id}`);
+            const cached_ued = undo.old_entity_state.get(entity_id);
 
-            if (e_dest == null || cached_ued == null) continue; // @incomplete Handle if not exist?
-
-            apply_diff(num_slots);
+            const related_to_cd_action: boolean = !e_dest || !cached_ued; // @hack
+            apply_diff(num_slots, related_to_cd_action, cached_ued);
+            if (related_to_cd_action) return;
 
             manager.proximity_grid.remove_entity(e_dest);
             copy_undoable_data(cached_ued, e_dest.undoable);
@@ -271,13 +316,26 @@ function really_do_one_undo(manager: Entity_Manager, record: Undo_Record, is_red
         while (num_entities--) {
             const entity_id = take_number();
             const prefab = take_string();
-            const position = take_vec3();
-            const rotation = take_number();
+            const num_slots = take_number();
 
             if (is_creation) {
-                const info = new Serializable_Entity_Data(prefab, position, rotation);
+                const info = new Serializable_Entity_Data(prefab);
                 manager.load_entity(info, entity_id);
+
+                { // @todo Clean it up..., here's a lot of duplicates...
+                    const e_dest = manager.find(entity_id);
+                    const ued = manager.undo_handler.old_entity_state.get(entity_id);
+                    apply_diff(num_slots, false, ued);
+                    manager.proximity_grid.remove_entity(e_dest);
+                    copy_undoable_data(ued, e_dest.undoable);
+
+                    update_entity_edit_cover(e_dest);
+
+                    manager.rotate_entity(e_dest, e_dest.rotation);
+                    manager.move_entity(e_dest, e_dest.position);
+                }
             } else {
+                apply_diff(num_slots, true, null);
                 manager.reclaim(manager.find(entity_id));
             }
         }
@@ -290,6 +348,10 @@ function really_do_one_undo(manager: Entity_Manager, record: Undo_Record, is_red
 
     // Count changes
     let num_changes = 0;
+
+    console.log('=================');
+    console.log(record.transaction);
+
     while (idx < remaining.length) {
         let action = take_number();
 
@@ -298,6 +360,7 @@ function really_do_one_undo(manager: Entity_Manager, record: Undo_Record, is_red
                 let num_entities = take_number();
                 num_changes += num_entities;
 
+                console.log(`CHNAGE ${num_entities}`);
                 do_entity_changes(num_entities);
             } break;
 
@@ -305,6 +368,7 @@ function really_do_one_undo(manager: Entity_Manager, record: Undo_Record, is_red
                 let num_entities = take_number();
                 num_changes += num_entities;
 
+                console.log(`CREATION ${num_entities}`);
                 do_entity_creations_or_destructions(num_entities, is_redo);
             } break;
 
@@ -312,6 +376,7 @@ function really_do_one_undo(manager: Entity_Manager, record: Undo_Record, is_red
                 let num_entities = take_number();
                 num_changes += num_entities;
 
+                console.log(`DESTRUCTION ${num_entities}`);
                 do_entity_creations_or_destructions(num_entities, !is_redo);
             } break;
         }

@@ -73,7 +73,7 @@ export enum Polyomino_Type {
 }
 
 export class Serializable_Entity_Data {
-    constructor(private prefab: string, private position: Vec3, private rotation: Direction) { }
+    constructor(private prefab: string, private position: Vec3 = new Vec3(), private rotation: Direction = 0) { }
 }
 
 // @incomplete
@@ -90,6 +90,8 @@ export class Serializable_Entity_Data {
     ]
 */
 export class Undoable_Entity_Data {
+    static default: Undoable_Entity_Data = new Undoable_Entity_Data();
+
     constructor(public memory: Int32Array = new Int32Array(10)) { }
 
     get position(): Vec3 {

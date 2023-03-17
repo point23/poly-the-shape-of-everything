@@ -1,10 +1,7 @@
-import { _decorator, Component, EventKeyboard, EventMouse, EventTouch, game, input, Input, KeyCode, Node } from 'cc';
+import { _decorator, Component, EventKeyboard, EventMouse, EventTouch, input, Input, KeyCode, Node } from 'cc';
 import { Entity_Manager } from './Entity_Manager';
-
 import { Game_Mode } from './modes/Game_Mode_Base';
-import { Transaction_Manager } from './Transaction_Manager';
-import { do_one_undo, undo_mark_beginning } from './undo';
-
+import { do_one_redo, do_one_undo, undo_mark_beginning } from './undo';
 const { ccclass, property } = _decorator;
 
 /**
@@ -95,11 +92,11 @@ export class Contextual_Manager extends Component {
                 break;
 
             case KeyCode.DASH:
-                Transaction_Manager.instance.undo_async();
+                do_one_undo(this.entity_manager);
                 break;
 
             case KeyCode.EQUAL:
-                Transaction_Manager.instance.redo_async();
+                do_one_redo(this.entity_manager);
                 break;
 
             default:

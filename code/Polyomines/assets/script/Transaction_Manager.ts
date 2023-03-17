@@ -7,7 +7,7 @@ import { debug_print_quad_tree } from './Proximity_Grid';
 import { Singleton_Manager } from './Singleton_Manager_Base';
 import { Single_Move } from './Single_Move';
 import { UI_Manager } from './UI_Manager';
-import { do_one_redo, do_one_undo, undo_end_frame, Undo_Record } from './undo';
+import { undo_end_frame } from './undo';
 const { ccclass, property } = _decorator;
 
 export enum Transaction_Control_Flags {
@@ -81,13 +81,5 @@ export class Transaction_Manager extends Singleton_Manager {
         undo_end_frame(this.entity_manager);
 
         UI_Manager.instance.transaction_panel.note_new_transaction();
-    }
-
-    async undo_async() {
-        do_one_undo(this.entity_manager);
-    }
-
-    async redo_async() {
-        do_one_redo(this.entity_manager);
     }
 }

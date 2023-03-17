@@ -1,8 +1,7 @@
-import { _decorator, Component, Camera, Node, instantiate, Prefab, EventHandler, debug } from 'cc';
+import { _decorator, Component, Camera, Node, instantiate, Prefab, EventHandler, debug, Button } from 'cc';
 import { Camera3D_Controller } from './Camera3D_Controller';
 import { Const } from './Const';
 import { Contextual_Manager } from './Contextual_Manager';
-import { Debug_Console } from './Debug_Console';
 import { Entity_Manager } from './Entity_Manager';
 import { debug_render_grid, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
@@ -10,7 +9,7 @@ import { Transaction_Manager } from './Transaction_Manager';
 import { Level_Editor_Panel } from './ui/Level_Editor_Panel';
 import { Navigator } from './ui/Navigator';
 import { UI_Manager } from './UI_Manager';
-import { Undo_Handler } from './undo';
+import { do_one_redo, do_one_undo, Undo_Handler } from './undo';
 
 const { ccclass, property } = _decorator;
 
@@ -31,7 +30,6 @@ export class Level_Editor extends Component {
     @property(Level_Editor_Panel) panel: Level_Editor_Panel = null;
 
     /* Singleton instances: */
-    @property(Debug_Console) console_instance: Debug_Console = null;
     @property(Contextual_Manager) contextual_manager: Contextual_Manager = null;
     @property(Resource_Manager) resource_manager: Resource_Manager = null;
     @property(Transaction_Manager) transaction_manager: Transaction_Manager = null;
@@ -99,8 +97,6 @@ export class Level_Editor extends Component {
     // Settle singleton managers manually
     settle_singletons() {
         Level_Editor.instance = this;
-
-        Debug_Console.Settle(this.console_instance);
         Contextual_Manager.Settle(this.contextual_manager);
         Resource_Manager.Settle(this.resource_manager);
         Transaction_Manager.Settle(this.transaction_manager);
@@ -149,19 +145,27 @@ function init(editor: Level_Editor) {
         navigator.label_current.string = "0 changes";
 
         { // Really do one undo
-            const e = new EventHandler();
-            e.target = editor.transaction_manager.node;
-            e.component = 'Transaction_Manager';
-            e.handler = 'undo_async';
-            navigator.btn_prev.clickEvents.push(e);
+            // const e = new EventHandler();
+            // e.target = editor.transaction_manager.node;
+            // e.component = 'Transaction_Manager';
+            // e.handler = 'undo_async';
+            // navigator.btn_prev.clickEvents.push(e);
+
+            navigator.btn_prev.node.on(Button.EventType.CLICK, () => {
+                do_one_undo(editor.entity_manager);
+            }, navigator.btn_prev.node);
         }
 
         { // Really do one redo
-            const e = new EventHandler();
-            e.target = editor.transaction_manager.node;
-            e.component = 'Transaction_Manager';
-            e.handler = 'redo_async';
-            navigator.btn_next.clickEvents.push(e);
+            // const e = new EventHandler();
+            // e.target = editor.transaction_manager.node;
+            // e.component = 'Transaction_Manager';
+            // e.handler = 'redo_async';
+            // navigator.btn_next.clickEvents.push(e);
+
+            navigator.btn_next.node.on(Button.EventType.CLICK, () => {
+                do_one_redo(editor.entity_manager);
+            }, navigator.btn_next.node);
         }
     }
     //#SCOPE
@@ -183,13 +187,16 @@ function init(editor: Level_Editor) {
     editor.debug_grid = debug_grid;
 
     const entity_manager = new Entity_Manager(grid);
-    entity_manager.load_entities(config.entities);
-    editor.entity_manager = entity_manager;
-    Entity_Manager.current = entity_manager;
 
+    // When loading each entities, we're going to update the old_entity_state of undo
+    // So it must be create before we load entities the very first time.
     const undo = new Undo_Handler();
     entity_manager.undo_handler = undo;
     undo.manager = entity_manager;
+
+    entity_manager.load_entities(config.entities);
+    editor.entity_manager = entity_manager;
+    Entity_Manager.current = entity_manager;
 
     editor.transaction_manager.clear();
 

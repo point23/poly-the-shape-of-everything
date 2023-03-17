@@ -1,8 +1,8 @@
-import { _decorator, Component, EventKeyboard, EventMouse, KeyCode, Node, Vec3 } from 'cc';
+import { _decorator, EventKeyboard, EventMouse, KeyCode, Node, Vec3 } from 'cc';
 
 import { Camera3D_Controller } from '../Camera3D_Controller';
-import { Debug_Console } from '../Debug_Console';
 import { Resource_Manager } from '../Resource_Manager';
+import { UI_Manager } from '../UI_Manager';
 
 import { Game_Mode } from './Game_Mode_Base';
 
@@ -13,7 +13,7 @@ export class Swipe_Camera_Mode extends Game_Mode {
     @property(Camera3D_Controller) camera3d_controller: Camera3D_Controller;
 
     on_enter() {
-        Debug_Console.Info('Swipe Camera');
+        UI_Manager.instance.info_panel.show("Swipe Camera");
     }
 
     on_exit() {
@@ -63,7 +63,7 @@ export class Swipe_Camera_Mode extends Game_Mode {
         }
     }
 
-    private save_level() {
+    save_level() {
         let updated_level_config = Resource_Manager.instance.current_level_config;
         updated_level_config.camera = this.camera3d_controller.get_camera_info();
         Resource_Manager.instance.save_level(updated_level_config);

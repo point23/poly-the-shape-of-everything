@@ -1,11 +1,10 @@
 import { _decorator, Camera, EventKeyboard, EventMouse, EventTouch, geometry, KeyCode, PhysicsSystem } from 'cc';
 import { Const } from '../Const';
-import { Contextual_Manager } from '../Contextual_Manager';
-import { Debug_Console } from '../Debug_Console';
 import { Entity_Manager } from '../Entity_Manager';
 import { Serializable_Entity_Data, Game_Entity, calcu_entity_future_position, debug_validate_tiling, Direction, get_selected_entities, get_serializable, note_entity_is_deselected, note_entity_is_selected, rotate_clockwise_horizontaly } from '../Game_Entity';
 import { Resource_Manager } from '../Resource_Manager';
-import { note_entity_creation, note_entity_destruction, do_one_undo, undo_end_frame, undo_mark_beginning } from '../undo';
+import { UI_Manager } from '../UI_Manager';
+import { note_entity_creation, note_entity_destruction, undo_end_frame, undo_mark_beginning } from '../undo';
 
 import { Game_Mode } from './Game_Mode_Base';
 
@@ -33,7 +32,7 @@ export class Entity_Edit_Mode extends Game_Mode {
     copied_entities: Serializable_Entity_Data[] = [];
 
     on_enter() {
-        Debug_Console.Info('Entity Edit');
+        UI_Manager.instance.info_panel.show("Entity Edit");
         undo_mark_beginning(this.entity_manager);
     }
 
@@ -116,9 +115,13 @@ export class Entity_Edit_Mode extends Game_Mode {
             case KeyCode.KEY_S:
                 this.move_selected_entities(Direction.FORWARD);
                 break;
-            case KeyCode.KEY_A:
-                this.move_selected_entities(Direction.LEFT);
-                break;
+            case KeyCode.KEY_A: {
+                if (this.is_shift_down) {
+                    this.select_all();
+                } else {
+                    this.move_selected_entities(Direction.LEFT);
+                }
+            } break;
             case KeyCode.KEY_D:
                 this.move_selected_entities(Direction.RIGHT);
                 break;
@@ -152,8 +155,6 @@ export class Entity_Edit_Mode extends Game_Mode {
                 this.is_shift_down = true;
                 break;
         }
-
-        debug_validate_tiling(this.entity_manager);
     }
 
     handle_key_up(event: EventKeyboard) {
@@ -176,6 +177,7 @@ export class Entity_Edit_Mode extends Game_Mode {
     paste_copied_entities() {
         if (this.copied_entities.length == 0) return;
         this.deselect_all();
+        undo_end_frame(this.entity_manager);
 
         for (let info of this.copied_entities) {
             const e = this.entity_manager.load_entity(info);
@@ -185,15 +187,17 @@ export class Entity_Edit_Mode extends Game_Mode {
         }
 
         undo_end_frame(this.entity_manager);
+
+        debug_validate_tiling(this.entity_manager);
+
+        undo_end_frame(this.entity_manager);
     }
 
     delete_selected_entities() {
         for (let e of get_selected_entities(this.entity_manager)) {
-            this.entity_manager.reclaim(e);
             note_entity_destruction(this.entity_manager, e);
+            this.entity_manager.reclaim(e);
         }
-
-        this.deselect_all();
         undo_end_frame(this.entity_manager);
     }
 
@@ -210,13 +214,20 @@ export class Entity_Edit_Mode extends Game_Mode {
         if (e.is_selected) return;
         note_entity_is_selected(e);
 
-        // undo_end_frame(this.entity_manager); // @hack
+        undo_end_frame(this.entity_manager); // @hack
     }
 
     deselect(e: Game_Entity) {
         if (!e.is_selected) return;
         note_entity_is_deselected(e);
-        // undo_end_frame(this.entity_manager); // @hack
+
+        undo_end_frame(this.entity_manager); // @hack
+    }
+
+    select_all() {
+        for (let e of this.entity_manager.all_entities) {
+            this.select(e);
+        }
     }
 
     deselect_all() {
@@ -235,6 +246,9 @@ export class Entity_Edit_Mode extends Game_Mode {
             const p_new = calcu_entity_future_position(e, direction);
             this.entity_manager.move_entity(e, p_new);
         }
+
+        debug_validate_tiling(this.entity_manager);
+
         undo_end_frame(this.entity_manager);
     }
 
@@ -245,6 +259,9 @@ export class Entity_Edit_Mode extends Game_Mode {
             let r_new = rotate_clockwise_horizontaly(e.rotation);
             this.entity_manager.rotate_entity(e, r_new);
         }
+
+        debug_validate_tiling(this.entity_manager);
+
         undo_end_frame(this.entity_manager);
     }
 }

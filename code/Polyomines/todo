@@ -15,7 +15,10 @@ UI ===
 - button group
 - navigator
 - transactions panel
-+ undo panel
+- undo panel
++ Stars for difficulty
++ Clock and Slide for undo
++ Mobile Input
 
 GAMEPLAY === 
 - Polyominoes
@@ -25,12 +28,26 @@ GAMEPLAY ===
 - Supporter and Supportee
 - Proximity grid
 - Falling
++ Reset the whole level when
+    * We press 'R'
+    * We switch the mode in level editor
 + Assign difficulty of current level
++ Fence: 
+    Blocked Behavior
+    Example:
+        _______
+       |      ||
+       | -x-> || <-x-
+       |______||
++ Decorators
+    like grass on the ground...
 + Better camera controller
 + Beam vfx
 + Capee / POCCESS MOVE
 + Ocean
 + River
++ Rover
++ Elevator
 
 AI STUFF ===
 + What about monsters? how they react?
@@ -39,11 +56,12 @@ AI STUFF ===
 + Animation!!!
 
 ART STUFF===
-+ More realistic rocks
+- More realistic rocks
++ Glowing vfx for checkpoint
++ Plants
 + Character model of V and F
 + Character model of monsters
 + Character model of policemen
-+ Plants
 
 @deprecated ###
 - Redo & Undo <= Command Pattern
@@ -53,7 +71,9 @@ ART STUFF===
     change it from 2d to 3d
 - Sth wrong with double-click:
     fire a scheduler to disable it after a very short interval.
-+ Failed to move onto entities just created in the editor
+- Failed to move onto entities just created in the editor...
+- Fix undo redo
++ Clean up undo
 + Domino control
 + Clear transaction stack when load new level
 + Repeatedly bind the callback function!!!

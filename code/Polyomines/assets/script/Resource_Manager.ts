@@ -1,8 +1,7 @@
-import { _decorator, Component, Prefab, resources, instantiate, Node, CCString, JsonAsset, sys } from 'cc';
-import { Debug_Console } from './Debug_Console';
+import { _decorator, Prefab, resources, instantiate, Node, CCString, JsonAsset, sys } from 'cc';
 import { Singleton_Manager } from './Singleton_Manager_Base';
 import { Const } from './Const';
-import { Level_Editor } from './Level_Editor';
+import { UI_Manager } from './UI_Manager';
 
 const { ccclass, property } = _decorator;
 
@@ -89,6 +88,7 @@ export class Resource_Manager extends Singleton_Manager {
 
     save_level(level_config) {
         this.current_level_config = level_config;
+        UI_Manager.instance.info_panel.show("Saved.");
     };
 
     download_config() {

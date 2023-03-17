@@ -27,7 +27,7 @@ class Quad_Tree_Printer implements Visitor<string> {
 
     print(n: Tree_Node) {
         const tree = n.accept(this);
-        // console.log(tree);
+        console.log(tree);
     }
 
     visualize(pos: Vec3, vals: Game_Entity[], children: Tree_Node[]): string {
@@ -346,6 +346,6 @@ export function debug_render_grid(grid: Proximity_Grid, renderer: Node) {
 }
 
 export function debug_print_quad_tree(t: Tree_Node) {
-    new Quad_Tree_Printer().print(t);
+    // new Quad_Tree_Printer().print(t);
 }
 //#endregion DEBUG STUFF

@@ -9,5 +9,3 @@ export class Level_Manager extends Singleton_Manager {
         Level_Manager.instance = instance;
     }
 }
-
-
