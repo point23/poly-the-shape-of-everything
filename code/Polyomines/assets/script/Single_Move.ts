@@ -1,6 +1,6 @@
 import { _decorator, Vec3 } from 'cc';
 import { Const, String_Builder } from './Const';
-import { calcu_entity_future_position, calcu_entity_future_squares, Direction, Entity_Type, Game_Entity, Polyomino_Type } from './Game_Entity';
+import { calcu_entity_future_position, calcu_entity_future_squares, conjugate_direction, Direction, Entity_Type, Game_Entity, Polyomino_Type } from './Game_Entity';
 import { Move_Transaction } from './Move_Transaction';
 import { Transaction_Control_Flags, Transaction_Manager } from './Transaction_Manager';
 
@@ -113,9 +113,23 @@ export class Controller_Proc_Move extends Single_Move {
         if (same_position(this.start_position, this.end_position))
             return at_least_rotated;
 
-        let walk_on_bridge: boolean = false;
-        const future_squares = calcu_entity_future_squares(e_target, this.end_direction);
+        const current_supporters = manager.locate_current_supporters(e_target);
+        for (let other of current_supporters) {
+            // @note Can't pass through when there's a fence on the future square
+            // _______
+            // |      ||
+            // | -x-> ||
+            // |______||
+            if (other.entity_type == Entity_Type.FENCE) {
+                if (this.end_direction == other.rotation) {
+                    return at_least_rotated;
+                }
+            }
+        }
 
+        let walk_on_bridge: boolean = false;
+
+        const future_squares = calcu_entity_future_squares(e_target, this.end_direction);
         // Detect if there are any existed entity in target position.
         for (let pos of future_squares) {
             const other = manager.locate_entity(pos);
@@ -129,6 +143,19 @@ export class Controller_Proc_Move extends Single_Move {
                 continue;
                 // @implementMe You can only cross the bridge in certain directions...
             };
+
+            // @note Can't pass through when there's a fence on the future square
+            // _______
+            // |      ||
+            // |      || <-x-
+            // |______||
+            //       hit the fence
+            if (other.entity_type == Entity_Type.FENCE) {
+                if (other.rotation == conjugate_direction(this.end_direction)) {
+                    return at_least_rotated;
+                }
+                continue;
+            }
 
             if (other.entity_type == Entity_Type.GATE) {
                 // If it's a gate, then only monominoes can pass through 
@@ -146,10 +173,10 @@ export class Controller_Proc_Move extends Single_Move {
             }
         }
 
-        const supporters = manager.locate_future_supporters(e_target, this.end_direction);
+        const future_supporters = manager.locate_future_supporters(e_target, this.end_direction);
         if (!walk_on_bridge) {
             // Fall if there're no valid supporters
-            if (supporters.length == 0) {
+            if (future_supporters.length == 0) {
                 const falling_move = new Falling_Move(e_target, this.end_direction);
                 if (falling_move.try_add_itself(transaction))
                     return true;
@@ -158,7 +185,7 @@ export class Controller_Proc_Move extends Single_Move {
         }
 
         // Reached the checkpoint, hey, you win...
-        for (let s of supporters) {
+        for (let s of future_supporters) {
             if (s.entity_type == Entity_Type.CHECKPOINT) {
                 manager.pending_win = true;
             }

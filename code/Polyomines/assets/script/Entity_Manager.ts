@@ -106,8 +106,19 @@ export class Entity_Manager {
         return this.proximity_grid.point_search(target);
     }
 
-    locate_supporter(pos: Vec3, depth: number): Game_Entity {
+    locate_supporter(pos: Vec3, depth: number = 1): Game_Entity {
         return this.locate_entity(new Vec3(pos).subtract(new Vec3(0, 0, depth)));
+    }
+
+    locate_current_supporters(entity: Game_Entity): Game_Entity[] {
+        const supporters = [];
+        for (let pos of get_entity_squares(entity)) {
+            const supporter = this.locate_supporter(pos);
+            if (supporter != null) {
+                supporters.push(supporter)
+            }
+        }
+        return supporters;
     }
 
     locate_future_supporters(entity: Game_Entity, dir: Direction, max_depth: number = 1) {

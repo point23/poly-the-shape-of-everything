@@ -27,15 +27,32 @@ export enum Direction {
     DOWN,
 }
 
+export function conjugate_direction(d: Direction) {
+    if (d == Direction.RIGHT) return Direction.LEFT;
+    if (d == Direction.LEFT) return Direction.RIGHT;
+    if (d == Direction.BACKWORD) return Direction.FORWARD;
+    if (d == Direction.FORWARD) return Direction.BACKWORD;
+    if (d == Direction.DOWN) return Direction.UP;
+    if (d == Direction.UP) return Direction.DOWN;
+    return 0;
+}
+
 export enum Entity_Type {
-    STATIC,
+    STATIC,// It means we're not avaliale to  push them
     DYNAMIC,
-    HERO,
-    AVATAR,
-    CHECKPOINT,
-    CHANNEL,
+    HERO, // @incomplete
+    // There're ganna be many possible characters for player to chose
+    // The relationship between "derived" part and game entity seems like
+    // a Composite Pattern? 
+    AVATAR, // @incomplete 
+    // Kinda like cappee in Super Mario: Odyssey
+    // Different avatars can have different powers, like chained warms? owls? bats?
+    CHECKPOINT, // Possible win? But in a multiple character level, the winning condition
+    // is that each of them are stands on a checkpoint entity.
+    CHANNEL, // @deprecated
     BRIDGE,
     GATE,
+    FENCE,
 }
 
 export enum Polyomino_Type {
@@ -356,7 +373,11 @@ export function debug_validate_tiling(manager: Entity_Manager) {
 
     // Check for non check point entities;
     for (let e of manager.all_entities) {
-        if (e.entity_type == Entity_Type.CHECKPOINT) continue; // @incomplete What about 2 checkpoint in the same square?
+        // @fixme What if there several entity in the same square?
+        // We need a clear check!!!
+        if (e.entity_type == Entity_Type.CHECKPOINT) continue;
+        if (e.entity_type == Entity_Type.FENCE) continue;
+
         for (let pos of get_entity_squares(e)) {
             const pos_str = pos.toString();
             if (map.has(pos_str)) {

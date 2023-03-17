@@ -53,6 +53,10 @@ export function undo_mark_beginning(manager: Entity_Manager) {
     }
 }
 
+function record_creations_or_destructions(record: Undo_Record, builder: String_Builder) {
+
+}
+
 export function undo_end_frame(manager: Entity_Manager) {
     const undo = manager.undo_handler;
     if (!undo.enabled) return;
@@ -76,7 +80,6 @@ export function undo_end_frame(manager: Entity_Manager) {
         return;
 
     undo.dirty = true;
-    // @todo Combine them together?
 
     if (undo.pending_creations.length != 0) {
         builder.append(Undo_Action_Type.CREATION);
@@ -96,7 +99,7 @@ export function undo_end_frame(manager: Entity_Manager) {
         undo.pending_destructions = [];
     }
 
-    UI_Manager.instance.undo_panel.note_changes(num_changes);
+    UI_Manager.instance.undo_panel.show_changes(num_changes);
     record.transaction = builder.to_string(' '); // @hack
     undo.undo_records.push(record);
 
@@ -349,9 +352,6 @@ function really_do_one_undo(manager: Entity_Manager, record: Undo_Record, is_red
     // Count changes
     let num_changes = 0;
 
-    console.log('=================');
-    console.log(record.transaction);
-
     while (idx < remaining.length) {
         let action = take_number();
 
@@ -360,7 +360,6 @@ function really_do_one_undo(manager: Entity_Manager, record: Undo_Record, is_red
                 let num_entities = take_number();
                 num_changes += num_entities;
 
-                console.log(`CHNAGE ${num_entities}`);
                 do_entity_changes(num_entities);
             } break;
 
@@ -368,7 +367,6 @@ function really_do_one_undo(manager: Entity_Manager, record: Undo_Record, is_red
                 let num_entities = take_number();
                 num_changes += num_entities;
 
-                console.log(`CREATION ${num_entities}`);
                 do_entity_creations_or_destructions(num_entities, is_redo);
             } break;
 
@@ -376,19 +374,15 @@ function really_do_one_undo(manager: Entity_Manager, record: Undo_Record, is_red
                 let num_entities = take_number();
                 num_changes += num_entities;
 
-                console.log(`DESTRUCTION ${num_entities}`);
                 do_entity_creations_or_destructions(num_entities, !is_redo);
             } break;
         }
     }
 
-    if (!is_redo) num_changes = -num_changes;
-    UI_Manager.instance.undo_panel.note_changes(num_changes); // Count changes
+    UI_Manager.instance.undo_panel.show_changes(num_changes); // Count changes
 }
 
 function clear_current_undo_frame(undo: Undo_Handler) {
     undo.undo_records.clear();
     undo.redo_records.clear();
-
-    UI_Manager.instance.undo_panel.reset();
 }
