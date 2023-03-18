@@ -104,22 +104,32 @@ export class Level_Editor extends Component {
     }
 }
 
-function clear_ui(editor: Level_Editor) {
-    const panel = editor.panel;
-    panel.btn_save.clickEvents = [];
+function init_ui(editor: Level_Editor) {
+    function init_options() {
+        ui.btn_save.node.on(Button.EventType.CLICK, () => {
+            editor.contextual_manager.save_level();
+        }, ui.btn_save);
 
-    panel.levels.clear();
-    panel.undos.clear();
+        ui.btn_download.node.on(Button.EventType.CLICK, () => {
+            editor.contextual_manager.save_level();
+            editor.resource_manager.download_config();
+        }, ui.btn_download);
+    }
 
-    UI_Manager.instance.transaction_panel.clear();
-}
+    function init_modes() {
+        const e = new EventHandler();
+        e.target = editor.contextual_manager.node;
+        e.component = "Contextual_Manager";
+        e.handler = 'switch_mode';
+        ui.modes.events.push(e);
+    }
 
-function init(editor: Level_Editor) {
-    function init_levels_navigator(navigator: Navigator) {
-        navigator.label.string = "levels";
+    function init_levels() {
+        const levels = ui.levels;
+        levels.label.string = "level";
         // levels.btn_label.interactable = false;
 
-        navigator.label_current.string = Resource_Manager.instance.current_level_name;
+        levels.label_current.string = Resource_Manager.instance.current_level_name;
         // levels.btn_current.interactable = false;
 
         { // Navigate to previous level
@@ -127,7 +137,7 @@ function init(editor: Level_Editor) {
             e.target = editor.node;
             e.component = "Level_Editor";
             e.handler = 'load_prev_level';
-            navigator.btn_prev.clickEvents.push(e);
+            levels.btn_prev.clickEvents.push(e);
         }
 
         { // Navigate to next level
@@ -135,47 +145,102 @@ function init(editor: Level_Editor) {
             e.target = editor.node;
             e.component = "Level_Editor";
             e.handler = 'load_next_level';
-            navigator.btn_next.clickEvents.push(e);
+            levels.btn_next.clickEvents.push(e);
         }
     }
 
-    function init_undos_navigator(navigator: Navigator) {
-        navigator.label.string = "undos";
+    function init_difficulty() {
+        const difficulty = ui.difficulty;
+        difficulty.label.string = "difficulty";
+        difficulty.set_rating(editor.resource_manager.current_level_difficulty);
 
-        navigator.label_current.string = "0 changes";
+        { // Rating event
+            const e = new EventHandler();
+            e.target = editor.resource_manager.node;
+            e.component = "Resource_Manager";
+            e.handler = 'set_level_difficulty';
+            difficulty.on_rated.push(e);
+        }
+    }
+
+    function init_undos() {
+        const undos = ui.undos;
+
+        undos.label.string = "undo";
+        ui.show_undo_changes(0);
 
         { // Really do one undo
-            // const e = new EventHandler();
-            // e.target = editor.transaction_manager.node;
-            // e.component = 'Transaction_Manager';
-            // e.handler = 'undo_async';
-            // navigator.btn_prev.clickEvents.push(e);
-
-            navigator.btn_prev.node.on(Button.EventType.CLICK, () => {
+            undos.btn_prev.node.on(Button.EventType.CLICK, () => {
                 do_one_undo(editor.entity_manager);
-            }, navigator.btn_prev.node);
+            }, undos.btn_prev.node);
         }
 
         { // Really do one redo
-            // const e = new EventHandler();
-            // e.target = editor.transaction_manager.node;
-            // e.component = 'Transaction_Manager';
-            // e.handler = 'redo_async';
-            // navigator.btn_next.clickEvents.push(e);
-
-            navigator.btn_next.node.on(Button.EventType.CLICK, () => {
+            undos.btn_next.node.on(Button.EventType.CLICK, () => {
                 do_one_redo(editor.entity_manager);
-            }, navigator.btn_next.node);
+            }, undos.btn_next.node);
         }
+    }
+
+    function init_transactions() {
+        const navigator = ui.transaction_panel.navigator;
+
+        ui.transaction_panel.reset_counter();
+        navigator.label.string = "transactions";
+        { // Show or Hide single move logs
+            const e = new EventHandler();
+            e.target = ui.transaction_panel.node;
+            e.component = 'Transaction_Panel';
+            e.handler = 'toggle';
+            navigator.btn_current.clickEvents.push(e);
+        }
+
+        { // Show prev transaction
+            const e = new EventHandler();
+            e.target = ui.transaction_panel.node;
+            e.component = 'Transaction_Panel';
+            e.handler = 'show_prev';
+            navigator.btn_prev.clickEvents.push(e);
+        }
+
+        { // Show next transaction
+            const e = new EventHandler();
+            e.target = ui.transaction_panel.node;
+            e.component = 'Transaction_Panel';
+            e.handler = 'show_next';
+            navigator.btn_next.clickEvents.push(e);
+        }
+
+        ui.transaction_panel.clear_logs();
+        ui.transaction_panel.hide_logs();
     }
     //#SCOPE
 
-    const config = Resource_Manager.instance.current_level_config;
+    const ui = editor.ui_manager;
 
-    init_levels_navigator(editor.panel.levels);
-    init_undos_navigator(editor.panel.undos); // @todo move it to UI_Manager
+    init_options();
+    init_modes();
+    init_levels();
+    init_difficulty();
+    init_undos();
+    init_transactions();
+}
 
-    UI_Manager.instance.transaction_panel.init();
+function clear_ui(editor: Level_Editor) {
+    const ui = editor.ui_manager;
+    ui.btn_save.clickEvents = [];
+    ui.btn_download.clickEvents = [];
+
+    ui.levels.clear();
+    ui.undos.clear();
+
+    ui.transaction_panel.clear();
+}
+
+function init(editor: Level_Editor) {
+    init_ui(editor);
+
+    const config = editor.resource_manager.current_level_config;
 
     editor.camera3d_controller.update_view(config.camera);
 

@@ -13,39 +13,6 @@ export class Transaction_Panel extends Component {
     transaction_idx: number = 0;
     num_committed: number = 0;
 
-    init() {
-        const navigator = this.navigator;
-
-        this.reset_counter();
-        navigator.label.string = "transactions";
-        { // Show or Hide single move logs
-            const e = new EventHandler();
-            e.target = this.node;
-            e.component = 'Transaction_Panel';
-            e.handler = 'toggle';
-            navigator.btn_current.clickEvents.push(e);
-        }
-
-        { // Show prev transaction
-            const e = new EventHandler();
-            e.target = this.node;
-            e.component = 'Transaction_Panel';
-            e.handler = 'show_prev';
-            navigator.btn_prev.clickEvents.push(e);
-        }
-
-        { // Show next transaction
-            const e = new EventHandler();
-            e.target = this.node;
-            e.component = 'Transaction_Panel';
-            e.handler = 'show_next';
-            navigator.btn_next.clickEvents.push(e);
-        }
-
-        this.clear_logs();
-        this.hide_logs();
-    }
-
     show_logs() {
         this.singles_panel.active = true;
     }

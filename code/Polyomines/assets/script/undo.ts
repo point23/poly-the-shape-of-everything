@@ -53,9 +53,9 @@ export function undo_mark_beginning(manager: Entity_Manager) {
     }
 }
 
-function record_creations_or_destructions(record: Undo_Record, builder: String_Builder) {
+// function record_creations_or_destructions(record: Undo_Record, builder: String_Builder) {
 
-}
+// }
 
 export function undo_end_frame(manager: Entity_Manager) {
     const undo = manager.undo_handler;
@@ -99,7 +99,7 @@ export function undo_end_frame(manager: Entity_Manager) {
         undo.pending_destructions = [];
     }
 
-    UI_Manager.instance.undo_panel.show_changes(num_changes);
+    UI_Manager.instance.show_undo_changes(num_changes);
     record.transaction = builder.to_string(' '); // @hack
     undo.undo_records.push(record);
 
@@ -379,7 +379,7 @@ function really_do_one_undo(manager: Entity_Manager, record: Undo_Record, is_red
         }
     }
 
-    UI_Manager.instance.undo_panel.show_changes(num_changes); // Count changes
+    UI_Manager.instance.show_undo_changes(num_changes); // Only count changes in current frame
 }
 
 function clear_current_undo_frame(undo: Undo_Handler) {

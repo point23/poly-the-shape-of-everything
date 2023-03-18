@@ -65,7 +65,8 @@ export class Contextual_Manager extends Component {
         input.off(Input.EventType.TOUCH_END, this.on_touch_end, this);
     }
 
-    switch_mode(idx: number = null) {
+    switch_mode(idx: any = null) {
+        idx = Number(idx);
         let from = this.current_mode;
         from?.on_exit();
 

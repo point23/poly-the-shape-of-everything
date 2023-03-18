@@ -21,7 +21,6 @@ export class Resource_Manager extends Singleton_Manager {
 
     @property([Prefab_Pair]) prefab_pairs: Prefab_Pair[] = [];
     prefabs: Map<String, Prefab> = new Map<String, Prefab>();
-
     @property(Node) entities_parent: Node;
 
     levels: any[] = [];
@@ -32,6 +31,11 @@ export class Resource_Manager extends Singleton_Manager {
     get prev_level_idx(): number { return (this.current_level_idx - 1 + this.num_levels) % this.num_levels; }
     get current_level(): any { return this.levels[this.current_level_idx]; }
     get current_level_name(): string { return this.current_level.name; }
+    get current_level_difficulty(): number { return this.current_level_config.difficulty; }
+
+    set_level_difficulty(d: any) {
+        this.current_level_config.difficulty = Number(d);
+    }
 
     mapping_prefabs() {
         this.prefab_pairs.forEach(it => {
@@ -45,7 +49,13 @@ export class Resource_Manager extends Singleton_Manager {
             const result = asset.json;
             this.levels = result.levels;
 
-            this.current_level_idx = 0;
+            const current = result.start_level;
+            for (let i = 0; i < this.levels.length; i++) {
+                const it = this.levels[i];
+                if (it.name == current) {
+                    this.current_level_idx = i;
+                }
+            }
 
             this.load_current_level(caller, callback);
         });
@@ -88,7 +98,7 @@ export class Resource_Manager extends Singleton_Manager {
 
     save_level(level_config) {
         this.current_level_config = level_config;
-        UI_Manager.instance.info_panel.show("Saved.");
+        UI_Manager.instance.info("Saved.");
     };
 
     download_config() {

@@ -21,7 +21,7 @@ export class Test_Run_Mode extends Game_Mode {
         this.entity_manager = Contextual_Manager.instance.entity_manager;
         undo_mark_beginning(this.entity_manager);
 
-        UI_Manager.instance.info_panel.show("Test Run");
+        UI_Manager.instance.info("Test Run");
         // console.log(this.entity_manager.undo_handler.old_entity_state);
     }
 

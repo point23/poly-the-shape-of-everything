@@ -32,7 +32,7 @@ export class Entity_Edit_Mode extends Game_Mode {
     copied_entities: Serializable_Entity_Data[] = [];
 
     on_enter() {
-        UI_Manager.instance.info_panel.show("Entity Edit");
+        UI_Manager.instance.info("Entity Edit");
         undo_mark_beginning(this.entity_manager);
     }
 

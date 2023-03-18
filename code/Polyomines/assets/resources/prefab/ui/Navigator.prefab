@@ -74,7 +74,7 @@
   {
     "__type__": "cc.Node",
     "_name": "Label",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 1
     },
@@ -133,7 +133,7 @@
   {
     "__type__": "cc.Node",
     "_name": "Text",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 2
     },
@@ -454,7 +454,7 @@
   {
     "__type__": "cc.Node",
     "_name": "Switch",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 1
     },
@@ -516,7 +516,7 @@
   {
     "__type__": "cc.Node",
     "_name": "Prev",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 18
     },
@@ -759,7 +759,7 @@
   {
     "__type__": "cc.Node",
     "_name": "Current",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 18
     },
@@ -815,7 +815,7 @@
   {
     "__type__": "cc.Node",
     "_name": "Text",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 29
     },
@@ -1130,7 +1130,7 @@
   {
     "__type__": "cc.Node",
     "_name": "Next",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 18
     },

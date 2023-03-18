@@ -13,7 +13,7 @@ export class Swipe_Camera_Mode extends Game_Mode {
     @property(Camera3D_Controller) camera3d_controller: Camera3D_Controller;
 
     on_enter() {
-        UI_Manager.instance.info_panel.show("Swipe Camera");
+        UI_Manager.instance.info("Swipe Camera");
     }
 
     on_exit() {

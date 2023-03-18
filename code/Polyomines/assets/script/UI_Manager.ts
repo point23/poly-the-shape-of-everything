@@ -1,8 +1,9 @@
-import { _decorator, Component, Node } from 'cc';
+import { _decorator, Component, Node, Button, EventHandler, RichText } from 'cc';
 import { Singleton_Manager } from './Singleton_Manager_Base';
-import { Info_Panel } from './ui/Info_Panel';
+import { Button_Group } from './ui/Button_Group';
+import { Navigator } from './ui/Navigator';
+import { Rating } from './ui/Rating';
 import { Transaction_Panel } from './ui/Transaction_Panel';
-import { Undo_Panel } from './ui/Undo_Panel';
 const { ccclass, property } = _decorator;
 
 @ccclass('UI_Manager')
@@ -12,7 +13,27 @@ export class UI_Manager extends Singleton_Manager {
         UI_Manager.instance = instance;
     }
 
+    @property(RichText) txt_info: RichText = null;
     @property(Transaction_Panel) transaction_panel: Transaction_Panel = null;
-    @property(Undo_Panel) undo_panel: Undo_Panel = null;
-    @property(Info_Panel) info_panel: Info_Panel = null;
+
+    @property(Navigator) undos: Navigator = null;
+    @property(Navigator) levels: Navigator = null;
+
+    @property(Rating) difficulty: Rating = null;
+
+    @property(Button) btn_save: Button = null;
+    @property(Button) btn_download: Button = null;
+
+    @property(Button_Group) modes: Button_Group = null;
+
+    show_undo_changes(num: number) {
+        this.undos.label_current.string = `${num} changes`;
+    }
+
+    info(s: string) {
+        this.txt_info.string = s;
+        this.scheduleOnce(() => {
+            this.txt_info.string = "";
+        }, 1);
+    }
 }
