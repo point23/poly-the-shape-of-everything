@@ -19,22 +19,30 @@ export enum Entity_Flags {
 }
 
 export enum Direction {
+    LEFT,
     RIGHT,
     FORWARD,
-    LEFT,
     BACKWORD,
     UP,
     DOWN,
 }
 
-export function conjugate_direction(d: Direction) {
-    if (d == Direction.RIGHT) return Direction.LEFT;
-    if (d == Direction.LEFT) return Direction.RIGHT;
-    if (d == Direction.BACKWORD) return Direction.FORWARD;
-    if (d == Direction.FORWARD) return Direction.BACKWORD;
-    if (d == Direction.DOWN) return Direction.UP;
-    if (d == Direction.UP) return Direction.DOWN;
-    return 0;
+export function same_direction(d1: Direction, d2: Direction) {
+    return d1 == d2;
+}
+
+export function collinear_direction(d1: Direction, d2: Direction) {
+    return same_direction(d1, d2) || reversed_direction(d1, d2);
+}
+
+export function orthogonal_direction(d1: Direction, d2: Direction): boolean {
+    return !collinear_direction(d1, d2);
+}
+
+export function reversed_direction(d1: Direction, d2: Direction): boolean {
+    if (same_direction(d1, d2)) return false;
+    // @note We can't use /2 here, cause they're float numbers
+    return ((d1 >> 1) == (d2 >> 1));
 }
 
 export enum Entity_Type {
@@ -286,28 +294,28 @@ const polyomino_deltas: Vec3[][][] = [
     [],
     /* Domino */
     [
+        /* LEFT */[new Vec3(-1, 0, 0)],
         /* RIGHT */[new Vec3(1, 0, 0)],
         /* FORWARD */[new Vec3(0, -1, 0)],
-        /* LEFT */[new Vec3(-1, 0, 0)],
         /* BACKWARD */[new Vec3(0, 1, 0)],
         /* UP */[new Vec3(0, 0, 1)],
         /* DOWN */[new Vec3(0, 0, -1)],
     ],
     /* STRAIGHT_TROMINO */
     [
+            /* LEFT */[new Vec3(-1, 0, 0), new Vec3(1, 0, 0)],
             /* RIGHT */[new Vec3(-1, 0, 0), new Vec3(1, 0, 0)],
             /* FORWARD */[new Vec3(0, 1, 0), new Vec3(0, -1, 0)],
-            /* RIGHT */[new Vec3(-1, 0, 0), new Vec3(1, 0, 0)],
-            /* FORWARD */[new Vec3(0, 1, 0), new Vec3(0, -1, 0)],
+            /* BACKWORD */[new Vec3(0, 1, 0), new Vec3(0, -1, 0)],
             /* UP */[new Vec3(0, 0, 1)], // @implementMe
             /* DOWN */[new Vec3(0, 0, -1)], // @implementMe
     ],
 ];
 
 const direction_to_vec3: Vec3[] = [
+    /* LEFT */ new Vec3(-1, 0, 0),
     /* RIGHT */ new Vec3(1, 0, 0),
     /* FORWARD */ new Vec3(0, -1, 0),
-    /* LEFT */ new Vec3(-1, 0, 0),
     /* BACKWARD */ new Vec3(0, 1, 0),
     /* UP */ new Vec3(0, 0, 1),
     /* DOWN */ new Vec3(0, 0, -1),

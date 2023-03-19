@@ -102,35 +102,39 @@ export class Entity_Manager {
         return entities_info;
     }
 
-    locate_entity(target: Vec3): Game_Entity {
-        return this.proximity_grid.point_search(target);
+    locate_entities(pos: Vec3): Game_Entity[] {
+        return this.proximity_grid.point_search(pos);
     }
 
-    locate_supporter(pos: Vec3, depth: number = 1): Game_Entity {
-        return this.locate_entity(new Vec3(pos).subtract(new Vec3(0, 0, depth)));
+    locate_supporters(pos: Vec3, depth: number = 1): Game_Entity[] {
+        return this.locate_entities(new Vec3(pos).subtract(new Vec3(0, 0, depth)));
+    }
+
+    locate_supportees(pos: Vec3): Game_Entity[] {
+        return this.locate_entities(pos.clone().add(Vec3.UNIT_Z));
     }
 
     locate_current_supporters(entity: Game_Entity): Game_Entity[] {
         const supporters = [];
         for (let pos of get_entity_squares(entity)) {
-            const supporter = this.locate_supporter(pos);
-            if (supporter != null) {
-                supporters.push(supporter)
-            }
+            for (let supporter of this.locate_supporters(pos))
+                if (supporter != null) {
+                    supporters.push(supporter)
+                }
         }
         return supporters;
     }
 
-    locate_future_supporters(entity: Game_Entity, dir: Direction, max_depth: number = 1) {
+    locate_future_supporters(entity: Game_Entity, dir: Direction, max_depth: number = 1): Game_Entity[] {
         const future_squares = calcu_entity_future_squares(entity, dir);
 
         const supporters = [];
         for (let d = 1; d <= max_depth; d++) {
             for (let pos of future_squares) {
-                const supporter = this.locate_supporter(pos, d);
-                if (supporter != null) {
-                    supporters.push(supporter)
-                }
+                for (let supporter of this.locate_supporters(pos, d))
+                    if (supporter != null) {
+                        supporters.push(supporter)
+                    }
             }
 
             if (supporters.length != 0) return supporters;
@@ -139,19 +143,15 @@ export class Entity_Manager {
         return supporters;
     }
 
-    locate_supportee(pos: Vec3): Game_Entity {
-        return this.locate_entity(pos.clone().add(Vec3.UNIT_Z));
-    }
-
-    locate_current_supportees(entity: Game_Entity) {
+    locate_current_supportees(entity: Game_Entity): Game_Entity[] {
         const squares = get_entity_squares(entity);
 
         const supportees = [];
         for (let pos of squares) {
-            const supportee = this.locate_supportee(pos);
-            if (supportee != null && supportee.entity_type != Entity_Type.STATIC) {
-                supportees.push(supportee)
-            }
+            for (let supportee of this.locate_supportees(pos))
+                if (supportee != null && supportee.entity_type != Entity_Type.STATIC) {
+                    supportees.push(supportee)
+                }
         }
 
         return supportees;

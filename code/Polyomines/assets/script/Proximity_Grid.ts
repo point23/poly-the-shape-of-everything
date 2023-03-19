@@ -269,16 +269,17 @@ export class Proximity_Grid {
         remove(this.quad_tree, e);
     }
 
-    point_search(p: Vec3): Game_Entity {
+    point_search(p: Vec3): Game_Entity[] {
         const n = point_search(this.quad_tree, p);
 
+        let result = [];
         if (n) {
             for (let k of n.values) {
-                if (k.position.z == p.z) return k;
+                if (k.position.z == p.z) result.push(k);
             }
         }
 
-        return null;
+        return result;
     }
 
     /* 

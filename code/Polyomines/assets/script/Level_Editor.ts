@@ -3,6 +3,7 @@ import { Camera3D_Controller } from './Camera3D_Controller';
 import { Const } from './Const';
 import { Contextual_Manager } from './Contextual_Manager';
 import { Entity_Manager } from './Entity_Manager';
+import { Direction, orthogonal_direction, reversed_direction } from './Game_Entity';
 import { debug_render_grid, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
 import { Transaction_Manager } from './Transaction_Manager';

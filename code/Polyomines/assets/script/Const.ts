@@ -129,7 +129,6 @@ export function clone_all_slots(s: any, d: any) {
 }
 
 export class Const {
-    /** @fixme Don't use absolute path... */
     static Data_Path: string = 'data';
     static Default_Level: string = 'level#001';
 
@@ -167,16 +166,12 @@ export class Const {
     static RADIUS_315: number = 1.75 * Math.PI;
 
     static Direction2Quat: Quat[] = [
-    /* RIGHT */ new Quat(0, 0, 0, Math.cos(0)),
-        /* FORWARD */
-        new Quat(0, Math.sin(-this.RADIUS_45), 0, Math.cos(-this.RADIUS_45)),
-        /* LEFT */
-        new Quat(0, Math.sin(this.RADIUS_90), 0, Math.cos(this.RADIUS_90)),
-        /* BACKWARD */
-        new Quat(0, Math.sin(this.RADIUS_45), 0, Math.cos(this.RADIUS_45)),
-    /* UP */ new Quat(0, 0, 0, 1),
-    /* DOWN */ new Quat(0, 0, 0, 1),
+        /* LEFT */ new Quat(0, Math.sin(this.RADIUS_90), 0, Math.cos(this.RADIUS_90)),
+        /* RIGHT */ new Quat(0, 0, 0, Math.cos(0)),
+        /* FORWARD */ new Quat(0, Math.sin(-this.RADIUS_45), 0, Math.cos(-this.RADIUS_45)),
+        /* BACKWARD */ new Quat(0, Math.sin(this.RADIUS_45), 0, Math.cos(this.RADIUS_45)),
+        /* UP */ new Quat(0, 0, 0, 1),
+        /* DOWN */ new Quat(0, 0, 0, 1),
     ];
-
-    static Direction_Names: string[] = ['RIGHT', 'FORWARD', 'LEFT', 'BACKWARD', 'UP', 'DOWN'];
+    static Direction_Names: string[] = ['LEFT', 'RIGHT', 'FORWARD', 'BACKWARD', 'UP', 'DOWN'];
 }
