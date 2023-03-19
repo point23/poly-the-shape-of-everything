@@ -19,7 +19,8 @@ export class Entity_Manager {
     all_entities: Game_Entity[] = [];
     checkpoints: Game_Entity[] = [];
 
-    pending_win: boolean = false; // @hack
+    rovers: Game_Entity[] = [];
+    pending_win: boolean = false; // @implementMe
 
     constructor(g: Proximity_Grid) {
         this.proximity_grid = g;
@@ -52,8 +53,10 @@ export class Entity_Manager {
         const clone = clone_undoable_data(entity);
         this.undo_handler.old_entity_state.set(entity.id, clone);
 
+        // @note Handle entities with special types
         if (entity.entity_type == Entity_Type.CHECKPOINT) this.checkpoints.push(entity);
         if (entity.entity_type == Entity_Type.HERO) this.active_hero = entity;
+        if (entity.entity_type == Entity_Type.ROVER) this.rovers.push(entity);
 
         debug_print_quad_tree(this.proximity_grid.quad_tree);
         return entity;

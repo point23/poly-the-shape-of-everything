@@ -128,6 +128,10 @@ export function clone_all_slots(s: any, d: any) {
     }
 }
 
+export function same_position(a: Vec3, b: Vec3): boolean {
+    return compare_all_slots(a, b);
+}
+
 export class Const {
     static Data_Path: string = 'data';
     static Default_Level: string = 'level#001';

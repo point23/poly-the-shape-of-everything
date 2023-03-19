@@ -31,6 +31,13 @@ export function same_direction(d1: Direction, d2: Direction) {
     return d1 == d2;
 }
 
+export function clacu_reversed_direction(d: Direction): Direction {
+    for (let i = 0; i < 6; i++) {
+        if (reversed_direction(i, d)) return i;
+    }
+    return 0;
+}
+
 export function collinear_direction(d1: Direction, d2: Direction) {
     return same_direction(d1, d2) || reversed_direction(d1, d2);
 }
@@ -61,6 +68,8 @@ export enum Entity_Type {
     BRIDGE,
     GATE,
     FENCE,
+    ROVER,
+    TRACK,
 }
 
 export enum Polyomino_Type {
@@ -385,6 +394,7 @@ export function debug_validate_tiling(manager: Entity_Manager) {
         // We need a clear check!!!
         if (e.entity_type == Entity_Type.CHECKPOINT) continue;
         if (e.entity_type == Entity_Type.FENCE) continue;
+        if (e.entity_type == Entity_Type.TRACK) continue;
 
         for (let pos of get_entity_squares(e)) {
             const pos_str = pos.toString();

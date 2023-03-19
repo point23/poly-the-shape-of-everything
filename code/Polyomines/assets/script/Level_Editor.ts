@@ -6,6 +6,7 @@ import { Entity_Manager } from './Entity_Manager';
 import { Direction, orthogonal_direction, reversed_direction } from './Game_Entity';
 import { debug_render_grid, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
+import { generate_rover_moves, init_rover_moves } from './rover';
 import { Transaction_Manager } from './Transaction_Manager';
 import { Level_Editor_Panel } from './ui/Level_Editor_Panel';
 import { Navigator } from './ui/Navigator';
@@ -70,7 +71,7 @@ export class Level_Editor extends Component {
     load_next_level() {
         this.clear_current_level();
 
-        this.resource_manager.load_prev_level(this, init);
+        this.resource_manager.load_next_level(this, init);
     }
 
     clear_current_level() {
@@ -91,8 +92,11 @@ export class Level_Editor extends Component {
         this.round = (this.round + 1) % 1024;
     }
 
+    is_availale = false; // @hack 
     main_loop() {
-        Transaction_Manager.instance.execute_async();
+        if (!this.is_availale) return;
+        if (this.round % 32 == 0) generate_rover_moves(this.transaction_manager); // @hack
+        this.transaction_manager.execute_async();
     }
 
     // Settle singleton managers manually
@@ -107,14 +111,20 @@ export class Level_Editor extends Component {
 
 function init_ui(editor: Level_Editor) {
     function init_options() {
-        ui.btn_save.node.on(Button.EventType.CLICK, () => {
-            editor.contextual_manager.save_level();
-        }, ui.btn_save);
-
-        ui.btn_download.node.on(Button.EventType.CLICK, () => {
-            editor.contextual_manager.save_level();
-            editor.resource_manager.download_config();
-        }, ui.btn_download);
+        {
+            const e = new EventHandler();
+            e.target = editor.contextual_manager.node;
+            e.component = "Contextual_Manager";
+            e.handler = 'save_level';
+            ui.btn_save.clickEvents.push(e);
+        }
+        {
+            const e = new EventHandler();
+            e.target = editor.resource_manager.node;
+            e.component = "Resource_Manager";
+            e.handler = 'download_config';
+            ui.btn_download.clickEvents.push(e);
+        }
     }
 
     function init_modes() {

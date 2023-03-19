@@ -80,6 +80,6 @@ export class Transaction_Manager extends Singleton_Manager {
 
         undo_end_frame(this.entity_manager);
 
-        UI_Manager.instance.transaction_panel.note_new_transaction();
+        // UI_Manager.instance.transaction_panel.note_new_transaction(); // @fixme Transaction panel should only show those with a Controller_Proc move
     }
 }

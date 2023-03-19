@@ -1,0 +1,252 @@
+{
+  "ver": "2.3.3",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "83db38dc-4054-40c3-93e6-bd836c8a8308",
+  "files": [
+    "__original-animation-0.cconb"
+  ],
+  "subMetas": {
+    "e0cd7": {
+      "importer": "gltf-mesh",
+      "uuid": "83db38dc-4054-40c3-93e6-bd836c8a8308@e0cd7",
+      "displayName": "",
+      "id": "e0cd7",
+      "name": "网格.006.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e95ee": {
+      "importer": "gltf-animation",
+      "uuid": "83db38dc-4054-40c3-93e6-bd836c8a8308@e95ee",
+      "displayName": "",
+      "id": "e95ee",
+      "name": "Sm_Rock_VarD_0|Take 001|BaseLayer.animation",
+      "userData": {
+        "gltfIndex": 0,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 0.03333333507180214
+        },
+        "events": []
+      },
+      "ver": "1.0.16",
+      "imported": true,
+      "files": [
+        ".cconb"
+      ],
+      "subMetas": {}
+    },
+    "535b8": {
+      "importer": "gltf-embeded-image",
+      "uuid": "83db38dc-4054-40c3-93e6-bd836c8a8308@535b8",
+      "displayName": "",
+      "id": "535b8",
+      "name": "Image.image",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".png"
+      ],
+      "subMetas": {}
+    },
+    "085b8": {
+      "importer": "gltf-embeded-image",
+      "uuid": "83db38dc-4054-40c3-93e6-bd836c8a8308@085b8",
+      "displayName": "",
+      "id": "085b8",
+      "name": "Normal Texture.image",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".jpg",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "181cb": {
+      "importer": "gltf-embeded-image",
+      "uuid": "83db38dc-4054-40c3-93e6-bd836c8a8308@181cb",
+      "displayName": "",
+      "id": "181cb",
+      "name": "贴图 #4.image",
+      "userData": {
+        "gltfIndex": 2
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".jpg",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "3effa": {
+      "importer": "texture",
+      "uuid": "83db38dc-4054-40c3-93e6-bd836c8a8308@3effa",
+      "displayName": "",
+      "id": "3effa",
+      "name": "UnnamedTexture-0.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "83db38dc-4054-40c3-93e6-bd836c8a8308@535b8"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "221a5": {
+      "importer": "texture",
+      "uuid": "83db38dc-4054-40c3-93e6-bd836c8a8308@221a5",
+      "displayName": "",
+      "id": "221a5",
+      "name": "UnnamedTexture-1.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "83db38dc-4054-40c3-93e6-bd836c8a8308@085b8"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "0089c": {
+      "importer": "texture",
+      "uuid": "83db38dc-4054-40c3-93e6-bd836c8a8308@0089c",
+      "displayName": "",
+      "id": "0089c",
+      "name": "UnnamedTexture-2.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "83db38dc-4054-40c3-93e6-bd836c8a8308@181cb"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "2c275": {
+      "importer": "gltf-material",
+      "uuid": "83db38dc-4054-40c3-93e6-bd836c8a8308@2c275",
+      "displayName": "",
+      "id": "2c275",
+      "name": "Material #112.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "52ba5": {
+      "importer": "gltf-scene",
+      "uuid": "83db38dc-4054-40c3-93e6-bd836c8a8308@52ba5",
+      "displayName": "",
+      "id": "52ba5",
+      "name": "rock#002.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [
+      {
+        "name": "Image",
+        "uri": "83db38dc-4054-40c3-93e6-bd836c8a8308@535b8"
+      },
+      {
+        "name": "Normal Texture",
+        "uri": "83db38dc-4054-40c3-93e6-bd836c8a8308@085b8"
+      },
+      {
+        "name": "贴图 #4",
+        "uri": "83db38dc-4054-40c3-93e6-bd836c8a8308@181cb"
+      }
+    ],
+    "animationImportSettings": [
+      {
+        "name": "Sm_Rock_VarD_0|Take 001|BaseLayer",
+        "duration": 0.03333333507180214,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "Sm_Rock_VarD_0|Take 001|BaseLayer",
+            "from": 0,
+            "to": 0.03333333507180214,
+            "wrapMode": 2
+          }
+        ]
+      }
+    ],
+    "redirect": "83db38dc-4054-40c3-93e6-bd836c8a8308@52ba5",
+    "assetFinder": {
+      "meshes": [
+        "83db38dc-4054-40c3-93e6-bd836c8a8308@e0cd7"
+      ],
+      "skeletons": [],
+      "textures": [
+        "83db38dc-4054-40c3-93e6-bd836c8a8308@3effa",
+        "83db38dc-4054-40c3-93e6-bd836c8a8308@221a5",
+        "83db38dc-4054-40c3-93e6-bd836c8a8308@0089c"
+      ],
+      "materials": [
+        "83db38dc-4054-40c3-93e6-bd836c8a8308@2c275"
+      ],
+      "scenes": [
+        "83db38dc-4054-40c3-93e6-bd836c8a8308@52ba5"
+      ]
+    }
+  }
+}

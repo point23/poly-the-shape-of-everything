@@ -17,7 +17,7 @@ UI ===
 - navigator
 - transactions panel
 - undo panel
-+ Stars for difficulty
+- Stars for difficulty
 + Clock and Slide for undo
 + Mobile Input
 
@@ -29,17 +29,18 @@ GAMEPLAY ===
 - Supporter and Supportee
 - Proximity grid
 - Falling
-+ Reset the whole level when
-    * We press 'R'
-    * We switch the mode in level editor
-+ Assign difficulty of current level
-+ Fence: 
+- Assign difficulty of current level
+- Fence: 
     Blocked Behavior
     Example:
         _______
        |      ||
        | -x-> || <-x-
        |______||
+- Rover
++ Reset the whole level when
+    * We press 'R'
+    * We switch the mode in level editor
 + Decorators
     like grass on the ground...
 + Better camera controller
@@ -47,7 +48,6 @@ GAMEPLAY ===
 + Capee / POCCESS MOVE
 + Ocean
 + River
-+ Rover
 + Elevator
 
 AI STUFF ===
@@ -75,6 +75,12 @@ ART STUFF===
 - Failed to move onto entities just created in the editor...
 - Fix undo redo
 + Clean up undo
++ Transaction Panel is now doesn't work..
+    since there are a lot of rover moves.
++ Undo checkpoints:
+    we should not count in those automatically generated moves
++ Sanity check is in need!!!
+    when we push a rock in the same round that rover is moved, them would be in the same square
 + Domino control
 + Clear transaction stack when load new level
 + Repeatedly bind the callback function!!!

@@ -3,6 +3,7 @@ import { Contextual_Manager } from '../Contextual_Manager';
 
 import { Entity_Manager } from '../Entity_Manager';
 import { Direction } from '../Game_Entity';
+import { Level_Editor } from '../Level_Editor';
 import { Controller_Proc_Move, Possess_Move } from '../Single_Move';
 import { Transaction_Manager } from '../Transaction_Manager';
 import { UI_Manager } from '../UI_Manager';
@@ -22,10 +23,12 @@ export class Test_Run_Mode extends Game_Mode {
         undo_mark_beginning(this.entity_manager);
 
         UI_Manager.instance.info("Test Run");
-        // console.log(this.entity_manager.undo_handler.old_entity_state);
+        Level_Editor.instance.is_availale = true; // @hack
     }
 
-    on_exit() { }
+    on_exit() {
+        Level_Editor.instance.is_availale = false; // @hack
+    }
 
     handle_key_down(event: EventKeyboard) {
         let key_code = event.keyCode;

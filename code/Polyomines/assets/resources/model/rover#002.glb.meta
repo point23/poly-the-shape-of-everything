@@ -1,0 +1,245 @@
+{
+  "ver": "2.3.3",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "1305d592-f61d-41bc-95c9-76c50365c48b",
+  "files": [],
+  "subMetas": {
+    "feb61": {
+      "importer": "gltf-mesh",
+      "uuid": "1305d592-f61d-41bc-95c9-76c50365c48b@feb61",
+      "displayName": "",
+      "id": "feb61",
+      "name": "网格.044.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "535b8": {
+      "importer": "gltf-embeded-image",
+      "uuid": "1305d592-f61d-41bc-95c9-76c50365c48b@535b8",
+      "displayName": "",
+      "id": "535b8",
+      "name": "Image.image",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".png"
+      ],
+      "subMetas": {}
+    },
+    "3effa": {
+      "importer": "texture",
+      "uuid": "1305d592-f61d-41bc-95c9-76c50365c48b@3effa",
+      "displayName": "",
+      "id": "3effa",
+      "name": "UnnamedTexture-0.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "1305d592-f61d-41bc-95c9-76c50365c48b@535b8"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "221a5": {
+      "importer": "texture",
+      "uuid": "1305d592-f61d-41bc-95c9-76c50365c48b@221a5",
+      "displayName": "",
+      "id": "221a5",
+      "name": "UnnamedTexture-1.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "1305d592-f61d-41bc-95c9-76c50365c48b@535b8"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "0089c": {
+      "importer": "texture",
+      "uuid": "1305d592-f61d-41bc-95c9-76c50365c48b@0089c",
+      "displayName": "",
+      "id": "0089c",
+      "name": "UnnamedTexture-2.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "1305d592-f61d-41bc-95c9-76c50365c48b@535b8"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "9b633": {
+      "importer": "texture",
+      "uuid": "1305d592-f61d-41bc-95c9-76c50365c48b@9b633",
+      "displayName": "",
+      "id": "9b633",
+      "name": "UnnamedTexture-3.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "1305d592-f61d-41bc-95c9-76c50365c48b@535b8"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e3080": {
+      "importer": "gltf-material",
+      "uuid": "1305d592-f61d-41bc-95c9-76c50365c48b@e3080",
+      "displayName": "",
+      "id": "e3080",
+      "name": "20 GREY.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "3759b": {
+      "importer": "gltf-material",
+      "uuid": "1305d592-f61d-41bc-95c9-76c50365c48b@3759b",
+      "displayName": "",
+      "id": "3759b",
+      "name": "17 GREY-DARKEST.material",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "1a94b": {
+      "importer": "gltf-material",
+      "uuid": "1305d592-f61d-41bc-95c9-76c50365c48b@1a94b",
+      "displayName": "",
+      "id": "1a94b",
+      "name": "26 RED-DARK.material",
+      "userData": {
+        "gltfIndex": 2
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "d8a54": {
+      "importer": "gltf-material",
+      "uuid": "1305d592-f61d-41bc-95c9-76c50365c48b@d8a54",
+      "displayName": "",
+      "id": "d8a54",
+      "name": "9 BROWN-DARKEST.material",
+      "userData": {
+        "gltfIndex": 3
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "cad52": {
+      "importer": "gltf-scene",
+      "uuid": "1305d592-f61d-41bc-95c9-76c50365c48b@cad52",
+      "displayName": "",
+      "id": "cad52",
+      "name": "rover#002.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [
+      {
+        "name": "Image",
+        "uri": "1305d592-f61d-41bc-95c9-76c50365c48b@535b8"
+      }
+    ],
+    "redirect": "1305d592-f61d-41bc-95c9-76c50365c48b@cad52",
+    "assetFinder": {
+      "meshes": [
+        "1305d592-f61d-41bc-95c9-76c50365c48b@feb61"
+      ],
+      "skeletons": [],
+      "textures": [
+        "1305d592-f61d-41bc-95c9-76c50365c48b@3effa",
+        "1305d592-f61d-41bc-95c9-76c50365c48b@221a5",
+        "1305d592-f61d-41bc-95c9-76c50365c48b@0089c",
+        "1305d592-f61d-41bc-95c9-76c50365c48b@9b633"
+      ],
+      "materials": [
+        "1305d592-f61d-41bc-95c9-76c50365c48b@e3080",
+        "1305d592-f61d-41bc-95c9-76c50365c48b@3759b",
+        "1305d592-f61d-41bc-95c9-76c50365c48b@1a94b",
+        "1305d592-f61d-41bc-95c9-76c50365c48b@d8a54"
+      ],
+      "scenes": [
+        "1305d592-f61d-41bc-95c9-76c50365c48b@cad52"
+      ]
+    }
+  }
+}

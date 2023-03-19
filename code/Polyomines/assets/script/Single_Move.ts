@@ -1,5 +1,5 @@
 import { _decorator, Vec3 } from 'cc';
-import { Const, String_Builder } from './Const';
+import { Const, same_position, String_Builder } from './Const';
 import { calcu_entity_future_position, calcu_entity_future_squares, reversed_direction, Direction, Entity_Type, Game_Entity, Polyomino_Type, orthogonal_direction, get_entity_squares, same_direction } from './Game_Entity';
 import { Move_Transaction } from './Move_Transaction';
 import { Transaction_Control_Flags, Transaction_Manager } from './Transaction_Manager';
@@ -10,16 +10,11 @@ export enum Move_Flags {
     DEFERRED = 1 << 2,
 }
 
-// @hack
-function same_position(a: Vec3, b: Vec3): boolean {
-    return a.x == b.x && a.y == b.y && a.z == b.z;
-}
-
 function calcu_target_direction(d: Direction, delta: number): Direction {
     return (d + delta + 4) % 4;
 }
 
-class Move_Info {
+export class Move_Info {
     source_entity_id: number;
     target_entity_id: number;
 
@@ -276,8 +271,9 @@ export class Pushed_Move extends Single_Move {
         let e_target = manager.find(this.info.target_entity_id);
         const direction = this.reaction_direction;
 
-        if (e_target.entity_type == Entity_Type.STATIC ||
-            e_target.entity_type == Entity_Type.CHECKPOINT) {
+        if (e_target.entity_type == Entity_Type.STATIC
+            || e_target.entity_type == Entity_Type.CHECKPOINT
+            || e_target.entity_type == Entity_Type.ROVER) {
             return false;
         }
 
