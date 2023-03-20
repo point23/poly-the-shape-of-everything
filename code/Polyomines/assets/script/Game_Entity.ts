@@ -1,4 +1,4 @@
-import { _decorator, Component, Enum, MeshRenderer, SkeletalAnimation, tween, Vec3 } from 'cc';
+import { _decorator, Component, Enum, MeshRenderer, SkeletalAnimation, tween, Vec3, Game } from 'cc';
 import { Const, String_Builder } from './Const';
 import { Entity_Manager } from './Entity_Manager';
 import { Polygon_Entity } from './Polygon_Entity';
@@ -70,6 +70,8 @@ export enum Entity_Type {
     FENCE,
     ROVER,
     TRACK,
+    SWITCH,
+    GEM,
 }
 
 export enum Polyomino_Type {
@@ -344,6 +346,17 @@ export function get_entity_squares(e: Game_Entity): Vec3[] {
     return squares;
 }
 
+export function locate_entities_in_target_direction(m: Entity_Manager, e: Game_Entity, d: Direction, step: number = 1): Game_Entity[] {
+    const future_squares = calcu_entity_future_squares(e, d, step);
+    let result = [];
+    for (let pos of future_squares) {
+        for (let other of m.locate_entities(pos)) {
+            result.push(other);
+        }
+    }
+    return result;
+}
+
 export function calcu_entity_future_position(e: Game_Entity, dir: Direction, step: number = 1): Vec3 {
     const delta = direction_to_vec3[dir];
     let o = new Vec3(e.position);
@@ -395,6 +408,7 @@ export function debug_validate_tiling(manager: Entity_Manager) {
         if (e.entity_type == Entity_Type.CHECKPOINT) continue;
         if (e.entity_type == Entity_Type.FENCE) continue;
         if (e.entity_type == Entity_Type.TRACK) continue;
+        if (e.entity_type == Entity_Type.SWITCH) continue;
 
         for (let pos of get_entity_squares(e)) {
             const pos_str = pos.toString();

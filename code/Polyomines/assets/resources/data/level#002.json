@@ -35,7 +35,7 @@
             "rotation": 2
         },
         {
-            "prefab": "Checkpoint#002",
+            "prefab": "Checkpoint#001",
             "position": {
                 "x": 4,
                 "y": 6,

@@ -1,0 +1,78 @@
+{
+  "ver": "2.3.3",
+  "importer": "fbx",
+  "imported": true,
+  "uuid": "d098ff3b-9d6f-4579-9c5a-4aa244038674",
+  "files": [],
+  "subMetas": {
+    "07d75": {
+      "importer": "gltf-mesh",
+      "uuid": "d098ff3b-9d6f-4579-9c5a-4aa244038674@07d75",
+      "displayName": "",
+      "id": "07d75",
+      "name": "立方体.001.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "39e40": {
+      "importer": "gltf-material",
+      "uuid": "d098ff3b-9d6f-4579-9c5a-4aa244038674@39e40",
+      "displayName": "",
+      "id": "39e40",
+      "name": "brass.projected.002.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "81b91": {
+      "importer": "gltf-scene",
+      "uuid": "d098ff3b-9d6f-4579-9c5a-4aa244038674@81b91",
+      "displayName": "",
+      "id": "81b91",
+      "name": "checkpoint#001.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "fbx": {
+      "smartMaterialEnabled": true
+    },
+    "redirect": "d098ff3b-9d6f-4579-9c5a-4aa244038674@81b91",
+    "assetFinder": {
+      "meshes": [
+        "d098ff3b-9d6f-4579-9c5a-4aa244038674@07d75"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "d098ff3b-9d6f-4579-9c5a-4aa244038674@39e40"
+      ],
+      "scenes": [
+        "d098ff3b-9d6f-4579-9c5a-4aa244038674@81b91"
+      ]
+    }
+  }
+}

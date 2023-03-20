@@ -1,15 +1,13 @@
-import { _decorator, Component, Camera, Node, instantiate, Prefab, EventHandler, debug, Button } from 'cc';
+import { _decorator, Component, Node, instantiate, Prefab, EventHandler, Button } from 'cc';
 import { Camera3D_Controller } from './Camera3D_Controller';
 import { Const } from './Const';
 import { Contextual_Manager } from './Contextual_Manager';
 import { Entity_Manager } from './Entity_Manager';
-import { Direction, orthogonal_direction, reversed_direction } from './Game_Entity';
 import { debug_render_grid, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
-import { generate_rover_moves, init_rover_moves } from './rover';
+import { check_if_switch_turned_on, generate_rover_moves } from './rover';
 import { Transaction_Manager } from './Transaction_Manager';
 import { Level_Editor_Panel } from './ui/Level_Editor_Panel';
-import { Navigator } from './ui/Navigator';
 import { UI_Manager } from './UI_Manager';
 import { do_one_redo, do_one_undo, Undo_Handler } from './undo';
 
@@ -56,6 +54,12 @@ export class Level_Editor extends Component {
         this.schedule(this.tick, Const.Tick_Interval);
     }
 
+    reload_current_level() {
+        this.clear_current_level();
+
+        this.resource_manager.load_current_level(this, init);
+    }
+
     load_prev_level() {
         this.clear_current_level();
 
@@ -80,6 +84,7 @@ export class Level_Editor extends Component {
         Entity_Manager.current = null;
 
         clear_ui(this);
+
         this.debug_grid.destroy();
         this.debug_grid = null;
     }
@@ -92,10 +97,21 @@ export class Level_Editor extends Component {
         this.round = (this.round + 1) % 1024;
     }
 
-    is_availale = false; // @hack 
+    _is_running: boolean = false;
+    set is_running(v: boolean) {
+        // Restart game
+        if (!this._is_running && v) {
+            check_if_switch_turned_on(this.entity_manager);
+        }
+        this._is_running = v;
+    };
+    get is_running(): boolean {
+        return this._is_running;
+    }
+
     main_loop() {
-        if (!this.is_availale) return;
-        if (this.round % 32 == 0) generate_rover_moves(this.transaction_manager); // @hack
+        if (!this.is_running) return;
+        if (this.round % 64 == 0) generate_rover_moves(this.transaction_manager); // @hack
         this.transaction_manager.execute_async();
     }
 

@@ -20,7 +20,9 @@ export class Entity_Manager {
     checkpoints: Game_Entity[] = [];
 
     rovers: Game_Entity[] = [];
+
     pending_win: boolean = false; // @implementMe
+    switch_turned_on: boolean = false;
 
     constructor(g: Proximity_Grid) {
         this.proximity_grid = g;

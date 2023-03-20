@@ -5,7 +5,7 @@ import { Level_Editor } from './Level_Editor';
 import { Move_Transaction } from './Move_Transaction';
 import { debug_print_quad_tree } from './Proximity_Grid';
 import { Singleton_Manager } from './Singleton_Manager_Base';
-import { Single_Move } from './Single_Move';
+import { Controller_Proc_Move, Single_Move } from './Single_Move';
 import { UI_Manager } from './UI_Manager';
 import { undo_end_frame } from './undo';
 const { ccclass, property } = _decorator;
@@ -54,13 +54,15 @@ export class Transaction_Manager extends Singleton_Manager {
     async execute_async() {
         if (this.issued_stack.empty()) return;
 
-        // @incomplete Detect conflicts
-        const packed = new Move_Transaction(this.entity_manager); // @hack
+        const packed = new Move_Transaction(this.entity_manager);
 
+        let contatins_controller_proc: boolean = false;
         while (this.issued_stack.size()) {
             const transaction = this.issued_stack.pop();
             for (let move of transaction.moves) {
                 await move.execute_async(transaction);
+
+                if (move instanceof Controller_Proc_Move) contatins_controller_proc = true;
 
                 packed.moves.push(move);
             }
@@ -73,13 +75,13 @@ export class Transaction_Manager extends Singleton_Manager {
         debug_print_quad_tree(this.entity_manager.proximity_grid.quad_tree);
 
         if (this.entity_manager.pending_win) {
-            // UI_Manager.instance.show_winning();
+            // @todo Render some winning message
             Level_Editor.instance.load_succeed_level();
             return;
         }
 
-        undo_end_frame(this.entity_manager);
-
-        // UI_Manager.instance.transaction_panel.note_new_transaction(); // @fixme Transaction panel should only show those with a Controller_Proc move
+        if (contatins_controller_proc)
+            undo_end_frame(this.entity_manager);
+        UI_Manager.instance.transaction_panel.note_new_transaction(); // @fixme Transaction panel should only show those with a Controller_Proc move
     }
 }

@@ -44,13 +44,13 @@
             "rotation": 1
         },
         {
-            "prefab": "Stump#001",
+            "prefab": "Box#001",
             "position": {
                 "x": 13,
                 "y": 7,
                 "z": 2
             },
-            "rotation": 1
+            "rotation": 3
         },
         {
             "prefab": "Checkpoint#001",

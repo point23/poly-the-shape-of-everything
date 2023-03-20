@@ -1,0 +1,95 @@
+{
+  "ver": "2.3.3",
+  "importer": "fbx",
+  "imported": true,
+  "uuid": "e8c5a109-fdf8-4372-aa13-f891ec7ac11c",
+  "files": [],
+  "subMetas": {
+    "9ecd6": {
+      "importer": "gltf-mesh",
+      "uuid": "e8c5a109-fdf8-4372-aa13-f891ec7ac11c@9ecd6",
+      "displayName": "",
+      "id": "9ecd6",
+      "name": "Medium.base.003_Material0.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "6ee35": {
+      "importer": "gltf-material",
+      "uuid": "e8c5a109-fdf8-4372-aa13-f891ec7ac11c@6ee35",
+      "displayName": "",
+      "id": "6ee35",
+      "name": "pipes.medium.grey.001.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "d7f03": {
+      "importer": "gltf-material",
+      "uuid": "e8c5a109-fdf8-4372-aa13-f891ec7ac11c@d7f03",
+      "displayName": "",
+      "id": "d7f03",
+      "name": "brass.projected.001.material",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "8d06b": {
+      "importer": "gltf-scene",
+      "uuid": "e8c5a109-fdf8-4372-aa13-f891ec7ac11c@8d06b",
+      "displayName": "",
+      "id": "8d06b",
+      "name": "switch#001.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "fbx": {
+      "smartMaterialEnabled": true
+    },
+    "redirect": "e8c5a109-fdf8-4372-aa13-f891ec7ac11c@8d06b",
+    "assetFinder": {
+      "meshes": [
+        "e8c5a109-fdf8-4372-aa13-f891ec7ac11c@9ecd6"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "e8c5a109-fdf8-4372-aa13-f891ec7ac11c@6ee35",
+        "e8c5a109-fdf8-4372-aa13-f891ec7ac11c@d7f03"
+      ],
+      "scenes": [
+        "e8c5a109-fdf8-4372-aa13-f891ec7ac11c@8d06b"
+      ]
+    }
+  }
+}

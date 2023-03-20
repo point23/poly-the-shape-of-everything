@@ -41,6 +41,8 @@ GAMEPLAY ===
 + Reset the whole level when
     * We press 'R'
     * We switch the mode in level editor
++ Switch
++ Power
 + Decorators
     like grass on the ground...
 + Better camera controller
@@ -74,11 +76,12 @@ ART STUFF===
     fire a scheduler to disable it after a very short interval.
 - Failed to move onto entities just created in the editor...
 - Fix undo redo
-+ Clean up undo
-+ Transaction Panel is now doesn't work..
+- Check for supportor inside a falling move
+- Transaction Panel is now doesn't work..
     since there are a lot of rover moves.
-+ Undo checkpoints:
+- Undo checkpoints:
     we should not count in those automatically generated moves
++ Clean up undo
 + Sanity check is in need!!!
     when we push a rock in the same round that rover is moved, them would be in the same square
 + Domino control

@@ -1,0 +1,252 @@
+{
+  "ver": "2.3.3",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "07a89f16-95c6-4204-ab80-f97787d266cb",
+  "files": [
+    "__original-animation-0.cconb"
+  ],
+  "subMetas": {
+    "57ed4": {
+      "importer": "gltf-mesh",
+      "uuid": "07a89f16-95c6-4204-ab80-f97787d266cb@57ed4",
+      "displayName": "",
+      "id": "57ed4",
+      "name": "网格.002.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "6d78c": {
+      "importer": "gltf-animation",
+      "uuid": "07a89f16-95c6-4204-ab80-f97787d266cb@6d78c",
+      "displayName": "",
+      "id": "6d78c",
+      "name": "Sm_CoffreOffrande_0|Take 001|BaseLayer.animation",
+      "userData": {
+        "gltfIndex": 0,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 0.03333333507180214
+        },
+        "events": []
+      },
+      "ver": "1.0.16",
+      "imported": true,
+      "files": [
+        ".cconb"
+      ],
+      "subMetas": {}
+    },
+    "535b8": {
+      "importer": "gltf-embeded-image",
+      "uuid": "07a89f16-95c6-4204-ab80-f97787d266cb@535b8",
+      "displayName": "",
+      "id": "535b8",
+      "name": "Image.image",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".png"
+      ],
+      "subMetas": {}
+    },
+    "085b8": {
+      "importer": "gltf-embeded-image",
+      "uuid": "07a89f16-95c6-4204-ab80-f97787d266cb@085b8",
+      "displayName": "",
+      "id": "085b8",
+      "name": "Normal Texture.image",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".jpg",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "3b1d8": {
+      "importer": "gltf-embeded-image",
+      "uuid": "07a89f16-95c6-4204-ab80-f97787d266cb@3b1d8",
+      "displayName": "",
+      "id": "3b1d8",
+      "name": "贴图 #7.image",
+      "userData": {
+        "gltfIndex": 2
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".jpg",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "3effa": {
+      "importer": "texture",
+      "uuid": "07a89f16-95c6-4204-ab80-f97787d266cb@3effa",
+      "displayName": "",
+      "id": "3effa",
+      "name": "UnnamedTexture-0.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "07a89f16-95c6-4204-ab80-f97787d266cb@535b8"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "221a5": {
+      "importer": "texture",
+      "uuid": "07a89f16-95c6-4204-ab80-f97787d266cb@221a5",
+      "displayName": "",
+      "id": "221a5",
+      "name": "UnnamedTexture-1.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "07a89f16-95c6-4204-ab80-f97787d266cb@085b8"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "0089c": {
+      "importer": "texture",
+      "uuid": "07a89f16-95c6-4204-ab80-f97787d266cb@0089c",
+      "displayName": "",
+      "id": "0089c",
+      "name": "UnnamedTexture-2.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "07a89f16-95c6-4204-ab80-f97787d266cb@3b1d8"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "0c9cb": {
+      "importer": "gltf-material",
+      "uuid": "07a89f16-95c6-4204-ab80-f97787d266cb@0c9cb",
+      "displayName": "",
+      "id": "0c9cb",
+      "name": "Base.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "7acc0": {
+      "importer": "gltf-scene",
+      "uuid": "07a89f16-95c6-4204-ab80-f97787d266cb@7acc0",
+      "displayName": "",
+      "id": "7acc0",
+      "name": "box#001.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [
+      {
+        "name": "Image",
+        "uri": "07a89f16-95c6-4204-ab80-f97787d266cb@535b8"
+      },
+      {
+        "name": "Normal Texture",
+        "uri": "07a89f16-95c6-4204-ab80-f97787d266cb@085b8"
+      },
+      {
+        "name": "贴图 #7",
+        "uri": "07a89f16-95c6-4204-ab80-f97787d266cb@3b1d8"
+      }
+    ],
+    "animationImportSettings": [
+      {
+        "name": "Sm_CoffreOffrande_0|Take 001|BaseLayer",
+        "duration": 0.03333333507180214,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "Sm_CoffreOffrande_0|Take 001|BaseLayer",
+            "from": 0,
+            "to": 0.03333333507180214,
+            "wrapMode": 2
+          }
+        ]
+      }
+    ],
+    "redirect": "07a89f16-95c6-4204-ab80-f97787d266cb@7acc0",
+    "assetFinder": {
+      "meshes": [
+        "07a89f16-95c6-4204-ab80-f97787d266cb@57ed4"
+      ],
+      "skeletons": [],
+      "textures": [
+        "07a89f16-95c6-4204-ab80-f97787d266cb@3effa",
+        "07a89f16-95c6-4204-ab80-f97787d266cb@221a5",
+        "07a89f16-95c6-4204-ab80-f97787d266cb@0089c"
+      ],
+      "materials": [
+        "07a89f16-95c6-4204-ab80-f97787d266cb@0c9cb"
+      ],
+      "scenes": [
+        "07a89f16-95c6-4204-ab80-f97787d266cb@7acc0"
+      ]
+    }
+  }
+}

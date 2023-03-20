@@ -23,11 +23,11 @@ export class Test_Run_Mode extends Game_Mode {
         undo_mark_beginning(this.entity_manager);
 
         UI_Manager.instance.info("Test Run");
-        Level_Editor.instance.is_availale = true; // @hack
+        Level_Editor.instance.is_running = true; // @hack
     }
 
     on_exit() {
-        Level_Editor.instance.is_availale = false; // @hack
+        Level_Editor.instance.is_running = false; // @hack
     }
 
     handle_key_down(event: EventKeyboard) {
@@ -66,6 +66,10 @@ export class Test_Run_Mode extends Game_Mode {
             case KeyCode.ENTER: {
                 const move = new Possess_Move(active_hero);
                 Transaction_Manager.instance.try_add_new_move(move);
+            } break;
+
+            case KeyCode.KEY_R: {
+                Level_Editor.instance.reload_current_level();
             } break;
 
             case KeyCode.SHIFT_LEFT:
