@@ -1,5 +1,5 @@
 import { assert, Game, Vec3 } from 'cc';
-import { Serializable_Entity_Data, Game_Entity, Undoable_Entity_Data, calcu_entity_future_squares, Direction, Entity_Type, get_entity_squares, get_serializable, clone_undoable_data } from './Game_Entity';
+import { Serializable_Entity_Data, Game_Entity, Undoable_Entity_Data, calcu_entity_future_squares, Direction, Entity_Type, get_entity_squares, get_serializable, clone_undoable_data, switch_is_turned_on, Entity_Flags } from './Game_Entity';
 import { debug_print_quad_tree, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
 import { Undo_Handler } from './undo';
@@ -22,7 +22,21 @@ export class Entity_Manager {
     rovers: Game_Entity[] = [];
 
     pending_win: boolean = false; // @implementMe
-    switch_turned_on: boolean = false;
+
+    _switch: Game_Entity = null;
+
+    get switch_turned_on(): boolean {
+        if (this._switch == null) return false;
+        return switch_is_turned_on(this._switch);
+    }
+
+    set switch_turned_on(v: boolean) {
+        if (this._switch == null) return;
+        if (!this.switch_turned_on && v)
+            this._switch.undoable.flags |= Entity_Flags.SWITCH_TURNED_ON;
+        if (this.switch_turned_on && !v)
+            this._switch.undoable.flags -= Entity_Flags.SWITCH_TURNED_ON;
+    }
 
     constructor(g: Proximity_Grid) {
         this.proximity_grid = g;
@@ -59,6 +73,7 @@ export class Entity_Manager {
         if (entity.entity_type == Entity_Type.CHECKPOINT) this.checkpoints.push(entity);
         if (entity.entity_type == Entity_Type.HERO) this.active_hero = entity;
         if (entity.entity_type == Entity_Type.ROVER) this.rovers.push(entity);
+        if (entity.entity_type == Entity_Type.SWITCH) this._switch = entity;
 
         debug_print_quad_tree(this.proximity_grid.quad_tree);
         return entity;

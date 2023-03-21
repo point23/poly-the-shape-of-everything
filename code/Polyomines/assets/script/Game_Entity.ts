@@ -16,6 +16,7 @@ export enum Entity_Flags {
     SELECT = 1 << 1,
     DEAD = 1 << 3,
     FALLING = 1 << 4,
+    SWITCH_TURNED_ON = 1 << 5,
 }
 
 export enum Direction {
@@ -25,6 +26,11 @@ export enum Direction {
     BACKWORD,
     UP,
     DOWN,
+}
+
+export function switch_is_turned_on(e: Game_Entity): boolean {
+    return e.entity_type == Entity_Type.SWITCH
+        && (e.flags & Entity_Flags.SWITCH_TURNED_ON) != 0;
 }
 
 export function same_direction(d1: Direction, d2: Direction) {

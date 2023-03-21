@@ -9,7 +9,6 @@ export class Move_Transaction {
     static get next_id(): number { return Move_Transaction.serial_idx++ };
 
     id: number;
-
     duration: number;
     moves: Single_Move[];
     entity_manager: Entity_Manager

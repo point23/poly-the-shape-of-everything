@@ -102,8 +102,6 @@ export function undo_end_frame(manager: Entity_Manager) {
     UI_Manager.instance.show_undo_changes(num_changes);
     record.transaction = builder.to_string(' '); // @hack
     undo.undo_records.push(record);
-
-    debug_print_quad_tree(manager.proximity_grid.quad_tree);
 }
 
 export function do_one_undo(manager: Entity_Manager) {

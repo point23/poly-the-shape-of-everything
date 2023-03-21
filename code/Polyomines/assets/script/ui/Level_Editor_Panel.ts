@@ -5,7 +5,6 @@ import { Resource_Manager } from '../Resource_Manager';
 import { Button_Group } from './Button_Group';
 import { Navigator } from './Navigator';
 import { Transaction_Panel } from './Transaction_Panel';
-import { Undo_Panel } from './Undo_Panel';
 const { ccclass, property } = _decorator;
 
 @ccclass('Level_Editor_Panel')

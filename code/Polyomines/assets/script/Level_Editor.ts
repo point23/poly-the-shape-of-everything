@@ -5,7 +5,8 @@ import { Contextual_Manager } from './Contextual_Manager';
 import { Entity_Manager } from './Entity_Manager';
 import { debug_render_grid, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
-import { check_if_switch_turned_on, generate_rover_moves } from './rover';
+import { generate_rover_moves } from './rover';
+import { may_turned_on_switch } from './Single_Move';
 import { Transaction_Manager } from './Transaction_Manager';
 import { Level_Editor_Panel } from './ui/Level_Editor_Panel';
 import { UI_Manager } from './UI_Manager';
@@ -101,7 +102,7 @@ export class Level_Editor extends Component {
     set is_running(v: boolean) {
         // Restart game
         if (!this._is_running && v) {
-            check_if_switch_turned_on(this.entity_manager);
+            may_turned_on_switch(this.entity_manager);
         }
         this._is_running = v;
     };

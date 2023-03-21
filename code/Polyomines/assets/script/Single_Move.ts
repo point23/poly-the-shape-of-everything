@@ -1,7 +1,7 @@
 import { _decorator, Vec3 } from 'cc';
 import { Const, same_position, String_Builder } from './Const';
 import { Entity_Manager } from './Entity_Manager';
-import { calcu_entity_future_position, calcu_entity_future_squares, reversed_direction, Direction, Entity_Type, Game_Entity, Polyomino_Type, orthogonal_direction, get_entity_squares, same_direction, locate_entities_in_target_direction } from './Game_Entity';
+import { calcu_entity_future_position, reversed_direction, Direction, Entity_Type, Game_Entity, Polyomino_Type, orthogonal_direction, get_entity_squares, same_direction, locate_entities_in_target_direction } from './Game_Entity';
 import { Move_Transaction } from './Move_Transaction';
 import { Transaction_Control_Flags, Transaction_Manager } from './Transaction_Manager';
 
@@ -13,6 +13,216 @@ export enum Move_Flags {
 
 function calcu_target_direction(d: Direction, delta: number): Direction {
     return (d + delta + 4) % 4;
+}
+
+export function may_turned_on_switch(manager: Entity_Manager) {
+    let e_switch = null;
+    for (let e of manager.all_entities) {
+        if (e.entity_type == Entity_Type.SWITCH) {
+            e_switch = e;
+        };
+    }
+
+    if (e_switch == null) return;
+
+    for (let e of manager.locate_current_supportees(e_switch)) {
+        if (e.entity_type == Entity_Type.GEM) {
+            manager.switch_turned_on = true;
+            return;
+        }
+    }
+
+    manager.switch_turned_on = false;
+}
+
+
+export function hit_the_barrier(m: Entity_Manager, e: Game_Entity, d: Direction) {
+    for (let other of m.locate_current_supporters(e)) {
+        if (other.entity_type == Entity_Type.FENCE) {
+            // @note Can't pass through when there's a fence on the future square
+            // _______
+            // |      ||
+            // | -x-> ||
+            // |______||
+            const fence = other;
+            if (same_direction(fence.orientation, d)) {
+                return true;
+            }
+        }
+
+        if (other.entity_type == Entity_Type.BRIDGE) {
+            // @note Can't get off the bridge halfway
+            // |  ↑  |
+            // |<-x->| 
+            // |  ↓  |
+            const bridge = other;
+            if (orthogonal_direction(bridge.orientation, d)) {
+                return true;
+            }
+        };
+    }
+    return false;
+}
+
+export function blocked_by_barrier(m: Entity_Manager, e: Game_Entity, d: Direction): boolean {
+    for (let supporter of m.locate_future_supporters(e, d)) {
+        if (supporter.entity_type == Entity_Type.BRIDGE) {
+            // @note Can't walk on the bridge halfway.
+            // |  ↑  |
+            // |     | <-x-
+            // |  ↓  |
+            const bridge = supporter;
+            if (orthogonal_direction(bridge.rotation, d)) {
+                return true;
+            }
+        };
+
+        if (supporter.entity_type == Entity_Type.FENCE) {
+            // @note Can't pass through when there's a fence on the future square
+            // _______
+            // |      ||
+            // |      || <-x-
+            // |______||
+            //       Hit the fence.
+            const fence = supporter;
+            if (reversed_direction(fence.rotation, d)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function can_pass_through(m: Entity_Manager, e: Game_Entity, d: Direction) {
+    for (let other of locate_entities_in_target_direction(m, e, d)) {
+        if (other == null) continue;
+        if (other == e) continue;
+        if (other.entity_type == Entity_Type.GATE) {
+            if (same_position(other.position, e.position)
+                && e.polyomino_type == Polyomino_Type.MONOMINO)
+                continue;
+            else {
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    return true;
+}
+
+export function try_push_others(t: Move_Transaction, e: Game_Entity, d: Direction): { pushed: boolean, push_succeed: boolean } {
+    const res = { pushed: false, push_succeed: true };
+    const manager = t.entity_manager;
+
+    for (let other of locate_entities_in_target_direction(manager, e, d)) {
+        if (other == null) continue;
+        if (other == e) continue;
+
+        res.pushed = true;
+
+        // @todo Check this when we actually try to add that push move!
+        if (other.entity_type == Entity_Type.GATE) {
+            const gate = other;
+            if (!same_position(gate.position, e.position) || e.polyomino_type != Polyomino_Type.MONOMINO) {
+                res.push_succeed = false;
+            }
+            continue;
+        }
+
+        const pushed_move = new Pushed_Move(e, other, d);
+        if (!pushed_move.try_add_itself(t)) {
+            res.push_succeed = false;
+        }
+    }
+
+    return res;
+}
+
+function possible_falling(t: Move_Transaction, e: Game_Entity, d: Direction): { fell: boolean, fall_succeed: boolean } {
+    const res = {
+        fell: false,
+        fall_succeed: true,
+    };
+    const manager = t.entity_manager;
+    const supporters = manager.locate_future_supporters(e, d);
+    if (supporters.length == 0) {
+        const falling_move = new Falling_Move(e, d);
+        if (falling_move.try_add_itself(t))
+            res.fall_succeed = true;
+        else
+            res.fall_succeed = false;
+        res.fell = true;
+    }
+    return res;
+}
+
+function possible_win(m: Entity_Manager, e: Game_Entity, d: Direction) {
+    for (let other of m.locate_future_supporters(e, d)) {
+        if (other.entity_type == Entity_Type.CHECKPOINT) {
+            m.pending_win = true;
+        }
+    }
+}
+
+export function move_supportees(transaction: Move_Transaction, e_target: Game_Entity, position_delta: Vec3, rotation_delta: number) {
+    const manager = transaction.entity_manager;
+    for (let supportee of manager.locate_current_supportees(e_target)) {
+        const support_move = new Support_Move(supportee, rotation_delta, position_delta);
+        support_move.try_add_itself(transaction);
+    }
+}
+
+// Physically Update Entities
+export function may_move_entity(move: Single_Move, manager: Entity_Manager, entity: Game_Entity) {
+    if (!is_dirty(move, Move_Flags.MOVED)) return;
+    manager.move_entity(entity, move.end_position);
+}
+
+export function may_rotate_entity(move: Single_Move, manager: Entity_Manager, entity: Game_Entity) {
+    if (!is_dirty(move, Move_Flags.ROTATED)) return;
+    manager.rotate_entity(entity, move.end_direction);
+}
+
+// === LOG STUFF ===
+export function log_target_entity(builder: String_Builder, move: Single_Move) {
+    builder.append('\n-   entity#').append(move.info.target_entity_id);
+}
+
+export function may_log_move(builder: String_Builder, move: Single_Move) {
+    if (move.flags & Move_Flags.MOVED) {
+        builder.append('\n-   movement: from ')
+            .append(move.start_position.toString())
+            .append(' to ')
+            .append(move.end_position.toString());
+    }
+}
+
+export function may_log_rotate(builder: String_Builder, move: Single_Move) {
+    if (move.flags & Move_Flags.ROTATED) {
+        // Rotation
+        builder.append('\n-   rotation: from ')
+            .append(Const.Direction_Names[move.start_direction])
+            .append(' to ')
+            .append(Const.Direction_Names[move.end_direction]);
+    }
+}
+
+// === FLAG STUFF ===
+function is_dirty(move: Single_Move, f: number): boolean {
+    return (move.flags & f) != 0;
+}
+
+export function set_dirty(move: Single_Move, f: number) {
+    move.flags |= f;
+}
+
+function already_exist_one(f: number): boolean {
+    if (Transaction_Manager.instance.control_flags & f) {
+        return true;
+    }
+    return false;
 }
 
 export class Move_Info {
@@ -29,11 +239,6 @@ export class Move_Info {
     public constructor() { }
 }
 
-/**
- * Implementation of Command Pattern
- * - Try add itself to current transaction
- * - Execute & Undo
- */
 export class Single_Move {
     static serial_idx = 1;
     static get next_id(): number { return Single_Move.serial_idx++ };
@@ -76,139 +281,50 @@ export class Controller_Proc_Move extends Single_Move {
     }
 
     try_add_itself(transaction: Move_Transaction): boolean {
-        if (Transaction_Manager.instance.control_flags & Transaction_Control_Flags.CONTROLLER_MOVE) {
-            // Already exist one Controller_Proc Move
+        function may_rotate(): boolean {
+            if (!same_direction(start_direction, end_direction)) {
+                // Face to target direction if it's not currently oriented to that direction.
+                const delta = end_direction - start_direction;
+                let rotate_move = new Controller_Proc_Move(e_target, end_direction, 0)
+                set_dirty(rotate_move, Move_Flags.ROTATED);
+                transaction.moves.push(rotate_move);
+                if (e_target.entity_type != Entity_Type.AVATAR) {
+                    // Avators would only rotate it's indicator 
+                    move_supportees(transaction, e_target, Vec3.ZERO, delta);
+                }
+                return true;
+            }
             return false;
         }
 
+        if (already_exist_one(Transaction_Control_Flags.CONTROLLER_MOVE)) return false;
+
         const manager = transaction.entity_manager;
         const e_target = manager.find(this.info.target_entity_id);
-        const supportees: Game_Entity[] = manager.locate_current_supportees(e_target);
+        const start_direction = this.start_direction;
+        const end_direction = this.end_direction;
+        const start_position = this.start_position;
+        const end_position = this.end_position;
 
-        let at_least_rotated = false;
-        if (!same_direction(this.start_direction, this.end_direction)) {
-            // Face to target direction if it's not currently oriented to that direction.
+        const at_least_rotated = may_rotate();
 
-            const direction_delta = this.end_direction - this.start_direction;
-            let rotate_move = new Controller_Proc_Move(e_target, this.end_direction, 0)
-            rotate_move.flags |= Move_Flags.ROTATED;
-            transaction.moves.push(rotate_move);
-            this.info.start_direction = this.end_direction;
-            at_least_rotated = true;
+        if (same_position(start_position, end_position)) return at_least_rotated;
+        if (hit_the_barrier(manager, e_target, end_direction)) return at_least_rotated;
 
-            if (e_target.entity_type != Entity_Type.AVATAR) {
-                // Avators would only rotate it's indicator 
+        const push_res = try_push_others(transaction, e_target, end_direction);
+        if (push_res.pushed && !push_res.push_succeed) return at_least_rotated;
 
-                for (let supportee of supportees) {
-                    const support_move = new Support_Move(supportee, direction_delta);
-                    // @todo Handle if failed to move the supportees
-                    support_move.try_add_itself(transaction);
-                }
-            }
-        }
+        const fall_res = possible_falling(transaction, e_target, end_direction);
+        if (fall_res.fell) return (fall_res.fall_succeed || at_least_rotated);
 
-        if (same_position(this.start_position, this.end_position))
-            return at_least_rotated;
+        if (blocked_by_barrier(manager, e_target, end_direction)) return at_least_rotated;
 
-        const current_supporters = manager.locate_current_supporters(e_target);
-        for (let other of current_supporters) {
-            if (other.entity_type == Entity_Type.BRIDGE) {
-                // |  ↑  |
-                // |<-x->| 
-                // |  ↓  |
-                //      Can't get off the bridge halfway
-                if (orthogonal_direction(other.rotation, this.end_direction)) {
-                    return at_least_rotated;
-                }
-            };
-
-            if (other.entity_type == Entity_Type.FENCE) {
-                // @note Can't pass through when there's a fence on the future square
-                // _______
-                // |      ||
-                // | -x-> ||
-                // |______||
-                if (same_direction(other.rotation, this.end_direction)) {
-                    return at_least_rotated;
-                }
-            }
-        }
-
-        const future_squares = calcu_entity_future_squares(e_target, this.end_direction);
-        for (let pos of future_squares) {
-            // Detect if there are any existed entity in target position.
-            for (let other of manager.locate_entities(pos)) {
-
-                if (other == null) continue;
-                if (other == e_target) continue;
-
-                if (other.entity_type == Entity_Type.GATE) {
-                    // @fixme For now, in our gameplay, if it's a gate, then only monominoes can pass through.
-
-                    if (same_position(other.position, pos) && e_target.polyomino_type == Polyomino_Type.MONOMINO)
-                        continue;
-                    else {
-                        return at_least_rotated;
-                    }
-                }
-
-                const pushed_move = new Pushed_Move(e_target, other, this.end_direction);
-
-                if (!pushed_move.try_add_itself(transaction)) {
-                    return at_least_rotated;
-                }
-            }
-        }
-
-        const future_supporters = manager.locate_future_supporters(e_target, this.end_direction);
-        if (future_supporters.length == 0) {
-            // Falls down if there're no valid supporter
-
-            const falling_move = new Falling_Move(e_target, this.end_direction);
-            if (falling_move.try_add_itself(transaction))
-                return true;
-            return at_least_rotated;
-        }
-
-        for (let supporter of future_supporters) {
-            if (supporter.entity_type == Entity_Type.BRIDGE) {
-                if (orthogonal_direction(supporter.rotation, this.end_direction)) {
-                    // |  ↑  |
-                    // |     | <-x-
-                    // |  ↓  |
-                    //      Can't walk on the bridge halfway.
-                    return at_least_rotated;
-                }
-            };
-
-            if (supporter.entity_type == Entity_Type.FENCE) {
-                // @note Can't pass through when there's a fence on the future square
-                // _______
-                // |      ||
-                // |      || <-x-
-                // |______||
-                //       Hit the fence.
-
-                if (reversed_direction(supporter.rotation, this.end_direction)) {
-                    return at_least_rotated;
-                }
-                continue;
-            }
-
-            if (supporter.entity_type == Entity_Type.CHECKPOINT) {
-                // Reached the checkpoint, hey, you win...
-                manager.pending_win = true;
-            }
-        }
-
+        possible_win(manager, e_target, end_direction);
         transaction.moves.push(this);
 
         // Update entities that are supported by target entity
         const position_delta = new Vec3(this.end_position).subtract(this.start_position);
-        for (let supportee of supportees) {
-            const support_move = new Support_Move(supportee, 0, position_delta);
-            support_move.try_add_itself(transaction);
-        }
+        move_supportees(transaction, e_target, position_delta, 0);
 
         // Update transaction control flags
         Transaction_Manager.instance.control_flags |= Transaction_Control_Flags.CONTROLLER_MOVE;
@@ -221,55 +337,18 @@ export class Controller_Proc_Move extends Single_Move {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
 
-        if (this.flags & Move_Flags.MOVED) {
-            manager.move_entity(entity, this.end_position);
-        }
-
-        if (this.flags & Move_Flags.ROTATED) {
-            manager.rotate_entity(entity, this.end_direction)
-        }
+        may_move_entity(this, manager, entity);
+        may_rotate_entity(this, manager, entity);
     }
 
     debug_info(): string {
         let builder = new String_Builder();
         builder.append('CONTROLLER_PROC#').append(this.id);
-        builder.append('\n-   entity#').append(this.info.target_entity_id);
-
-        if (this.flags & Move_Flags.ROTATED) {
-            // Rotation
-            builder.append('\n-   rotation: from ')
-                .append(Const.Direction_Names[this.start_direction])
-                .append(' to ')
-                .append(Const.Direction_Names[this.end_direction]);
-        }
-
-        if (this.flags & Move_Flags.MOVED) {
-            // Movement
-            builder.append('\n-   movement: from ')
-                .append(this.start_position.toString())
-                .append(' to ')
-                .append(this.end_position.toString());
-        }
-
+        log_target_entity(builder, this);
+        may_log_rotate(builder, this);
+        may_log_move(builder, this);
         return builder.to_string();
     }
-}
-
-export function hit_the_fence(m: Entity_Manager, e: Game_Entity, d: Direction) {
-    for (let other of m.locate_current_supporters(e)) {
-        if (other.entity_type == Entity_Type.FENCE) {
-            // @note Can't pass through when there's a fence on the future square
-            // _______
-            // |      ||
-            // | -x-> ||
-            // |______||
-            const fence = other;
-            if (same_direction(fence.rotation, d)) {
-                return true;
-            }
-        }
-    }
-    return false;
 }
 
 export class Pushed_Move extends Single_Move {
@@ -289,57 +368,21 @@ export class Pushed_Move extends Single_Move {
                 || e.entity_type == Entity_Type.CHECKPOINT
                 || e.entity_type == Entity_Type.ROVER;
         }
-
-        function blocked_by_others(): boolean {
-            for (let other of locate_entities_in_target_direction(manager, e_target, direction))
-                if (other != null && other != e_target) {
-                    return true;
-                }
-            return false;
-        }
-
-        function possible_falling_move(): { fell: boolean, fall_succeed: boolean } {
-            const res = {
-                fell: false,
-                fall_succeed: true,
-            };
-            const supporters = manager.locate_future_supporters(e_target, direction);
-            if (supporters.length == 0) {
-                const falling_move = new Falling_Move(e_target, direction);
-                if (falling_move.try_add_itself(transaction))
-                    res.fall_succeed = true;
-                else
-                    res.fall_succeed = false;
-                res.fell = true;
-            }
-            return res;
-        }
-
-        function possible_support_moves(position_delta: Vec3) {
-            for (let supportee of manager.locate_current_supportees(e_target)) {
-                const support_move = new Support_Move(supportee, 0, position_delta);
-                support_move.try_add_itself(transaction);
-            }
-        }
         //#SCOPE
 
         const manager = transaction.entity_manager;
         const e_target = manager.find(this.info.target_entity_id);
         const direction = this.reaction_direction;
+        const position_delta = new Vec3(this.end_position).subtract(this.start_position);
 
         if (unable_to_push(e_target)) return false;
-        if (hit_the_fence(manager, e_target, direction)) return false;
+        if (hit_the_barrier(manager, e_target, direction)) return false;
+        if (!can_pass_through(manager, e_target, direction)) return false;
 
-        let res = possible_falling_move();
-        if (res.fell) {
-            return res.fall_succeed;
-        }
+        const res = possible_falling(transaction, e_target, direction);
+        if (res.fell) { return res.fall_succeed; }
 
-        if (blocked_by_others()) return false;
-
-        const position_delta = new Vec3(this.end_position).subtract(this.start_position);
-        possible_support_moves(position_delta);
-
+        move_supportees(transaction, e_target, position_delta, 0);
         transaction.moves.push(this);
         return true;
     }
@@ -354,9 +397,8 @@ export class Pushed_Move extends Single_Move {
     debug_info(): string {
         let builder = new String_Builder();
         builder.append('PUSHED#').append(this.id);
-        builder.append('\n-   direction ')
-            .append(Const.Direction_Names[this.reaction_direction]);
-
+        log_target_entity(builder, this);
+        may_log_move(builder, this);
         return builder.to_string();
     }
 }
@@ -373,23 +415,18 @@ export class Support_Move extends Single_Move {
     }
 
     try_add_itself(transaction: Move_Transaction): boolean {
-        // @fixme There's a lot to do.
         const manager = transaction.entity_manager;
         const e_target = manager.find(this.info.target_entity_id);
-
-        const supportees = manager.locate_current_supportees(e_target);
         const direction_delta = this.end_direction - this.start_direction;
         const position_delta = new Vec3(this.end_position).subtract(this.start_position);
 
-        for (let supportee of supportees) {
-            const support_move = new Support_Move(supportee, direction_delta, position_delta);
-            support_move.try_add_itself(transaction);
-        }
+        move_supportees(transaction, e_target, position_delta, direction_delta);
 
         if (!same_position(this.start_position, this.end_position))
-            this.flags |= Move_Flags.MOVED;
+            set_dirty(this, Move_Flags.MOVED);
         if (this.start_direction != this.end_direction)
-            this.flags |= Move_Flags.ROTATED;
+            set_dirty(this, Move_Flags.ROTATED);
+
         transaction.moves.push(this);
         return true;
     }
@@ -398,35 +435,16 @@ export class Support_Move extends Single_Move {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
 
-        if (this.flags & Move_Flags.MOVED) {
-            manager.move_entity(entity, this.end_position);
-        }
-
-        if (this.flags & Move_Flags.ROTATED) {
-            manager.rotate_entity(entity, this.end_direction);
-        }
+        may_move_entity(this, manager, entity);
+        may_rotate_entity(this, manager, entity);
     }
 
     debug_info(): string {
         let builder = new String_Builder();
         builder.append('SUPPORT#').append(this.id);
-        builder.append('\n-   entity#').append(this.info.target_entity_id);
-        if (this.flags & Move_Flags.ROTATED) {
-            // Rotation
-            builder.append('\n-   rotation: from ')
-                .append(Const.Direction_Names[this.start_direction])
-                .append(' to ')
-                .append(Const.Direction_Names[this.end_direction]);
-        }
-
-        if (this.flags & Move_Flags.MOVED) {
-            // Movement
-            builder.append('\n-   movement: from ')
-                .append(this.start_position.toString())
-                .append(' to ')
-                .append(this.end_position.toString());
-        }
-
+        log_target_entity(builder, this);
+        may_log_rotate(builder, this);
+        may_log_move(builder, this);
         return builder.to_string();
     }
 }
@@ -466,10 +484,13 @@ export class Falling_Move extends Single_Move {
         let future_pos = calcu_entity_future_position(entity, dir);
         future_pos.z = supporters[0].position.z + 1;
         this.info.end_position = future_pos;
+
+        set_dirty(this, Move_Flags.MOVED);
         transaction.moves.push(this);
 
         const supportees = manager.locate_current_supportees(entity);
         const position_delta = new Vec3(this.end_position).subtract(this.start_position);
+
         for (let supportee of supportees) {
             const support_move = new Support_Move(supportee, 0, position_delta);
             support_move.try_add_itself(transaction);
@@ -481,18 +502,16 @@ export class Falling_Move extends Single_Move {
     async execute_async(transaction: Move_Transaction) {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
-        manager.move_entity(entity, this.end_position);
+
+        may_move_entity(this, manager, entity);
+        may_rotate_entity(this, manager, entity);
     }
 
     debug_info(): string {
         let builder = new String_Builder();
         builder.append('FALLING#').append(this.id);
-        builder.append('\n-   entity#').append(this.info.target_entity_id);
-        builder.append('\n-   from ')
-            .append(this.start_position.toString())
-            .append(' to ')
-            .append(this.end_position.toString());
-
+        log_target_entity(builder, this);
+        may_log_move(builder, this);
         return builder.to_string();
     }
 }

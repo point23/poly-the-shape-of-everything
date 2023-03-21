@@ -72,16 +72,17 @@ export class Transaction_Manager extends Singleton_Manager {
         this.commited_stack.push(packed);
         this.control_flags = 0;
 
-        debug_print_quad_tree(this.entity_manager.proximity_grid.quad_tree);
-
         if (this.entity_manager.pending_win) {
             // @todo Render some winning message
             Level_Editor.instance.load_succeed_level();
             return;
         }
 
-        if (contatins_controller_proc)
+        if (contatins_controller_proc) {
             undo_end_frame(this.entity_manager);
+            debug_print_quad_tree(this.entity_manager.proximity_grid.quad_tree);
+        }
+
         UI_Manager.instance.transaction_panel.note_new_transaction(); // @fixme Transaction panel should only show those with a Controller_Proc move
     }
 }
