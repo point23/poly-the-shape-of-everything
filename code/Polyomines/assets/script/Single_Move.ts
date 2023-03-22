@@ -1,7 +1,18 @@
 import { _decorator, Vec3 } from 'cc';
 import { Const, same_position, String_Builder } from './Const';
 import { Entity_Manager } from './Entity_Manager';
-import { calcu_entity_future_position, reversed_direction, Direction, Entity_Type, Game_Entity, Polyomino_Type, orthogonal_direction, get_entity_squares, same_direction, locate_entities_in_target_direction } from './Game_Entity';
+import {
+    calcu_entity_future_position,
+    reversed_direction,
+    Direction,
+    Entity_Type,
+    Game_Entity,
+    Polyomino_Type,
+    orthogonal_direction,
+    same_direction,
+    locate_entities_in_target_direction,
+    calcu_target_direction
+} from './Game_Entity';
 import { Move_Transaction } from './Move_Transaction';
 import { Transaction_Control_Flags, Transaction_Manager } from './Transaction_Manager';
 
@@ -11,30 +22,70 @@ export enum Move_Flags {
     DEFERRED = 1 << 2,
 }
 
-function calcu_target_direction(d: Direction, delta: number): Direction {
-    return (d + delta + 4) % 4;
-}
-
-export function may_turned_on_switch(manager: Entity_Manager) {
-    let e_switch = null;
-    for (let e of manager.all_entities) {
-        if (e.entity_type == Entity_Type.SWITCH) {
-            e_switch = e;
-        };
-    }
-
-    if (e_switch == null) return;
-
-    for (let e of manager.locate_current_supportees(e_switch)) {
-        if (e.entity_type == Entity_Type.GEM) {
-            manager.switch_turned_on = true;
-            return;
+export function sanity_check(transaction: Move_Transaction, move: Single_Move) {
+    function exist_in_another_move(another: Game_Entity): boolean {
+        for (let another_move of transaction.moves) {
+            if (another_move.target_entity_id == another.id
+                && is_dirty(another_move, Move_Flags.MOVED))
+                return true;
         }
+        return false;
+    }
+    //#SCOPE
+
+    if (!is_dirty(move, Move_Flags.MOVED)) return true;
+    const manager = transaction.entity_manager;
+    const target = manager.find(move.target_entity_id);
+
+    if (move instanceof Falling_Move) {
+        function supporter_no_longer_exist() {
+            const possible_supporters = manager.locate_supporters(move.end_position, 1);
+            let at_least_one_supporter: boolean = false;
+            for (let supporter of possible_supporters) {
+                if (exist_in_another_move(supporter)) continue;
+
+                at_least_one_supporter = true;
+                break;
+            }
+
+            return at_least_one_supporter;
+        }
+
+        function resolve_new_supporter() {
+            let at_least_one_supporter: boolean = false;
+            for (let depth = 2; depth <= 10; depth++) {
+                const possible_supporters = manager.locate_supporters(move.end_position, depth);
+                for (let supporter of possible_supporters) {
+                    if (exist_in_another_move(supporter)) continue;
+
+                    console.log("SANITY CHECK: NEW SUPPORTER");
+                    at_least_one_supporter = true;
+                    move.info.end_position = supporter.position.add(Vec3.UNIT_Z);
+                    break;
+                }
+                if (at_least_one_supporter) break;
+            }
+        }
+        //#SCOPE
+
+        if (!supporter_no_longer_exist()) {
+            resolve_new_supporter();
+        }
+        return true;
     }
 
-    manager.switch_turned_on = false;
-}
+    const other_entities = manager.locate_entities(move.end_position);
 
+    if (other_entities.length == 0) return true;
+
+    for (let another_entity of other_entities) {
+        if (another_entity.id == target.id) continue;
+        if (exist_in_another_move(another_entity)) continue;
+        return false;
+    }
+
+    return true;
+}
 
 export function hit_the_barrier(m: Entity_Manager, e: Game_Entity, d: Direction) {
     for (let other of m.locate_current_supporters(e)) {
@@ -120,17 +171,19 @@ export function try_push_others(t: Move_Transaction, e: Game_Entity, d: Directio
         if (other == null) continue;
         if (other == e) continue;
 
-        res.pushed = true;
-
-        // @todo Check this when we actually try to add that push move!
         if (other.entity_type == Entity_Type.GATE) {
             const gate = other;
-            if (!same_position(gate.position, e.position) || e.polyomino_type != Polyomino_Type.MONOMINO) {
+            const p = calcu_entity_future_position(e, d);
+            if (!same_position(gate.position, p)
+                || e.polyomino_type != Polyomino_Type.MONOMINO) {
+                res.pushed = true;
                 res.push_succeed = false;
             }
+
             continue;
         }
 
+        res.pushed = true;
         const pushed_move = new Pushed_Move(e, other, d);
         if (!pushed_move.try_add_itself(t)) {
             res.push_succeed = false;
@@ -190,23 +243,34 @@ export function log_target_entity(builder: String_Builder, move: Single_Move) {
     builder.append('\n-   entity#').append(move.info.target_entity_id);
 }
 
-export function may_log_move(builder: String_Builder, move: Single_Move) {
-    if (move.flags & Move_Flags.MOVED) {
-        builder.append('\n-   movement: from ')
-            .append(move.start_position.toString())
-            .append(' to ')
-            .append(move.end_position.toString());
-    }
+export function maybe_log_movement(builder: String_Builder, move: Single_Move) {
+    if (!is_dirty(move, Move_Flags.MOVED)) return;
+
+    builder.append('\n-   movement: from ')
+        .append(move.start_position.toString())
+        .append(' to ')
+        .append(move.end_position.toString());
 }
 
-export function may_log_rotate(builder: String_Builder, move: Single_Move) {
-    if (move.flags & Move_Flags.ROTATED) {
-        // Rotation
-        builder.append('\n-   rotation: from ')
-            .append(Const.Direction_Names[move.start_direction])
-            .append(' to ')
-            .append(Const.Direction_Names[move.end_direction]);
-    }
+export function maybe_log_rotation(builder: String_Builder, move: Single_Move) {
+    if (!is_dirty(move, Move_Flags.ROTATED)) return;
+
+    builder.append('\n-   rotation: from ')
+        .append(Const.Direction_Names[move.start_direction])
+        .append(' to ')
+        .append(Const.Direction_Names[move.end_direction]);
+}
+
+function can_push(e_source: Game_Entity, e_target: Game_Entity): boolean {
+    if (e_target.entity_type == Entity_Type.STATIC
+        || e_target.entity_type == Entity_Type.CHECKPOINT
+        || e_target.entity_type == Entity_Type.SWITCH)
+        return false;
+
+    if (e_source.entity_type != Entity_Type.ROVER
+        && e_target.entity_type == Entity_Type.ROVER)
+        return false;
+    return true;
 }
 
 // === FLAG STUFF ===
@@ -296,6 +360,7 @@ export class Controller_Proc_Move extends Single_Move {
             }
             return false;
         }
+        //#SCOPE
 
         if (already_exist_one(Transaction_Control_Flags.CONTROLLER_MOVE)) return false;
 
@@ -345,8 +410,8 @@ export class Controller_Proc_Move extends Single_Move {
         let builder = new String_Builder();
         builder.append('CONTROLLER_PROC#').append(this.id);
         log_target_entity(builder, this);
-        may_log_rotate(builder, this);
-        may_log_move(builder, this);
+        maybe_log_rotation(builder, this);
+        maybe_log_movement(builder, this);
         return builder.to_string();
     }
 }
@@ -363,19 +428,13 @@ export class Pushed_Move extends Single_Move {
     }
 
     try_add_itself(transaction: Move_Transaction): boolean {
-        function unable_to_push(e: Game_Entity): boolean {
-            return e.entity_type == Entity_Type.STATIC
-                || e.entity_type == Entity_Type.CHECKPOINT
-                || e.entity_type == Entity_Type.ROVER;
-        }
-        //#SCOPE
-
         const manager = transaction.entity_manager;
+        const e_source = manager.find(this.info.source_entity_id);
         const e_target = manager.find(this.info.target_entity_id);
         const direction = this.reaction_direction;
         const position_delta = new Vec3(this.end_position).subtract(this.start_position);
 
-        if (unable_to_push(e_target)) return false;
+        if (!can_push(e_source, e_target)) return false;
         if (hit_the_barrier(manager, e_target, direction)) return false;
         if (!can_pass_through(manager, e_target, direction)) return false;
 
@@ -384,6 +443,8 @@ export class Pushed_Move extends Single_Move {
 
         move_supportees(transaction, e_target, position_delta, 0);
         transaction.moves.push(this);
+
+        set_dirty(this, Move_Flags.MOVED);
         return true;
     }
 
@@ -398,7 +459,7 @@ export class Pushed_Move extends Single_Move {
         let builder = new String_Builder();
         builder.append('PUSHED#').append(this.id);
         log_target_entity(builder, this);
-        may_log_move(builder, this);
+        maybe_log_movement(builder, this);
         return builder.to_string();
     }
 }
@@ -443,8 +504,8 @@ export class Support_Move extends Single_Move {
         let builder = new String_Builder();
         builder.append('SUPPORT#').append(this.id);
         log_target_entity(builder, this);
-        may_log_rotate(builder, this);
-        may_log_move(builder, this);
+        maybe_log_rotation(builder, this);
+        maybe_log_movement(builder, this);
         return builder.to_string();
     }
 }
@@ -464,19 +525,14 @@ export class Falling_Move extends Single_Move {
         const entity = manager.find(this.target_entity_id);
         const dir = this.start_direction;
 
-        const supporters = manager.locate_future_supporters(entity, dir, 10);
-
+        const supporters = manager.locate_future_supporters(entity, dir, 10); // @hack
         if (supporters.length == 0)
             return false;
 
-        for (let supporter of supporters) {
-            if (supporter.entity_type == Entity_Type.CHECKPOINT) {
-                manager.pending_win = true;
-            }
-
-            if (entity.entity_type == Entity_Type.GEM) {
-                if (supporter.entity_type == Entity_Type.SWITCH) {
-                    manager.switch_turned_on = true;
+        if (entity.entity_type == Entity_Type.HERO) {
+            for (let supporter of supporters) {
+                if (supporter.entity_type == Entity_Type.CHECKPOINT) {
+                    manager.pending_win = true;
                 }
             }
         }
@@ -511,7 +567,7 @@ export class Falling_Move extends Single_Move {
         let builder = new String_Builder();
         builder.append('FALLING#').append(this.id);
         log_target_entity(builder, this);
-        may_log_move(builder, this);
+        maybe_log_movement(builder, this);
         return builder.to_string();
     }
 }

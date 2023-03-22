@@ -1,5 +1,16 @@
-import { assert, Game, Vec3 } from 'cc';
-import { Serializable_Entity_Data, Game_Entity, Undoable_Entity_Data, calcu_entity_future_squares, Direction, Entity_Type, get_entity_squares, get_serializable, clone_undoable_data, switch_is_turned_on, Entity_Flags } from './Game_Entity';
+import { assert, Vec3 } from 'cc';
+import { same_position } from './Const';
+import {
+    Serializable_Entity_Data,
+    Game_Entity,
+    Undoable_Entity_Data,
+    calcu_entity_future_squares,
+    Direction,
+    Entity_Type,
+    get_entity_squares,
+    get_serializable,
+    clone_undoable_data
+} from './Game_Entity';
 import { debug_print_quad_tree, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
 import { Undo_Handler } from './undo';
@@ -11,6 +22,9 @@ import { Undo_Handler } from './undo';
   - Move entities
  */
 export class Entity_Manager {
+    #serial_idx = 1;
+    get #next_id(): number { return this.#serial_idx++ };
+
     static current: Entity_Manager = null;
 
     active_hero: Game_Entity = null;
@@ -23,19 +37,12 @@ export class Entity_Manager {
 
     pending_win: boolean = false; // @implementMe
 
-    _switch: Game_Entity = null;
+    #switch: Game_Entity = null;
+    #gem: Game_Entity = null;
 
     get switch_turned_on(): boolean {
-        if (this._switch == null) return false;
-        return switch_is_turned_on(this._switch);
-    }
-
-    set switch_turned_on(v: boolean) {
-        if (this._switch == null) return;
-        if (!this.switch_turned_on && v)
-            this._switch.undoable.flags |= Entity_Flags.SWITCH_TURNED_ON;
-        if (this.switch_turned_on && !v)
-            this._switch.undoable.flags -= Entity_Flags.SWITCH_TURNED_ON;
+        if (this.#switch == null || this.#gem == null) return false;
+        return same_position(this.#gem.position.subtract(Vec3.UNIT_Z), this.#switch.position);
     }
 
     constructor(g: Proximity_Grid) {
@@ -56,7 +63,7 @@ export class Entity_Manager {
         const entity = node.getComponent(Game_Entity);
         entity.prefab = prefab;
         if (id == null)
-            entity.id = Game_Entity.next_id;
+            entity.id = this.#next_id;
         else
             entity.id = id;
 
@@ -73,7 +80,8 @@ export class Entity_Manager {
         if (entity.entity_type == Entity_Type.CHECKPOINT) this.checkpoints.push(entity);
         if (entity.entity_type == Entity_Type.HERO) this.active_hero = entity;
         if (entity.entity_type == Entity_Type.ROVER) this.rovers.push(entity);
-        if (entity.entity_type == Entity_Type.SWITCH) this._switch = entity;
+        if (entity.entity_type == Entity_Type.SWITCH) this.#switch = entity;
+        if (entity.entity_type == Entity_Type.GEM) this.#gem = entity;
 
         debug_print_quad_tree(this.proximity_grid.quad_tree);
         return entity;

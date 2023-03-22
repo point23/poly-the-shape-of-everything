@@ -1,8 +1,26 @@
 import { _decorator, Vec3 } from 'cc';
+import {
+    calcu_entity_future_position,
+    clacu_reversed_direction,
+    collinear_direction,
+    Direction,
+    Entity_Type,
+    Game_Entity
+} from './Game_Entity';
+import {
+    move_supportees,
+    log_target_entity,
+    maybe_log_movement,
+    maybe_log_rotation,
+    may_move_entity,
+    Move_Flags,
+    Move_Info,
+    set_dirty,
+    Single_Move,
+    try_push_others
+} from './Single_Move';
 import { same_position, String_Builder } from './Const';
-import { calcu_entity_future_position, clacu_reversed_direction, collinear_direction, Direction, Entity_Type, Game_Entity, locate_entities_in_target_direction, same_direction } from './Game_Entity';
 import { Move_Transaction } from './Move_Transaction';
-import { move_supportees, log_target_entity, may_log_move, may_log_rotate, may_move_entity, Move_Flags, Move_Info, Pushed_Move, set_dirty, Single_Move, Support_Move, try_push_others } from './Single_Move';
 import { Transaction_Manager } from './Transaction_Manager';
 
 export class Rover_Move extends Single_Move {
@@ -92,8 +110,8 @@ export class Rover_Move extends Single_Move {
         let builder = new String_Builder();
         builder.append('ROVER#').append(this.id);
         log_target_entity(builder, this);
-        may_log_rotate(builder, this);
-        may_log_move(builder, this);
+        maybe_log_rotation(builder, this);
+        maybe_log_movement(builder, this);
         return builder.to_string();
     }
 }

@@ -16,7 +16,6 @@ export enum Entity_Flags {
     SELECT = 1 << 1,
     DEAD = 1 << 3,
     FALLING = 1 << 4,
-    SWITCH_TURNED_ON = 1 << 5,
 }
 
 export enum Direction {
@@ -26,11 +25,6 @@ export enum Direction {
     BACKWORD,
     UP,
     DOWN,
-}
-
-export function switch_is_turned_on(e: Game_Entity): boolean {
-    return e.entity_type == Entity_Type.SWITCH
-        && (e.flags & Entity_Flags.SWITCH_TURNED_ON) != 0;
 }
 
 export function same_direction(d1: Direction, d2: Direction) {
@@ -56,6 +50,10 @@ export function reversed_direction(d1: Direction, d2: Direction): boolean {
     if (same_direction(d1, d2)) return false;
     // @note We can't use /2 here, cause they're float numbers
     return ((d1 >> 1) == (d2 >> 1));
+}
+
+export function calcu_target_direction(d: Direction, delta: number): Direction {
+    return (d + delta + 4) % 4;
 }
 
 export enum Entity_Type {
@@ -164,9 +162,6 @@ export class Undoable_Entity_Data {
  */
 @ccclass('Game_Entity')
 export class Game_Entity extends Component {
-    static serial_idx = 1;
-    static get next_id(): number { return Game_Entity.serial_idx++ };
-
     id: number;
     undoable: Undoable_Entity_Data;
     scheduled_for_destruction: boolean = false;

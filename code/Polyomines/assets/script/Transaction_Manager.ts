@@ -1,11 +1,11 @@
-import { _decorator, Component } from 'cc';
+import { _decorator } from 'cc';
 import { Stack } from './Const';
 import { Entity_Manager } from './Entity_Manager';
 import { Level_Editor } from './Level_Editor';
 import { Move_Transaction } from './Move_Transaction';
 import { debug_print_quad_tree } from './Proximity_Grid';
 import { Singleton_Manager } from './Singleton_Manager_Base';
-import { Controller_Proc_Move, Single_Move } from './Single_Move';
+import { Controller_Proc_Move, sanity_check, Single_Move } from './Single_Move';
 import { UI_Manager } from './UI_Manager';
 import { undo_end_frame } from './undo';
 const { ccclass, property } = _decorator;
@@ -15,13 +15,6 @@ export enum Transaction_Control_Flags {
     CONTROLLER_MOVE = 1 << 1,
 }
 
-type Transaction_Stack = Stack<Move_Transaction>;
-
-/**
- * @note
- * - Manage transactions
- * - Detect conflicts between moves
- */
 @ccclass('Transaction_Manager')
 export class Transaction_Manager extends Singleton_Manager {
     public static instance: Transaction_Manager = null;
@@ -32,11 +25,12 @@ export class Transaction_Manager extends Singleton_Manager {
     get entity_manager(): Entity_Manager {
         return Entity_Manager.current;
     }
-    duration: number = 1;
+
+    duration: number = -1;
     control_flags = 0;
 
-    commited_stack: Transaction_Stack = new Stack<Move_Transaction>();
-    issued_stack: Transaction_Stack = new Stack<Move_Transaction>();
+    commited_stack: Stack<Move_Transaction> = new Stack<Move_Transaction>();
+    issued_stack: Stack<Move_Transaction> = new Stack<Move_Transaction>();
 
     clear() {
         this.commited_stack.clear();
@@ -58,8 +52,22 @@ export class Transaction_Manager extends Singleton_Manager {
 
         let contatins_controller_proc: boolean = false;
         while (this.issued_stack.size()) {
+            function is_sanity(): boolean {
+                for (const move of transaction.moves) {
+                    if (!sanity_check(transaction, move)) return false;;
+                }
+                return true;
+            }
+            //#SCOPE
+
             const transaction = this.issued_stack.pop();
-            for (let move of transaction.moves) {
+            if (!is_sanity()) {
+                // Reject Current Transaction
+                console.log("Something Went Wrong!!!")
+                continue;
+            }
+
+            for (const move of transaction.moves) {
                 await move.execute_async(transaction);
 
                 if (move instanceof Controller_Proc_Move) contatins_controller_proc = true;
@@ -73,7 +81,6 @@ export class Transaction_Manager extends Singleton_Manager {
         this.control_flags = 0;
 
         if (this.entity_manager.pending_win) {
-            // @todo Render some winning message
             Level_Editor.instance.load_succeed_level();
             return;
         }
@@ -83,6 +90,6 @@ export class Transaction_Manager extends Singleton_Manager {
             debug_print_quad_tree(this.entity_manager.proximity_grid.quad_tree);
         }
 
-        UI_Manager.instance.transaction_panel.note_new_transaction(); // @fixme Transaction panel should only show those with a Controller_Proc move
+        UI_Manager.instance.transaction_panel.note_new_transaction();
     }
 }

@@ -6,7 +6,6 @@ import { Entity_Manager } from './Entity_Manager';
 import { debug_render_grid, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
 import { generate_rover_moves } from './rover';
-import { may_turned_on_switch } from './Single_Move';
 import { Transaction_Manager } from './Transaction_Manager';
 import { Level_Editor_Panel } from './ui/Level_Editor_Panel';
 import { UI_Manager } from './UI_Manager';
@@ -98,16 +97,12 @@ export class Level_Editor extends Component {
         this.round = (this.round + 1) % 1024;
     }
 
-    _is_running: boolean = false;
+    #is_running: boolean = false;
     set is_running(v: boolean) {
-        // Restart game
-        if (!this._is_running && v) {
-            may_turned_on_switch(this.entity_manager);
-        }
-        this._is_running = v;
+        this.#is_running = v;
     };
     get is_running(): boolean {
-        return this._is_running;
+        return this.#is_running;
     }
 
     main_loop() {

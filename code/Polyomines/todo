@@ -38,15 +38,15 @@ GAMEPLAY ===
        | -x-> || <-x-
        |______||
 - Rover
-+ Reset the whole level when
+- Reset the whole level when
     * We press 'R'
     * We switch the mode in level editor
-+ Switch
-+ Power
+- Switch
+- Power(GEM)
++ Sanity check
 + Decorators
     like grass on the ground...
 + Better camera controller
-+ Beam vfx
 + Capee / POCCESS MOVE
 + Ocean
 + River
@@ -54,13 +54,14 @@ GAMEPLAY ===
 
 AI STUFF ===
 + What about monsters? how they react?
-+ Sanity check
-+ Audio!!!
-+ Animation!!!
 
 ART STUFF===
 - More realistic rocks
-+ Glowing vfx for checkpoint
++ Beam vfx made with Particle-System
+    + Glowing vfx for checkpoint
+    + Glowing vfx for switch turn on/off
++ Audio
++ Animation
 + Plants
 + Character model of V and F
 + Character model of monsters
@@ -70,22 +71,21 @@ ART STUFF===
 - Redo & Undo <= Command Pattern
 
 @fixme ### 
-- 2d local position is limited
+- ISSUE#001: 2d local position is limited
     change it from 2d to 3d
-- Sth wrong with double-click:
+- ISSUE#002: Sth wrong with double-click:
     fire a scheduler to disable it after a very short interval.
-- Failed to move onto entities just created in the editor...
+- ISSUE#003: Failed to move onto entities just created in the editor...
 - Fix undo redo
-- Check for supportor inside a falling move
-- Transaction Panel is now doesn't work..
-    since there are a lot of rover moves.
-- Undo checkpoints:
++ Undo checkpoints:
     we should not count in those automatically generated moves
-+ Clean up undo
-+ Sanity check is in need!!!
-    when we push a rock in the same round that rover is moved, them would be in the same square
+- Clean up undo
+- ISSUE#006: When we push a rock, it falls to a wrong pos, if the rover is moved at the same time
++ ISSUE#005: When we push a rock in the same round that rover is moved, them would be in the same square
++ When 2 rover moves in different direction, and there's a entity in between, one of them would keep moving and stop at the same pos that entity locate.
++ Look through occluding objects if there's a hero or special items like switch or gem
 + Domino control
-+ Clear transaction stack when load new level
++ Clear transaction stack when load new levels
 + Repeatedly bind the callback function!!!
 
 @optimize ###
