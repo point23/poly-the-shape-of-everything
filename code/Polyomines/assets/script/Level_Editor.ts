@@ -5,9 +5,8 @@ import { Contextual_Manager } from './Contextual_Manager';
 import { Entity_Manager } from './Entity_Manager';
 import { debug_render_grid, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
-import { generate_rover_moves } from './rover';
+import { generate_rover_moves_if_switch_turned_on } from './sokoban';
 import { Transaction_Manager } from './Transaction_Manager';
-import { Level_Editor_Panel } from './ui/Level_Editor_Panel';
 import { UI_Manager } from './UI_Manager';
 import { do_one_redo, do_one_undo, Undo_Handler } from './undo';
 
@@ -22,12 +21,9 @@ export class Level_Editor extends Component {
     static instance: Level_Editor;
 
     @property(Camera3D_Controller) camera3d_controller: Camera3D_Controller = null;
-    ticks_per_loop = 1;
-    round: number = 0;
 
     @property(Prefab) debug_grid_prefab: Prefab = null;
     @property(Node) debug_stuff: Node = null;
-    @property(Level_Editor_Panel) panel: Level_Editor_Panel = null;
 
     /* Singleton instances: */
     @property(Contextual_Manager) contextual_manager: Contextual_Manager = null;
@@ -35,9 +31,14 @@ export class Level_Editor extends Component {
     @property(Transaction_Manager) transaction_manager: Transaction_Manager = null;
     @property(UI_Manager) ui_manager: UI_Manager = null;
 
-    // @hack
     entity_manager: Entity_Manager = null;
     debug_grid: Node = null;
+
+    get ticks_per_loop(): number {
+        return Const.Ticks_Per_Loop[Transaction_Manager.instance.duration_idx];
+    };
+    #round: number = 0;
+    #tick: number = 0;
 
     onLoad() {
         this.settle_singletons();
@@ -49,8 +50,6 @@ export class Level_Editor extends Component {
     }
 
     start() {
-        this.ticks_per_loop =
-            Const.Ticks_Per_Loop.get(Transaction_Manager.instance.duration);
         this.schedule(this.tick, Const.Tick_Interval);
     }
 
@@ -90,11 +89,10 @@ export class Level_Editor extends Component {
     }
 
     tick() {
-        if ((this.round % this.ticks_per_loop) == 0) {
+        if ((this.#tick % this.ticks_per_loop) == 0) {
             this.main_loop();
         }
-
-        this.round = (this.round + 1) % 1024;
+        this.#tick = (this.#tick + 1) % (1 << 16);
     }
 
     #is_running: boolean = false;
@@ -107,8 +105,12 @@ export class Level_Editor extends Component {
 
     main_loop() {
         if (!this.is_running) return;
-        if (this.round % 64 == 0) generate_rover_moves(this.transaction_manager); // @hack
+        if ((this.#round % Const.Rover_Speed) == 0) {
+            generate_rover_moves_if_switch_turned_on(this.transaction_manager);
+        }
         this.transaction_manager.execute_async();
+
+        this.#round = (this.#round + 1) % (1 << 16);
     }
 
     // Settle singleton managers manually
@@ -209,7 +211,7 @@ function init_ui(editor: Level_Editor) {
         const navigator = ui.transaction_panel.navigator;
 
         ui.transaction_panel.reset_counter();
-        navigator.label.string = "transactions";
+        navigator.label.string = "transaction";
         { // Show or Hide single move logs
             const e = new EventHandler();
             e.target = ui.transaction_panel.node;
@@ -237,6 +239,33 @@ function init_ui(editor: Level_Editor) {
         ui.transaction_panel.clear_logs();
         ui.transaction_panel.hide_logs();
     }
+
+    function init_durations_once() {
+        const navigatar = editor.ui_manager.durations;
+        if (navigatar.initialized) return;
+
+        navigatar.label.string = 'duration';
+        editor.transaction_manager.duration_idx = Const.Init_Duration_Idx;
+        navigatar.label_current.string = Const.Duration[Const.Init_Duration_Idx];
+
+        { // Slow Down
+            const e = new EventHandler();
+            e.target = editor.transaction_manager.node;
+            e.component = 'Transaction_Manager';
+            e.handler = 'slow_down';
+            navigatar.btn_prev.clickEvents.push(e);
+        }
+
+        { // Speed up
+            const e = new EventHandler();
+            e.target = editor.transaction_manager.node;
+            e.component = 'Transaction_Manager';
+            e.handler = 'speed_up';
+            navigatar.btn_next.clickEvents.push(e);
+        }
+
+        navigatar.initialized = true;
+    }
     //#SCOPE
 
     const ui = editor.ui_manager;
@@ -247,6 +276,8 @@ function init_ui(editor: Level_Editor) {
     init_difficulty();
     init_undos();
     init_transactions();
+
+    init_durations_once();
 }
 
 function clear_ui(editor: Level_Editor) {
@@ -256,6 +287,7 @@ function clear_ui(editor: Level_Editor) {
 
     ui.levels.clear();
     ui.undos.clear();
+    // ui.durations.clear();
 
     ui.transaction_panel.clear();
 }

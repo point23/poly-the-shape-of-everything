@@ -104,7 +104,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 18,
+      "y": 10.5,
       "z": 0
     },
     "_lrot": {
@@ -193,7 +193,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 100,
-      "height": 20
+      "height": 15
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -230,8 +230,8 @@
     "_string": "Label",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 20,
-    "_fontSize": 20,
+    "_actualFontSize": 14,
+    "_fontSize": 14,
     "_fontFamily": "Times",
     "_lineHeight": 40,
     "_overflow": 1,
@@ -276,8 +276,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 296,
-      "height": 20
+      "width": 200,
+      "height": 15
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -622,8 +622,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 32,
-      "height": 32
+      "width": 22,
+      "height": 22
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -706,8 +706,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 30,
-      "height": 30
+      "width": 20,
+      "height": 20
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -855,8 +855,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 50,
-      "height": 30
+      "width": 40,
+      "height": 20
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -932,8 +932,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 300,
-      "height": 60
+      "width": 200,
+      "height": 40
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",

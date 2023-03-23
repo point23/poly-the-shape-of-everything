@@ -1,4 +1,4 @@
-import { assert, Vec3 } from 'cc';
+import { assert, Game, Vec3 } from 'cc';
 import { same_position } from './Const';
 import {
     Serializable_Entity_Data,
@@ -35,7 +35,20 @@ export class Entity_Manager {
 
     rovers: Game_Entity[] = [];
 
-    pending_win: boolean = false; // @implementMe
+    get pending_win(): boolean {
+        function hero_stands_on_it(checkpoint: Game_Entity, manager: Entity_Manager) {
+            for (let e of manager.locate_current_supportees(checkpoint)) {
+                if (e.entity_type == Entity_Type.HERO) return true;
+            }
+        }
+        //#SCOPE
+
+        for (let c of this.checkpoints) {
+            if (hero_stands_on_it(c, this)) continue;
+            return false;
+        }
+        return true;
+    }
 
     #switch: Game_Entity = null;
     #gem: Game_Entity = null;
@@ -154,11 +167,11 @@ export class Entity_Manager {
     }
 
     locate_future_supporters(entity: Game_Entity, dir: Direction, max_depth: number = 1): Game_Entity[] {
-        const future_squares = calcu_entity_future_squares(entity, dir);
+        const squares = calcu_entity_future_squares(entity, dir);
 
         const supporters = [];
         for (let d = 1; d <= max_depth; d++) {
-            for (let pos of future_squares) {
+            for (let pos of squares) {
                 for (let supporter of this.locate_supporters(pos, d))
                     if (supporter != null) {
                         supporters.push(supporter)

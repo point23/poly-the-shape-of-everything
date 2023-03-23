@@ -138,17 +138,30 @@ export class Const {
 
     static Default_Game_Board_Size: Size = new Size(10, 10);
 
-    static Tick_Interval: number = 0.0125;
-    static Ticks_Per_Loop: Map<number, number> = new Map<number, number>([
-        [8, 1],
-        [4, 2],
-        [2, 4],
-        [1, 8],
-        [-1, 16],
-        [-2, 32],
-        [-4, 64],
-        [-8, 128],
-    ]);
+    static Rover_Speed: number = 4;
+    static Tick_Interval: number = 0.1 / (1 << 3);
+    static Ticks_Per_Loop: number[] = [
+        1 << 0,
+        1 << 1,
+        1 << 2,
+        1 << 3,
+        1 << 4,
+        1 << 5,
+        1 << 6,
+        1 << 7,
+    ]
+    static Init_Duration_Idx: number = 3;
+    static Max_Duration_Idx: number = 7;
+    static Duration: string[] = [
+        '8',
+        '4',
+        '2',
+        '1',
+        '-1',
+        '-2',
+        '-4',
+        '-8',
+    ]
 
     static Game_Board_Square_Size = 1;
     static Game_Board_Half_Square_Size = 0.5;

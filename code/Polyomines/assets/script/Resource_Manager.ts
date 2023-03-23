@@ -1,18 +1,12 @@
-import { _decorator, Prefab, resources, instantiate, Node, CCString, JsonAsset, sys } from 'cc';
-import { Singleton_Manager } from './Singleton_Manager_Base';
+import { _decorator, Prefab, resources, instantiate, Node, JsonAsset, sys, Component } from 'cc';
 import { Const } from './Const';
 import { UI_Manager } from './UI_Manager';
+import { Prefab_Pair } from './ui/Prefab_Pair';
 
 const { ccclass, property } = _decorator;
 
-@ccclass('Prefab_Pair')
-export class Prefab_Pair {
-    @property(CCString) id = '';
-    @property(Prefab) prefab = null;
-};
-
 @ccclass('Resource_Manager')
-export class Resource_Manager extends Singleton_Manager {
+export class Resource_Manager extends Component {
     public static instance: Resource_Manager;
     public static Settle(instance: Resource_Manager) {
         Resource_Manager.instance = instance;

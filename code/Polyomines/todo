@@ -81,7 +81,9 @@ ART STUFF===
     we should not count in those automatically generated moves
 - Clean up undo
 - ISSUE#006: When we push a rock, it falls to a wrong pos, if the rover is moved at the same time
-+ ISSUE#005: When we push a rock in the same round that rover is moved, them would be in the same square
+- ISSUE#005: When we push a rock in the same round that rover is moved, them would be in the same square
+- ISSUE#007: When we push sth, its supportee should be blocked by others and drop down
++ ISSUE#008: When we push sth, its supportee may drop on a comming entity
 + When 2 rover moves in different direction, and there's a entity in between, one of them would keep moving and stop at the same pos that entity locate.
 + Look through occluding objects if there's a hero or special items like switch or gem
 + Domino control

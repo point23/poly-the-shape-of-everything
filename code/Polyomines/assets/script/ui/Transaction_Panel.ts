@@ -1,5 +1,5 @@
-import { _decorator, Component, Node, Label, EventHandler } from 'cc';
-import { Move_Transaction } from '../Move_Transaction';
+import { _decorator, Component, Node, Label } from 'cc';
+import { Move_Transaction } from '../sokoban';
 import { Transaction_Manager } from '../Transaction_Manager';
 import { Navigator } from './Navigator';
 const { ccclass, property } = _decorator;

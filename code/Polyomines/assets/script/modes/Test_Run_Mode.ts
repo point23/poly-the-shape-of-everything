@@ -4,7 +4,7 @@ import { Contextual_Manager } from '../Contextual_Manager';
 import { Entity_Manager } from '../Entity_Manager';
 import { Direction } from '../Game_Entity';
 import { Level_Editor } from '../Level_Editor';
-import { Controller_Proc_Move, Possess_Move } from '../Single_Move';
+import { Controller_Proc_Move, Possess_Move } from '../sokoban';
 import { Transaction_Manager } from '../Transaction_Manager';
 import { UI_Manager } from '../UI_Manager';
 import { undo_mark_beginning } from '../undo';

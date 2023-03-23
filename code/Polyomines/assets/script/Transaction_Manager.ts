@@ -1,11 +1,9 @@
-import { _decorator } from 'cc';
-import { Stack } from './Const';
+import { Component, math, _decorator } from 'cc';
+import { Const, Stack } from './Const';
 import { Entity_Manager } from './Entity_Manager';
 import { Level_Editor } from './Level_Editor';
-import { Move_Transaction } from './Move_Transaction';
 import { debug_print_quad_tree } from './Proximity_Grid';
-import { Singleton_Manager } from './Singleton_Manager_Base';
-import { Controller_Proc_Move, sanity_check, Single_Move } from './Single_Move';
+import { Move_Transaction, Single_Move, sanity_check } from './sokoban';
 import { UI_Manager } from './UI_Manager';
 import { undo_end_frame } from './undo';
 const { ccclass, property } = _decorator;
@@ -16,7 +14,7 @@ export enum Transaction_Control_Flags {
 }
 
 @ccclass('Transaction_Manager')
-export class Transaction_Manager extends Singleton_Manager {
+export class Transaction_Manager extends Component {
     public static instance: Transaction_Manager = null;
     public static Settle(instance: Transaction_Manager) {
         Transaction_Manager.instance = instance;
@@ -26,7 +24,24 @@ export class Transaction_Manager extends Singleton_Manager {
         return Entity_Manager.current;
     }
 
-    duration: number = -1;
+    speed_up() {
+        this.duration_idx = math.clamp(this.#duration_idx - 1, 0, Const.Max_Duration_Idx);
+    }
+
+    slow_down() {
+        this.duration_idx = math.clamp(this.#duration_idx + 1, 0, Const.Max_Duration_Idx);
+    }
+
+    #duration_idx: number = 1;
+    get duration_idx(): number {
+        return this.#duration_idx;
+    }
+
+    set duration_idx(d: number) {
+        this.#duration_idx = d;
+        UI_Manager.instance.durations.label_current.string = Const.Duration[d];
+    }
+
     control_flags = 0;
 
     commited_stack: Stack<Move_Transaction> = new Stack<Move_Transaction>();
@@ -50,8 +65,16 @@ export class Transaction_Manager extends Singleton_Manager {
 
         const packed = new Move_Transaction(this.entity_manager);
 
-        let contatins_controller_proc: boolean = false;
+        const issued: Move_Transaction[] = [];
         while (this.issued_stack.size()) {
+            const t = this.issued_stack.pop();
+            issued.push(t);
+        }
+
+        issued.sort((a, b) => b.piority - a.piority);
+        if (issued.length >= 2) console.log(issued); // @note Debug stuff
+
+        for (let transaction of issued) {
             function is_sanity(): boolean {
                 for (const move of transaction.moves) {
                     if (!sanity_check(transaction, move)) return false;;
@@ -60,7 +83,6 @@ export class Transaction_Manager extends Singleton_Manager {
             }
             //#SCOPE
 
-            const transaction = this.issued_stack.pop();
             if (!is_sanity()) {
                 // Reject Current Transaction
                 console.log("Something Went Wrong!!!")
@@ -69,9 +91,6 @@ export class Transaction_Manager extends Singleton_Manager {
 
             for (const move of transaction.moves) {
                 await move.execute_async(transaction);
-
-                if (move instanceof Controller_Proc_Move) contatins_controller_proc = true;
-
                 packed.moves.push(move);
             }
         }
@@ -85,11 +104,8 @@ export class Transaction_Manager extends Singleton_Manager {
             return;
         }
 
-        if (contatins_controller_proc) {
-            undo_end_frame(this.entity_manager);
-            debug_print_quad_tree(this.entity_manager.proximity_grid.quad_tree);
-        }
-
+        undo_end_frame(this.entity_manager);
+        debug_print_quad_tree(this.entity_manager.proximity_grid.quad_tree);
         UI_Manager.instance.transaction_panel.note_new_transaction();
     }
 }
