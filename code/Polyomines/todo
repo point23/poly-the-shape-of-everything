@@ -20,6 +20,7 @@ UI ===
 - Stars for difficulty
 + Clock and Slide for undo
 + Mobile Input
++ Auto Fit for Multi-Resolution !!!
 
 GAMEPLAY === 
 - Polyominoes
@@ -43,7 +44,7 @@ GAMEPLAY ===
     * We switch the mode in level editor
 - Switch
 - Power(GEM)
-+ Sanity check
+- Sanity check
 + Decorators
     like grass on the ground...
 + Better camera controller

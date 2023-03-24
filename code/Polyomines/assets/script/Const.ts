@@ -139,7 +139,7 @@ export class Const {
     static Default_Game_Board_Size: Size = new Size(10, 10);
 
     static Rover_Speed: number = 4;
-    static Tick_Interval: number = 0.1 / (1 << 3);
+    static Tick_Interval: number = (0.1 / (1 << 3)) * 3;
     static Ticks_Per_Loop: number[] = [
         1 << 0,
         1 << 1,
@@ -168,6 +168,7 @@ export class Const {
     static Game_Board_Orgin_Pos = new Vec3(0, 0, 0);
 
     static Mouse_Jiggling_Interval = 0.01;
+    static Joystick_Jiggling_Interval = 0.05;
     static Double_Click_Time_Interval = 0.25;
 
     static Cover_Selected_Color = new Color(0, 255, 0, 64);
