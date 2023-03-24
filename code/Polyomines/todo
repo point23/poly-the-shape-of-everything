@@ -76,6 +76,7 @@ ART STUFF===
 - ISSUE#002: Sth wrong with double-click:
     fire a scheduler to disable it after a very short interval.
 - ISSUE#003: Failed to move onto entities just created in the editor...
+- ISSUE#004: When 2 rover moves in different direction, and there's a entity in between, one of them would keep moving and stop at the same pos that entity locate.
 - Fix undo redo
 + Undo checkpoints:
     we should not count in those automatically generated moves
@@ -83,8 +84,8 @@ ART STUFF===
 - ISSUE#006: When we push a rock, it falls to a wrong pos, if the rover is moved at the same time
 - ISSUE#005: When we push a rock in the same round that rover is moved, them would be in the same square
 - ISSUE#007: When we push sth, its supportee should be blocked by others and drop down
-+ ISSUE#008: When we push sth, its supportee may drop on a comming entity
-+ When 2 rover moves in different direction, and there's a entity in between, one of them would keep moving and stop at the same pos that entity locate.
+- ISSUE#008: When we push sth, its supportee may drop on a comming entity
+
 + Look through occluding objects if there's a hero or special items like switch or gem
 + Domino control
 + Clear transaction stack when load new levels

@@ -163,14 +163,13 @@ export class Controller_Proc_Move extends Single_Move {
         function possible_rotate(move: Single_Move): boolean {
             if (!same_direction(start_direction, end_direction)) {
                 // Face to target direction if it's not currently oriented to that direction.
-                // const delta = end_direction - start_direction;
-                // let rotate_move = new Controller_Proc_Move(e_target, end_direction, 0)
-                set_dirty(move, Move_Flags.ROTATED);
-                // transaction.add_move(rotate_move);
+                let delta = end_direction - start_direction;
+                const rotate_move = new Controller_Proc_Move(e_target, end_direction, 0)
+                set_dirty(rotate_move, Move_Flags.ROTATED);
+                transaction.add_move(rotate_move);
                 if (e_target.entity_type != Entity_Type.AVATAR) {
-                    delta = 0;
-                    // Avators would only rotate it's indicator 
-                    // move_supportees(transaction, e_target, Vec3.ZERO, delta);
+                    // Avators would only rotate it's indicator
+                    move_supportees(transaction, e_target, Vec3.ZERO, delta);
                 }
                 return true;
             }
@@ -186,8 +185,6 @@ export class Controller_Proc_Move extends Single_Move {
         const end_direction = this.end_direction;
         const start_position = this.start_position;
         const end_position = this.end_position;
-
-        let delta = end_direction - start_direction;
 
         const at_least_rotated = possible_rotate(this);
 
@@ -206,7 +203,7 @@ export class Controller_Proc_Move extends Single_Move {
 
         // Update entities that are supported by target entity
         const position_delta = new Vec3(this.end_position).subtract(this.start_position);
-        move_supportees(transaction, e_target, position_delta, delta);
+        move_supportees(transaction, e_target, position_delta, 0);
 
         // Update transaction control flags
         Transaction_Manager.instance.control_flags |= Transaction_Control_Flags.CONTROLLER_MOVE;
@@ -294,6 +291,7 @@ class Pushed_Move extends Single_Move {
         move_info.reaction_direction = direction;
         move_info.end_position = calcu_entity_future_position(target, direction, step);
         super(move_info);
+        this.piority = 0.2; // @hack
     }
 
     try_add_itself(transaction: Move_Transaction): boolean {
@@ -504,8 +502,22 @@ export function sanity_check(transaction: Move_Transaction, move: Single_Move) {
         transaction.moves.splice(idx, 1)
     }
 
+    function taken_by_incoming_entity_from_same_transaction(pos: Vec3): boolean {
+        for (let another_move of transaction.moves) {
+            if (another_move.target_entity_id == target.id) continue;
+            if (another_move.id == move.id) continue;
+            if (!is_dirty(another_move, Move_Flags.MOVED)) continue;
+
+            if (same_position(another_move.end_position, pos)) return true;
+        }
+
+        return false;
+    }
+
     function exist_in_another_move(another: Game_Entity): boolean {
         for (let another_move of transaction.moves) {
+            if (another_move.id == move.id) continue;
+
             if (another_move.target_entity_id == another.id
                 && is_dirty(another_move, Move_Flags.MOVED))
                 return true;
@@ -513,7 +525,7 @@ export function sanity_check(transaction: Move_Transaction, move: Single_Move) {
         return false;
     }
 
-    function target_square_is_taken(): { is_taken: boolean, taken_by: Game_Entity } {
+    function target_square_is_taken_by_entity_from_superior_transaction(): { is_taken: boolean, taken_by: Game_Entity } {
         const res = {
             is_taken: false,
             taken_by: null,
@@ -545,28 +557,49 @@ export function sanity_check(transaction: Move_Transaction, move: Single_Move) {
         return !at_least_one_supporter;
     }
 
-    function settle_new_supporter(supporter: Game_Entity) {
-        console.log(`SANITY CHECK: NEW SUPPORTER, target: ${target.id}, new supporter: ${supporter.id}`);
-        move.info.end_position = supporter.position.add(Vec3.UNIT_Z);
+    function settle_new_landing_point(p: Vec3) {
+        console.log(`SANITY CHECK: NEW SUPPORTER, target: ${target.id}, landed: ${p.toString()}`);
+        move.info.end_position = p;
     }
 
-    function resolve_new_supporter(): Game_Entity {
-        let drop_point = target.position;
+    function resolve_new_landing_point(): { succeed: boolean, pos: Vec3 } {
+        const res = {
+            succeed: false,
+            pos: null,
+        };
+
+        let drop_point = new Vec3(target.position);
         const direction = move.end_direction;
         if (direction != Direction.DOWN) {
             drop_point = calcu_entity_future_position(target, direction);
         }
         const max_depth = 10; // @hack
         let supporters = [];
+
+        const p = new Vec3(drop_point);
         for (let depth = 1; depth <= max_depth; depth++) {
+            p.z -= 1;
+            if (taken_by_incoming_entity_from_same_transaction(p)) {
+                res.succeed = true;
+                p.z += 1;
+                res.pos = p;
+
+                console.log(`SANITY CHECK: INCOMING_ENTITY depth: ${depth}, pos: ${p.toString()}`);
+                return res;
+            }
+
             supporters = manager.locate_supporters(drop_point, depth);
             for (let supporter of supporters) {
                 if (exist_in_another_move(supporter)) continue;
-                return supporter;
+
+                res.succeed = true;
+                p.z += 1;
+                res.pos = p;
+                return res;
             }
         }
 
-        return null;
+        return res;
     }
     //#SCOPE
 
@@ -575,19 +608,22 @@ export function sanity_check(transaction: Move_Transaction, move: Single_Move) {
     const target = manager.find(move.target_entity_id);
 
     if (move.info.move_type == Move_Type.FALLING) {
-        const res = target_square_is_taken()
+        const res = target_square_is_taken_by_entity_from_superior_transaction()
         if (res.is_taken || supporter_no_longer_exist()) {
-            const supporter = resolve_new_supporter();
-            if (supporter == null) {
-                remove_it();
+            const res = resolve_new_landing_point();
+            if (!res.succeed) {
                 return false;
             }
-            settle_new_supporter(supporter);
+
+            settle_new_landing_point(res.pos);
         }
         return true;
     }
 
     if (move.info.move_type != Move_Type.SUPPORT) {
+        // It's only a rotate move
+        if (!is_dirty(move, Move_Flags.MOVED)) return true;
+
         if (supporter_no_longer_exist()) {
             console.log(`SANITY CHECK: NO SUPPORTER, target: ${target.id}, move: ${move.info.move_type}`);
             possible_falling(transaction, target, move.end_direction);
@@ -596,27 +632,27 @@ export function sanity_check(transaction: Move_Transaction, move: Single_Move) {
         }
     }
 
-    const res = target_square_is_taken();
+    const res = target_square_is_taken_by_entity_from_superior_transaction();
     if (res.is_taken) {
-        if (res.taken_by.entity_type == Entity_Type.GATE) {
+        if (res.taken_by.entity_type == Entity_Type.GATE
+            || res.taken_by.entity_type == Entity_Type.BRIDGE) {
             return true;
         }
         if (move.info.move_type == Move_Type.SUPPORT) {
-            if (!is_dirty(move, Move_Flags.MOVED)) return true;
-
             if (supporter_no_longer_exist()) {
-                console.log(`SANITY CHECK: SUPPORTEE DROP, target: ${target.id}`);
-
                 move.info.end_direction = Direction.DOWN;
-                settle_new_supporter(resolve_new_supporter());
+                const resolved = resolve_new_landing_point();
+                if (!resolved.succeed) {
+                    return false;
+                }
 
-                // @todo Coming entity?
+                settle_new_landing_point(resolved.pos);
                 return true;
             }
         }
 
-        remove_it();
-        return true;
+        // remove_it();
+        return false;
     }
     return true;
 }
@@ -678,6 +714,7 @@ function try_push_others(t: Move_Transaction, e: Game_Entity, d: Direction): { p
     for (let other of locate_entities_in_target_direction(manager, e, d)) {
         if (other == null) continue;
         if (other == e) continue;
+        if (other.entity_type == Entity_Type.BRIDGE) continue; // We can walk under the bridge
 
         if (other.entity_type == Entity_Type.GATE) {
             const gate = other;
@@ -690,6 +727,7 @@ function try_push_others(t: Move_Transaction, e: Game_Entity, d: Direction): { p
 
             continue;
         }
+
         res.pushed = true;
         const pushed_move = new Pushed_Move(e, other, d);
         if (!pushed_move.try_add_itself(t)) {
@@ -772,6 +810,7 @@ function can_pass_through(m: Entity_Manager, e: Game_Entity, d: Direction) {
     for (let other of locate_entities_in_target_direction(m, e, d)) {
         if (other == null) continue;
         if (other == e) continue;
+        if (other.entity_type == Entity_Type.BRIDGE) return true;
         if (other.entity_type == Entity_Type.GATE) {
             if (same_position(other.position, e.position)
                 && e.polyomino_type == Polyomino_Type.MONOMINO)
