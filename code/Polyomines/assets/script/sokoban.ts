@@ -2,6 +2,7 @@ import { Vec3 } from "cc";
 import { String_Builder, same_position, Const } from "./Const";
 import { Entity_Manager } from "./Entity_Manager";
 import { Direction, Game_Entity, calcu_entity_future_position, same_direction, Entity_Type, calcu_target_direction, collinear_direction, clacu_reversed_direction, locate_entities_in_target_direction, Polyomino_Type, orthogonal_direction, reversed_direction } from "./Game_Entity";
+import { Game_Controller_Input } from "./modes/Test_Run_Mode";
 import { Transaction_Control_Flags, Transaction_Manager } from "./Transaction_Manager";
 
 export enum Move_Type {
@@ -665,6 +666,11 @@ export function generate_rover_moves_if_switch_turned_on(transaction_manager: Tr
         const rover_move = new Rover_Move(rover);
         transaction_manager.try_add_new_move(rover_move);
     }
+}
+
+export function generate_controller_proc(transaction_manager: Transaction_Manager, entity_manager: Entity_Manager, direction: Direction, step: number = 1) {
+    const hero = entity_manager.active_hero;
+    transaction_manager.try_add_new_move(new Controller_Proc_Move(hero, direction, step));
 }
 //#endregion PUBLIC
 

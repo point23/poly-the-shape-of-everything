@@ -1,73 +1,181 @@
-import { _decorator, EventKeyboard, KeyCode, EventHandler, Vec2, misc } from 'cc';
+import { _decorator, EventKeyboard, KeyCode } from 'cc';
 import { Const } from '../Const';
 import { Contextual_Manager } from '../Contextual_Manager';
 import { Entity_Manager } from '../Entity_Manager';
 import { Direction } from '../Game_Entity';
+import { Dpad, Dpad_Button, Dpad_Input } from '../input/Dpad';
+import { Joystick_Input, Joystick } from '../input/Joystick';
 import { Level_Editor } from '../Level_Editor';
-import { Controller_Proc_Move, Possess_Move } from '../sokoban';
+import {
+    Controller_Proc_Move,
+    generate_controller_proc,
+    generate_rover_moves_if_switch_turned_on,
+    Possess_Move
+} from '../sokoban';
+
 import { Transaction_Manager } from '../Transaction_Manager';
-import { Joystick } from '../ui/Joystick';
 import { UI_Manager } from '../UI_Manager';
 import { do_one_undo, undo_mark_beginning } from '../undo';
 
 import { Game_Mode } from './Game_Mode_Base';
+
+export enum Game_Button {
+    MOVE_LEFT = Direction.LEFT,
+    MOVE_RIGHT = Direction.RIGHT,
+    MOVE_FORWARD = Direction.FORWARD,
+    MOVE_BACKWARD = Direction.BACKWORD,
+
+    FACE_LEFT = Direction.LEFT + 4,
+    FACE_RIGHT = Direction.RIGHT + 4,
+    FACE_FORWARD = Direction.FORWARD + 4,
+    FACE_BACKWARD = Direction.BACKWORD + 4,
+}
+
+export class Game_Controller_Input {
+    availble: boolean = false;
+    moved: boolean = false;
+    button_states: Uint8Array = new Uint8Array(8); // @temprory
+
+    reset() {
+        this.availble = false;
+        this.moved = false;
+
+        this.button_states.forEach((it, it_idx) => {
+            this.button_states[it_idx] = 0;
+        });
+    }
+}
 
 const { ccclass, property } = _decorator;
 
 @ccclass('Test_Run_Mode')
 export class Test_Run_Mode extends Game_Mode {
     @property(Joystick) joystick: Joystick = null;
+    @property(Dpad) dpad: Dpad = null;
+
     is_shift_down: boolean = false;
     entity_manager: Entity_Manager = null; // @hack
+
+    input: Game_Controller_Input = new Game_Controller_Input();
+
+    get ticks_per_loop(): number {
+        return Const.Ticks_Per_Loop[Transaction_Manager.instance.duration_idx];
+    };
+    #round: number = 0;
+    #tick: number = 0;
+
+    #is_running: boolean = false;
+
+    set is_running(v: boolean) {
+        this.#is_running = v;
+    };
+
+    get is_running(): boolean {
+        return this.#is_running;
+    }
 
     on_enter() {
         this.entity_manager = Contextual_Manager.instance.entity_manager;
         undo_mark_beginning(this.entity_manager);
-
-        { // Navigate to previous level
-            const e = new EventHandler();
-            e.target = this.node;
-            e.component = "Test_Run_Mode";
-            e.handler = 'handle_joystick_input';
-            this.joystick.controller_events.push(e);
-        }
-
         UI_Manager.instance.info("Test Run");
-        Level_Editor.instance.is_running = true; // @hack
+
+        this.is_running = true;
+        this.#init_inputs();
+
+        this.schedule(this.tick, Const.Tick_Interval);
+        this.schedule(this.#handle_inputs, Const.Input_Query_Interval);
     }
 
     on_exit() {
-        this.joystick.controller_events = [];
-        Level_Editor.instance.is_running = false; // @hack
+        this.is_running = false;
+        this.#clear_inputs();
+        this.unschedule(this.tick);
     }
 
-    #is_jiggling: boolean = false;
-    handle_joystick_input(pos: Vec2, radius: number) {
-        if (this.#is_jiggling) return;
-        this.#is_jiggling = true;
+    tick() {
+        if ((this.#tick % this.ticks_per_loop) == 0) {
+            this.main_loop();
+        }
+        this.#tick = (this.#tick + 1) % (1 << 16);
+    }
 
-        const delta = pos.length();
+    main_loop() {
+        if (!this.is_running) return;
+        const transaction_manager = Transaction_Manager.instance;
 
-        const step = ((delta / radius) >= 0.5) ? 1 : 0;
+        if ((this.#round % Const.ROVER_SPEED) == 0) {
+            generate_rover_moves_if_switch_turned_on(transaction_manager);
+        }
 
-        const active_hero = this.entity_manager.active_hero;
+        this.#process_inputs();
 
-        const rad = Math.atan2(pos.y, pos.x);
-        const deg: number = misc.radiansToDegrees(rad);
-        console.log(deg);
+        transaction_manager.execute_async();
+        this.#round = (this.#round + 1) % (1 << 16);
+    }
 
-        var direction: Direction;
-        if (deg >= 45 && deg <= 135) direction = Direction.BACKWORD;
-        if (deg <= -45 && deg >= -135) direction = Direction.FORWARD;
-        if (deg >= 135 || deg <= -135) direction = Direction.LEFT;
-        if (deg <= 45 && deg >= -45) direction = Direction.RIGHT;
+    #init_inputs() {
+        this.joystick.init();
+        this.dpad.init();
+    }
 
-        const move = new Controller_Proc_Move(active_hero, direction, step);
-        Transaction_Manager.instance.try_add_new_move(move);
+    #clear_inputs() {
+        this.joystick.clear();
+        this.dpad.clear();
+    }
 
-        this.scheduleOnce(() => {
-            this.#is_jiggling = false;
-        }, Const.Joystick_Jiggling_Interval);
+    #handle_inputs() {
+        if (this.input.availble) return;
+
+        this.input.reset();
+        this.#handle_joystick_input();
+        this.#handle_dpad_input();
+    }
+
+    #process_inputs() {
+        if (!this.input.availble) return;
+
+        let direction = 0;
+        const step = this.input.moved ? 1 : 0;
+
+        for (let i = Game_Button.MOVE_LEFT; i <= Game_Button.FACE_BACKWARD; i++) {
+            if (this.input.button_states[i]) {
+                direction = i % 4;
+                break; // @note Just take the first button which ended down
+            }
+        }
+
+        this.input.reset();
+        generate_controller_proc(Transaction_Manager.instance, this.entity_manager, direction, step);
+    }
+
+    #handle_joystick_input() {
+        const state: Joystick_Input = this.joystick.state;
+        if (!state.available) return;
+
+        this.input.availble = true;
+
+        const deg = state.degree;
+        if (deg >= 45 && deg <= 135) { // BACKWARD
+            this.input.button_states[Game_Button.FACE_BACKWARD] = 1;
+        } else if (deg <= -45 && deg >= -135) { // FORWARD
+            this.input.button_states[Game_Button.FACE_FORWARD] = 1;
+        } else if (deg >= 135 || deg <= -135) { // LEFT
+            this.input.button_states[Game_Button.FACE_LEFT] = 1;
+        } else if (deg <= 45 && deg >= -45) { // RIGHT
+            this.input.button_states[Game_Button.FACE_RIGHT] = 1;
+
+        }
+    }
+
+    #handle_dpad_input() {
+        const state: Dpad_Input = this.dpad.state;
+
+        if (!state.available) return;
+
+        this.input.availble = true;
+
+        this.input.button_states[state.btn_idx] = 1;
+        this.input.moved = true;
     }
 
     handle_key_down(event: EventKeyboard) {
@@ -110,6 +218,10 @@ export class Test_Run_Mode extends Game_Mode {
             case KeyCode.ENTER: {
                 const move = new Possess_Move(active_hero);
                 Transaction_Manager.instance.try_add_new_move(move);
+            } break;
+
+            case KeyCode.KEY_P: {
+                this.#is_running = !this.#is_running;
             } break;
 
             case KeyCode.KEY_R: {

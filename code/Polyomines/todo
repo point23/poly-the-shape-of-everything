@@ -19,7 +19,7 @@ UI ===
 - undo panel
 - Stars for difficulty
 + Clock and Slide for undo
-+ Mobile Input
++ Fade in and Fade out !!!
 + Auto Fit for Multi-Resolution !!!
 
 GAMEPLAY === 
@@ -45,6 +45,10 @@ GAMEPLAY ===
 - Switch
 - Power(GEM)
 - Sanity check
++ Buffered game inputs
+    Virtual Controller
+    Keyboard
+    Touch Panel
 + Decorators
     like grass on the ground...
 + Better camera controller

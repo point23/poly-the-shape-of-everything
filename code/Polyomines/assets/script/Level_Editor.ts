@@ -5,7 +5,6 @@ import { Contextual_Manager } from './Contextual_Manager';
 import { Entity_Manager } from './Entity_Manager';
 import { debug_render_grid, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
-import { generate_rover_moves_if_switch_turned_on } from './sokoban';
 import { Transaction_Manager } from './Transaction_Manager';
 import { UI_Manager } from './UI_Manager';
 import { do_one_redo, do_one_undo, Undo_Handler } from './undo';
@@ -34,12 +33,6 @@ export class Level_Editor extends Component {
     entity_manager: Entity_Manager = null;
     debug_grid: Node = null;
 
-    get ticks_per_loop(): number {
-        return Const.Ticks_Per_Loop[Transaction_Manager.instance.duration_idx];
-    };
-    #round: number = 0;
-    #tick: number = 0;
-
     onLoad() {
         this.settle_singletons();
         Resource_Manager.instance.load_levels(this, init);
@@ -47,10 +40,6 @@ export class Level_Editor extends Component {
 
     onDestroy() {
         this.clear_current_level();
-    }
-
-    start() {
-        this.schedule(this.tick, Const.Tick_Interval);
     }
 
     reload_current_level() {
@@ -78,39 +67,15 @@ export class Level_Editor extends Component {
     }
 
     clear_current_level() {
+        Contextual_Manager.instance.current_mode.on_exit();
+
         const manager = this.entity_manager;
         manager.all_entities.forEach((it) => { it.node.destroy(); });
         Entity_Manager.current = null;
 
         clear_ui(this);
-
         this.debug_grid.destroy();
         this.debug_grid = null;
-    }
-
-    tick() {
-        if ((this.#tick % this.ticks_per_loop) == 0) {
-            this.main_loop();
-        }
-        this.#tick = (this.#tick + 1) % (1 << 16);
-    }
-
-    #is_running: boolean = false;
-    set is_running(v: boolean) {
-        this.#is_running = v;
-    };
-    get is_running(): boolean {
-        return this.#is_running;
-    }
-
-    main_loop() {
-        if (!this.is_running) return;
-        if ((this.#round % Const.Rover_Speed) == 0) {
-            generate_rover_moves_if_switch_turned_on(this.transaction_manager);
-        }
-        this.transaction_manager.execute_async();
-
-        this.#round = (this.#round + 1) % (1 << 16);
     }
 
     // Settle singleton managers manually
