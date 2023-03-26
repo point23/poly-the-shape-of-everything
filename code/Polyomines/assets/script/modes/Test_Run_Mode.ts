@@ -1,10 +1,9 @@
 import { _decorator, EventKeyboard, KeyCode } from 'cc';
-import { Const } from '../Const';
+import { Const, Direction } from '../Const';
 import { Contextual_Manager } from '../Contextual_Manager';
 import { Entity_Manager } from '../Entity_Manager';
-import { Direction } from '../Game_Entity';
-import { Dpad, Dpad_Button, Dpad_Input } from '../input/Dpad';
-import { Joystick_Input, Joystick } from '../input/Joystick';
+import { Game_Button, Game_Input, Game_Input_Handler } from '../input/Game_Input_Handler';
+import { Virtual_Controller } from '../input/Virtual_Controller';
 import { Level_Editor } from '../Level_Editor';
 import {
     Controller_Proc_Move,
@@ -19,44 +18,25 @@ import { do_one_undo, undo_mark_beginning } from '../undo';
 
 import { Game_Mode } from './Game_Mode_Base';
 
-export enum Game_Button {
-    MOVE_LEFT = Direction.LEFT,
-    MOVE_RIGHT = Direction.RIGHT,
-    MOVE_FORWARD = Direction.FORWARD,
-    MOVE_BACKWARD = Direction.BACKWORD,
-
-    FACE_LEFT = Direction.LEFT + 4,
-    FACE_RIGHT = Direction.RIGHT + 4,
-    FACE_FORWARD = Direction.FORWARD + 4,
-    FACE_BACKWARD = Direction.BACKWORD + 4,
-}
-
-export class Game_Controller_Input {
-    availble: boolean = false;
-    moved: boolean = false;
-    button_states: Uint8Array = new Uint8Array(8); // @temprory
-
-    reset() {
-        this.availble = false;
-        this.moved = false;
-
-        this.button_states.forEach((it, it_idx) => {
-            this.button_states[it_idx] = 0;
-        });
-    }
-}
-
 const { ccclass, property } = _decorator;
+
+enum Game_Input_Handler_Type {
+    VIRTUAL_CONTROLLER,
+    KEYBOARD,
+    TOUCH_PANEL,
+}
 
 @ccclass('Test_Run_Mode')
 export class Test_Run_Mode extends Game_Mode {
-    @property(Joystick) joystick: Joystick = null;
-    @property(Dpad) dpad: Dpad = null;
+    @property(Virtual_Controller) vcontroller: Virtual_Controller = null;
 
     is_shift_down: boolean = false;
     entity_manager: Entity_Manager = null; // @hack
 
-    input: Game_Controller_Input = new Game_Controller_Input();
+    current_handler_idx: number = 0;
+    input_handlers: Game_Input_Handler[] = []; // @incomplete
+    get current_handler(): Game_Input_Handler { return this.input_handlers[this.current_handler_idx]; }
+    get input(): Game_Input { return this.current_handler.input; }
 
     get ticks_per_loop(): number {
         return Const.Ticks_Per_Loop[Transaction_Manager.instance.duration_idx];
@@ -72,6 +52,10 @@ export class Test_Run_Mode extends Game_Mode {
 
     get is_running(): boolean {
         return this.#is_running;
+    }
+
+    start() {
+        this.input_handlers.push(this.vcontroller);
     }
 
     on_enter() {
@@ -101,81 +85,52 @@ export class Test_Run_Mode extends Game_Mode {
 
     main_loop() {
         if (!this.is_running) return;
+
         const transaction_manager = Transaction_Manager.instance;
-
-        if ((this.#round % Const.ROVER_SPEED) == 0) {
-            generate_rover_moves_if_switch_turned_on(transaction_manager);
-        }
-
+        generate_rover_moves_if_switch_turned_on(transaction_manager, this.#round);
         this.#process_inputs();
-
         transaction_manager.execute_async();
         this.#round = (this.#round + 1) % (1 << 16);
     }
 
     #init_inputs() {
-        this.joystick.init();
-        this.dpad.init();
+        for (let handler of this.input_handlers) {
+            handler.init();
+        }
     }
 
     #clear_inputs() {
-        this.joystick.clear();
-        this.dpad.clear();
+        for (let handler of this.input_handlers) {
+            handler.clear();
+        }
     }
 
     #handle_inputs() {
         if (this.input.availble) return;
-
-        this.input.reset();
-        this.#handle_joystick_input();
-        this.#handle_dpad_input();
+        this.current_handler.handle_inputs();
     }
 
     #process_inputs() {
         if (!this.input.availble) return;
 
-        let direction = 0;
-        const step = this.input.moved ? 1 : 0;
+        if (this.input.button_states[Game_Button.RESET]) {
+            Level_Editor.instance.reload_current_level();
+        } else if (this.input.button_states[Game_Button.UNDO]) {
+            do_one_undo(this.entity_manager);
+        } else {
+            let direction = 0;
+            const step = this.input.moved ? 1 : 0;
 
-        for (let i = Game_Button.MOVE_LEFT; i <= Game_Button.FACE_BACKWARD; i++) {
-            if (this.input.button_states[i]) {
-                direction = i % 4;
-                break; // @note Just take the first button which ended down
+            for (let i = Game_Button.MOVE_LEFT; i <= Game_Button.FACE_BACKWARD; i++) {
+                if (this.input.button_states[i]) {
+                    direction = i % 4;
+                    break; // @note Just take the first button which ended down
+                }
             }
+            generate_controller_proc(Transaction_Manager.instance, this.entity_manager, direction, step);
         }
 
         this.input.reset();
-        generate_controller_proc(Transaction_Manager.instance, this.entity_manager, direction, step);
-    }
-
-    #handle_joystick_input() {
-        const state: Joystick_Input = this.joystick.state;
-        if (!state.available) return;
-
-        this.input.availble = true;
-
-        const deg = state.degree;
-        if (deg >= 45 && deg <= 135) { // BACKWARD
-            this.input.button_states[Game_Button.FACE_BACKWARD] = 1;
-        } else if (deg <= -45 && deg >= -135) { // FORWARD
-            this.input.button_states[Game_Button.FACE_FORWARD] = 1;
-        } else if (deg >= 135 || deg <= -135) { // LEFT
-            this.input.button_states[Game_Button.FACE_LEFT] = 1;
-        } else if (deg <= 45 && deg >= -45) { // RIGHT
-            this.input.button_states[Game_Button.FACE_RIGHT] = 1;
-
-        }
-    }
-
-    #handle_dpad_input() {
-        const state: Dpad_Input = this.dpad.state;
-
-        if (!state.available) return;
-
-        this.input.availble = true;
-
-        this.input.button_states[state.btn_idx] = 1;
-        this.input.moved = true;
     }
 
     handle_key_down(event: EventKeyboard) {

@@ -1,5 +1,5 @@
 import { _decorator, Component, Enum, MeshRenderer, SkeletalAnimation, tween, Vec3, Game } from 'cc';
-import { Const, String_Builder } from './Const';
+import { Const, Direction, String_Builder } from './Const';
 import { Entity_Manager } from './Entity_Manager';
 import { Polygon_Entity } from './Polygon_Entity';
 
@@ -16,15 +16,6 @@ export enum Entity_Flags {
     SELECT = 1 << 1,
     DEAD = 1 << 3,
     FALLING = 1 << 4,
-}
-
-export enum Direction {
-    LEFT,
-    RIGHT,
-    FORWARD,
-    BACKWORD,
-    UP,
-    DOWN,
 }
 
 export function same_direction(d1: Direction, d2: Direction) {

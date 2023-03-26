@@ -1,8 +1,7 @@
 import { Vec3 } from "cc";
-import { String_Builder, same_position, Const } from "./Const";
+import { String_Builder, same_position, Const, Direction } from "./Const";
 import { Entity_Manager } from "./Entity_Manager";
-import { Direction, Game_Entity, calcu_entity_future_position, same_direction, Entity_Type, calcu_target_direction, collinear_direction, clacu_reversed_direction, locate_entities_in_target_direction, Polyomino_Type, orthogonal_direction, reversed_direction } from "./Game_Entity";
-import { Game_Controller_Input } from "./modes/Test_Run_Mode";
+import { Game_Entity, calcu_entity_future_position, same_direction, Entity_Type, calcu_target_direction, collinear_direction, clacu_reversed_direction, locate_entities_in_target_direction, Polyomino_Type, orthogonal_direction, reversed_direction } from "./Game_Entity";
 import { Transaction_Control_Flags, Transaction_Manager } from "./Transaction_Manager";
 
 export enum Move_Type {
@@ -658,7 +657,9 @@ export function sanity_check(transaction: Move_Transaction, move: Single_Move) {
     return true;
 }
 
-export function generate_rover_moves_if_switch_turned_on(transaction_manager: Transaction_Manager) {
+export function generate_rover_moves_if_switch_turned_on(transaction_manager: Transaction_Manager, gameplay_time: number) {
+    if ((gameplay_time % Const.ROVER_SPEED) != 0) return;
+
     const entity_manager = transaction_manager.entity_manager;
     if (!entity_manager.switch_turned_on) return;
 

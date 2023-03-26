@@ -1,13 +1,12 @@
 import { _decorator, Component, Node, Vec3 } from 'cc';
-import { Const } from '../Const';
-import { Direction } from '../Game_Entity';
+import { Const, Direction } from '../Const';
 const { ccclass, property } = _decorator;
 
 export enum Dpad_Button {
-    DPAD_LEFT = Direction.LEFT,
-    DPAD_RIGHT = Direction.RIGHT,
-    DPAD_DOWN = Direction.FORWARD,
-    DPAD_UP = Direction.BACKWORD,
+    DPAD_LEFT,
+    DPAD_RIGHT,
+    DPAD_DOWN, // FORWARD
+    DPAD_UP, // BACKWARD
 }
 
 export type Dpad_Input = {
@@ -15,15 +14,16 @@ export type Dpad_Input = {
     btn_idx: number,
 };
 
+// @note in our sokoban game logic, player can not press two dpad buttons 
+// one time in order to moving to the diagonal direction is not allowed.
 @ccclass('Dpad')
 export class Dpad extends Component {
-    static PRESSED_SCALE = new Vec3(1.1, 1.1, 1);
+    static PRESSED_SCALE = new Vec3(0.9, 0.9, 1);
 
     @property(Node) btn_left: Node = null;
     @property(Node) btn_right: Node = null;
     @property(Node) btn_up: Node = null;
     @property(Node) btn_down: Node = null;
-
 
     get state(): Dpad_Input {
         let press_long_enough: boolean = false;
@@ -55,14 +55,6 @@ export class Dpad extends Component {
     }
 
     init() {
-        this.register();
-    }
-
-    clear() {
-        this.unregister();
-    }
-
-    register() {
         this.btn_left.on(Node.EventType.TOUCH_START, this.#press_btn_left, this);
         this.btn_right.on(Node.EventType.TOUCH_START, this.#press_btn_right, this);
         this.btn_up.on(Node.EventType.TOUCH_START, this.#press_btn_up, this);
@@ -74,7 +66,7 @@ export class Dpad extends Component {
         this.btn_down.on(Node.EventType.TOUCH_END, this.#release_btn_down, this);
     }
 
-    unregister() {
+    clear() {
         this.btn_left.off(Node.EventType.TOUCH_START, this.#press_btn_left, this);
         this.btn_right.off(Node.EventType.TOUCH_START, this.#press_btn_right, this);
         this.btn_up.off(Node.EventType.TOUCH_START, this.#press_btn_up, this);

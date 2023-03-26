@@ -1,5 +1,14 @@
 import { Color, Quat, Size, Vec3 } from 'cc';
 
+export enum Direction {
+    LEFT,
+    RIGHT,
+    FORWARD,
+    BACKWORD,
+    UP,
+    DOWN,
+}
+
 /** Global Flags */
 export class $ {
     static S_doing_undo = Symbol("doing_undo");
@@ -133,6 +142,11 @@ export function same_position(a: Vec3, b: Vec3): boolean {
 }
 
 export class Const {
+    static LEFT = 0;
+    static RIGHT = 0;
+    static FORWARD = 0;
+    static BACKWARD = 0;
+
     static Data_Path: string = 'data';
     static Default_Level: string = 'level#001';
 
