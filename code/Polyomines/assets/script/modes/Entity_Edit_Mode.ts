@@ -1,9 +1,28 @@
-import { _decorator, Camera, EventKeyboard, EventMouse, EventTouch, geometry, KeyCode, PhysicsSystem } from 'cc';
-import { Const } from '../Const';
+import {
+    _decorator,
+    Camera,
+    EventKeyboard,
+    EventMouse,
+    EventTouch,
+    geometry,
+    KeyCode,
+    PhysicsSystem
+} from 'cc';
+import { Const, Direction } from '../Const';
 import { Entity_Manager } from '../Entity_Manager';
-import { Serializable_Entity_Data, Game_Entity, calcu_entity_future_position, debug_validate_tiling, Direction, get_selected_entities, get_serializable, note_entity_is_deselected, note_entity_is_selected, rotate_clockwise_horizontaly } from '../Game_Entity';
+import {
+    Serializable_Entity_Data,
+    Game_Entity,
+    calcu_entity_future_position,
+    debug_validate_tiling,
+    get_selected_entities,
+    get_serializable,
+    note_entity_is_deselected,
+    note_entity_is_selected,
+    rotate_clockwise_horizontaly
+} from '../Game_Entity';
+import { Level_Editor } from '../Level_Editor';
 import { Resource_Manager } from '../Resource_Manager';
-import { UI_Manager } from '../UI_Manager';
 import { note_entity_creation, note_entity_destruction, undo_end_frame, undo_mark_beginning } from '../undo';
 
 import { Game_Mode } from './Game_Mode_Base';
@@ -32,7 +51,7 @@ export class Entity_Edit_Mode extends Game_Mode {
     copied_entities: Serializable_Entity_Data[] = [];
 
     on_enter() {
-        UI_Manager.instance.info("Entity Edit");
+        Level_Editor.instance.info("Entity Edit");
         undo_mark_beginning(this.entity_manager);
     }
 
@@ -208,6 +227,7 @@ export class Entity_Edit_Mode extends Game_Mode {
         const entities = this.entity_manager.get_entities_info();
         updated_level_config.entities = entities;
         Resource_Manager.instance.save_level(updated_level_config);
+        Level_Editor.instance.info("Saved.");
     }
 
     select(e: Game_Entity) {

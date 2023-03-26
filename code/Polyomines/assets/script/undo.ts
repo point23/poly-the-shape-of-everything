@@ -1,9 +1,16 @@
-import { assert, UI, Vec3 } from "cc";
-import { $, compare_all_slots, Stack, String_Builder } from "./Const";
+import { $, Stack, String_Builder } from "./Const";
 import { Entity_Manager } from "./Entity_Manager";
-import { clone_undoable_data, copy_undoable_data, Game_Entity, get_serialized_data, note_entity_is_invalid, note_entity_is_valid, Serializable_Entity_Data, Undoable_Entity_Data } from "./Game_Entity";
+import {
+    clone_undoable_data,
+    copy_undoable_data,
+    Game_Entity,
+    note_entity_is_invalid,
+    note_entity_is_valid,
+    Serializable_Entity_Data,
+    Undoable_Entity_Data
+} from "./Game_Entity";
+import { Level_Editor } from "./Level_Editor";
 import { debug_print_quad_tree } from "./Proximity_Grid";
-import { UI_Manager } from "./UI_Manager";
 
 export class Undo_Handler {
     manager: Entity_Manager = null;
@@ -99,7 +106,9 @@ export function undo_end_frame(manager: Entity_Manager) {
         undo.pending_destructions = [];
     }
 
-    UI_Manager.instance.show_undo_changes(num_changes);
+    if (manager.for_editing)
+        Level_Editor.instance.show_undo_changes(num_changes);
+
     record.transaction = builder.to_string(' '); // @hack
     undo.undo_records.push(record);
 }
@@ -377,7 +386,8 @@ function really_do_one_undo(manager: Entity_Manager, record: Undo_Record, is_red
         }
     }
 
-    UI_Manager.instance.show_undo_changes(num_changes); // Only count changes in current frame
+    if (manager.for_editing)
+        Level_Editor.instance.show_undo_changes(num_changes);
 }
 
 function clear_current_undo_frame(undo: Undo_Handler) {

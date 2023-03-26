@@ -1,8 +1,8 @@
 import { _decorator, EventKeyboard, EventMouse, KeyCode, Vec3 } from 'cc';
 
 import { Camera3D_Controller } from '../Camera3D_Controller';
+import { Level_Editor } from '../Level_Editor';
 import { Resource_Manager } from '../Resource_Manager';
-import { UI_Manager } from '../UI_Manager';
 
 import { Game_Mode } from './Game_Mode_Base';
 
@@ -13,7 +13,7 @@ export class Swipe_Camera_Mode extends Game_Mode {
     @property(Camera3D_Controller) camera3d_controller: Camera3D_Controller;
 
     on_enter() {
-        UI_Manager.instance.info("Swipe Camera");
+        Level_Editor.instance.info("Swipe Camera");
     }
 
     on_exit() {

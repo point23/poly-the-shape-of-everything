@@ -1,5 +1,5 @@
 {
-    "start_level": "level#001",
+    "start_level": "start",
     "levels": [
         {
             "id": 0,
@@ -14,6 +14,11 @@
         {
             "id": 2,
             "name": "level#003",
+            "successor": "3"
+        },
+        {
+            "id": 3,
+            "name": "start",
             "successor": "0"
         }
     ]

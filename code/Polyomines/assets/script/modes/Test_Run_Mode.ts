@@ -13,18 +13,11 @@ import {
 } from '../sokoban';
 
 import { Transaction_Manager } from '../Transaction_Manager';
-import { UI_Manager } from '../UI_Manager';
 import { do_one_undo, undo_mark_beginning } from '../undo';
 
 import { Game_Mode } from './Game_Mode_Base';
 
 const { ccclass, property } = _decorator;
-
-enum Game_Input_Handler_Type {
-    VIRTUAL_CONTROLLER,
-    KEYBOARD,
-    TOUCH_PANEL,
-}
 
 @ccclass('Test_Run_Mode')
 export class Test_Run_Mode extends Game_Mode {
@@ -61,7 +54,7 @@ export class Test_Run_Mode extends Game_Mode {
     on_enter() {
         this.entity_manager = Contextual_Manager.instance.entity_manager;
         undo_mark_beginning(this.entity_manager);
-        UI_Manager.instance.info("Test Run");
+        Level_Editor.instance.info("Test Run");
 
         this.is_running = true;
         this.#init_inputs();

@@ -1,5 +1,4 @@
 import { _decorator, Component, Node } from 'cc';
-import { Direction } from '../Const';
 const { ccclass, property } = _decorator;
 
 export enum Game_Button {

@@ -1,11 +1,10 @@
 import { assert, Game, Vec3 } from 'cc';
-import { same_position } from './Const';
+import { Direction, same_position } from './Const';
 import {
     Serializable_Entity_Data,
     Game_Entity,
     Undoable_Entity_Data,
     calcu_entity_future_squares,
-    Direction,
     Entity_Type,
     get_entity_squares,
     get_serializable,
@@ -32,7 +31,7 @@ export class Entity_Manager {
     undo_handler: Undo_Handler = null;
     all_entities: Game_Entity[] = [];
     checkpoints: Game_Entity[] = [];
-
+    for_editing: boolean = false;
     rovers: Game_Entity[] = [];
 
     get pending_win(): boolean {

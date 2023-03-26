@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, instantiate, Prefab, EventHandler, Button } from 'cc';
+import { _decorator, Component, Node, instantiate, Prefab, EventHandler, Button, RichText } from 'cc';
 import { Camera3D_Controller } from './Camera3D_Controller';
 import { Const } from './Const';
 import { Contextual_Manager } from './Contextual_Manager';
@@ -6,7 +6,10 @@ import { Entity_Manager } from './Entity_Manager';
 import { debug_render_grid, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
 import { Transaction_Manager } from './Transaction_Manager';
-import { UI_Manager } from './UI_Manager';
+import { Button_Group } from './ui/Button_Group';
+import { Rating } from './ui/Rating';
+import { Navigator } from './ui/Navigator';
+import { Transaction_Panel } from './ui/Transaction_Panel';
 import { do_one_redo, do_one_undo, Undo_Handler } from './undo';
 
 const { ccclass, property } = _decorator;
@@ -28,7 +31,32 @@ export class Level_Editor extends Component {
     @property(Contextual_Manager) contextual_manager: Contextual_Manager = null;
     @property(Resource_Manager) resource_manager: Resource_Manager = null;
     @property(Transaction_Manager) transaction_manager: Transaction_Manager = null;
-    @property(UI_Manager) ui_manager: UI_Manager = null;
+
+    @property(RichText) txt_info: RichText = null;
+    @property(Transaction_Panel) transaction_panel: Transaction_Panel = null;
+
+    @property(Navigator) undos: Navigator = null;
+    @property(Navigator) levels: Navigator = null;
+
+    @property(Navigator) durations: Navigator = null;
+
+    @property(Rating) difficulty: Rating = null;
+
+    @property(Button) btn_save: Button = null;
+    @property(Button) btn_download: Button = null;
+
+    @property(Button_Group) modes: Button_Group = null;
+
+    show_undo_changes(num: number) {
+        this.undos.label_current.string = `${num} changes`;
+    }
+
+    info(s: string) {
+        this.txt_info.string = s;
+        this.scheduleOnce(() => {
+            this.txt_info.string = "";
+        }, 1);
+    }
 
     entity_manager: Entity_Manager = null;
     debug_grid: Node = null;
@@ -84,7 +112,6 @@ export class Level_Editor extends Component {
         Contextual_Manager.Settle(this.contextual_manager);
         Resource_Manager.Settle(this.resource_manager);
         Transaction_Manager.Settle(this.transaction_manager);
-        UI_Manager.Settle(this.ui_manager);
     }
 }
 
@@ -95,14 +122,14 @@ function init_ui(editor: Level_Editor) {
             e.target = editor.contextual_manager.node;
             e.component = "Contextual_Manager";
             e.handler = 'save_level';
-            ui.btn_save.clickEvents.push(e);
+            editor.btn_save.clickEvents.push(e);
         }
         {
             const e = new EventHandler();
             e.target = editor.resource_manager.node;
             e.component = "Resource_Manager";
             e.handler = 'download_config';
-            ui.btn_download.clickEvents.push(e);
+            editor.btn_download.clickEvents.push(e);
         }
     }
 
@@ -111,11 +138,11 @@ function init_ui(editor: Level_Editor) {
         e.target = editor.contextual_manager.node;
         e.component = "Contextual_Manager";
         e.handler = 'switch_mode';
-        ui.modes.events.push(e);
+        editor.modes.events.push(e);
     }
 
     function init_levels() {
-        const levels = ui.levels;
+        const levels = editor.levels;
         levels.label.string = "level";
         // levels.btn_label.interactable = false;
 
@@ -140,7 +167,7 @@ function init_ui(editor: Level_Editor) {
     }
 
     function init_difficulty() {
-        const difficulty = ui.difficulty;
+        const difficulty = editor.difficulty;
         difficulty.label.string = "difficulty";
         difficulty.set_rating(editor.resource_manager.current_level_difficulty);
 
@@ -154,10 +181,10 @@ function init_ui(editor: Level_Editor) {
     }
 
     function init_undos() {
-        const undos = ui.undos;
+        const undos = editor.undos;
 
         undos.label.string = "undo";
-        ui.show_undo_changes(0);
+        editor.show_undo_changes(0);
 
         { // Really do one undo
             undos.btn_prev.node.on(Button.EventType.CLICK, () => {
@@ -173,13 +200,12 @@ function init_ui(editor: Level_Editor) {
     }
 
     function init_transactions() {
-        const navigator = ui.transaction_panel.navigator;
-
-        ui.transaction_panel.reset_counter();
+        const navigator = editor.transaction_panel.navigator;
+        editor.transaction_panel.reset_counter();
         navigator.label.string = "transaction";
         { // Show or Hide single move logs
             const e = new EventHandler();
-            e.target = ui.transaction_panel.node;
+            e.target = editor.transaction_panel.node;
             e.component = 'Transaction_Panel';
             e.handler = 'toggle';
             navigator.btn_current.clickEvents.push(e);
@@ -187,7 +213,7 @@ function init_ui(editor: Level_Editor) {
 
         { // Show prev transaction
             const e = new EventHandler();
-            e.target = ui.transaction_panel.node;
+            e.target = editor.transaction_panel.node;
             e.component = 'Transaction_Panel';
             e.handler = 'show_prev';
             navigator.btn_prev.clickEvents.push(e);
@@ -195,18 +221,18 @@ function init_ui(editor: Level_Editor) {
 
         { // Show next transaction
             const e = new EventHandler();
-            e.target = ui.transaction_panel.node;
+            e.target = editor.transaction_panel.node;
             e.component = 'Transaction_Panel';
             e.handler = 'show_next';
             navigator.btn_next.clickEvents.push(e);
         }
 
-        ui.transaction_panel.clear_logs();
-        ui.transaction_panel.hide_logs();
+        editor.transaction_panel.clear_logs();
+        editor.transaction_panel.hide_logs();
     }
 
     function init_durations_once() {
-        const navigatar = editor.ui_manager.durations;
+        const navigatar = editor.durations;
         if (navigatar.initialized) return;
 
         navigatar.label.string = 'duration';
@@ -233,28 +259,24 @@ function init_ui(editor: Level_Editor) {
     }
     //#SCOPE
 
-    const ui = editor.ui_manager;
-
     init_options();
     init_modes();
     init_levels();
     init_difficulty();
     init_undos();
     init_transactions();
-
     init_durations_once();
 }
 
 function clear_ui(editor: Level_Editor) {
-    const ui = editor.ui_manager;
-    ui.btn_save.clickEvents = [];
-    ui.btn_download.clickEvents = [];
+    editor.btn_save.clickEvents = [];
+    editor.btn_download.clickEvents = [];
 
-    ui.levels.clear();
-    ui.undos.clear();
+    editor.levels.clear();
+    editor.undos.clear();
     // ui.durations.clear();
 
-    ui.transaction_panel.clear();
+    editor.transaction_panel.clear();
 }
 
 function init(editor: Level_Editor) {

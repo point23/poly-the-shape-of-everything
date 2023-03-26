@@ -4,7 +4,6 @@ import { Entity_Manager } from './Entity_Manager';
 import { Level_Editor } from './Level_Editor';
 import { debug_print_quad_tree } from './Proximity_Grid';
 import { Move_Transaction, Single_Move, sanity_check } from './sokoban';
-import { UI_Manager } from './UI_Manager';
 import { undo_end_frame } from './undo';
 const { ccclass, property } = _decorator;
 
@@ -39,7 +38,7 @@ export class Transaction_Manager extends Component {
 
     set duration_idx(d: number) {
         this.#duration_idx = d;
-        UI_Manager.instance.durations.label_current.string = Const.Duration[d];
+        Level_Editor.instance.durations.label_current.string = Const.Duration[d];
     }
 
     control_flags = 0;
@@ -106,6 +105,6 @@ export class Transaction_Manager extends Component {
 
         undo_end_frame(this.entity_manager);
         debug_print_quad_tree(this.entity_manager.proximity_grid.quad_tree);
-        UI_Manager.instance.transaction_panel.note_new_transaction();
+        Level_Editor.instance.transaction_panel.note_new_transaction();
     }
 }

@@ -1,6 +1,5 @@
 import { _decorator, Prefab, resources, instantiate, Node, JsonAsset, sys, Component } from 'cc';
 import { Const } from './Const';
-import { UI_Manager } from './UI_Manager';
 import { Prefab_Pair } from './ui/Prefab_Pair';
 
 const { ccclass, property } = _decorator;
@@ -92,7 +91,6 @@ export class Resource_Manager extends Component {
 
     save_level(level_config) {
         this.current_level_config = level_config;
-        UI_Manager.instance.info("Saved.");
     };
 
     download_config() {
