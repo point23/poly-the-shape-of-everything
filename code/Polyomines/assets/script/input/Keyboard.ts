@@ -20,6 +20,7 @@ export class Keyboard extends Game_Input_Handler {
 
         if (pressed_long_enough(this.#map, KeyCode.ARROW_UP) || pressed_long_enough(this.#map, KeyCode.KEY_W)) {
             this.#input.availble = true;
+            this.#input.rotated = shift_down;
             this.#input.moved = !shift_down;
             if (shift_down) {
                 this.#input.button_states[Game_Button.FACE_BACKWARD] = 1;
@@ -30,6 +31,7 @@ export class Keyboard extends Game_Input_Handler {
 
         if (pressed_long_enough(this.#map, KeyCode.ARROW_DOWN) || pressed_long_enough(this.#map, KeyCode.KEY_S)) {
             this.#input.availble = true;
+            this.#input.rotated = shift_down;
             this.#input.moved = !shift_down;
             if (shift_down) {
                 this.#input.button_states[Game_Button.FACE_FORWARD] = 1;
@@ -40,6 +42,7 @@ export class Keyboard extends Game_Input_Handler {
 
         if (pressed_long_enough(this.#map, KeyCode.ARROW_LEFT) || pressed_long_enough(this.#map, KeyCode.KEY_A)) {
             this.#input.availble = true;
+            this.#input.rotated = shift_down;
             this.#input.moved = !shift_down;
             if (shift_down) {
                 this.#input.button_states[Game_Button.FACE_LEFT] = 1;
@@ -50,6 +53,7 @@ export class Keyboard extends Game_Input_Handler {
 
         if (pressed_long_enough(this.#map, KeyCode.ARROW_RIGHT) || pressed_long_enough(this.#map, KeyCode.KEY_D)) {
             this.#input.availble = true;
+            this.#input.rotated = shift_down;
             this.#input.moved = !shift_down;
             if (shift_down) {
                 this.#input.button_states[Game_Button.FACE_RIGHT] = 1;

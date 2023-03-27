@@ -82,10 +82,11 @@ export class Test_Run_Mode extends Game_Mode {
 
         const transaction_manager = Transaction_Manager.instance;
         this.#process_inputs();
-        if (!$$.DOING_UNDO || !$$.RELOADING) {
+        if (!$$.DOING_UNDO && !$$.RELOADING) {
             generate_rover_moves_if_switch_turned_on(transaction_manager, this.#round);
         } transaction_manager.execute();
         this.#round = (this.#round + 1) % (1 << 16);
+
         $$.DOING_UNDO = false;
     }
 
@@ -150,7 +151,7 @@ export class Test_Run_Mode extends Game_Mode {
             do_one_undo(this.entity_manager);
         } else if (this.input.button_states[Game_Button.SWITCH_HERO]) {
             this.entity_manager.switch_hero();
-        } else {
+        } else if (this.input.moved || this.input.rotated) {
             let direction = 0;
             const step = this.input.moved ? 1 : 0;
 

@@ -10,7 +10,7 @@ export class Camera3D_Controller extends Component {
     current_position: Vec3 = new Vec3();
     last_position: Vec3 = new Vec3();
 
-    get_camera_info(): any {
+    get_info(): any {
         return { position: this.current_position, rotation: this.current_rotation };
     }
 

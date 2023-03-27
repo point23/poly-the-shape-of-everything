@@ -68,11 +68,13 @@ export enum Game_Button {
 export class Game_Input {
     availble: boolean = false;
     moved: boolean = false;
+    rotated: boolean = false;
     button_states: Uint8Array = new Uint8Array(12); // @temprory
 
     reset() {
         this.availble = false;
         this.moved = false;
+        this.rotated = false;
 
         this.button_states.forEach((it, it_idx) => {
             this.button_states[it_idx] = 0;

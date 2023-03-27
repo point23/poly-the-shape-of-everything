@@ -1,6 +1,5 @@
 import { _decorator, Component, Node, Vec3 } from 'cc';
 import { Const } from '../Const';
-import { Button_State, handle_button_down, handle_button_up, pressed_long_enough } from './Game_Input_Handler';
 const { ccclass, property } = _decorator;
 
 export enum Action_Button {

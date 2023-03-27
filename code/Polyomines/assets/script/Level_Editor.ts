@@ -23,6 +23,7 @@ export class Level_Editor extends Component {
     static instance: Level_Editor;
 
     @property(Camera3D_Controller) camera3d_controller: Camera3D_Controller = null;
+    @property(Camera3D_Controller) light_controller: Camera3D_Controller = null;
 
     @property(Prefab) debug_grid_prefab: Prefab = null;
     @property(Node) debug_stuff: Node = null;
@@ -285,6 +286,7 @@ function init(editor: Level_Editor) {
     const config = editor.resource_manager.current_level_config;
 
     editor.camera3d_controller.update_view(config.camera);
+    editor.light_controller.update_view(config.light);
 
     // @implementMe Directives like #PREVIEW or #WINDOWS...
     const grid = new Proximity_Grid(config.grid);

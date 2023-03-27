@@ -49,6 +49,7 @@ export class Virtual_Controller extends Game_Input_Handler {
         if (!state.available) return;
 
         this.#input.availble = true;
+        this.#input.rotated = true;
 
         const deg = state.degree;
         if (deg >= 45 && deg <= 135) { // BACKWARD

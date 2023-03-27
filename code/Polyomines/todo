@@ -9,8 +9,6 @@ LEVEL EDITOR ===
 - Diff entities
 - Do undo
 - Serialize undo
-+ In game console
-+ Notes, Painter
 
 UI ===
 - button group
@@ -18,7 +16,7 @@ UI ===
 - transactions panel
 - undo panel
 - Stars for difficulty
-- Fade in and Fade out !!!
+- Fade in and Fade out
 + Clock and Slide for undo
 + Auto Fit for Multi-Resolution !!!
 
@@ -49,7 +47,7 @@ GAMEPLAY ===
     Virtual Controller
     Keyboard
     Touch Panel
-+ Let the Rover drop down!
+- Let the Rover drop down!
 + ARTIFACTS
 + Decorators
     like grass on the ground...
@@ -92,13 +90,13 @@ ART STUFF===
 - ISSUE#005: When we push a rock in the same round that rover is moved, them would be in the same square
 - ISSUE#007: When we push sth, its supportee should be blocked by others and drop down
 - ISSUE#008: When we push sth, its supportee may drop on a comming entity
-
 - ISSUE#009: When we move gem onto switch in edit mode,
      then enter test run, then immediatly reload, it crashes caused by sth related to 'pending_win'.
+- Clear transaction stack when load new levels
+- Repeatedly bind the schedule function!!!
+    just unschedule it when exit
 + Look through occluding objects if there's a hero or special items like switch or gem
 + Domino control
-+ Clear transaction stack when load new levels
-+ Repeatedly bind the callback function!!!
 
 @optimize ###
 + Draw-Call is too high
