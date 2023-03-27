@@ -1,4 +1,4 @@
-import { $, Stack, String_Builder } from "./Const";
+import { $$, Stack, String_Builder } from "./Const";
 import { Entity_Manager } from "./Entity_Manager";
 import {
     clone_undoable_data,
@@ -45,7 +45,6 @@ export class CD_Action {
 
 // ==== public functions ==== 
 export function undo_mark_beginning(manager: Entity_Manager) {
-    if ($.doing_undo == false) return;
     const undo = manager.undo_handler;
 
     clear_current_undo_frame(undo);

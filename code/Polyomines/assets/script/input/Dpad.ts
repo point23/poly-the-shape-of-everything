@@ -14,8 +14,7 @@ export type Dpad_Input = {
     btn_idx: number,
 };
 
-// @note in our sokoban game logic, player can not press two dpad buttons 
-// one time in order to moving to the diagonal direction is not allowed.
+// @incomplete Player can not press two dpad buttons one time in order to moving to the diagonal direction is not allowed.
 @ccclass('Dpad')
 export class Dpad extends Component {
     static PRESSED_SCALE = new Vec3(0.9, 0.9, 1);
@@ -28,8 +27,8 @@ export class Dpad extends Component {
     get state(): Dpad_Input {
         let press_long_enough: boolean = false;
         if (this.#btn_ended_down) {
-            const pressing_interval = new Date().getTime() - this.#press_counter;
-            if (pressing_interval >= this.#processed_count * Const.DPAD_PRESSING_INTERVAL) {
+            const pressing_duration = new Date().getTime() - this.#pressed_at;
+            if (pressing_duration >= this.#processed_count * Const.VALID_PRESSING_INTERVAL) {
                 press_long_enough = true;
                 this.#processed_count += 1;
             }
@@ -45,7 +44,7 @@ export class Dpad extends Component {
     #btn_ended_down: boolean = false;
     #button_idx: number = 0;
     #processed_count: number = 0;
-    #press_counter: number = 0;
+    #pressed_at: number = 0;
 
     start() {
         this.#buttons[Dpad_Button.DPAD_LEFT] = this.btn_left;
@@ -76,11 +75,13 @@ export class Dpad extends Component {
         this.btn_right.off(Node.EventType.TOUCH_END, this.#release_btn_right, this);
         this.btn_up.off(Node.EventType.TOUCH_END, this.#release_btn_up, this);
         this.btn_down.off(Node.EventType.TOUCH_END, this.#release_btn_down, this);
+
+        this.#btn_ended_down = false;
     }
 
     #press(idx: number) {
         this.#buttons[idx].scale = Dpad.PRESSED_SCALE;
-        this.#press_counter = new Date().getTime();
+        this.#pressed_at = new Date().getTime();
         this.#btn_ended_down = true;
         this.#processed_count = 0;
         this.#button_idx = idx;

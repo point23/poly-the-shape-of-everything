@@ -18,8 +18,8 @@ UI ===
 - transactions panel
 - undo panel
 - Stars for difficulty
+- Fade in and Fade out !!!
 + Clock and Slide for undo
-+ Fade in and Fade out !!!
 + Auto Fit for Multi-Resolution !!!
 
 GAMEPLAY === 
@@ -45,10 +45,12 @@ GAMEPLAY ===
 - Switch
 - Power(GEM)
 - Sanity check
-+ Buffered game inputs
+- Buffered game inputs
     Virtual Controller
     Keyboard
     Touch Panel
++ Let the Rover drop down!
++ ARTIFACTS
 + Decorators
     like grass on the ground...
 + Better camera controller
@@ -91,6 +93,8 @@ ART STUFF===
 - ISSUE#007: When we push sth, its supportee should be blocked by others and drop down
 - ISSUE#008: When we push sth, its supportee may drop on a comming entity
 
+- ISSUE#009: When we move gem onto switch in edit mode,
+     then enter test run, then immediatly reload, it crashes caused by sth related to 'pending_win'.
 + Look through occluding objects if there's a hero or special items like switch or gem
 + Domino control
 + Clear transaction stack when load new levels

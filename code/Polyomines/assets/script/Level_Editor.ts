@@ -72,7 +72,6 @@ export class Level_Editor extends Component {
 
     reload_current_level() {
         this.clear_current_level();
-
         this.resource_manager.load_current_level(this, init);
     }
 
@@ -265,6 +264,7 @@ function init_ui(editor: Level_Editor) {
     init_difficulty();
     init_undos();
     init_transactions();
+
     init_durations_once();
 }
 

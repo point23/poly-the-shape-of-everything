@@ -88,10 +88,6 @@ export class Contextual_Manager extends Component {
         /* Handle Special Case: common interactions */
         const key_code = event.keyCode;
         switch (key_code) {
-            case KeyCode.TAB:
-                this.switch_mode();
-                break;
-
             case KeyCode.DASH:
                 do_one_undo(this.entity_manager);
                 break;

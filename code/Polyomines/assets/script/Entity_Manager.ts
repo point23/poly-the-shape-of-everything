@@ -26,7 +26,20 @@ export class Entity_Manager {
 
     static current: Entity_Manager = null;
 
-    active_hero: Game_Entity = null;
+    // HERO STUFF
+    get active_hero(): Game_Entity {
+        return this.heros[this.active_hero_idx];
+    };
+
+    active_hero_idx: number = 0;
+    heros: Game_Entity[] = [];
+    get num_heros(): number { return this.heros.length; }
+    switch_hero() {
+        const idx = this.active_hero_idx;
+        this.active_hero_idx = (idx + 1) % this.num_heros;
+        // VFX?
+    }
+
     proximity_grid: Proximity_Grid = null;
     undo_handler: Undo_Handler = null;
     all_entities: Game_Entity[] = [];
@@ -90,7 +103,10 @@ export class Entity_Manager {
 
         // @note Handle entities with special types
         if (entity.entity_type == Entity_Type.CHECKPOINT) this.checkpoints.push(entity);
-        if (entity.entity_type == Entity_Type.HERO) this.active_hero = entity;
+        if (entity.entity_type == Entity_Type.HERO) {
+            this.heros.push(entity);
+        }
+
         if (entity.entity_type == Entity_Type.ROVER) this.rovers.push(entity);
         if (entity.entity_type == Entity_Type.SWITCH) this.#switch = entity;
         if (entity.entity_type == Entity_Type.GEM) this.#gem = entity;

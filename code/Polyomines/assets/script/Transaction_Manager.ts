@@ -59,7 +59,7 @@ export class Transaction_Manager extends Component {
         }
     }
 
-    async execute_async() {
+    execute() {
         if (this.issued_stack.empty()) return;
 
         const packed = new Move_Transaction(this.entity_manager);
@@ -89,7 +89,7 @@ export class Transaction_Manager extends Component {
             }
 
             for (const move of transaction.moves) {
-                await move.execute_async(transaction);
+                move.execute(transaction);
                 packed.moves.push(move);
             }
         }

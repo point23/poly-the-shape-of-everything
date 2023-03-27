@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Button } from 'cc';
+import { _decorator, Button } from 'cc';
 import { Action_Button, Action_Button_Group, Action_Button_Input } from './Action_Button_Group';
 import { Dpad, Dpad_Input } from './Dpad';
 import { Game_Button, Game_Input, Game_Input_Handler } from './Game_Input_Handler';
@@ -17,20 +17,25 @@ export class Virtual_Controller extends Game_Input_Handler {
     get input(): Game_Input {
         return this.#input;
     }
+    get name(): string {
+        return "V Controller"
+    }
 
     init() {
+        this.node.active = true;
         this.joystick.init();
         this.dpad.init();
         this.action_buttons.init();
     }
 
     clear() {
+        this.node.active = false;
         this.joystick.clear();
         this.dpad.clear();
         this.action_buttons.clear();
     }
 
-    handle_inputs() {
+    update_input() {
         if (this.#input.availble) return;
 
         this.#input.reset();
@@ -71,12 +76,16 @@ export class Virtual_Controller extends Game_Input_Handler {
         if (!action_button_input.available) return;
 
         this.#input.availble = true;
-        if ((action_button_input.state & Action_Button.Y)) {
+        if ((action_button_input.btn_idx == Action_Button.Y)) {
             this.#input.button_states[Game_Button.RESET] = 1;
         }
 
-        if ((action_button_input.state & Action_Button.B)) {
+        if ((action_button_input.btn_idx == Action_Button.B)) {
             this.#input.button_states[Game_Button.UNDO] = 1;
+        }
+
+        if ((action_button_input.btn_idx == Action_Button.X)) {
+            this.#input.button_states[Game_Button.SWITCH_HERO] = 1;
         }
     }
 }

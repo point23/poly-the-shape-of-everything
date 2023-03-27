@@ -10,28 +10,14 @@ export enum Direction {
 }
 
 /** Global Flags */
-export class $ {
-    static S_doing_undo = Symbol("doing_undo");
-    static S_next_undo_record_is_checkpoint = Symbol("next_undo_record_is_checkpoint");
-
-    static [s: symbol]: boolean;
-    static get doing_undo(): boolean { return $[$.S_doing_undo]; }
-    static get next_undo_record_is_checkpoint(): boolean { return $[$.S_doing_undo]; }
-
+export class $$ {
+    static IS_RUNNING: boolean;
+    static DOING_UNDO: boolean;
+    static RELOADING: boolean;
     static {
-        $[$.S_doing_undo] = true;
-        $[$.S_next_undo_record_is_checkpoint] = false;
-    }
-
-    static take(s: symbol): boolean {
-        let r = $[s];
-        $[s] = false;
-        return r;
-    }
-
-    static flip(s: symbol) {
-        let r = $[s];
-        $[s] = !r;
+        $$.RELOADING = false;
+        $$.IS_RUNNING = false;
+        $$.DOING_UNDO = false;
     }
 }
 
@@ -184,7 +170,7 @@ export class Const {
     static JOYSTICK_DEADZONE = 0.05;
 
     static Input_Query_Interval = (0.1 / (1 << 3));
-    static DPAD_PRESSING_INTERVAL = 200; // @fixme For now there're some zigzag when it's not n times tick-interval(ms)
+    static VALID_PRESSING_INTERVAL = 400; // @fixme For now there're some zigzag when it's not n times tick-interval(ms)
 
     static Mouse_Jiggling_Interval = 0.01;
     static Double_Click_Time_Interval = 0.25;

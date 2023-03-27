@@ -1,16 +1,18 @@
 import { _decorator, Component, Node, Vec3 } from 'cc';
+import { Const } from '../Const';
+import { Button_State, handle_button_down, handle_button_up, pressed_long_enough } from './Game_Input_Handler';
 const { ccclass, property } = _decorator;
 
 export enum Action_Button {
-    X = 1 << 0,
-    Y = 1 << 1,
-    A = 1 << 2,
-    B = 1 << 3,
+    X,
+    Y,
+    A,
+    B
 }
 
 export type Action_Button_Input = {
     available: boolean,
-    state: number,
+    btn_idx: number,
 }
 
 @ccclass('Action_Button_Group')
@@ -22,25 +24,36 @@ export class Action_Button_Group extends Component {
     @property(Node) btn_a: Node = null;
     @property(Node) btn_b: Node = null;
 
-    btns: Map<number, Node> = new Map();
-    onLoad() {
-        this.btns.set(Action_Button.X, this.btn_x);
-        this.btns.set(Action_Button.Y, this.btn_y);
-        this.btns.set(Action_Button.A, this.btn_a);
-        this.btns.set(Action_Button.B, this.btn_b);
+    #buttons: [Node, Node, Node, Node] = [null, null, null, null];
+    #btn_ended_down: boolean = false;
+    #button_idx: number = 0;
+    #processed_count: number = 0;
+    #pressed_at: number = 0;
+
+    start() {
+        this.#buttons[Action_Button.X] = this.btn_x;
+        this.#buttons[Action_Button.Y] = this.btn_y;
+        this.#buttons[Action_Button.A] = this.btn_a;
+        this.#buttons[Action_Button.B] = this.btn_b;
     }
 
     get state(): Action_Button_Input {
-        return {
-            available: this.#state != 0,
-            state: this.#state
+        let press_long_enough: boolean = false;
+        if (this.#btn_ended_down) {
+            const pressing_duration = new Date().getTime() - this.#pressed_at;
+            if (pressing_duration >= this.#processed_count * Const.VALID_PRESSING_INTERVAL) {
+                press_long_enough = true;
+                this.#processed_count += 1;
+            }
         }
+
+        return {
+            available: this.#btn_ended_down && press_long_enough,
+            btn_idx: this.#button_idx,
+        };
     }
 
-    #state: number = 0;
-
     init() {
-        this.#state = 0;
         this.btn_x.on(Node.EventType.TOUCH_START, this.#press_x, this);
         this.btn_y.on(Node.EventType.TOUCH_START, this.#press_y, this);
         this.btn_a.on(Node.EventType.TOUCH_START, this.#press_a, this);
@@ -62,17 +75,21 @@ export class Action_Button_Group extends Component {
         this.btn_y.off(Node.EventType.TOUCH_END, this.#release_y, this);
         this.btn_a.off(Node.EventType.TOUCH_END, this.#release_a, this);
         this.btn_b.off(Node.EventType.TOUCH_END, this.#release_b, this);
+
+        this.#btn_ended_down = false;
     }
 
-    #press(f: number) {
-        this.#state |= f;
-        this.btns.get(f).scale = Action_Button_Group.PRESSED_SCALE;
+    #press(idx: number) {
+        this.#buttons[idx].scale = Action_Button_Group.PRESSED_SCALE;
+        this.#pressed_at = new Date().getTime();
+        this.#btn_ended_down = true;
+        this.#processed_count = 0;
+        this.#button_idx = idx;
     }
 
-    #release(f: number) {
-        if ((this.#state & f) == 0) return;
-        this.#state -= f;
-        this.btns.get(f).scale = Vec3.ONE;
+    #release(idx: number) {
+        this.#buttons[idx].scale = Vec3.ONE;
+        this.#btn_ended_down = false;
     }
 
     #press_x() { this.#press(Action_Button.X); }

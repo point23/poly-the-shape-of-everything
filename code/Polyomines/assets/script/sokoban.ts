@@ -60,7 +60,7 @@ export class Single_Move {
 
     try_add_itself(transaction: Move_Transaction): boolean { return false; }
 
-    execute_async(transaction: Move_Transaction) { }
+    execute(transaction: Move_Transaction) { }
 
     debug_info(): string { return ''; }
 }
@@ -139,7 +139,7 @@ export class Possess_Move extends Single_Move {
         return false; // @hack
     }
 
-    async execute_async() {
+    async execute() {
         // Entity_Manager.instance.reclaim(this.source_entity);
         // this.target_entity.entity_type = Entity_Type.AVATAR;
         // Entity_Manager.instance.current_character = this.target_entity;
@@ -212,7 +212,7 @@ export class Controller_Proc_Move extends Single_Move {
         return true;
     }
 
-    async execute_async(transaction: Move_Transaction) {
+    async execute(transaction: Move_Transaction) {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
 
@@ -261,7 +261,7 @@ class Support_Move extends Single_Move {
         return true;
     }
 
-    async execute_async(transaction: Move_Transaction) {
+    async execute(transaction: Move_Transaction) {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
 
@@ -315,7 +315,7 @@ class Pushed_Move extends Single_Move {
         return true;
     }
 
-    async execute_async(transaction: Move_Transaction) {
+    async execute(transaction: Move_Transaction) {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
 
@@ -381,7 +381,7 @@ class Falling_Move extends Single_Move {
         return true;
     }
 
-    async execute_async(transaction: Move_Transaction) {
+    async execute(transaction: Move_Transaction) {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
 
@@ -430,6 +430,11 @@ class Rover_Move extends Single_Move {
 
         let track = locate_track_ahead(rover, direction);
         if (track == null) { // There's no way ahead, we need to turn around
+            const fall_res = possible_falling(transaction, rover, direction);
+            if (fall_res.fell && fall_res.fall_succeed) {
+                return true;
+            }
+
             turned_around = true;
         } else {
             if (collinear_direction(track.rotation, rover.orientation)) {
@@ -473,7 +478,7 @@ class Rover_Move extends Single_Move {
         return true;
     }
 
-    async execute_async(transaction: Move_Transaction) {
+    async execute(transaction: Move_Transaction) {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
 
@@ -661,6 +666,7 @@ export function generate_rover_moves_if_switch_turned_on(transaction_manager: Tr
     if ((gameplay_time % Const.ROVER_SPEED) != 0) return;
 
     const entity_manager = transaction_manager.entity_manager;
+    if (entity_manager.pending_win) return;
     if (!entity_manager.switch_turned_on) return;
 
     for (let rover of entity_manager.rovers) {
@@ -706,7 +712,8 @@ function possible_falling(t: Move_Transaction, e: Game_Entity, d: Direction): { 
 function can_push(e_source: Game_Entity, e_target: Game_Entity): boolean {
     if (e_target.entity_type == Entity_Type.STATIC
         || e_target.entity_type == Entity_Type.CHECKPOINT
-        || e_target.entity_type == Entity_Type.SWITCH)
+        || e_target.entity_type == Entity_Type.SWITCH
+        || e_target.entity_type == Entity_Type.TRACK)
         return false;
 
     if (e_source.entity_type != Entity_Type.ROVER
