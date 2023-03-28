@@ -664,7 +664,6 @@ export function sanity_check(transaction: Move_Transaction, move: Single_Move) {
 
 export function generate_rover_moves_if_switch_turned_on(transaction_manager: Transaction_Manager, gameplay_time: number) {
     if ((gameplay_time % Const.ROVER_SPEED) != 0) return;
-
     const entity_manager = transaction_manager.entity_manager;
     if (entity_manager.pending_win) return;
     if (!entity_manager.switch_turned_on) return;

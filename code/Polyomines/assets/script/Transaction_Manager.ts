@@ -24,22 +24,18 @@ export class Transaction_Manager extends Component {
     }
 
     speed_up() {
-        this.duration_idx = math.clamp(this.#duration_idx - 1, 0, Const.Max_Duration_Idx);
+        this.duration_idx = math.clamp(this.duration_idx - 1, 0, Const.Max_Duration_Idx);
+        if (this.entity_manager.for_editing)
+            Level_Editor.instance.durations.label_current.string = Const.Duration[this.duration_idx];
     }
 
     slow_down() {
-        this.duration_idx = math.clamp(this.#duration_idx + 1, 0, Const.Max_Duration_Idx);
+        this.duration_idx = math.clamp(this.duration_idx + 1, 0, Const.Max_Duration_Idx);
+        if (this.entity_manager.for_editing)
+            Level_Editor.instance.durations.label_current.string = Const.Duration[this.duration_idx];
     }
 
-    #duration_idx: number = 1;
-    get duration_idx(): number {
-        return this.#duration_idx;
-    }
-
-    set duration_idx(d: number) {
-        this.#duration_idx = d;
-        Level_Editor.instance.durations.label_current.string = Const.Duration[d];
-    }
+    duration_idx: number = 0;
 
     control_flags = 0;
 
@@ -98,13 +94,11 @@ export class Transaction_Manager extends Component {
         this.commited_stack.push(packed);
         this.control_flags = 0;
 
-        if (this.entity_manager.pending_win) {
-            Level_Editor.instance.load_succeed_level();
-            return;
-        }
-
         undo_end_frame(this.entity_manager);
-        debug_print_quad_tree(this.entity_manager.proximity_grid.quad_tree);
-        Level_Editor.instance.transaction_panel.note_new_transaction();
+
+        if (this.entity_manager.for_editing) {
+            debug_print_quad_tree(this.entity_manager.proximity_grid.quad_tree);
+            Level_Editor.instance.transaction_panel.note_new_transaction();
+        }
     }
 }

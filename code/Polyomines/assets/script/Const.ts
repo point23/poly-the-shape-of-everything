@@ -170,7 +170,7 @@ export class Const {
     static JOYSTICK_DEADZONE = 0.05;
 
     static Input_Query_Interval = (0.1 / (1 << 3));
-    static VALID_PRESSING_INTERVAL = 400; // @fixme For now there're some zigzag when it's not n times tick-interval(ms)
+    static VALID_PRESSING_INTERVAL = 600; // @fixme For now there're some zigzag when it's not n times tick-interval(ms)
 
     static Mouse_Jiggling_Interval = 0.01;
     static Double_Click_Time_Interval = 0.25;

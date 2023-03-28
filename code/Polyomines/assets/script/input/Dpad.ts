@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Vec3 } from 'cc';
+import { _decorator, Component, Node, Vec3, Sprite } from 'cc';
 import { Const, Direction } from '../Const';
 const { ccclass, property } = _decorator;
 
@@ -17,7 +17,7 @@ export type Dpad_Input = {
 // @incomplete Player can not press two dpad buttons one time in order to moving to the diagonal direction is not allowed.
 @ccclass('Dpad')
 export class Dpad extends Component {
-    static PRESSED_SCALE = new Vec3(0.9, 0.9, 1);
+    static PRESSED_SCALE = new Vec3(0.5, 0.5, 1);
 
     @property(Node) btn_left: Node = null;
     @property(Node) btn_right: Node = null;
@@ -40,6 +40,7 @@ export class Dpad extends Component {
         };
     }
 
+    #sprites: [Sprite, Sprite, Sprite, Sprite] = [null, null, null, null];
     #buttons: [Node, Node, Node, Node] = [null, null, null, null];
     #btn_ended_down: boolean = false;
     #button_idx: number = 0;
@@ -51,6 +52,11 @@ export class Dpad extends Component {
         this.#buttons[Dpad_Button.DPAD_RIGHT] = this.btn_right;
         this.#buttons[Dpad_Button.DPAD_DOWN] = this.btn_down;
         this.#buttons[Dpad_Button.DPAD_UP] = this.btn_up;
+
+        this.#sprites[Dpad_Button.DPAD_LEFT] = this.btn_left.getComponentInChildren(Sprite);
+        this.#sprites[Dpad_Button.DPAD_RIGHT] = this.btn_right.getComponentInChildren(Sprite);
+        this.#sprites[Dpad_Button.DPAD_DOWN] = this.btn_down.getComponentInChildren(Sprite);
+        this.#sprites[Dpad_Button.DPAD_UP] = this.btn_up.getComponentInChildren(Sprite);
     }
 
     init() {
@@ -63,6 +69,11 @@ export class Dpad extends Component {
         this.btn_right.on(Node.EventType.TOUCH_END, this.#release_btn_right, this);
         this.btn_up.on(Node.EventType.TOUCH_END, this.#release_btn_up, this);
         this.btn_down.on(Node.EventType.TOUCH_END, this.#release_btn_down, this);
+
+        this.btn_left.on(Node.EventType.TOUCH_CANCEL, this.#release_btn_left, this);
+        this.btn_right.on(Node.EventType.TOUCH_CANCEL, this.#release_btn_right, this);
+        this.btn_up.on(Node.EventType.TOUCH_CANCEL, this.#release_btn_up, this);
+        this.btn_down.on(Node.EventType.TOUCH_CANCEL, this.#release_btn_down, this);
     }
 
     clear() {
@@ -76,11 +87,22 @@ export class Dpad extends Component {
         this.btn_up.off(Node.EventType.TOUCH_END, this.#release_btn_up, this);
         this.btn_down.off(Node.EventType.TOUCH_END, this.#release_btn_down, this);
 
+        this.btn_left.off(Node.EventType.TOUCH_CANCEL, this.#release_btn_left, this);
+        this.btn_right.off(Node.EventType.TOUCH_CANCEL, this.#release_btn_right, this);
+        this.btn_up.off(Node.EventType.TOUCH_CANCEL, this.#release_btn_up, this);
+        this.btn_down.off(Node.EventType.TOUCH_CANCEL, this.#release_btn_down, this);
+
         this.#btn_ended_down = false;
+
+        this.#release_btn_left();
+        this.#release_btn_right();
+        this.#release_btn_down();
+        this.#release_btn_up();
     }
 
     #press(idx: number) {
-        this.#buttons[idx].scale = Dpad.PRESSED_SCALE;
+        this.#sprites[idx].node.scale = Dpad.PRESSED_SCALE;
+
         this.#pressed_at = new Date().getTime();
         this.#btn_ended_down = true;
         this.#processed_count = 0;
@@ -88,7 +110,7 @@ export class Dpad extends Component {
     }
 
     #release(idx: number) {
-        this.#buttons[idx].scale = Vec3.ONE;
+        this.#sprites[idx].node.scale = Vec3.ONE;
         this.#btn_ended_down = false;
     }
 

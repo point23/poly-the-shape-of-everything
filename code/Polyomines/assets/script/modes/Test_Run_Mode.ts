@@ -32,7 +32,7 @@ export class Test_Run_Mode extends Game_Mode {
     entity_manager: Entity_Manager = null; // @hack
 
     current_handler_idx: number = 0;
-    input_handlers: Game_Input_Handler[] = []; // @incomplete
+    input_handlers: Game_Input_Handler[] = [];
     get current_handler(): Game_Input_Handler { return this.input_handlers[this.current_handler_idx]; }
     get input(): Game_Input { return this.current_handler.input; }
 
@@ -86,6 +86,10 @@ export class Test_Run_Mode extends Game_Mode {
             generate_rover_moves_if_switch_turned_on(transaction_manager, this.#round);
         } transaction_manager.execute();
         this.#round = (this.#round + 1) % (1 << 16);
+
+        if (this.entity_manager.pending_win) {
+            Level_Editor.instance.load_succeed_level();
+        }
 
         $$.DOING_UNDO = false;
     }

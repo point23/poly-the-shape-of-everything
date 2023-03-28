@@ -16,7 +16,7 @@ export type Action_Button_Input = {
 
 @ccclass('Action_Button_Group')
 export class Action_Button_Group extends Component {
-    static PRESSED_SCALE = new Vec3(0.9, 0.9, 1);
+    static PRESSED_SCALE = new Vec3(0.5, 0.5, 1);
 
     @property(Node) btn_x: Node = null;
     @property(Node) btn_y: Node = null;
@@ -62,6 +62,11 @@ export class Action_Button_Group extends Component {
         this.btn_y.on(Node.EventType.TOUCH_END, this.#release_y, this);
         this.btn_a.on(Node.EventType.TOUCH_END, this.#release_a, this);
         this.btn_b.on(Node.EventType.TOUCH_END, this.#release_b, this);
+
+        this.btn_x.on(Node.EventType.TOUCH_CANCEL, this.#release_x, this);
+        this.btn_y.on(Node.EventType.TOUCH_CANCEL, this.#release_y, this);
+        this.btn_a.on(Node.EventType.TOUCH_CANCEL, this.#release_a, this);
+        this.btn_b.on(Node.EventType.TOUCH_CANCEL, this.#release_b, this);
     }
 
     clear() {
@@ -75,7 +80,16 @@ export class Action_Button_Group extends Component {
         this.btn_a.off(Node.EventType.TOUCH_END, this.#release_a, this);
         this.btn_b.off(Node.EventType.TOUCH_END, this.#release_b, this);
 
+        this.btn_x.off(Node.EventType.TOUCH_CANCEL, this.#release_x, this);
+        this.btn_y.off(Node.EventType.TOUCH_CANCEL, this.#release_y, this);
+        this.btn_a.off(Node.EventType.TOUCH_CANCEL, this.#release_a, this);
+        this.btn_b.off(Node.EventType.TOUCH_CANCEL, this.#release_b, this);
+
         this.#btn_ended_down = false;
+        this.#release_x;
+        this.#release_y;
+        this.#release_a;
+        this.#release_b;
     }
 
     #press(idx: number) {
