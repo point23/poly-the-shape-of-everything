@@ -7,6 +7,7 @@ export class Keyboard extends Game_Input_Handler {
     init() { }
 
     clear() {
+        this.#input.reset();
         this.#map.clear();
     }
 
@@ -62,9 +63,15 @@ export class Keyboard extends Game_Input_Handler {
             }
         }
 
-        if (pressed_long_enough(this.#map, KeyCode.KEY_R)) {
+        if (ended_down(this.#map, KeyCode.KEY_R)) {
             this.#input.availble = true;
             this.#input.button_states[Game_Button.RESET] = 1;
+        }
+
+
+        if (ended_down(this.#map, KeyCode.KEY_H)) {
+            this.#input.availble = true;
+            this.#input.button_states[Game_Button.HINTS] = 1;
         }
 
         if (pressed_long_enough(this.#map, KeyCode.KEY_Z)) {

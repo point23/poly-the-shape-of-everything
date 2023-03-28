@@ -1,30 +1,29 @@
 {
-    "start_level": "start",
     "levels": [
         {
-            "id": 0,
-            "name": "level#001",
-            "successor": "1"
+            "id": "level#004",
+            "name": "begin again",
+            "successor": "level#001"
         },
         {
-            "id": 1,
-            "name": "level#002",
-            "successor": "2"
+            "id": "level#001",
+            "name": "islands",
+            "successor": "level#002"
         },
         {
-            "id": 2,
-            "name": "level#003",
-            "successor": "3"
+            "id": "level#002",
+            "name": "don't look up",
+            "successor": "level#003"
         },
         {
-            "id": 3,
-            "name": "start",
-            "successor": "4"
+            "id": "level#003",
+            "name": "acrophobia",
+            "successor": "level#005"
         },
         {
-            "id": 4,
-            "name": "it_takes_two",
-            "successor": "0"
+            "id": "level#005",
+            "name": "it takes two",
+            "successor": "level#004"
         }
     ]
 }

@@ -2,6 +2,7 @@ import { _decorator, EventKeyboard, EventHandler } from 'cc';
 import { Const, Direction, $$ } from '../Const';
 import { Contextual_Manager } from '../Contextual_Manager';
 import { Entity_Manager } from '../Entity_Manager';
+import { Entity_Type } from '../Game_Entity';
 import { Game_Button, Game_Input, Game_Input_Handler } from '../input/Game_Input_Handler';
 import { Keyboard } from '../input/Keyboard';
 import { Virtual_Controller } from '../input/Virtual_Controller';
@@ -43,8 +44,12 @@ export class Test_Run_Mode extends Game_Mode {
     #tick: number = 0;
 
     start() {
-        this.input_handlers.push(this.vcontroller);
         this.input_handlers.push(this.keyboard);
+        this.input_handlers.push(this.vcontroller);
+
+        $$.IS_RUNNING = false;
+        this.schedule(this.tick, Const.Tick_Interval);
+        this.schedule(this.#update_inputs, Const.Input_Query_Interval)
     }
 
     on_enter() {
@@ -57,17 +62,13 @@ export class Test_Run_Mode extends Game_Mode {
 
         this.#init_ui();
         this.current_handler.init();
-
-        this.schedule(this.tick, Const.Tick_Interval);
-        this.schedule(this.#update_inputs, Const.Input_Query_Interval);
     }
 
     on_exit() {
         $$.IS_RUNNING = false;
+
         this.#clear_ui();
         this.current_handler.clear();
-        this.unschedule(this.tick);
-        this.unschedule(this.#update_inputs);
     }
 
     tick() {
@@ -140,8 +141,22 @@ export class Test_Run_Mode extends Game_Mode {
 
     #update_inputs() {
         if (this.input.availble) return;
-
         this.current_handler.update_input();
+    }
+
+    #showing_hints: boolean = false;
+    show_hints() {
+        if (this.#showing_hints) return;
+        // VFX?
+        for (let e of this.entity_manager.hints) {
+            e.node.active = true;
+        }
+        this.scheduleOnce(function () {
+            for (let e of this.entity_manager.hints) {
+                e.node.active = false;
+            }
+            this.#showing_hints = false;
+        }, Const.HINTS_DURATION);
     }
 
     #process_inputs() {
@@ -153,6 +168,8 @@ export class Test_Run_Mode extends Game_Mode {
         } else if (this.input.button_states[Game_Button.UNDO]) {
             $$.DOING_UNDO = true;
             do_one_undo(this.entity_manager);
+        } else if (this.input.button_states[Game_Button.HINTS]) {
+            this.show_hints();
         } else if (this.input.button_states[Game_Button.SWITCH_HERO]) {
             this.entity_manager.switch_hero();
         } else if (this.input.moved || this.input.rotated) {

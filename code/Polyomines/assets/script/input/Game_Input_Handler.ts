@@ -1,5 +1,5 @@
 import { _decorator, Component, Node } from 'cc';
-import { Const } from '../Const';
+import { $$, Const } from '../Const';
 const { ccclass, property } = _decorator;
 
 export type Button_State = {
@@ -32,6 +32,7 @@ export function pressed_long_enough(map: Map<number, Button_State>, idx: number)
 }
 
 export function handle_button_down(map: Map<number, Button_State>, idx: number) {
+    if ($$.IS_RUNNING == false) return;
     map.set(idx, {
         ended_down: true,
         counter: 0,
@@ -40,6 +41,7 @@ export function handle_button_down(map: Map<number, Button_State>, idx: number) 
 }
 
 export function handle_button_up(map: Map<number, Button_State>, idx: number) {
+    if ($$.IS_RUNNING == false) return;
     map.set(idx, {
         ended_down: false,
         counter: 0,
@@ -63,6 +65,8 @@ export enum Game_Button {
     RESET,
 
     SWITCH_HERO,
+
+    HINTS,
 }
 
 export class Game_Input {

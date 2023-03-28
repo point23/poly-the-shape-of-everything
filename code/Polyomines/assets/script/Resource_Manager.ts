@@ -4,6 +4,12 @@ import { Prefab_Pair } from './ui/Prefab_Pair';
 
 const { ccclass, property } = _decorator;
 
+type Level_Data = {
+    id: string,
+    name: string,
+    successor: string,
+}
+
 @ccclass('Resource_Manager')
 export class Resource_Manager extends Component {
     public static instance: Resource_Manager;
@@ -16,15 +22,12 @@ export class Resource_Manager extends Component {
     prefabs: Map<String, Prefab> = new Map<String, Prefab>();
     @property(Node) entities_parent: Node;
 
-    levels: any[] = [];
+    id_to_idx: Map<string, number> = new Map(); // @note Level id is the json file name.
+    levels: Level_Data[] = []
+
     current_level_idx = 0;
     current_level_config: any = null;
-    get num_levels(): number { return this.levels.length; }
-    get next_level_idx(): number { return (this.current_level_idx + 1) % this.num_levels; }
-    get prev_level_idx(): number { return (this.current_level_idx - 1 + this.num_levels) % this.num_levels; }
     get current_level(): any { return this.levels[this.current_level_idx]; }
-    get current_level_name(): string { return this.current_level.name; }
-    get current_level_difficulty(): number { return this.current_level_config.difficulty; }
 
     set_level_difficulty(d: any) {
         this.current_level_config.difficulty = Number(d);
@@ -36,42 +39,43 @@ export class Resource_Manager extends Component {
         });
     }
 
+    mapping_levels() {
+        this.levels.forEach((it, it_idx) => {
+            this.id_to_idx.set(it.id, it_idx);
+        })
+    }
+
     load_levels(caller: any, callback: (any) => void) {
         const file_path: string = `${Const.Data_Path}/levels`;
         resources.load(file_path, JsonAsset, (e, asset) => {
             const result = asset.json;
             this.levels = result.levels;
-
-            const current = result.start_level;
-            for (let i = 0; i < this.levels.length; i++) {
-                const it = this.levels[i];
-                if (it.name == current) {
-                    this.current_level_idx = i;
-                }
-            }
-
+            this.mapping_levels();
+            this.current_level_idx = 0;
             this.load_current_level(caller, callback);
         });
     }
 
     load_succeed_level(caller: any = null, callback: (any) => void = null) {
-        this.current_level_idx = this.current_level.successor;
+        this.current_level_idx = this.id_to_idx.get(this.current_level.successor);
         this.load_current_level(caller, callback);
     }
 
     load_prev_level(caller: any = null, callback: (any) => void = null) {
-        this.current_level_idx = this.prev_level_idx;
+        const num_levels = this.levels.length;
+        this.current_level_idx = (this.current_level_idx - 1 + num_levels) % num_levels;
         this.load_current_level(caller, callback);
     }
 
     load_next_level(caller: any = null, callback: (any) => void = null) {
-        this.current_level_idx = this.next_level_idx;
+        const num_levels = this.levels.length;
+        this.current_level_idx = (this.current_level_idx + 1) % num_levels;
         this.load_current_level(caller, callback);
     }
 
     load_current_level(caller: any, callback: (any) => void) {
-        const level_name = this.current_level_name;
-        const file_path: string = `${Const.Data_Path}/${level_name}`;
+        const filename = this.current_level.id;
+        const file_path: string = `${Const.Data_Path}/${filename}`;
 
         resources.load(file_path, JsonAsset, (e, asset) => {
             const result = asset.json;
@@ -95,11 +99,11 @@ export class Resource_Manager extends Component {
 
     download_config() {
         if (!sys.isBrowser) return;
-        const level_config = this.current_level_config;
 
+        const level_config = this.current_level_config;
         let text_file_as_blob = new Blob([JSON.stringify(level_config)], { type: 'application/json' });
         let download_link = document.createElement("a");
-        download_link.download = this.current_level_name;
+        download_link.download = this.current_level.id;
         download_link.innerHTML = "Download File";
 
         if (window.webkitURL != null) {

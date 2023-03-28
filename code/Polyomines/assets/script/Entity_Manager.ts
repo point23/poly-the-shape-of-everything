@@ -1,5 +1,5 @@
-import { assert, Game, Vec3 } from 'cc';
-import { Direction, same_position } from './Const';
+import { assert, Vec3 } from 'cc';
+import { $$, Direction } from './Const';
 import {
     Serializable_Entity_Data,
     Game_Entity,
@@ -44,8 +44,10 @@ export class Entity_Manager {
     undo_handler: Undo_Handler = null;
     all_entities: Game_Entity[] = [];
     checkpoints: Game_Entity[] = [];
-    for_editing: boolean = false;
+
     rovers: Game_Entity[] = [];
+    switches: Game_Entity[] = [];
+    hints: Game_Entity[] = [];
 
     get pending_win(): boolean {
         function hero_stands_on_it(checkpoint: Game_Entity, manager: Entity_Manager) {
@@ -62,12 +64,20 @@ export class Entity_Manager {
         return true;
     }
 
-    #switch: Game_Entity = null;
-    #gem: Game_Entity = null;
-
     get switch_turned_on(): boolean {
-        if (this.#switch == null || this.#gem == null) return false;
-        return same_position(this.#gem.position.subtract(Vec3.UNIT_Z), this.#switch.position);
+        if (this.switches.length == 0) return false;
+        function gem_on_top(s: Game_Entity, manager: Entity_Manager) {
+            for (let e of manager.locate_current_supportees(s)) {
+                if (e.entity_type == Entity_Type.GEM) return true;
+            }
+        }
+        //#SCOPE
+
+        for (let s of this.switches) {
+            if (gem_on_top(s, this)) continue;
+            return false;
+        }
+        return true;
     }
 
     constructor(g: Proximity_Grid) {
@@ -94,8 +104,17 @@ export class Entity_Manager {
 
         entity.undoable = new Undoable_Entity_Data();
         this.rotate_entity(entity, info.rotation);
-        this.move_entity(entity, new Vec3(info.position));
 
+        if (entity.entity_type == Entity_Type.HINT) {
+            this.hints.push(entity);
+            if (!$$.HINTS_EDITABLE) {
+                this.proximity_grid.move_entity(entity, new Vec3(info.position));
+                entity.node.active = false;
+                return entity;
+            }
+        }
+
+        this.move_entity(entity, new Vec3(info.position));
         this.all_entities.push(entity);
 
         const clone = clone_undoable_data(entity);
@@ -108,8 +127,7 @@ export class Entity_Manager {
         }
 
         if (entity.entity_type == Entity_Type.ROVER) this.rovers.push(entity);
-        if (entity.entity_type == Entity_Type.SWITCH) this.#switch = entity;
-        if (entity.entity_type == Entity_Type.GEM) this.#gem = entity;
+        if (entity.entity_type == Entity_Type.SWITCH) this.switches.push(entity)
 
         debug_print_quad_tree(this.proximity_grid.quad_tree);
         return entity;
@@ -155,6 +173,13 @@ export class Entity_Manager {
             // can be treat as *target* type and read its metadata at runtime
             entities_info.push(get_serializable(e));
         }
+
+        if (!$$.HINTS_EDITABLE) {
+            for (let e of this.hints) {
+                entities_info.push(get_serializable(e));
+            }
+        }
+
         return entities_info;
     }
 

@@ -1,9 +1,8 @@
 import { _decorator, Component, EventKeyboard, EventMouse, EventTouch, input, Input, KeyCode } from 'cc';
 import { Entity_Manager } from './Entity_Manager';
 import { Game_Mode } from './modes/Game_Mode_Base';
-import { do_one_redo, do_one_undo, undo_mark_beginning } from './undo';
+import { do_one_redo, do_one_undo } from './undo';
 const { ccclass, property } = _decorator;
-
 /**
  * Implementation of State Pattern
  *  - Contextual_Manager as Context who holds states
@@ -12,7 +11,6 @@ const { ccclass, property } = _decorator;
  * Problem:
  * - When a new input_event needs to be handled, both Submode and Context are  increasing?
  */
-
 @ccclass('Contextual_Manager')
 export class Contextual_Manager extends Component {
     public static instance: Contextual_Manager = null;
@@ -29,15 +27,12 @@ export class Contextual_Manager extends Component {
     }
 
     is_enabled: boolean = false;
-
-    public enable() {
+    public enable(idx: number) {
         if (!this.is_enabled) {
             this.register_events();
             this.is_enabled = true;
         };
-
-        this.switch_mode(0);
-        undo_mark_beginning(this.entity_manager);
+        this.switch_mode(idx);
     }
 
     public dispose() {
@@ -65,16 +60,14 @@ export class Contextual_Manager extends Component {
         input.off(Input.EventType.TOUCH_END, this.on_touch_end, this);
     }
 
-    switch_mode(idx: any = null) {
+    switch_mode(idx: number) {
         idx = Number(idx);
         let from = this.current_mode;
         from?.on_exit();
 
+        if (idx == -1) return;
         this.current_mode_idx = (this.current_mode_idx + 1) % this.game_modes.length;
-        if (idx != null) {
-            this.current_mode_idx = idx;
-        }
-
+        this.current_mode_idx = idx;
         let to = this.game_modes[this.current_mode_idx];
         this.current_mode = to;
         to?.on_enter();

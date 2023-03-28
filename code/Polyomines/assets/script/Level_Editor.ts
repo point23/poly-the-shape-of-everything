@@ -1,6 +1,6 @@
 import { _decorator, Component, Node, instantiate, Prefab, EventHandler, Button, RichText } from 'cc';
 import { Camera3D_Controller } from './Camera3D_Controller';
-import { Const } from './Const';
+import { $$, Const } from './Const';
 import { Contextual_Manager } from './Contextual_Manager';
 import { Entity_Manager } from './Entity_Manager';
 import { debug_render_grid, Proximity_Grid } from './Proximity_Grid';
@@ -11,6 +11,8 @@ import { Rating } from './ui/Rating';
 import { Navigator } from './ui/Navigator';
 import { Transaction_Panel } from './ui/Transaction_Panel';
 import { do_one_redo, do_one_undo, Undo_Handler } from './undo';
+import { Entity_Edit_Mode } from './modes/Entity_Edit_Mode';
+import { Test_Run_Mode } from './modes/Test_Run_Mode';
 
 const { ccclass, property } = _decorator;
 
@@ -63,12 +65,38 @@ export class Level_Editor extends Component {
     debug_grid: Node = null;
 
     onLoad() {
+        $$.HINTS_EDITABLE = false;
+        $$.FOR_EDITING = true
         this.settle_singletons();
+        init_ui(this);
         Resource_Manager.instance.load_levels(this, init);
     }
 
     onDestroy() {
+        clear_ui(this);
+        this.contextual_manager.dispose();
         this.clear_current_level();
+    }
+
+    game_mode: number = 0;
+    switch_edit_mode(idx: any) {
+        idx = Number(idx);
+        this.game_mode = idx;
+        const mode = this.contextual_manager.game_modes[idx];
+
+        if (mode instanceof Entity_Edit_Mode) {
+            $$.HINTS_EDITABLE = true;
+            this.reload_current_level();
+            return;
+        }
+
+        if (mode instanceof Test_Run_Mode) {
+            $$.HINTS_EDITABLE = false;
+            this.reload_current_level();
+            return;
+        }
+
+        this.contextual_manager.switch_mode(idx);
     }
 
     reload_current_level() {
@@ -78,30 +106,30 @@ export class Level_Editor extends Component {
 
     load_prev_level() {
         this.clear_current_level();
-
+        $$.HINTS_EDITABLE = false;
+        this.game_mode = 0;
         this.resource_manager.load_prev_level(this, init);
-    }
-
-    load_succeed_level() {
-        this.clear_current_level();
-
-        this.resource_manager.load_succeed_level(this, init);
     }
 
     load_next_level() {
         this.clear_current_level();
-
+        $$.HINTS_EDITABLE = false;
+        this.game_mode = 0;
         this.resource_manager.load_next_level(this, init);
     }
 
+    load_succeed_level() {
+        this.clear_current_level();
+        this.resource_manager.load_succeed_level(this, init);
+    }
+
     clear_current_level() {
-        Contextual_Manager.instance.current_mode.on_exit();
+        Contextual_Manager.instance.switch_mode(-1);
 
         const manager = this.entity_manager;
         manager.all_entities.forEach((it) => { it.node.destroy(); });
         Entity_Manager.current = null;
 
-        clear_ui(this);
         this.debug_grid.destroy();
         this.debug_grid = null;
     }
@@ -115,16 +143,49 @@ export class Level_Editor extends Component {
     }
 }
 
+function update_ui(editor: Level_Editor) {
+    function update_level() {
+        const levels = editor.levels;
+        levels.label_current.string = Resource_Manager.instance.current_level.name;
+    }
+    function update_difficulty() {
+        const difficulty = editor.difficulty;
+        difficulty.set_rating(editor.resource_manager.current_level_config.difficulty);
+    }
+    function reset_undo() {
+        editor.undos.clear();
+        editor.show_undo_changes(0);
+    }
+    function reset_transaction() {
+        editor.transaction_panel.clear();
+        editor.transaction_panel.reset_counter();
+        editor.transaction_panel.clear_logs();
+        editor.transaction_panel.hide_logs();
+    }
+    function update_duration() {
+        const duration = editor.durations;
+        editor.transaction_manager.duration_idx = Const.Init_Duration_Idx;
+        duration.label_current.string = Const.Duration[editor.transaction_manager.duration_idx];
+    }
+    //#SCOPE
+
+    update_level();
+    update_difficulty();
+    reset_undo();
+    reset_transaction();
+    update_duration();
+}
+
 function init_ui(editor: Level_Editor) {
     function init_options() {
-        {
+        { // Save level config
             const e = new EventHandler();
             e.target = editor.contextual_manager.node;
             e.component = "Contextual_Manager";
             e.handler = 'save_level';
             editor.btn_save.clickEvents.push(e);
         }
-        {
+        { // Download level config
             const e = new EventHandler();
             e.target = editor.resource_manager.node;
             e.component = "Resource_Manager";
@@ -135,20 +196,15 @@ function init_ui(editor: Level_Editor) {
 
     function init_modes() {
         const e = new EventHandler();
-        e.target = editor.contextual_manager.node;
-        e.component = "Contextual_Manager";
-        e.handler = 'switch_mode';
+        e.target = editor.node;
+        e.component = "Level_Editor";
+        e.handler = 'switch_edit_mode';
         editor.modes.events.push(e);
     }
 
     function init_levels() {
         const levels = editor.levels;
         levels.label.string = "level";
-        // levels.btn_label.interactable = false;
-
-        levels.label_current.string = Resource_Manager.instance.current_level_name;
-        // levels.btn_current.interactable = false;
-
         { // Navigate to previous level
             const e = new EventHandler();
             e.target = editor.node;
@@ -156,7 +212,6 @@ function init_ui(editor: Level_Editor) {
             e.handler = 'load_prev_level';
             levels.btn_prev.clickEvents.push(e);
         }
-
         { // Navigate to next level
             const e = new EventHandler();
             e.target = editor.node;
@@ -169,8 +224,6 @@ function init_ui(editor: Level_Editor) {
     function init_difficulty() {
         const difficulty = editor.difficulty;
         difficulty.label.string = "difficulty";
-        difficulty.set_rating(editor.resource_manager.current_level_difficulty);
-
         { // Rating event
             const e = new EventHandler();
             e.target = editor.resource_manager.node;
@@ -182,16 +235,12 @@ function init_ui(editor: Level_Editor) {
 
     function init_undos() {
         const undos = editor.undos;
-
         undos.label.string = "undo";
-        editor.show_undo_changes(0);
-
         { // Really do one undo
             undos.btn_prev.node.on(Button.EventType.CLICK, () => {
                 do_one_undo(editor.entity_manager);
             }, undos.btn_prev.node);
         }
-
         { // Really do one redo
             undos.btn_next.node.on(Button.EventType.CLICK, () => {
                 do_one_redo(editor.entity_manager);
@@ -201,7 +250,6 @@ function init_ui(editor: Level_Editor) {
 
     function init_transactions() {
         const navigator = editor.transaction_panel.navigator;
-        editor.transaction_panel.reset_counter();
         navigator.label.string = "transaction";
         { // Show or Hide single move logs
             const e = new EventHandler();
@@ -210,7 +258,6 @@ function init_ui(editor: Level_Editor) {
             e.handler = 'toggle';
             navigator.btn_current.clickEvents.push(e);
         }
-
         { // Show prev transaction
             const e = new EventHandler();
             e.target = editor.transaction_panel.node;
@@ -218,7 +265,6 @@ function init_ui(editor: Level_Editor) {
             e.handler = 'show_prev';
             navigator.btn_prev.clickEvents.push(e);
         }
-
         { // Show next transaction
             const e = new EventHandler();
             e.target = editor.transaction_panel.node;
@@ -226,19 +272,11 @@ function init_ui(editor: Level_Editor) {
             e.handler = 'show_next';
             navigator.btn_next.clickEvents.push(e);
         }
-
-        editor.transaction_panel.clear_logs();
-        editor.transaction_panel.hide_logs();
     }
 
-    function init_durations_once() {
+    function init_duration() {
         const navigatar = editor.durations;
-        if (navigatar.initialized) return;
-
         navigatar.label.string = 'duration';
-        editor.transaction_manager.duration_idx = Const.Init_Duration_Idx;
-        navigatar.label_current.string = Const.Duration[Const.Init_Duration_Idx];
-
         { // Slow Down
             const e = new EventHandler();
             e.target = editor.transaction_manager.node;
@@ -246,7 +284,6 @@ function init_ui(editor: Level_Editor) {
             e.handler = 'slow_down';
             navigatar.btn_prev.clickEvents.push(e);
         }
-
         { // Speed up
             const e = new EventHandler();
             e.target = editor.transaction_manager.node;
@@ -254,8 +291,6 @@ function init_ui(editor: Level_Editor) {
             e.handler = 'speed_up';
             navigatar.btn_next.clickEvents.push(e);
         }
-
-        navigatar.initialized = true;
     }
     //#SCOPE
 
@@ -265,23 +300,19 @@ function init_ui(editor: Level_Editor) {
     init_difficulty();
     init_undos();
     init_transactions();
-
-    init_durations_once();
+    init_duration();
 }
 
 function clear_ui(editor: Level_Editor) {
     editor.btn_save.clickEvents = [];
     editor.btn_download.clickEvents = [];
-
     editor.levels.clear();
     editor.undos.clear();
-    // ui.durations.clear();
-
     editor.transaction_panel.clear();
 }
 
 function init(editor: Level_Editor) {
-    init_ui(editor);
+    update_ui(editor);
 
     const config = editor.resource_manager.current_level_config;
 
@@ -308,6 +339,5 @@ function init(editor: Level_Editor) {
     Entity_Manager.current = entity_manager;
 
     editor.transaction_manager.clear();
-
-    editor.contextual_manager.enable();
+    editor.contextual_manager.enable(editor.game_mode);
 }

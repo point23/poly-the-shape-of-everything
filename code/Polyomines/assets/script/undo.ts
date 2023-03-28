@@ -105,7 +105,7 @@ export function undo_end_frame(manager: Entity_Manager) {
         undo.pending_destructions = [];
     }
 
-    if (manager.for_editing)
+    if ($$.FOR_EDITING)
         Level_Editor.instance.show_undo_changes(num_changes);
 
     record.transaction = builder.to_string(' '); // @hack

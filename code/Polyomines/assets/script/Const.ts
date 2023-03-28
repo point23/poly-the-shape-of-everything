@@ -14,10 +14,15 @@ export class $$ {
     static IS_RUNNING: boolean;
     static DOING_UNDO: boolean;
     static RELOADING: boolean;
+    static FOR_EDITING: boolean;
+    static HINTS_EDITABLE: boolean;
+
     static {
         $$.RELOADING = false;
         $$.IS_RUNNING = false;
         $$.DOING_UNDO = false;
+        $$.FOR_EDITING = false;
+        $$.HINTS_EDITABLE = false;
     }
 }
 
@@ -150,6 +155,7 @@ export class Const {
         1 << 6,
         1 << 7,
     ]
+
     static Init_Duration_Idx: number = 3;
     static Max_Duration_Idx: number = 7;
     static Duration: string[] = [
@@ -171,6 +177,8 @@ export class Const {
 
     static Input_Query_Interval = (0.1 / (1 << 3));
     static VALID_PRESSING_INTERVAL = 600; // @fixme For now there're some zigzag when it's not n times tick-interval(ms)
+
+    static HINTS_DURATION = 1.5;
 
     static Mouse_Jiggling_Interval = 0.01;
     static Double_Click_Time_Interval = 0.25;

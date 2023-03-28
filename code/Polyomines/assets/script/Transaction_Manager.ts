@@ -1,5 +1,5 @@
 import { Component, math, _decorator } from 'cc';
-import { Const, Stack } from './Const';
+import { $$, Const, Stack } from './Const';
 import { Entity_Manager } from './Entity_Manager';
 import { Level_Editor } from './Level_Editor';
 import { debug_print_quad_tree } from './Proximity_Grid';
@@ -25,13 +25,13 @@ export class Transaction_Manager extends Component {
 
     speed_up() {
         this.duration_idx = math.clamp(this.duration_idx - 1, 0, Const.Max_Duration_Idx);
-        if (this.entity_manager.for_editing)
+        if ($$.FOR_EDITING)
             Level_Editor.instance.durations.label_current.string = Const.Duration[this.duration_idx];
     }
 
     slow_down() {
         this.duration_idx = math.clamp(this.duration_idx + 1, 0, Const.Max_Duration_Idx);
-        if (this.entity_manager.for_editing)
+        if ($$.FOR_EDITING)
             Level_Editor.instance.durations.label_current.string = Const.Duration[this.duration_idx];
     }
 
@@ -96,7 +96,7 @@ export class Transaction_Manager extends Component {
 
         undo_end_frame(this.entity_manager);
 
-        if (this.entity_manager.for_editing) {
+        if ($$.FOR_EDITING) {
             debug_print_quad_tree(this.entity_manager.proximity_grid.quad_tree);
             Level_Editor.instance.transaction_panel.note_new_transaction();
         }

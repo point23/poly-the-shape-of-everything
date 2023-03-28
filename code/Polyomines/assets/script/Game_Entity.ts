@@ -59,7 +59,7 @@ export enum Entity_Type {
     // Different avatars can have different powers, like chained warms? owls? bats?
     CHECKPOINT, // Possible win? But in a multiple character level, the winning condition
     // is that each of them are stands on a checkpoint entity.
-    CHANNEL, // @deprecated
+    HINT,
     BRIDGE,
     GATE,
     FENCE,
@@ -104,7 +104,14 @@ export enum Polyomino_Type {
 }
 
 export class Serializable_Entity_Data {
-    constructor(private prefab: string, private position: Vec3 = new Vec3(), private rotation: Direction = 0) { }
+    prefab: string = null;
+    position: Vec3 = null;
+    rotation: Direction = null;
+    constructor(prefab: string, position: Vec3 = new Vec3(), rotation: Direction = 0) {
+        this.prefab = prefab;
+        this.position = position;
+        this.rotation = rotation;
+    }
 }
 
 // @incomplete
@@ -157,6 +164,7 @@ export class Game_Entity extends Component {
     undoable: Undoable_Entity_Data;
     scheduled_for_destruction: boolean = false;
     prefab: string = "";
+    derived_data: any = {}
 
     get position(): Vec3 { return this.undoable.position };
     get rotation(): Direction { return this.undoable.rotation };
@@ -214,8 +222,22 @@ export class Game_Entity extends Component {
     }
 }
 
+export function is_dervied(t: number): boolean {
+    return t == Entity_Type.SWITCH || t == Entity_Type.CHECKPOINT;
+}
+
 export function get_serializable(e: Game_Entity): Serializable_Entity_Data {
-    return new Serializable_Entity_Data(e.prefab, e.position, e.rotation);
+    const res = {
+        prefab: e.prefab,
+        position: e.position,
+        rotation: e.rotation,
+    };
+
+    // if (is_dervied(e.entity_type)) {
+    //     res['derived_data'] = e.derived_data;
+    // }
+
+    return res;
 }
 
 export function get_serialized_data(e: Game_Entity): string {
@@ -393,13 +415,13 @@ export function rotate_clockwise_horizontaly(r: Direction): Direction {
 export function debug_validate_tiling(manager: Entity_Manager) {
     const map = new Map<string, boolean>();
 
-    // Check for non check point entities;
+    // Check if entities are in the same pos
     for (let e of manager.all_entities) {
         // @fixme What if there several entity in the same square?
-        // We need a clear check!!!
         if (e.entity_type == Entity_Type.CHECKPOINT) continue;
         if (e.entity_type == Entity_Type.FENCE) continue;
         if (e.entity_type == Entity_Type.TRACK) continue;
+        if (e.entity_type == Entity_Type.BRIDGE) continue;
         if (e.entity_type == Entity_Type.SWITCH) continue;
 
         for (let pos of get_entity_squares(e)) {
@@ -409,6 +431,18 @@ export function debug_validate_tiling(manager: Entity_Manager) {
             } else {
                 map.set(pos_str, false);
             }
+        }
+    }
+
+    for (let e of manager.checkpoints) {
+        if (manager.locate_entities(e.position).length == 1) {
+            map.set(e.position.toString(), true);
+        }
+    }
+
+    for (let e of manager.switches) {
+        if (manager.locate_entities(e.position).length == 1) {
+            map.set(e.position.toString(), true);
         }
     }
 

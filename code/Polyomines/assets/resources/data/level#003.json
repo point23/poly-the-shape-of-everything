@@ -1,5 +1,5 @@
 {
-    "difficulty": 3,
+    "difficulty": 2,
     "camera": {
         "position": {
             "x": -4.5,
@@ -505,6 +505,15 @@
                 "z": 2
             },
             "rotation": 0
+        },
+        {
+            "prefab": "Hint#001",
+            "position": {
+                "x": 3,
+                "y": 3,
+                "z": 2
+            },
+            "rotation": 1
         }
     ]
 }

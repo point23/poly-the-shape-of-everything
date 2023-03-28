@@ -48,6 +48,24 @@
             "rotation": 1
         },
         {
+            "prefab": "Hint#001",
+            "position": {
+                "x": 13,
+                "y": 8,
+                "z": 1
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Hint#002",
+            "position": {
+                "x": 8,
+                "y": 7,
+                "z": 1
+            },
+            "rotation": 2
+        },
+        {
             "prefab": "Ruin#001",
             "position": {
                 "x": 12,
@@ -826,6 +844,15 @@
             "position": {
                 "x": 9,
                 "y": 11,
+                "z": 1
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Hint#001",
+            "position": {
+                "x": 8,
+                "y": 5,
                 "z": 1
             },
             "rotation": 1

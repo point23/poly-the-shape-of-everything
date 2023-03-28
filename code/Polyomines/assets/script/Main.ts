@@ -100,6 +100,8 @@ export class Main extends Component {
         } else if (input.button_states[Game_Button.UNDO]) {
             $$.DOING_UNDO = true;
             do_one_undo(entity_manager);
+        } else if (input.button_states[Game_Button.HINTS]) {
+            game.show_hints();
         } else if (input.button_states[Game_Button.SWITCH_HERO]) {
             entity_manager.switch_hero();
         } else if (input.moved || input.rotated) {
@@ -114,6 +116,21 @@ export class Main extends Component {
             generate_controller_proc(transaction_manager, entity_manager, direction, step);
         }
         input.reset();
+    }
+
+    #showing_hints: boolean = false;
+    show_hints() {
+        if (this.#showing_hints) return;
+        // VFX?
+        for (let e of this.entity_manager.hints) {
+            e.node.active = true;
+        }
+        this.scheduleOnce(function () {
+            for (let e of this.entity_manager.hints) {
+                e.node.active = false;
+            }
+            this.#showing_hints = false;
+        }, Const.HINTS_DURATION);
     }
 
     settle_singletons() {

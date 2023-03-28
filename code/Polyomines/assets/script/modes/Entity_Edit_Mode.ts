@@ -56,7 +56,6 @@ export class Entity_Edit_Mode extends Game_Mode {
     }
 
     on_exit() {
-        this.save_level();
         this.deselect_all();
     }
 

@@ -752,8 +752,18 @@ function try_push_others(t: Move_Transaction, e: Game_Entity, d: Direction): { p
 }
 
 function move_supportees(transaction: Move_Transaction, e_target: Game_Entity, position_delta: Vec3, rotation_delta: number) {
+    function has_other_supporter(e: Game_Entity): boolean {
+        const supporters = manager.locate_current_supporters(e);
+        for (let s of supporters) {
+            if (s.id != e_target.id) return true;
+        }
+        return false;
+    }
+
     const manager = transaction.entity_manager;
     for (let supportee of manager.locate_current_supportees(e_target)) {
+        if (has_other_supporter(supportee)) continue;
+
         const support_move = new Support_Move(supportee, rotation_delta, position_delta);
         if (!support_move.try_add_itself(transaction)) {
             const res = possible_falling(transaction, e_target, Direction.DOWN);
@@ -775,17 +785,17 @@ function hit_the_barrier(m: Entity_Manager, e: Game_Entity, d: Direction) {
                 return true;
             }
         }
-
-        if (other.entity_type == Entity_Type.BRIDGE) {
-            // @note Can't get off the bridge halfway
-            // |  ↑  |
-            // |<-x->| 
-            // |  ↓  |
-            const bridge = other;
-            if (orthogonal_direction(bridge.orientation, d)) {
-                return true;
-            }
-        };
+        // @note Ignored it in new version
+        // if (other.entity_type == Entity_Type.BRIDGE) {
+        //     // @note Can't get off the bridge halfway
+        //     // |  ↑  |
+        //     // |<-x->| 
+        //     // |  ↓  |
+        //     const bridge = other;
+        //     if (orthogonal_direction(bridge.orientation, d)) {
+        //         return true;
+        //     }
+        // };
     }
     return false;
 }
@@ -802,19 +812,19 @@ function blocked_by_barrier(m: Entity_Manager, e: Game_Entity, d: Direction): bo
                 return true;
             }
         };
-
-        if (supporter.entity_type == Entity_Type.FENCE) {
-            // @note Can't pass through when there's a fence on the future square
-            // _______
-            // |      ||
-            // |      || <-x-
-            // |______||
-            //       Hit the fence.
-            const fence = supporter;
-            if (reversed_direction(fence.rotation, d)) {
-                return true;
-            }
-        }
+        // @note Ignored it in new version
+        // if (supporter.entity_type == Entity_Type.FENCE) {
+        //     // @note Can't pass through when there's a fence on the future square
+        //     // _______
+        //     // |      ||
+        //     // |      || <-x-
+        //     // |______||
+        //     //       Hit the fence.
+        //     const fence = supporter;
+        //     if (reversed_direction(fence.rotation, d)) {
+        //         return true;
+        //     }
+        // }
     }
     return false;
 }

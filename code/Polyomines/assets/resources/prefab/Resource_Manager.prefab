@@ -24,7 +24,7 @@
       }
     ],
     "_prefab": {
-      "__id__": 26
+      "__id__": 29
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -132,6 +132,15 @@
       },
       {
         "__id__": 25
+      },
+      {
+        "__id__": 26
+      },
+      {
+        "__id__": 27
+      },
+      {
+        "__id__": 28
       }
     ],
     "entities_parent": null,
@@ -314,6 +323,30 @@
     "id": "Null",
     "prefab": {
       "__uuid__": "8b49053d-17d3-47c9-9f20-1e3a1c635b58",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Board",
+    "prefab": {
+      "__uuid__": "0893eb70-29c0-4868-9b58-203cd85737e6",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Hint#001",
+    "prefab": {
+      "__uuid__": "f5a67366-c6e2-4a3e-a694-3348dcd365fb",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Hint#002",
+    "prefab": {
+      "__uuid__": "46f025c0-5cb4-4e31-95c1-e4f4e1ff3186",
       "__expectedType__": "cc.Prefab"
     }
   },
