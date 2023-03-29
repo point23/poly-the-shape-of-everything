@@ -1,4 +1,4 @@
-import { _decorator, Component, tween, Node, Sprite, Color, sp, UITransform, Vec2, Vec3 } from 'cc';
+import { _decorator, Component, tween, Node, Sprite, Color, sp, UITransform, Vec2, Vec3, Label, RichText } from 'cc';
 const { ccclass, property } = _decorator;
 
 export enum Show_Hide_Type {
@@ -16,11 +16,43 @@ type show_hide_info = {
     callback: () => void,
 }
 
+type typer_info = {
+    label: Label,
+    content: string,
+    show_delay: number
+    duration: number,
+    hide_delay: number,
+    callback: () => void,
+}
+
 @ccclass('UI_Manager')
 export class UI_Manager extends Component {
     public static instance: UI_Manager = null;
     public static Settle(instance: UI_Manager) {
         UI_Manager.instance = instance;
+    }
+
+    typer(info: typer_info) {
+        const label = info.label;
+        type bind_target = { idx: number };
+        let i = { idx: 0 };
+        tween(i)
+            .delay(info.show_delay)
+            .to(info.duration,
+                {
+                    idx: info.content.length,
+                },
+                {
+                    onUpdate(t: bind_target) {
+                        label.string = info.content.substring(0, t.idx) + '|';
+                    }
+                })
+            .delay(info.hide_delay)
+            .call(() => {
+                label.string = '';
+                info.callback();
+            })
+            .start();
     }
 
     show_and_hide(info: show_hide_info) {

@@ -96,6 +96,11 @@ export class Stack<T> {
 }
 
 
+export function random(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1) + min)
+}
+
+
 export function compare_all_slots(a: any, b: any): boolean {
     // @tested
     for (let k of Reflect.ownKeys(a)) {
@@ -178,7 +183,9 @@ export class Const {
     static Input_Query_Interval = (0.1 / (1 << 3));
     static VALID_PRESSING_INTERVAL = 600; // @fixme For now there're some zigzag when it's not n times tick-interval(ms)
 
-    static HINTS_DURATION = 1.5;
+    static HINTS_DURATION = 3;
+    static HINTS_SHOW_COLOR = new Color(247, 53, 153, 139);
+    static HINTS_HIDE_COLOR = new Color(0, 0, 0, 0);
 
     static Mouse_Jiggling_Interval = 0.01;
     static Double_Click_Time_Interval = 0.25;

@@ -48,11 +48,13 @@ export class Transaction_Manager extends Component {
     }
 
     // @note A move that might be able to triger a series of moves
-    try_add_new_move(move: Single_Move) {
+    try_add_new_move(move: Single_Move): boolean {
         const new_transaction = new Move_Transaction(this.entity_manager); // @hack
         if (move.try_add_itself(new_transaction)) {
             this.issued_stack.push(new_transaction);
+            return true;
         }
+        return false;
     }
 
     execute() {

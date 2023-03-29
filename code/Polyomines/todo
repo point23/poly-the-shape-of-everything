@@ -17,8 +17,12 @@ UI ===
 - undo panel
 - Stars for difficulty
 - Fade in and Fade out
-+ Clock and Slide for undo
++ Typer!!!
++ Click any place to start
++ Settings
++ Different Background Color
 + Auto Fit for Multi-Resolution !!!
++ Clock and Slide for undo
 
 GAMEPLAY === 
 - Polyominoes
@@ -48,7 +52,9 @@ GAMEPLAY ===
     Keyboard
     Touch Panel
 - Let the Rover drop down!
+- Hints
 + ARTIFACTS
++ Different Types of Checkpoints: HERO || ARTIFACTS?
 + Decorators
     like grass on the ground...
 + Better camera controller
@@ -65,12 +71,16 @@ ART STUFF===
 + Beam vfx made with Particle-System
     + Glowing vfx for checkpoint
     + Glowing vfx for switch turn on/off
-+ Audio
+    + Shining gems
 + Animation
 + Plants
 + Character model of V and F
 + Character model of monsters
 + Character model of policemen
+
+AUDIO STUFF===
++ Main Theme
++ Basic SFX: Move, Push, Rover
 
 @deprecated ###
 - Redo & Undo <= Command Pattern
@@ -83,8 +93,6 @@ ART STUFF===
 - ISSUE#003: Failed to move onto entities just created in the editor...
 - ISSUE#004: When 2 rover moves in different direction, and there's a entity in between, one of them would keep moving and stop at the same pos that entity locate.
 - Fix undo redo
-+ Undo checkpoints:
-    we should not count in those automatically generated moves
 - Clean up undo
 - ISSUE#006: When we push a rock, it falls to a wrong pos, if the rover is moved at the same time
 - ISSUE#005: When we push a rock in the same round that rover is moved, them would be in the same square
@@ -95,6 +103,9 @@ ART STUFF===
 - Clear transaction stack when load new levels
 - Repeatedly bind the schedule function!!!
     just unschedule it when exit
++ ISSUE#010: If supportee has other suppoter, it should not be moved.
++ Undo checkpoints:
+    we should not count in those automatically generated moves
 + Look through occluding objects if there's a hero or special items like switch or gem
 + Domino control
 

@@ -107,6 +107,7 @@ export class Entity_Manager {
 
         if (entity.entity_type == Entity_Type.HINT) {
             this.hints.push(entity);
+
             if (!$$.HINTS_EDITABLE) {
                 this.proximity_grid.move_entity(entity, new Vec3(info.position));
                 entity.node.active = false;

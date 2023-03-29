@@ -8,8 +8,8 @@ import { Game_Mode } from './Game_Mode_Base';
 
 const { ccclass, property } = _decorator;
 
-@ccclass('Swipe_Camera_Mode')
-export class Swipe_Camera_Mode extends Game_Mode {
+@ccclass('Light_Mode')
+export class Light_Mode extends Game_Mode {
     @property(Camera3D_Controller) light_controller: Camera3D_Controller;
 
     on_enter() {

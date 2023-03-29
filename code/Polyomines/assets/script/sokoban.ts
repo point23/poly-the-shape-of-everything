@@ -1,4 +1,5 @@
-import { Vec3 } from "cc";
+import { assetManager, Vec3 } from "cc";
+import { Audio_Manager } from "./Audio_Manager";
 import { String_Builder, same_position, Const, Direction } from "./Const";
 import { Entity_Manager } from "./Entity_Manager";
 import { Game_Entity, calcu_entity_future_position, same_direction, Entity_Type, calcu_target_direction, collinear_direction, clacu_reversed_direction, locate_entities_in_target_direction, Polyomino_Type, orthogonal_direction, reversed_direction } from "./Game_Entity";
@@ -216,8 +217,25 @@ export class Controller_Proc_Move extends Single_Move {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
 
+        if (is_dirty(this, Move_Flags.MOVED)) {
+            Audio_Manager.instance.play(Audio_Manager.instance.footstep);
+        }
+
         may_move_entity(this, manager, entity);
         may_rotate_entity(this, manager, entity);
+
+        { // @note Check possible win
+            if (manager.pending_win) return;
+            if (!is_dirty(this, Move_Flags.MOVED)) return;
+
+            let possible_win = false;
+            for (let s of manager.locate_current_supporters(entity)) {
+                if (s.entity_type == Entity_Type.CHECKPOINT) possible_win = true;
+            }
+            if (possible_win) {
+                Audio_Manager.instance.play(Audio_Manager.instance.possible_win);
+            }
+        }
     }
 
     debug_info(): string {
@@ -319,6 +337,10 @@ class Pushed_Move extends Single_Move {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
 
+        if (is_dirty(this, Move_Flags.MOVED)) {
+            Audio_Manager.instance.random_play_one(Audio_Manager.instance.push_sfx);
+        }
+
         manager.move_entity(entity, this.end_position);
     }
 
@@ -384,6 +406,10 @@ class Falling_Move extends Single_Move {
     async execute(transaction: Move_Transaction) {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
+
+        if (is_dirty(this, Move_Flags.MOVED)) {
+            Audio_Manager.instance.random_play_one(Audio_Manager.instance.drop_sfx);
+        }
 
         may_move_entity(this, manager, entity);
         may_rotate_entity(this, manager, entity);
@@ -461,12 +487,14 @@ class Rover_Move extends Single_Move {
             }
         }
 
-        if (!stucked) {
-            this.info.end_direction = direction;
-            this.info.end_position = calcu_entity_future_position(rover, this.end_direction);
-            const position_delta = new Vec3(this.end_position).subtract(this.start_position);
-            move_supportees(transaction, rover, position_delta, 0);
+        if (stucked) {
+            return false;
         }
+
+        this.info.end_direction = direction;
+        this.info.end_position = calcu_entity_future_position(rover, this.end_direction);
+        const position_delta = new Vec3(this.end_position).subtract(this.start_position);
+        move_supportees(transaction, rover, position_delta, 0);
 
         if (!same_position(this.start_position, this.end_position))
             set_dirty(this, Move_Flags.MOVED);
@@ -668,10 +696,15 @@ export function generate_rover_moves_if_switch_turned_on(transaction_manager: Tr
     if (entity_manager.pending_win) return;
     if (!entity_manager.switch_turned_on) return;
 
+    let at_least_one: boolean = false;
     for (let rover of entity_manager.rovers) {
         const rover_move = new Rover_Move(rover);
-        transaction_manager.try_add_new_move(rover_move);
+        if (transaction_manager.try_add_new_move(rover_move)) {
+            at_least_one = true;
+        }
     }
+
+    if (at_least_one) Audio_Manager.instance.play(Audio_Manager.instance.rover_move);
 }
 
 export function generate_controller_proc(transaction_manager: Transaction_Manager, entity_manager: Entity_Manager, direction: Direction, step: number = 1) {

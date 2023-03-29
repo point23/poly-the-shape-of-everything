@@ -1045,7 +1045,7 @@
     "_id": "22R/+jgkNDo4vuTMYI+Oki"
   },
   {
-    "__type__": "2767emrFptKZ5NxdpPBfbcE",
+    "__type__": "e79a9igZHJNM6c/SmLUq4vo",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -1053,10 +1053,10 @@
     },
     "_enabled": true,
     "__prefab": null,
-    "camera3d_controller": {
+    "light_controller": {
       "__id__": 10
     },
-    "_id": "a755tsFT9HX4LaoVfSum05"
+    "_id": "dd/b1RGihNcr+zZ5BFJGrd"
   },
   {
     "__type__": "cc.RichText",
@@ -7928,8 +7928,8 @@
     "joystick": null,
     "dpad": null,
     "action_buttons": null,
-    "btn_back": null,
-    "btn_start": null,
+    "btn_settings": null,
+    "btn_hints": null,
     "_id": "dcHh9uRChL4IGf5FJhimYV"
   },
   {

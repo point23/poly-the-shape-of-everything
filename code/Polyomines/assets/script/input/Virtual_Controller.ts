@@ -1,4 +1,4 @@
-import { _decorator, Button } from 'cc';
+import { _decorator, Button, EventHandler } from 'cc';
 import { Action_Button, Action_Button_Group, Action_Button_Input } from './Action_Button_Group';
 import { Dpad, Dpad_Input } from './Dpad';
 import { Game_Button, Game_Input, Game_Input_Handler } from './Game_Input_Handler';
@@ -10,8 +10,9 @@ export class Virtual_Controller extends Game_Input_Handler {
     @property(Joystick) joystick: Joystick = null;
     @property(Dpad) dpad: Dpad = null;
     @property(Action_Button_Group) action_buttons: Action_Button_Group = null;
-    @property(Button) btn_back: Button = null;
-    @property(Button) btn_start: Button = null;
+
+    @property(Button) btn_settings: Button = null;
+    @property(Button) btn_hints: Button = null;
 
     #input: Game_Input = new Game_Input();
     get input(): Game_Input {
@@ -23,6 +24,22 @@ export class Virtual_Controller extends Game_Input_Handler {
 
     init() {
         this.node.active = true;
+
+        { // Settings
+            const e = new EventHandler();
+            e.target = this.node;
+            e.component = "Virtual_Controller";
+            e.handler = "on_click_btn_settings";
+            this.btn_settings.clickEvents.push(e);
+        }
+        { // Hints
+            const e = new EventHandler();
+            e.target = this.node;
+            e.component = "Virtual_Controller";
+            e.handler = "on_click_btn_hints";
+            this.btn_hints.clickEvents.push(e);
+        }
+
         this.joystick.init();
         this.dpad.init();
         this.action_buttons.init();
@@ -30,6 +47,10 @@ export class Virtual_Controller extends Game_Input_Handler {
 
     clear() {
         this.node.active = false;
+
+        this.btn_hints.clickEvents = [];
+        this.btn_settings.clickEvents = [];
+
         this.joystick.clear();
         this.dpad.clear();
         this.action_buttons.clear();
@@ -42,6 +63,17 @@ export class Virtual_Controller extends Game_Input_Handler {
         this.#handle_joystick_input();
         this.#handle_dpad_input();
         this.#handle_action_buttons_input();
+    }
+
+    on_click_btn_settings() {
+        this.#input.availble = true;
+
+        this.#input.button_states[Game_Button.SETTINGS] = 1;
+    }
+
+    on_click_btn_hints() {
+        this.#input.availble = true;
+        this.#input.button_states[Game_Button.HINTS] = 1;
     }
 
     #handle_joystick_input() {

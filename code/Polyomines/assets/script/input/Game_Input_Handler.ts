@@ -67,13 +67,14 @@ export enum Game_Button {
     SWITCH_HERO,
 
     HINTS,
+    SETTINGS,
 }
 
 export class Game_Input {
     availble: boolean = false;
     moved: boolean = false;
     rotated: boolean = false;
-    button_states: Uint8Array = new Uint8Array(12); // @temprory
+    button_states: Uint8Array = new Uint8Array(13); // @temprory
 
     reset() {
         this.availble = false;
