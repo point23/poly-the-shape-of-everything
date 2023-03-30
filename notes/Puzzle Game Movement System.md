@@ -267,6 +267,8 @@ function schedule_for_destruction (e: Entity) {
 
 目的：*Juicy the game feel*
 
+![image-20230330205101195](Puzzle%20Game%20Movement%20System.assets/image-20230330205101195.png)
+
 1. 存在预先跳上和延迟跳上两种动画渲染。
 
 2. 玩家按键跳转的时机往往不是Lily Pad恰好处于Gap的时机。

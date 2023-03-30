@@ -10,6 +10,7 @@ import {
     Undoable_Entity_Data
 } from "./Game_Entity";
 import { Level_Editor } from "./Level_Editor";
+import { Main } from "./Main";
 import { debug_print_quad_tree } from "./Proximity_Grid";
 
 export class Undo_Handler {
@@ -25,8 +26,8 @@ export class Undo_Handler {
 }
 
 export class Undo_Record {
-    // gameplay_time: number;
     // checkpoint: boolean = false;
+    gameplay_time: number;
     transaction: string = '';
 }
 
@@ -59,10 +60,6 @@ export function undo_mark_beginning(manager: Entity_Manager) {
     }
 }
 
-// function record_creations_or_destructions(record: Undo_Record, builder: String_Builder) {
-
-// }
-
 export function undo_end_frame(manager: Entity_Manager) {
     const undo = manager.undo_handler;
     if (!undo.enabled) return;
@@ -74,6 +71,7 @@ export function undo_end_frame(manager: Entity_Manager) {
     undo.redo_records.clear();
 
     const record = new Undo_Record();
+    record.gameplay_time = get_gameplay_time();
     // record.checkpoint = $.take($.S_next_undo_record_is_checkpoint);
 
     // Count changes
@@ -117,6 +115,8 @@ export function do_one_undo(manager: Entity_Manager) {
     if (undo.undo_records.empty()) return;
 
     const record = undo.undo_records.pop();
+    set_gameplaytime(record.gameplay_time);
+
     really_do_one_undo(manager, record, false);
     undo.redo_records.push(record);
 
@@ -128,6 +128,8 @@ export function do_one_redo(manager: Entity_Manager) {
     if (undo.redo_records.empty()) return;
 
     const record = undo.redo_records.pop();
+    set_gameplaytime(record.gameplay_time);
+
     really_do_one_undo(manager, record, true);
     undo.undo_records.push(record);
 
@@ -385,11 +387,26 @@ function really_do_one_undo(manager: Entity_Manager, record: Undo_Record, is_red
         }
     }
 
-    if (manager.for_editing)
+    if ($$.FOR_EDITING)
         Level_Editor.instance.show_undo_changes(num_changes);
 }
 
 function clear_current_undo_frame(undo: Undo_Handler) {
     undo.undo_records.clear();
     undo.redo_records.clear();
+}
+
+
+function get_gameplay_time(): number {
+    if ($$.FOR_EDITING) {
+        return Level_Editor.instance.get_gameplay_time();
+    }
+    return Main.instance.get_gameplay_time();
+}
+
+function set_gameplaytime(t: number) {
+    if ($$.FOR_EDITING) {
+        return Level_Editor.instance.set_gameplay_time(t);
+    }
+    return Main.instance.set_gameplay_time(t);
 }

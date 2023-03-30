@@ -69,7 +69,7 @@ export class Level_Editor extends Component {
     debug_grid: Node = null;
 
     onLoad() {
-        $$.HINTS_EDITABLE = false;
+        $$.HINTS_EDITABLE = true;
         $$.FOR_EDITING = true
         this.settle_singletons();
         init_ui(this);
@@ -80,6 +80,17 @@ export class Level_Editor extends Component {
         clear_ui(this);
         this.contextual_manager.dispose();
         this.clear_current_level();
+    }
+
+
+    get_gameplay_time(): number {
+        // @fixme That's weird...
+        return this.contextual_manager.game_modes[0].getComponent(Test_Run_Mode).round;
+    }
+
+    set_gameplay_time(t: number) {
+        // @fixme That's weird...
+        this.contextual_manager.game_modes[0].getComponent(Test_Run_Mode).round = t;
     }
 
     game_mode: number = 1;
@@ -110,14 +121,14 @@ export class Level_Editor extends Component {
 
     load_prev_level() {
         this.clear_current_level();
-        $$.HINTS_EDITABLE = false;
+        $$.HINTS_EDITABLE = true;
         this.game_mode = 1;
         this.resource_manager.load_prev_level(this, init);
     }
 
     load_next_level() {
         this.clear_current_level();
-        $$.HINTS_EDITABLE = false;
+        $$.HINTS_EDITABLE = true;
         this.game_mode = 1;
         this.resource_manager.load_next_level(this, init);
     }
@@ -324,7 +335,6 @@ function init(editor: Level_Editor) {
     editor.camera3d_controller.update_view(config.camera);
     editor.light_controller.update_view(config.light);
 
-    // @implementMe Directives like #PREVIEW or #WINDOWS...
     const grid = new Proximity_Grid(config.grid);
     const debug_grid = instantiate(editor.debug_grid_prefab);
     debug_grid.setParent(editor.debug_stuff);

@@ -1,17 +1,14 @@
 import { _decorator, EventKeyboard, EventHandler, KeyCode } from 'cc';
-import { Const, Direction, $$ } from '../Const';
+import { Const, $$ } from '../Const';
 import { Contextual_Manager } from '../Contextual_Manager';
 import { Entity_Manager } from '../Entity_Manager';
-import { Entity_Type } from '../Game_Entity';
 import { Game_Button, Game_Input, Game_Input_Handler } from '../input/Game_Input_Handler';
 import { Keyboard } from '../input/Keyboard';
 import { Virtual_Controller } from '../input/Virtual_Controller';
 import { Level_Editor } from '../Level_Editor';
 import {
-    Controller_Proc_Move,
     generate_controller_proc,
     generate_rover_moves_if_switch_turned_on,
-    Possess_Move
 } from '../sokoban';
 
 import { Transaction_Manager } from '../Transaction_Manager';
@@ -40,7 +37,8 @@ export class Test_Run_Mode extends Game_Mode {
     get ticks_per_loop(): number {
         return Const.Ticks_Per_Loop[Transaction_Manager.instance.duration_idx];
     };
-    #round: number = 0;
+
+    round: number = 0;
     #tick: number = 0;
 
     start() {
@@ -59,6 +57,7 @@ export class Test_Run_Mode extends Game_Mode {
 
         $$.IS_RUNNING = true;
         $$.RELOADING = false;
+        this.round = 0;
 
         this.#init_ui();
         this.current_handler.init();
@@ -84,12 +83,13 @@ export class Test_Run_Mode extends Game_Mode {
         const transaction_manager = Transaction_Manager.instance;
         this.#process_inputs();
         if (!$$.DOING_UNDO && !$$.RELOADING) {
-            generate_rover_moves_if_switch_turned_on(transaction_manager, this.#round);
-        } transaction_manager.execute();
-        this.#round = (this.#round + 1) % (1 << 16);
-
-        if (this.entity_manager.pending_win) {
-            Level_Editor.instance.load_succeed_level();
+            generate_rover_moves_if_switch_turned_on(transaction_manager, this.round);
+            transaction_manager.execute();
+            this.round = (this.round + 1) % (1 << 16);
+            if (this.entity_manager.pending_win) {
+                Level_Editor.instance.load_succeed_level();
+                $$.IS_RUNNING = false;
+            }
         }
 
         $$.DOING_UNDO = false;
@@ -161,21 +161,22 @@ export class Test_Run_Mode extends Game_Mode {
 
     #process_inputs() {
         if (!this.input.availble) return;
+        const current_button = this.input.current_button;
 
-        if (this.input.button_states[Game_Button.RESET]) {
+        if (current_button == Game_Button.RESET) {
             $$.RELOADING = true;
             Level_Editor.instance.reload_current_level();
-        } else if (this.input.button_states[Game_Button.UNDO]) {
+        } else if (current_button == Game_Button.UNDO) {
             $$.DOING_UNDO = true;
             do_one_undo(this.entity_manager);
-        } else if (this.input.button_states[Game_Button.SWITCH_HERO]) {
+        } else if (current_button == Game_Button.SWITCH_HERO) {
             this.entity_manager.switch_hero();
         } else if (this.input.moved || this.input.rotated) {
             let direction = 0;
             const step = this.input.moved ? 1 : 0;
 
             for (let i = Game_Button.MOVE_LEFT; i <= Game_Button.FACE_BACKWARD; i++) {
-                if (this.input.button_states[i]) {
+                if (current_button == i) {
                     direction = i % 4;
                     break; // @note Just take the first button which ended down
                 }

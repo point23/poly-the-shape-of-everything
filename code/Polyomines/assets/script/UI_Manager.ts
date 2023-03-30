@@ -1,4 +1,4 @@
-import { _decorator, Component, tween, Node, Sprite, Color, sp, UITransform, Vec2, Vec3, Label, RichText, LabelComponent } from 'cc';
+import { _decorator, Component, tween, Node, Sprite, Color, sp, UITransform, Vec2, Vec3, Label, } from 'cc';
 const { ccclass, property } = _decorator;
 
 export enum Show_Hide_Type {

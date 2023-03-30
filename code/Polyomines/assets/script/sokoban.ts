@@ -191,14 +191,13 @@ export class Controller_Proc_Move extends Single_Move {
 
         if (same_position(start_position, end_position)) return at_least_rotated;
         if (hit_the_barrier(manager, e_target, end_direction)) return at_least_rotated;
+        if (blocked_by_barrier(manager, e_target, end_direction)) return at_least_rotated;
 
         const push_res = try_push_others(transaction, e_target, end_direction);
         if (push_res.pushed && !push_res.push_succeed) return at_least_rotated;
 
         const fall_res = possible_falling(transaction, e_target, end_direction);
         if (fall_res.fell) return (fall_res.fall_succeed || at_least_rotated);
-
-        if (blocked_by_barrier(manager, e_target, end_direction)) return at_least_rotated;
 
         transaction.add_move(this);
 
@@ -432,6 +431,7 @@ class Rover_Move extends Single_Move {
         move_info.start_direction = move_info.end_direction = entity.orientation;
         move_info.start_position = move_info.end_position = entity.position;
         super(move_info);
+
         this.piority = 2;
     }
 
@@ -564,6 +564,7 @@ export function sanity_check(transaction: Move_Transaction, move: Single_Move) {
         for (let another_entity of other_entities) {
             if (another_entity.id == target.id) continue;
             if (exist_in_another_move(another_entity)) continue;
+            if (another_entity.entity_type == Entity_Type.GATE || is_a_board(another_entity.entity_type)) continue;
 
             res.is_taken = true;
             res.taken_by = another_entity;
@@ -663,10 +664,6 @@ export function sanity_check(transaction: Move_Transaction, move: Single_Move) {
 
     const res = target_square_is_taken_by_entity_from_superior_transaction();
     if (res.is_taken) {
-        if (res.taken_by.entity_type == Entity_Type.GATE
-            || res.taken_by.entity_type == Entity_Type.BRIDGE) {
-            return true;
-        }
         if (move.info.move_type == Move_Type.SUPPORT) {
             if (supporter_no_longer_exist()) {
                 move.info.end_direction = Direction.DOWN;
@@ -719,6 +716,10 @@ export function generate_controller_proc(transaction_manager: Transaction_Manage
     const hero = entity_manager.active_hero;
     transaction_manager.try_add_new_move(new Controller_Proc_Move(hero, direction, step));
 }
+
+export function is_a_board(t: Entity_Type) {
+    return t == Entity_Type.TRACK || t == Entity_Type.BRIDGE;
+}
 //#endregion PUBLIC
 
 //#region PRIVATE
@@ -768,7 +769,7 @@ function try_push_others(t: Move_Transaction, e: Game_Entity, d: Direction): { p
     for (let other of locate_entities_in_target_direction(manager, e, d)) {
         if (other == null) continue;
         if (other == e) continue;
-        if (other.entity_type == Entity_Type.BRIDGE) continue; // We can walk under the bridge
+        if (is_a_board(other.entity_type)) continue;
 
         if (other.entity_type == Entity_Type.GATE) {
             const gate = other;
@@ -796,7 +797,6 @@ function move_supportees(transaction: Move_Transaction, e_target: Game_Entity, p
     function has_other_supporter(e: Game_Entity): boolean {
         const supporters = manager.locate_current_supporters(e);
         for (let s of supporters) {
-            // if (s.entity_type == Entity_Type.TRACK || s.entity_type == Entity_Type.BRIDGE) return false;
             if (s.id != e_target.id) return true;
         }
         return false;
@@ -817,17 +817,6 @@ function move_supportees(transaction: Move_Transaction, e_target: Game_Entity, p
 
 function hit_the_barrier(m: Entity_Manager, e: Game_Entity, d: Direction) {
     for (let other of m.locate_current_supporters(e)) {
-        if (other.entity_type == Entity_Type.FENCE) {
-            // @note Can't pass through when there's a fence on the future square
-            // _______
-            // |      ||
-            // | -x-> ||
-            // |______||
-            const fence = other;
-            if (same_direction(fence.orientation, d)) {
-                return true;
-            }
-        }
         // @note Ignored it in new version
         // if (other.entity_type == Entity_Type.BRIDGE) {
         //     // @note Can't get off the bridge halfway
@@ -839,35 +828,48 @@ function hit_the_barrier(m: Entity_Manager, e: Game_Entity, d: Direction) {
         //         return true;
         //     }
         // };
+
+        if (other.entity_type == Entity_Type.FENCE) {
+            // @note Can't pass through when there's a fence on the future square
+            // _______
+            // |      ||
+            // | -x-> ||
+            // |______||
+            const fence = other;
+            if (same_direction(fence.rotation, d)) {
+                return true;
+            }
+        }
     }
     return false;
 }
 
 function blocked_by_barrier(m: Entity_Manager, e: Game_Entity, d: Direction): boolean {
     for (let supporter of m.locate_future_supporters(e, d)) {
-        if (supporter.entity_type == Entity_Type.BRIDGE) {
-            // @note Can't walk on the bridge halfway.
-            // |  ↑  |
-            // |     | <-x-
-            // |  ↓  |
-            const bridge = supporter;
-            if (orthogonal_direction(bridge.rotation, d)) {
-                return true;
-            }
-        };
         // @note Ignored it in new version
-        // if (supporter.entity_type == Entity_Type.FENCE) {
-        //     // @note Can't pass through when there's a fence on the future square
-        //     // _______
-        //     // |      ||
-        //     // |      || <-x-
-        //     // |______||
-        //     //       Hit the fence.
-        //     const fence = supporter;
-        //     if (reversed_direction(fence.rotation, d)) {
+        // if (supporter.entity_type == Entity_Type.BRIDGE) {
+        //     // @note Can't walk on the bridge halfway.
+        //     // |  ↑  |
+        //     // |     | <-x-
+        //     // |  ↓  |
+        //     const bridge = supporter;
+        //     if (orthogonal_direction(bridge.rotation, d)) {
         //         return true;
         //     }
-        // }
+        // };
+
+        if (supporter.entity_type == Entity_Type.FENCE) {
+            // @note Can't pass through when there's a fence on the future square
+            // _______
+            // |      ||
+            // |      || <-x-
+            // |______||
+            //       Hit the fence.
+            const fence = supporter;
+            if (reversed_direction(fence.rotation, d)) {
+                return true;
+            }
+        }
     }
     return false;
 }

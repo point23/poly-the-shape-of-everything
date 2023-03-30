@@ -53,6 +53,7 @@ GAMEPLAY ===
     Touch Panel
 - Let the Rover drop down!
 - Hints
++ Fix Input...
 + ARTIFACTS
 + Different Types of Checkpoints: HERO || ARTIFACTS?
 + Decorators
@@ -65,25 +66,25 @@ GAMEPLAY ===
 
 AI STUFF ===
 + What about monsters? how they react?
++ Character model of monsters
 
 ART STUFF===
 - More realistic rocks
++ Wavelets
 + Beam vfx made with Particle-System
     + Glowing vfx for checkpoint
     + Glowing vfx for switch turn on/off
     + Shining gems
 + Animation
 + Plants
-+ Character model of V and F
-+ Character model of monsters
-+ Character model of policemen
 
 AUDIO STUFF===
-+ Main Theme
-+ Basic SFX: Move, Push, Rover
+- Main Theme
+- Basic SFX: Move, Push, Rover
 
 @deprecated ###
 - Redo & Undo <= Command Pattern
+- Entity Type: Channel
 
 @fixme ### 
 - ISSUE#001: 2d local position is limited
@@ -111,6 +112,7 @@ AUDIO STUFF===
     After redo action, rover will recalculate it's next direction depends on track and its orientation
     Rover move is generated relies on this val [Game Round Id % Rover Speed], but since we didn't rewind the Round Id,
         it introduced a lot of inconsistencies. We can't reenact some behavior after undo, which is horrifying.
++ ISSUE#012: Failed to push a stack of entities
 + Undo checkpoints:
     we should not count in those automatically generated moves
 + Look through occluding objects if there's a hero or special items like switch or gem

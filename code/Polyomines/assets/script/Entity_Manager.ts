@@ -13,6 +13,7 @@ import {
 } from './Game_Entity';
 import { debug_print_quad_tree, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
+import { is_a_board } from './sokoban';
 import { Undo_Handler } from './undo';
 
 /* 
@@ -56,10 +57,20 @@ export class Entity_Manager {
                 if (e.entity_type == Entity_Type.HERO) return true;
             }
         }
+
+        function dynamic_stands_on_it(checkpoint: Game_Entity, manager: Entity_Manager) {
+            for (let e of manager.locate_current_supportees(checkpoint)) {
+                if (e.entity_type == Entity_Type.DYNAMIC) return true;
+            }
+        }
         //#SCOPE
 
         for (let c of this.checkpoints) {
-            if (hero_stands_on_it(c, this)) continue;
+            if (c.prefab == 'Checkpoint#001') {
+                if (hero_stands_on_it(c, this)) continue;
+            } else if (c.prefab == 'Checkpoint#002') {
+                if (dynamic_stands_on_it(c, this)) continue;
+            }
             return false;
         }
         return true;
@@ -245,7 +256,14 @@ export class Entity_Manager {
                     if (supporter == null) continue;
                     if (set.has(supporter.id)) continue;
 
-                    if (board_as_supporter && is_a_board(supporter.entity_type)) {
+                    if (board_as_supporter) {
+                        if (is_a_board(supporter.entity_type)) {
+                            supporters.push(supporter)
+                            set.add(supporter.id);
+                        } else {
+                            // Then this non-board entity is  the supporter of that board
+                        }
+                    } else {
                         supporters.push(supporter)
                         set.add(supporter.id);
                     }
@@ -320,8 +338,4 @@ export class Entity_Manager {
 
         return supportees;
     }
-}
-
-function is_a_board(t: Entity_Type) {
-    return t == Entity_Type.TRACK || t == Entity_Type.BRIDGE;
 }

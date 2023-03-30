@@ -17,6 +17,8 @@ const { ccclass, property } = _decorator;
 
 @ccclass('Main')
 export class Main extends Component {
+    static instance: Main;
+
     @property(Camera3D_Controller) camera3d_controller: Camera3D_Controller = null;
     @property(Resource_Manager) resource_manager: Resource_Manager = null;
     @property(Transaction_Manager) transaction_manager: Transaction_Manager = null;
@@ -67,6 +69,14 @@ export class Main extends Component {
         this.schedule(this.tick, Const.Tick_Interval);
     }
 
+    get_gameplay_time(): number {
+        return this.#round;
+    }
+
+    set_gameplay_time(t: number) {
+        this.#round = t;
+    }
+
     get ticks_per_loop(): number {
         return Const.Ticks_Per_Loop[this.transaction_manager.duration_idx];
     };
@@ -92,7 +102,7 @@ export class Main extends Component {
         if (!$$.DOING_UNDO && !$$.RELOADING) {
             generate_rover_moves_if_switch_turned_on(transaction_manager, this.#round);
             transaction_manager.execute();
-            this.#round = (this.#round + 1) % (1 << 16);
+            this.#round = (this.#round + 1) % (1 << 8);
 
             if (!this.switch_turned_on) { // @note Make some noise when switch is turned on...
                 if (this.entity_manager.switch_turned_on) {
@@ -127,17 +137,18 @@ export class Main extends Component {
         const entity_manager = this.entity_manager;
         const transaction_manager = this.transaction_manager;
         const input = this.input_manager.game_input;
+        const current_button = input.current_button;
         const game = this;
 
         if (!input.availble) return;
-        if (input.button_states[Game_Button.RESET]) {
+        if (current_button == Game_Button.RESET) {
             $$.RELOADING = true;
             load_current_level(game);
-        } else if (input.button_states[Game_Button.UNDO]) {
+        } else if (current_button == Game_Button.UNDO) {
             $$.DOING_UNDO = true;
             do_one_undo(entity_manager);
             Audio_Manager.instance.play(Audio_Manager.instance.rewind);
-        } else if (input.button_states[Game_Button.SWITCH_HERO]) {
+        } else if (current_button == Game_Button.SWITCH_HERO) {
             if (entity_manager.num_heros == 1) {
                 Audio_Manager.instance.play(Audio_Manager.instance.invalid);
             } else {
@@ -149,7 +160,7 @@ export class Main extends Component {
             const step = input.moved ? 1 : 0;
 
             for (let i = Game_Button.MOVE_LEFT; i <= Game_Button.FACE_BACKWARD; i++) {
-                if (input.button_states[i]) {
+                if (current_button == i) {
                     direction = i % 4;
                     break;
                 }
@@ -167,6 +178,8 @@ export class Main extends Component {
             type: Show_Hide_Type.FADE,
             callback: () => {
                 $$.IS_RUNNING = true;
+                this.set_gameplay_time(0);
+                Input_Manager.instance.init();
             }
         });
 
@@ -232,6 +245,8 @@ export class Main extends Component {
     }
 
     settle_singletons() {
+        Main.instance = this;
+
         Input_Manager.Settle(this.input_manager);
         Resource_Manager.Settle(this.resource_manager);
         Transaction_Manager.Settle(this.transaction_manager);
@@ -277,10 +292,7 @@ function init(game: Main) {
                 hide_delay: 2,
                 hide_duration: 1,
                 type: Show_Hide_Type.BLINDS,
-                callback: () => {
-                    $$.IS_RUNNING = true;
-                    Input_Manager.instance.init();
-                }
+                callback: () => { }
             });
 
             ui.show({
@@ -339,6 +351,7 @@ function init(game: Main) {
                 type: Show_Hide_Type.BLINDS,
                 callback: () => {
                     $$.IS_RUNNING = true;
+                    game.set_gameplay_time(0);
                     Input_Manager.instance.init();
                 }
             });

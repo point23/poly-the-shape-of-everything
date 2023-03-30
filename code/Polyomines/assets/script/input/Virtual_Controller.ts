@@ -21,6 +21,7 @@ export class Virtual_Controller extends Game_Input_Handler {
     }
 
     init() {
+        this.#input = new Game_Input();
         this.node.active = true;
         this.joystick.init();
         this.dpad.init();
@@ -45,47 +46,50 @@ export class Virtual_Controller extends Game_Input_Handler {
 
     #handle_joystick_input() {
         const state: Joystick_Input = this.joystick.state;
+        const input = this.#input;
         if (!state.available) return;
 
-        this.#input.availble = true;
-        this.#input.rotated = true;
+        input.availble = true;
+        input.rotated = true;
 
         const deg = state.degree;
         if (deg >= 45 && deg <= 135) { // BACKWARD
-            this.#input.button_states[Game_Button.FACE_BACKWARD] = 1;
+            input.press(Game_Button.FACE_BACKWARD);
         } else if (deg <= -45 && deg >= -135) { // FORWARD
-            this.#input.button_states[Game_Button.FACE_FORWARD] = 1;
+            input.press(Game_Button.FACE_FORWARD);
         } else if (deg >= 135 || deg <= -135) { // LEFT
-            this.#input.button_states[Game_Button.FACE_LEFT] = 1;
+            input.press(Game_Button.FACE_LEFT);
         } else if (deg <= 45 && deg >= -45) { // RIGHT
-            this.#input.button_states[Game_Button.FACE_RIGHT] = 1;
+            input.press(Game_Button.FACE_RIGHT);
         }
     }
 
     #handle_dpad_input() {
         const state: Dpad_Input = this.dpad.state;
+        const input = this.#input;
         if (!state.available) return;
 
-        this.#input.availble = true;
-        this.#input.button_states[state.btn_idx] = 1;
-        this.#input.moved = true;
+        input.availble = true;
+        input.press(state.btn_idx);
+        input.moved = true;
     }
 
     #handle_action_buttons_input() {
         const action_button_input: Action_Button_Input = this.action_buttons.state;
+        const input = this.#input;
         if (!action_button_input.available) return;
 
         this.#input.availble = true;
         if ((action_button_input.btn_idx == Action_Button.Y)) {
-            this.#input.button_states[Game_Button.RESET] = 1;
+            input.press(Game_Button.RESET);
         }
 
         if ((action_button_input.btn_idx == Action_Button.B)) {
-            this.#input.button_states[Game_Button.UNDO] = 1;
+            input.press(Game_Button.UNDO);
         }
 
         if ((action_button_input.btn_idx == Action_Button.X)) {
-            this.#input.button_states[Game_Button.SWITCH_HERO] = 1;
+            input.press(Game_Button.SWITCH_HERO);
         }
     }
 }

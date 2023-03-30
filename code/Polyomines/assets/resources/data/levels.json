@@ -24,6 +24,11 @@
         {
             "id": "level#005",
             "name": "it takes two",
+            "successor": "level#006"
+        },
+        {
+            "id": "level#006",
+            "name": "don't be afraid",
             "successor": "level#004"
         }
     ]

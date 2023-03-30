@@ -150,6 +150,7 @@ export class Const {
 
     static SPEED_ROVER: number = 4;
     static SLOW_ROVER: number = 8;
+
     static Tick_Interval: number = (0.2 / (1 << 3));
     static Ticks_Per_Loop: number[] = [
         1 << 0,
