@@ -1,4 +1,4 @@
-import { _decorator, EventKeyboard, EventHandler } from 'cc';
+import { _decorator, EventKeyboard, EventHandler, KeyCode } from 'cc';
 import { Const, Direction, $$ } from '../Const';
 import { Contextual_Manager } from '../Contextual_Manager';
 import { Entity_Manager } from '../Entity_Manager';
@@ -168,8 +168,6 @@ export class Test_Run_Mode extends Game_Mode {
         } else if (this.input.button_states[Game_Button.UNDO]) {
             $$.DOING_UNDO = true;
             do_one_undo(this.entity_manager);
-        } else if (this.input.button_states[Game_Button.HINTS]) {
-            this.show_hints();
         } else if (this.input.button_states[Game_Button.SWITCH_HERO]) {
             this.entity_manager.switch_hero();
         } else if (this.input.moved || this.input.rotated) {
@@ -190,6 +188,11 @@ export class Test_Run_Mode extends Game_Mode {
 
     handle_key_down(event: EventKeyboard) {
         let key_code = event.keyCode;
+
+        if (key_code == KeyCode.KEY_H) {
+            this.show_hints();
+        }
+
         this.keyboard.handle_key_down(key_code);
     }
 

@@ -51,7 +51,8 @@ export class Resource_Manager extends Component {
             const result = asset.json;
             this.levels = result.levels;
             this.mapping_levels();
-            this.current_level_idx = 0;
+
+            this.current_level_idx = this.id_to_idx.get(result.start);
             this.load_current_level(caller, callback);
         });
     }

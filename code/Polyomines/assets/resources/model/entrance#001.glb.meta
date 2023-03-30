@@ -1,0 +1,97 @@
+{
+  "ver": "2.3.3",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "2a03ca00-7b65-43f2-a4d1-ece72aecc1bd",
+  "files": [
+    "__original-animation-0.cconb"
+  ],
+  "subMetas": {
+    "1f532": {
+      "importer": "gltf-mesh",
+      "uuid": "2a03ca00-7b65-43f2-a4d1-ece72aecc1bd@1f532",
+      "displayName": "",
+      "id": "1f532",
+      "name": "柱体.001.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4ad8f": {
+      "importer": "gltf-animation",
+      "uuid": "2a03ca00-7b65-43f2-a4d1-ece72aecc1bd@4ad8f",
+      "displayName": "",
+      "id": "4ad8f",
+      "name": "柱体.001.animation",
+      "userData": {
+        "gltfIndex": 0,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 0.0833333358168602
+        },
+        "events": []
+      },
+      "ver": "1.0.16",
+      "imported": true,
+      "files": [
+        ".cconb"
+      ],
+      "subMetas": {}
+    },
+    "6e184": {
+      "importer": "gltf-scene",
+      "uuid": "2a03ca00-7b65-43f2-a4d1-ece72aecc1bd@6e184",
+      "displayName": "",
+      "id": "6e184",
+      "name": "entrance#001.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "animationImportSettings": [
+      {
+        "name": "柱体.001",
+        "duration": 0.0833333358168602,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "柱体.001",
+            "from": 0,
+            "to": 0.0833333358168602,
+            "wrapMode": 2
+          }
+        ]
+      }
+    ],
+    "redirect": "2a03ca00-7b65-43f2-a4d1-ece72aecc1bd@6e184",
+    "assetFinder": {
+      "meshes": [
+        "2a03ca00-7b65-43f2-a4d1-ece72aecc1bd@1f532"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [],
+      "scenes": [
+        "2a03ca00-7b65-43f2-a4d1-ece72aecc1bd@6e184"
+      ]
+    }
+  }
+}

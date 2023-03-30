@@ -1,5 +1,6 @@
 import { assert, Vec3 } from 'cc';
 import { $$, Direction } from './Const';
+import { Efx_Manager } from './Efx_Manager';
 import {
     Serializable_Entity_Data,
     Game_Entity,
@@ -37,7 +38,7 @@ export class Entity_Manager {
     switch_hero() {
         const idx = this.active_hero_idx;
         this.active_hero_idx = (idx + 1) % this.num_heros;
-        // VFX?
+        Efx_Manager.instance.show_hide_efx(Efx_Manager.instance.efx_switch_hero, this.active_hero)
     }
 
     proximity_grid: Proximity_Grid = null;
@@ -198,18 +199,66 @@ export class Entity_Manager {
 
     locate_current_supporters(entity: Game_Entity): Game_Entity[] {
         const supporters = [];
-        for (let pos of get_entity_squares(entity)) {
-            for (let supporter of this.locate_supporters(pos))
-                if (supporter != null) {
+        const set = new Set();
+        if (is_a_board(entity.entity_type)) {
+            // @note A Board mush have at least one non board supporter!!!
+            // supporting stack be like: [DYNAMIC_b, TRACK]
+            //    === === ← BRIDGE
+            //   |   |///|
+            //   |___|___| ← DYNAMIC_b
+            //   |   |
+            //   |___| ← DYNAMIC_a
+            //  Supporter of BRIDGE is DYNAMIC_b
+
+            for (let pos of get_entity_squares(entity)) {
+                for (let supporter of this.locate_entities(pos)) {
+                    if (supporter.id == entity.id) continue;
+                    if (supporter == null) continue;
+                    if (set.has(supporter.id)) continue;
+
                     supporters.push(supporter)
+                    set.add(supporter.id);
                 }
+            }
+        } else {
+            // @note Boards as 1 level supporter
+            //  support stack be like: [DYNMIC_a, TRACK, DYNMIC_b]
+            //    DYNAMIC_b
+            //   |_↓_|
+            //   |///|
+            //    ===  ← TRACK
+            //   |   |
+            //   |___| ← DYNAMIC_a
+
+            for (let pos of get_entity_squares(entity)) {
+                let board_as_supporter = false;
+                for (let supporter of this.locate_supporters(pos)) {
+                    if (supporter == null) continue;
+                    if (set.has(supporter.id)) continue;
+
+                    if (is_a_board(supporter.entity_type)) {
+                        board_as_supporter = true;
+                    }
+                }
+
+                for (let supporter of this.locate_supporters(pos)) {
+                    if (supporter == null) continue;
+                    if (set.has(supporter.id)) continue;
+
+                    if (board_as_supporter && is_a_board(supporter.entity_type)) {
+                        supporters.push(supporter)
+                        set.add(supporter.id);
+                    }
+                }
+            }
         }
+
         return supporters;
     }
 
     locate_future_supporters(entity: Game_Entity, dir: Direction, max_depth: number = 1): Game_Entity[] {
+        // @note Special case: Boards will never showup in a falling move.
         const squares = calcu_entity_future_squares(entity, dir);
-
         const supporters = [];
         for (let d = 1; d <= max_depth; d++) {
             for (let pos of squares) {
@@ -226,16 +275,53 @@ export class Entity_Manager {
     }
 
     locate_current_supportees(entity: Game_Entity): Game_Entity[] {
-        const squares = get_entity_squares(entity);
+        // @note Boards as 1 level supportee
+        // Supporting stack be like: [DYNMIC_a, TRACK, DYNMIC_b]
+        //    DYNAMIC_b
+        //     ↓  
+        //   |   |
+        //    ===  ← TRACK
+        //   |///|
+        //   |___| ← DYNAMIC_a
 
+        const squares = get_entity_squares(entity);
+        const set = new Set();
         const supportees = [];
+
         for (let pos of squares) {
-            for (let supportee of this.locate_supportees(pos))
-                if (supportee != null && supportee.entity_type != Entity_Type.STATIC) {
-                    supportees.push(supportee)
+            let exist_one_board = false;
+
+            if (!is_a_board(entity.entity_type)) {
+                for (let other of this.locate_entities(pos)) {
+                    // @note Boards are located at the same square as their supportors
+
+                    if (other.id == entity.id) continue;
+                    if (is_a_board(other.entity_type)) {
+                        if (set.has(other.id)) continue;
+
+                        exist_one_board = true
+                        set.add(other.id);
+                        supportees.push(other);
+                    }
                 }
+            }
+
+            if (!exist_one_board) {
+                for (let supportee of this.locate_supportees(pos)) {
+                    if (supportee != null && supportee.entity_type != Entity_Type.STATIC) {
+                        if (set.has(supportee.id)) continue;
+
+                        set.add(supportee.id);
+                        supportees.push(supportee);
+                    }
+                }
+            }
         }
 
         return supportees;
     }
+}
+
+function is_a_board(t: Entity_Type) {
+    return t == Entity_Type.TRACK || t == Entity_Type.BRIDGE;
 }

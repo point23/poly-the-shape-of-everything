@@ -1,7 +1,8 @@
-import { _decorator, Component, Node, Input, Label, tween, Color, Material } from 'cc';
+import { _decorator, Component, Node, Input, Label, tween, Color, Material, EventHandler, Button } from 'cc';
 import { Audio_Manager } from './Audio_Manager';
 import { Camera3D_Controller } from './Camera3D_Controller';
 import { $$, Const } from './Const';
+import { Efx_Manager } from './Efx_Manager';
 import { Entity_Manager } from './Entity_Manager';
 import { Game_Button } from './input/Game_Input_Handler';
 import { Input_Manager } from './input/Input_Manager';
@@ -9,6 +10,7 @@ import { Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
 import { generate_controller_proc, generate_rover_moves_if_switch_turned_on } from './sokoban';
 import { Transaction_Manager } from './Transaction_Manager';
+import { Game_Pause_Panel } from './ui/Game_Pause_Panel';
 import { Show_Hide_Type, UI_Manager } from './UI_Manager';
 import { do_one_undo, Undo_Handler } from './undo';
 const { ccclass, property } = _decorator;
@@ -21,37 +23,52 @@ export class Main extends Component {
     @property(UI_Manager) ui_manager: UI_Manager = null;
     @property(Input_Manager) input_manager: Input_Manager = null;
     @property(Audio_Manager) audio_manager: Audio_Manager = null;
+    @property(Efx_Manager) efx_manager: Efx_Manager = null;
 
     entity_manager: Entity_Manager = null;
 
+    @property(Label) label_credit_in_title: Label = null;
     @property(Label) label_level_name: Label = null;
+    @property(Label) label_press_any_xx_to_start: Label = null;
+
     @property(Node) title: Node = null;
     @property(Node) dim: Node = null;
+    @property(Button) dummy_panel: Button = null;
+
+    @property(Button) btn_settings: Button = null;
+    @property(Button) btn_hints: Button = null;
+
+    @property(Game_Pause_Panel) game_pause_panel = null;
 
     @property(Material) hint_mat: Material = null;
 
     onLoad() {
         this.settle_singletons();
+
         Resource_Manager.instance.load_levels(this, init);
     }
 
     start() {
+        { // Settings
+            const e = new EventHandler();
+            e.target = this.node;
+            e.component = "Main";
+            e.handler = "game_pause";
+            this.btn_settings.clickEvents.push(e);
+        }
+        { // Hints
+            const e = new EventHandler();
+            e.target = this.node;
+            e.component = "Main";
+            e.handler = "show_and_hide_hints";
+            this.btn_hints.clickEvents.push(e);
+        }
+
         this.schedule(this.tick, Const.Tick_Interval);
-        this.ui_manager.show_and_hide({
-            target: this.title,
-            show_delay: 2,
-            show_duration: 2,
-            hide_delay: 2,
-            hide_duration: 2,
-            type: Show_Hide_Type.FADE,
-            callback: () => {
-                Audio_Manager.instance.end_loop();
-            }
-        });
     }
 
     get ticks_per_loop(): number {
-        return Const.Ticks_Per_Loop[Transaction_Manager.instance.duration_idx];
+        return Const.Ticks_Per_Loop[this.transaction_manager.duration_idx];
     };
 
     #round: number = 0;
@@ -72,17 +89,18 @@ export class Main extends Component {
         const game = this;
 
         this.process_inputs();
-
         if (!$$.DOING_UNDO && !$$.RELOADING) {
             generate_rover_moves_if_switch_turned_on(transaction_manager, this.#round);
             transaction_manager.execute();
             this.#round = (this.#round + 1) % (1 << 16);
 
-            if (!this.switch_turned_on) { // @hack
+            if (!this.switch_turned_on) { // @note Make some noise when switch is turned on...
                 if (this.entity_manager.switch_turned_on) {
                     this.switch_turned_on = true;
                     Audio_Manager.instance.play(Audio_Manager.instance.switch_turned_on);
                 }
+            } else {
+                this.switch_turned_on = this.entity_manager.switch_turned_on;
             }
 
             if (this.entity_manager.pending_win) {
@@ -119,11 +137,13 @@ export class Main extends Component {
             $$.DOING_UNDO = true;
             do_one_undo(entity_manager);
             Audio_Manager.instance.play(Audio_Manager.instance.rewind);
-        } else if (input.button_states[Game_Button.HINTS]) {
-            game.show_hints();
         } else if (input.button_states[Game_Button.SWITCH_HERO]) {
-            Audio_Manager.instance.play(Audio_Manager.instance.switch_hero);
-            entity_manager.switch_hero();
+            if (entity_manager.num_heros == 1) {
+                Audio_Manager.instance.play(Audio_Manager.instance.invalid);
+            } else {
+                entity_manager.switch_hero();
+                Audio_Manager.instance.play(Audio_Manager.instance.switch_hero);
+            }
         } else if (input.moved || input.rotated) {
             let direction = 0;
             const step = input.moved ? 1 : 0;
@@ -139,15 +159,41 @@ export class Main extends Component {
         input.reset();
     }
 
+    click_anywhere_to_start() {
+        this.ui_manager.hide({
+            target: this.title,
+            hide_delay: 0,
+            hide_duration: 2,
+            type: Show_Hide_Type.FADE,
+            callback: () => {
+                $$.IS_RUNNING = true;
+            }
+        });
+
+        this.audio_manager.end_loop();
+        this.dummy_panel.clickEvents = [];
+        this.dummy_panel.node.active = false;
+        this.label_press_any_xx_to_start.node.active = false;
+    }
+
+    game_pause() {
+        Audio_Manager.instance.play(Audio_Manager.instance.click);
+        $$.IS_RUNNING = false;
+        this.game_pause_panel.node.active = true;
+    }
+
     #showing_hints: boolean = false;
-    show_hints() {
+    show_and_hide_hints() {
+        Audio_Manager.instance.play(Audio_Manager.instance.click);
         if (this.#showing_hints) return;
-
         // VFX?
-        Audio_Manager.instance.secondary_audio.volume = 0.2;
-        Audio_Manager.instance.play(Audio_Manager.instance.show_hints);
         const hints = this.entity_manager.hints;
+        if (hints.length == 0) {
+            Audio_Manager.instance.play(Audio_Manager.instance.invalid);
+            return;
+        }
 
+        Audio_Manager.instance.play(Audio_Manager.instance.show_hints);
         hints.forEach(it => { it.node.active = true; });
         const mat = this.hint_mat;
         mat.setProperty('mainColor', Const.HINTS_HIDE_COLOR);
@@ -181,7 +227,6 @@ export class Main extends Component {
                 })
             .call(() => {
                 hints.forEach(it => { it.node.active = false; });
-                Audio_Manager.instance.secondary_audio.volume = 1;
             })
             .start();
     }
@@ -191,6 +236,7 @@ export class Main extends Component {
         Resource_Manager.Settle(this.resource_manager);
         Transaction_Manager.Settle(this.transaction_manager);
         UI_Manager.Settle(this.ui_manager);
+        Efx_Manager.Settle(this.efx_manager);
         Audio_Manager.Settle(this.audio_manager);
     }
 }
@@ -223,6 +269,57 @@ function init(game: Main) {
         if (game.startup) {
             Audio_Manager.instance.loop(Audio_Manager.instance.main_theme);
             game.startup = false;
+
+            ui.show_and_hide({
+                target: game.dim,
+                show_delay: 0,
+                show_duration: 0,
+                hide_delay: 2,
+                hide_duration: 1,
+                type: Show_Hide_Type.BLINDS,
+                callback: () => {
+                    $$.IS_RUNNING = true;
+                    Input_Manager.instance.init();
+                }
+            });
+
+            ui.show({
+                target: game.title,
+                show_delay: 3,
+                show_duration: 2,
+                type: Show_Hide_Type.FADE,
+                callback: () => {
+                    // @todo Maybe i should chained them together?
+
+                    ui.typer({
+                        label: game.label_credit_in_title,
+                        content: "A game by point23",
+                        show_delay: 0,
+                        duration: 2,
+                        hide_delay: Infinity,
+                        callback: () => {
+
+                            ui.typer({
+                                label: game.label_press_any_xx_to_start,
+                                content: "Click anywhere to start",
+                                show_delay: 0,
+                                duration: 3,
+                                hide_delay: Infinity,
+                                callback: () => {
+                                    { // @note Click the touch panel
+                                        const e = new EventHandler();
+                                        e.target = game.node;
+                                        e.component = 'Main';
+                                        e.handler = 'click_anywhere_to_start';
+                                        game.dummy_panel.clickEvents.push(e);
+                                        game.dummy_panel.node.active = true;
+                                    }
+                                },
+                            })
+                        },
+                    });
+                }
+            });
         } else {
             ui.typer({
                 label: game.label_level_name,
@@ -232,20 +329,20 @@ function init(game: Main) {
                 hide_delay: 1,
                 callback: () => { },
             });
-        }
 
-        ui.show_and_hide({
-            target: game.dim,
-            show_delay: 0,
-            show_duration: 0,
-            hide_delay: 2,
-            hide_duration: 1,
-            type: Show_Hide_Type.BLINDS,
-            callback: () => {
-                $$.IS_RUNNING = true;
-                Input_Manager.instance.init();
-            }
-        });
+            ui.show_and_hide({
+                target: game.dim,
+                show_delay: 0,
+                show_duration: 0,
+                hide_delay: 3,
+                hide_duration: 1,
+                type: Show_Hide_Type.BLINDS,
+                callback: () => {
+                    $$.IS_RUNNING = true;
+                    Input_Manager.instance.init();
+                }
+            });
+        }
     }
 
     function init_camera() {

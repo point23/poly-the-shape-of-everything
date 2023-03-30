@@ -65,9 +65,6 @@ export enum Game_Button {
     RESET,
 
     SWITCH_HERO,
-
-    HINTS,
-    SETTINGS,
 }
 
 export class Game_Input {

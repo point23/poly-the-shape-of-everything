@@ -1,4 +1,5 @@
 {
+    "start": "level#004",
     "levels": [
         {
             "id": "level#004",
@@ -17,7 +18,7 @@
         },
         {
             "id": "level#003",
-            "name": "acrophobia",
+            "name": "harmonic",
             "successor": "level#005"
         },
         {

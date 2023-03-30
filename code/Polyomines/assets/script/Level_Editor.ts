@@ -13,6 +13,8 @@ import { Transaction_Panel } from './ui/Transaction_Panel';
 import { do_one_redo, do_one_undo, Undo_Handler } from './undo';
 import { Entity_Edit_Mode } from './modes/Entity_Edit_Mode';
 import { Test_Run_Mode } from './modes/Test_Run_Mode';
+import { Audio_Manager } from './Audio_Manager';
+import { Efx_Manager } from './Efx_Manager';
 
 const { ccclass, property } = _decorator;
 
@@ -34,6 +36,8 @@ export class Level_Editor extends Component {
     @property(Contextual_Manager) contextual_manager: Contextual_Manager = null;
     @property(Resource_Manager) resource_manager: Resource_Manager = null;
     @property(Transaction_Manager) transaction_manager: Transaction_Manager = null;
+    @property(Audio_Manager) audio_manager: Audio_Manager = null;
+    @property(Efx_Manager) efx_manager: Efx_Manager = null;
 
     @property(RichText) txt_info: RichText = null;
     @property(Transaction_Panel) transaction_panel: Transaction_Panel = null;
@@ -78,7 +82,7 @@ export class Level_Editor extends Component {
         this.clear_current_level();
     }
 
-    game_mode: number = 0;
+    game_mode: number = 1;
     switch_edit_mode(idx: any) {
         idx = Number(idx);
         this.game_mode = idx;
@@ -107,14 +111,14 @@ export class Level_Editor extends Component {
     load_prev_level() {
         this.clear_current_level();
         $$.HINTS_EDITABLE = false;
-        this.game_mode = 0;
+        this.game_mode = 1;
         this.resource_manager.load_prev_level(this, init);
     }
 
     load_next_level() {
         this.clear_current_level();
         $$.HINTS_EDITABLE = false;
-        this.game_mode = 0;
+        this.game_mode = 1;
         this.resource_manager.load_next_level(this, init);
     }
 
@@ -140,6 +144,8 @@ export class Level_Editor extends Component {
         Contextual_Manager.Settle(this.contextual_manager);
         Resource_Manager.Settle(this.resource_manager);
         Transaction_Manager.Settle(this.transaction_manager);
+        Audio_Manager.Settle(this.audio_manager);
+        Efx_Manager.Settle(this.efx_manager);
     }
 }
 
@@ -157,7 +163,6 @@ function update_ui(editor: Level_Editor) {
         editor.show_undo_changes(0);
     }
     function reset_transaction() {
-        editor.transaction_panel.clear();
         editor.transaction_panel.reset_counter();
         editor.transaction_panel.clear_logs();
         editor.transaction_panel.hide_logs();

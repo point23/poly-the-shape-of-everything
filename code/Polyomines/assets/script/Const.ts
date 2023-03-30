@@ -148,7 +148,8 @@ export class Const {
 
     static Default_Game_Board_Size: Size = new Size(10, 10);
 
-    static ROVER_SPEED: number = 4;
+    static SPEED_ROVER: number = 4;
+    static SLOW_ROVER: number = 8;
     static Tick_Interval: number = (0.2 / (1 << 3));
     static Ticks_Per_Loop: number[] = [
         1 << 0,
@@ -183,6 +184,7 @@ export class Const {
     static Input_Query_Interval = (0.1 / (1 << 3));
     static VALID_PRESSING_INTERVAL = 600; // @fixme For now there're some zigzag when it's not n times tick-interval(ms)
 
+    static SWITCH_HERO_DURATION = 1.5;
     static HINTS_DURATION = 3;
     static HINTS_SHOW_COLOR = new Color(247, 53, 153, 139);
     static HINTS_HIDE_COLOR = new Color(0, 0, 0, 0);

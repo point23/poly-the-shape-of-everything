@@ -24,7 +24,7 @@
       }
     ],
     "_prefab": {
-      "__id__": 29
+      "__id__": 31
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -141,6 +141,12 @@
       },
       {
         "__id__": 28
+      },
+      {
+        "__id__": 29
+      },
+      {
+        "__id__": 30
       }
     ],
     "entities_parent": null,
@@ -149,14 +155,6 @@
   {
     "__type__": "cc.CompPrefabInfo",
     "fileId": "0dfT0Hc0VHErpeweBOYdBO"
-  },
-  {
-    "__type__": "Prefab_Pair",
-    "id": "Gate#002",
-    "prefab": {
-      "__uuid__": "3454e100-b518-4c2f-a480-c48a690ead17",
-      "__expectedType__": "cc.Prefab"
-    }
   },
   {
     "__type__": "Prefab_Pair",
@@ -347,6 +345,30 @@
     "id": "Hint#002",
     "prefab": {
       "__uuid__": "46f025c0-5cb4-4e31-95c1-e4f4e1ff3186",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Entrance#001",
+    "prefab": {
+      "__uuid__": "722d0332-d49c-46bf-b89f-cd0d2ed553e1",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Checkpoint#002",
+    "prefab": {
+      "__uuid__": "16db6188-d099-4554-a358-88d69254234c",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Rover#001",
+    "prefab": {
+      "__uuid__": "4b302a7c-6ec0-480f-a54a-c4ae33adfab3",
       "__expectedType__": "cc.Prefab"
     }
   },

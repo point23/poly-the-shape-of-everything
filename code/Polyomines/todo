@@ -17,7 +17,7 @@ UI ===
 - undo panel
 - Stars for difficulty
 - Fade in and Fade out
-+ Typer!!!
+- Typer
 + Click any place to start
 + Settings
 + Different Background Color
@@ -103,7 +103,14 @@ AUDIO STUFF===
 - Clear transaction stack when load new levels
 - Repeatedly bind the schedule function!!!
     just unschedule it when exit
-+ ISSUE#010: If supportee has other suppoter, it should not be moved.
+- ISSUE#010: Supporting Stack!!!
+    Boards are the FIRST CLASS supporter and supportee
+    Boards should have at least one non-board supporter
+    If supportee has other suppoter, it should not be moved.
++ ISSUE#011: ROVER NEEDS STATE
+    After redo action, rover will recalculate it's next direction depends on track and its orientation
+    Rover move is generated relies on this val [Game Round Id % Rover Speed], but since we didn't rewind the Round Id,
+        it introduced a lot of inconsistencies. We can't reenact some behavior after undo, which is horrifying.
 + Undo checkpoints:
     we should not count in those automatically generated moves
 + Look through occluding objects if there's a hero or special items like switch or gem

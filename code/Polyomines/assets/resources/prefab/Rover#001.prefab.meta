@@ -2,12 +2,12 @@
   "ver": "1.1.43",
   "importer": "prefab",
   "imported": true,
-  "uuid": "3454e100-b518-4c2f-a480-c48a690ead17",
+  "uuid": "4b302a7c-6ec0-480f-a54a-c4ae33adfab3",
   "files": [
     ".json"
   ],
   "subMetas": {},
   "userData": {
-    "syncNodeName": "Gate#002"
+    "syncNodeName": "Rover#001"
   }
 }
