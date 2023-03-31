@@ -22,7 +22,8 @@ export class Resource_Manager extends Component {
     prefabs: Map<String, Prefab> = new Map<String, Prefab>();
     @property(Node) entities_parent: Node;
 
-    id_to_idx: Map<string, number> = new Map(); // @note Level id is the json file name.
+    level_id_to_idx: Map<string, number> = new Map(); // @note Level id is the json file name.
+    level_idx_to_id: Map<number, string> = new Map(); // @note Level id is the json file name.
     levels: Level_Data[] = []
 
     current_level_idx = 0;
@@ -41,7 +42,8 @@ export class Resource_Manager extends Component {
 
     mapping_levels() {
         this.levels.forEach((it, it_idx) => {
-            this.id_to_idx.set(it.id, it_idx);
+            this.level_id_to_idx.set(it.id, it_idx);
+            this.level_idx_to_id.set(it_idx, it.id);
         })
     }
 
@@ -52,13 +54,13 @@ export class Resource_Manager extends Component {
             this.levels = result.levels;
             this.mapping_levels();
 
-            this.current_level_idx = this.id_to_idx.get(result.start);
+            this.current_level_idx = this.level_id_to_idx.get(result.start);
             this.load_current_level(caller, callback);
         });
     }
 
     load_succeed_level(caller: any = null, callback: (any) => void = null) {
-        this.current_level_idx = this.id_to_idx.get(this.current_level.successor);
+        this.current_level_idx = this.level_id_to_idx.get(this.current_level.successor);
         this.load_current_level(caller, callback);
     }
 
@@ -85,6 +87,11 @@ export class Resource_Manager extends Component {
             if (callback != null)
                 callback(caller);
         });
+    }
+
+    load_level(idx: number, caller: any, callback: (any) => void) {
+        this.current_level_idx = idx;
+        this.load_current_level(caller, callback);
     }
 
     instantiate_prefab(name: string): Node {

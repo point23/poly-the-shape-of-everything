@@ -9,7 +9,9 @@ import {
     Entity_Type,
     get_entity_squares,
     get_serializable,
-    clone_undoable_data
+    clone_undoable_data,
+    set_entrance_id as set_entrance_idx,
+    get_entrance_id as get_entrance_idx
 } from './Game_Entity';
 import { debug_print_quad_tree, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
@@ -50,20 +52,38 @@ export class Entity_Manager {
     rovers: Game_Entity[] = [];
     switches: Game_Entity[] = [];
     hints: Game_Entity[] = [];
+    entrances: Game_Entity[] = [];
 
-    get pending_win(): boolean {
-        function hero_stands_on_it(checkpoint: Game_Entity, manager: Entity_Manager) {
-            for (let e of manager.locate_current_supportees(checkpoint)) {
-                if (e.entity_type == Entity_Type.HERO) return true;
+    get entering_other_level(): { entering: boolean, idx: number } {
+        let res = {
+            entering: false,
+            idx: 0,
+        };
+
+        for (let s of this.locate_current_supporters(this.active_hero)) {
+            if (s.entity_type == Entity_Type.ENTRANCE) {
+                res.entering = true;
+                res.idx = get_entrance_idx(s);
             }
         }
 
+        return res;
+    }
+
+    get pending_win(): boolean {
+        function hero_stands_on_it(entity: Game_Entity, manager: Entity_Manager) {
+            for (let other of manager.locate_current_supportees(entity)) {
+                if (other.entity_type == Entity_Type.HERO) return true;
+            }
+        }
         function dynamic_stands_on_it(checkpoint: Game_Entity, manager: Entity_Manager) {
             for (let e of manager.locate_current_supportees(checkpoint)) {
                 if (e.entity_type == Entity_Type.DYNAMIC) return true;
             }
         }
         //#SCOPE
+
+        if (this.checkpoints.length == 0) return false;
 
         for (let c of this.checkpoints) {
             if (c.prefab == 'Checkpoint#001') {
@@ -140,7 +160,14 @@ export class Entity_Manager {
         }
 
         if (entity.entity_type == Entity_Type.ROVER) this.rovers.push(entity);
-        if (entity.entity_type == Entity_Type.SWITCH) this.switches.push(entity)
+        if (entity.entity_type == Entity_Type.SWITCH) this.switches.push(entity);
+
+        if (entity.entity_type == Entity_Type.ENTRANCE) {
+            this.entrances.push(entity);
+            if (info.derived_data != undefined && info.derived_data != null) {
+                set_entrance_idx(entity, Resource_Manager.instance.level_id_to_idx.get(info.derived_data.level_id));
+            }
+        }
 
         debug_print_quad_tree(this.proximity_grid.quad_tree);
         return entity;

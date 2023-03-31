@@ -15,12 +15,14 @@ import { debug_print_quad_tree } from "./Proximity_Grid";
 
 export class Undo_Handler {
     manager: Entity_Manager = null;
+
     pending_creations: CD_Action[] = [];
     pending_destructions: CD_Action[] = [];
+
     undo_records: Stack<Undo_Record> = new Stack<Undo_Record>;
     redo_records: Stack<Undo_Record> = new Stack<Undo_Record>;
-
     old_entity_state = new Map<number, Undoable_Entity_Data>();
+
     dirty: boolean = false;
     enabled: boolean = true;;
 }
@@ -39,7 +41,6 @@ export enum Undo_Action_Type {
 }
 
 export class CD_Action {
-    // type: Undo_Action_Type;
     entity_id: number = 0;
     serialized_data: string = '';
 }
@@ -333,7 +334,7 @@ function really_do_one_undo(manager: Entity_Manager, record: Undo_Record, is_red
                 const info = new Serializable_Entity_Data(prefab);
                 manager.load_entity(info, entity_id);
 
-                { // @todo Clean it up..., here's a lot of duplicates...
+                {
                     const e_dest = manager.find(entity_id);
                     const ued = manager.undo_handler.old_entity_state.get(entity_id);
                     apply_diff(num_slots, false, ued);

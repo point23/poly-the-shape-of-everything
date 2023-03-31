@@ -1,16 +1,16 @@
 {
-    "difficulty": 6,
+    "difficulty": 4,
     "camera": {
         "position": {
-            "x": -6.5,
+            "x": -5.5,
             "y": 13,
-            "z": 5.5
+            "z": 4.5
         },
         "rotation": {
-            "x": -0.298836238730121,
-            "y": -0.6408563820557944,
-            "z": -0.2988362387301211,
-            "w": 0.6408563820557939
+            "x": -0.32650557562197774,
+            "y": -0.627211375126256,
+            "z": -0.3265055756219779,
+            "w": 0.6272113751262556
         }
     },
     "light": {
@@ -20,10 +20,10 @@
             "z": 9.5
         },
         "rotation": {
-            "x": -0.35355339059327445,
-            "y": -0.6123724356958016,
-            "z": -0.3535533905932748,
-            "w": 0.6123724356958014
+            "x": -0.430459334576879,
+            "y": -0.560985526796939,
+            "z": -0.4304593345768794,
+            "w": 0.5609855267969395
         }
     },
     "grid": {
@@ -50,7 +50,7 @@
         {
             "prefab": "Checkpoint#001",
             "position": {
-                "x": 2,
+                "x": 0,
                 "y": 2,
                 "z": 2
             },
@@ -77,8 +77,8 @@
         {
             "prefab": "Gem#001",
             "position": {
-                "x": 3,
-                "y": 1,
+                "x": 1,
+                "y": 5,
                 "z": 1
             },
             "rotation": 2
@@ -86,8 +86,8 @@
         {
             "prefab": "Switch#001",
             "position": {
-                "x": 3,
-                "y": 1,
+                "x": 1,
+                "y": 5,
                 "z": 0
             },
             "rotation": 0
@@ -275,7 +275,7 @@
         {
             "prefab": "Track#001",
             "position": {
-                "x": 3,
+                "x": 2,
                 "y": 2,
                 "z": 1
             },
@@ -311,7 +311,7 @@
         {
             "prefab": "Ground#001",
             "position": {
-                "x": 2,
+                "x": 0,
                 "y": 2,
                 "z": 2
             },
@@ -325,24 +325,6 @@
                 "z": 2
             },
             "rotation": 2
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 9,
-                "y": 5,
-                "z": 2
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 9,
-                "y": 4,
-                "z": 2
-            },
-            "rotation": 0
         },
         {
             "prefab": "Ground#001",
@@ -396,7 +378,7 @@
                 "y": 4,
                 "z": 1
             },
-            "rotation": 3
+            "rotation": 2
         },
         {
             "prefab": "Track#001",
@@ -435,36 +417,9 @@
             "rotation": 1
         },
         {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 9,
-                "y": 3,
-                "z": 2
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 9,
-                "y": 2,
-                "z": 2
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 9,
-                "y": 1,
-                "z": 2
-            },
-            "rotation": 0
-        },
-        {
             "prefab": "Track#001",
             "position": {
-                "x": 4,
+                "x": 1,
                 "y": 2,
                 "z": 1
             },
@@ -545,15 +500,6 @@
         {
             "prefab": "Ground#001",
             "position": {
-                "x": 6,
-                "y": 5,
-                "z": 2
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
                 "x": 5,
                 "y": 5,
                 "z": 2
@@ -644,25 +590,16 @@
         {
             "prefab": "Ground#001",
             "position": {
+                "x": 1,
+                "y": 2,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
                 "x": 2,
-                "y": 2,
-                "z": 1
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 3,
-                "y": 2,
-                "z": 1
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 4,
                 "y": 2,
                 "z": 1
             },
@@ -705,15 +642,6 @@
             "rotation": 0
         },
         {
-            "prefab": "Track#001",
-            "position": {
-                "x": 7,
-                "y": 1,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
             "prefab": "Stump#002",
             "position": {
                 "x": 6,
@@ -726,15 +654,6 @@
             "prefab": "Ground#001",
             "position": {
                 "x": 7,
-                "y": 6,
-                "z": 2
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 6,
                 "y": 6,
                 "z": 2
             },
@@ -762,15 +681,6 @@
             "prefab": "Ground#001",
             "position": {
                 "x": 3,
-                "y": 6,
-                "z": 2
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 9,
                 "y": 6,
                 "z": 2
             },
@@ -842,7 +752,7 @@
         {
             "prefab": "Rover#002",
             "position": {
-                "x": 3,
+                "x": 1,
                 "y": 2,
                 "z": 2
             },
@@ -897,10 +807,190 @@
             "prefab": "Hint#001",
             "position": {
                 "x": 4,
-                "y": 4,
+                "y": 2,
                 "z": 1
             },
             "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 1,
+                "y": 2,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 1,
+                "y": 5,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 1,
+                "y": 3,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 1,
+                "y": 4,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 1,
+                "y": 1,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Track#001",
+            "position": {
+                "x": 4,
+                "y": 1,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 9,
+                "y": 5,
+                "z": 2
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 9,
+                "y": 4,
+                "z": 2
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 9,
+                "y": 3,
+                "z": 2
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 9,
+                "y": 2,
+                "z": 2
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 9,
+                "y": 6,
+                "z": 2
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 6,
+                "y": 5,
+                "z": 2
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 6,
+                "y": 6,
+                "z": 2
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Track#001",
+            "position": {
+                "x": 7,
+                "y": 1,
+                "z": 0
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Track#001",
+            "position": {
+                "x": 7,
+                "y": 1,
+                "z": 0
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 0,
+                "y": 2,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Track#001",
+            "position": {
+                "x": 3,
+                "y": 1,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Track#001",
+            "position": {
+                "x": 4,
+                "y": 5,
+                "z": 3
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Monomino",
+            "position": {
+                "x": 4,
+                "y": 5,
+                "z": 3
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Fence#001",
+            "position": {
+                "x": 9,
+                "y": 2,
+                "z": 2
+            },
+            "rotation": 2
         }
     ]
 }

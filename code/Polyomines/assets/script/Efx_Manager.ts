@@ -1,7 +1,6 @@
 import { _decorator, Component, Node, Vec3 } from 'cc';
-import { Const } from './Const';
+import { $$, Const } from './Const';
 import { Game_Entity } from './Game_Entity';
-import { Resource_Manager } from './Resource_Manager';
 const { ccclass, property } = _decorator;
 
 @ccclass('Efx_Manager')
@@ -19,10 +18,9 @@ export class Efx_Manager extends Component {
         effect.active = true;
 
         this.scheduleOnce(() => {
-            effect.setParent(Resource_Manager.instance.entities_parent);
+            effect.setParent(this.node);
             effect.active = false;
+
         }, Const.SWITCH_HERO_DURATION)
     }
 }
-
-

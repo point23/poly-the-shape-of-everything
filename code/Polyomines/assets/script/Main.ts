@@ -113,6 +113,23 @@ export class Main extends Component {
                 this.switch_turned_on = this.entity_manager.switch_turned_on;
             }
 
+            const pending_entering = this.entity_manager.entering_other_level;
+            if (pending_entering.entering) {
+                Audio_Manager.instance.play(Audio_Manager.instance.pending_win);
+                $$.IS_RUNNING = false;
+                this.ui_manager.show_and_hide({
+                    target: game.dim,
+                    show_delay: 1,
+                    show_duration: 1,
+                    hide_delay: 0,
+                    hide_duration: 0,
+                    type: Show_Hide_Type.BLINDS,
+                    callback: () => {
+                        load_level(this, pending_entering.idx);
+                    }
+                });
+            }
+
             if (this.entity_manager.pending_win) {
                 Audio_Manager.instance.play(Audio_Manager.instance.pending_win);
                 $$.IS_RUNNING = false;
@@ -256,7 +273,12 @@ export class Main extends Component {
     }
 }
 
-function load_succeed_level(game: Main) {
+function load_level(game: Main, idx: number) {
+    clear(game);
+    game.resource_manager.load_level(idx, game, init);
+}
+
+export function load_succeed_level(game: Main) {
     clear(game);
     game.resource_manager.load_succeed_level(game, init);
 }

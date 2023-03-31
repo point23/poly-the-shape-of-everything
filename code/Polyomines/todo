@@ -116,6 +116,7 @@ AUDIO STUFF===
 + Undo checkpoints:
     we should not count in those automatically generated moves
 + Look through occluding objects if there's a hero or special items like switch or gem
+    - 2 shaders, one with ZTEST GEqual
 + Domino control
 
 @optimize ###

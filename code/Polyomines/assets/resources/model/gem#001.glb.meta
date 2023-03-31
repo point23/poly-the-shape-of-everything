@@ -117,6 +117,43 @@
       "scenes": [
         "cca8afa1-3c12-422c-9583-20a7e379780f@35e50"
       ]
+    },
+    "materials": {
+      "cca8afa1-3c12-422c-9583-20a7e379780f@21957": {
+        "__type__": "cc.Material",
+        "_name": "",
+        "_objFlags": 0,
+        "_native": "",
+        "_effectAsset": {
+          "__uuid__": "47402df1-83e0-4994-aaa3-99580dfcdde3",
+          "__expectedType__": "cc.EffectAsset"
+        },
+        "_techIdx": 0,
+        "_defines": [
+          {}
+        ],
+        "_states": [
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          }
+        ],
+        "_props": [
+          {
+            "mainTexture": {
+              "__uuid__": "cca8afa1-3c12-422c-9583-20a7e379780f@e39f7",
+              "__expectedType__": "cc.Texture2D"
+            },
+            "width": 0.31,
+            "strength": 1.39
+          }
+        ]
+      }
     }
   }
 }

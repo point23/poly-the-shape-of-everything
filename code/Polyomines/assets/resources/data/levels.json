@@ -4,27 +4,27 @@
         {
             "id": "level#004",
             "name": "begin again",
-            "successor": "level#001"
+            "successor": "level#004"
         },
         {
             "id": "level#001",
             "name": "islands",
-            "successor": "level#002"
+            "successor": "level#004"
         },
         {
             "id": "level#002",
             "name": "don't look up",
-            "successor": "level#003"
+            "successor": "level#004"
         },
         {
             "id": "level#003",
             "name": "harmonic",
-            "successor": "level#005"
+            "successor": "level#004"
         },
         {
             "id": "level#005",
             "name": "it takes two",
-            "successor": "level#006"
+            "successor": "level#004"
         },
         {
             "id": "level#006",

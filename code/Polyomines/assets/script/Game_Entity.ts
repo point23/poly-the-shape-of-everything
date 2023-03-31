@@ -1,7 +1,8 @@
-import { _decorator, Component, Enum, MeshRenderer, SkeletalAnimation, tween, Vec3, Game } from 'cc';
+import { _decorator, Component, Enum, MeshRenderer, SkeletalAnimation, tween, Vec3, Game, Vec4 } from 'cc';
 import { Const, Direction, String_Builder } from './Const';
 import { Entity_Manager } from './Entity_Manager';
 import { Polygon_Entity } from './Polygon_Entity';
+import { Resource_Manager } from './Resource_Manager';
 
 const { ccclass, property } = _decorator;
 
@@ -48,6 +49,12 @@ export function calcu_target_direction(d: Direction, delta: number): Direction {
 }
 
 export enum Entity_Type {
+    // @note There're actually 2 kinds of derived data
+    //      - Rover, Checkpoint: 
+    //          There derived types are limited: Speed/Slow Rover, Hero/Dynamic Checkpoint
+    //      - Artifact, Hero, Avatar
+    //          Their derived types are unlimited: Hero -> Each of the character with totally different ability.
+
     STATIC,// It means we're not avaliale to  push them
     DYNAMIC,
     HERO, // @incomplete
@@ -64,9 +71,11 @@ export enum Entity_Type {
     GATE,
     FENCE,
     ROVER,
+    // There are Speed Rover and Slow Rover, with different speed to generate rover moves...
     TRACK,
     SWITCH,
     GEM,
+    ENTRANCE,
 }
 
 export enum Polyomino_Type {
@@ -107,6 +116,7 @@ export class Serializable_Entity_Data {
     prefab: string = null;
     position: Vec3 = null;
     rotation: Direction = null;
+
     constructor(prefab: string, position: Vec3 = new Vec3(), rotation: Direction = 0) {
         this.prefab = prefab;
         this.position = position;
@@ -117,13 +127,18 @@ export class Serializable_Entity_Data {
 // @incomplete
 /* 
     Memory:
-    Int32 [
+    S32 [
         0: x,
         1: y,
         2: z,
         3: orientation,
         4: rotation,
         5: flags,
+        
+        6: Customized_Slot_0_0
+        7: Customized_Slot_0_1
+        8: Customized_Slot_0_2
+        9: Customized_Slot_0_3
         ...
     ]
 */
@@ -150,20 +165,26 @@ export class Undoable_Entity_Data {
 
     get flags(): number { return this.memory[5]; }
     set flags(f: number) { this.memory[5] = f; }
+
+    get customized_slot_0(): Vec4 {
+        return new Vec4(this.memory[6], this.memory[7], this.memory[8], this.memory[9]);
+    }
+
+    set customized_slot_0(v: Vec4) {
+        this.memory[6] = v.x;
+        this.memory[7] = v.y;
+        this.memory[8] = v.z;
+        this.memory[9] = v.w;
+    }
 };
 
-/**
- * NOTE
- * - Rotate to
- * - Face towards
- * - Move to
- */
 @ccclass('Game_Entity')
 export class Game_Entity extends Component {
     id: number;
     undoable: Undoable_Entity_Data;
     scheduled_for_destruction: boolean = false;
     prefab: string = "";
+
     derived_data: any = {}
 
     get position(): Vec3 { return this.undoable.position };
@@ -196,26 +217,13 @@ export class Game_Entity extends Component {
         }
     }
 
-    /* 
-        async face_towards_async(dir: Direction) {
-            if (this.entity_type != Entity_Type.AVATAR) {
-                await this.body.rotate_to_async(dir);
-                this.direction = dir;
-                this.indicator.rotate_to(dir);
-            } else {
-                this.direction = dir;
-                this.indicator.rotate_to(dir);
-            }
-        }
-     */
+    // async physically_move_to_async(world_pos: Vec3) {
+    //     tween().target(this.node).to(0.1, { position: world_pos }).start();
+    // }
 
-    async physically_move_to_async(world_pos: Vec3) {
-        tween().target(this.node).to(0.1, { position: world_pos }).start();
-    }
-
-    async move_to_async(world_pos: Vec3) {
-        await this.physically_move_to_async(world_pos);
-    }
+    // async move_to_async(world_pos: Vec3) {
+    //     await this.physically_move_to_async(world_pos);
+    // }
 
     logically_rotate_to(dir: Direction) {
         this.indicator.rotate_to(dir);
@@ -223,19 +231,21 @@ export class Game_Entity extends Component {
 }
 
 export function is_dervied(t: number): boolean {
-    return t == Entity_Type.SWITCH || t == Entity_Type.CHECKPOINT;
+    return t == Entity_Type.ENTRANCE || false;
 }
 
-export function get_serializable(e: Game_Entity): Serializable_Entity_Data {
-    const res = {
+export function get_serializable(e: Game_Entity): any {
+    const res: any = {
         prefab: e.prefab,
         position: e.position,
         rotation: e.rotation,
     };
 
-    // if (is_dervied(e.entity_type)) {
-    //     res['derived_data'] = e.derived_data;
-    // }
+    if (e.entity_type == Entity_Type.ENTRANCE) {
+        res.derived_data = {
+            level_id: Resource_Manager.instance.level_idx_to_id.get(get_entrance_id(e)),
+        }
+    }
 
     return res;
 }
@@ -300,16 +310,17 @@ export function note_entity_is_deselected(e: Game_Entity) {
     mat.setProperty('mainColor', color);
 }
 
-// === Edit Mode === 
-export function get_selected_entities(manager: Entity_Manager): Game_Entity[] {
-    let res = [];
-    for (let e of manager.all_entities) {
-        if (e.is_selected) {
-            res.push(e);
-        }
-    }
+// === Derived Class ===
+export function get_entrance_id(e: Game_Entity): number {
+    if (e.entity_type != Entity_Type.ENTRANCE) return;
+    return e.undoable.customized_slot_0.x;
+}
 
-    return res;
+export function set_entrance_id(e: Game_Entity, entrance_id: number) {
+    if (e.entity_type != Entity_Type.ENTRANCE) return;
+    let slot = new Vec4();
+    slot.x = entrance_id;
+    e.undoable.customized_slot_0 = slot;
 }
 
 // === Calculation === 
@@ -412,6 +423,18 @@ export function rotate_clockwise_horizontaly(r: Direction): Direction {
     return new_dir;
 }
 
+// === Edit Mode === 
+export function get_selected_entities(manager: Entity_Manager): Game_Entity[] {
+    let res = [];
+    for (let e of manager.all_entities) {
+        if (e.is_selected) {
+            res.push(e);
+        }
+    }
+
+    return res;
+}
+
 export function debug_validate_tiling(manager: Entity_Manager) {
     const map = new Map<string, boolean>();
 
@@ -422,6 +445,7 @@ export function debug_validate_tiling(manager: Entity_Manager) {
         if (e.entity_type == Entity_Type.FENCE) continue;
         if (e.entity_type == Entity_Type.TRACK) continue;
         if (e.entity_type == Entity_Type.BRIDGE) continue;
+        if (e.entity_type == Entity_Type.ENTRANCE) continue;
         if (e.entity_type == Entity_Type.SWITCH) continue;
 
         for (let pos of get_entity_squares(e)) {

@@ -1,0 +1,87 @@
+// Effect Syntax Guide: https://docs.cocos.com/creator/manual/zh/shader/index.html
+
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: legacy/main-functions/general-vs:vert # builtin header
+      frag: unlit-fs:frag
+      properties: &props
+        mainTexture:    { value: white }
+        colorTop:         { value: [1, 1, 1, 1], editor: { type: color } }
+        colorBottom:         { value: [1, 1, 1, 1], editor: { type: color } }
+        numRings:         { value: 3, editor: { range: [0, 10, 1], slide: true } }
+        numZigzags:         { value: 8, editor: { range: [0, 10, 1], slide: true } }
+
+  - name: transparent
+    passes:
+    - vert: general-vs:vert # builtin header
+      frag: unlit-fs:frag
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+}%
+
+CCProgram unlit-fs %{
+  precision highp float;
+  #include <legacy/output>
+  #include <legacy/fog-fs>
+
+  #define TAU 6.28318530718
+
+  in vec3 v_normal;
+  in vec2 v_uv;
+  in vec3 v_position;
+
+  uniform sampler2D mainTexture;
+
+  uniform Constant {
+    vec4 colorTop;
+    vec4 colorBottom;
+    float numRings;
+    float numZigzags;
+  };
+
+  float inverseLerp(float a, float b, float v) {
+    return (v - a) / (b - a);
+  }
+
+  vec4 frag () {
+    vec4 color = vec4(1, 1, 1, 1);
+    color *= texture(mainTexture, v_uv);
+
+    float x = v_uv.x;
+    float y = v_uv.y;
+
+    float y_offset = cos(x * TAU * numZigzags) * 0.01; // Zig-zags...
+    float wave = cos((y + y_offset + cc_time.x * 0.1) * TAU * numRings) * 0.5 + 0.5;
+
+    float damping = inverseLerp(0.0, 1.0, y);
+
+    wave *= damping; // Damping
+
+    if (v_normal.y > 0.999) {
+    // Remove the top cover
+        wave = 0.0;
+    }
+
+    vec4 gradient = mix(colorTop, colorBottom, damping);
+
+    color = color * gradient * wave;
+
+    if (v_normal.y < -0.999) {
+        color = colorBottom;
+        color.w = 0.5;
+    }
+
+    color *= 1.5;
+
+    CC_APPLY_FOG(color, v_position);
+    return CCFragOutput(color);
+  }
+}%

@@ -90,6 +90,11 @@ export class Test_Run_Mode extends Game_Mode {
                 Level_Editor.instance.load_succeed_level();
                 $$.IS_RUNNING = false;
             }
+
+            let entering = this.entity_manager.entering_other_level;
+            if (entering.entering) {
+                Level_Editor.instance.load_level(entering.idx);
+            }
         }
 
         $$.DOING_UNDO = false;
@@ -113,12 +118,17 @@ export class Test_Run_Mode extends Game_Mode {
             e.handler = 'switch_to_next_input_handler';
             this.inputs_navigator.btn_next.clickEvents.push(e);
         }
+
         this.inputs_navigator.node.active = true;
+        Level_Editor.instance.durations.node.active = true;
+        Level_Editor.instance.transaction_panel.navigator.node.active = true;
     }
 
     #clear_ui() {
         this.inputs_navigator.clear();
         this.inputs_navigator.node.active = false;
+        Level_Editor.instance.durations.node.active = false;
+        Level_Editor.instance.transaction_panel.navigator.node.active = false;
     }
 
     switch_to_prev_input_handler() {

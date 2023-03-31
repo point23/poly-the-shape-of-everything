@@ -362,6 +362,8 @@ class Falling_Move extends Single_Move {
         move_info.start_position = entity.position;
         move_info.start_direction = move_info.end_direction = direction;
         super(move_info);
+
+        this.piority = 3;
     }
 
     try_add_itself(transaction: Move_Transaction): boolean {
@@ -656,7 +658,13 @@ export function sanity_check(transaction: Move_Transaction, move: Single_Move) {
 
         if (supporter_no_longer_exist()) {
             console.log(`SANITY CHECK: NO SUPPORTER, target: ${target.id}, move: ${move.info.move_type}`);
-            possible_falling(transaction, target, move.end_direction);
+            let direction = 0;
+            if (move.info.move_type == Move_Type.PUSHED) { // @fixme Don't pay attention to this kinda of special cases...
+                direction = move.reaction_direction;
+            } else {
+                direction = move.end_direction;
+            }
+            possible_falling(transaction, target, direction);
             remove_it();
             return true;
         }

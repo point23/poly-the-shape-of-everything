@@ -133,8 +133,17 @@ export class Level_Editor extends Component {
         this.resource_manager.load_next_level(this, init);
     }
 
+    load_level(idx: number) {
+        this.clear_current_level();
+        $$.HINTS_EDITABLE = true;
+        this.game_mode = 1;
+        this.resource_manager.load_level(idx, this, init);
+    }
+
     load_succeed_level() {
         this.clear_current_level();
+        $$.HINTS_EDITABLE = true;
+        this.game_mode = 1;
         this.resource_manager.load_succeed_level(this, init);
     }
 
