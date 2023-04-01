@@ -1,5 +1,7 @@
 import { _decorator, Component, Node, Vec3 } from 'cc';
 import { Const } from '../Const';
+import { Game_Input } from './Game_Input_Handler';
+import { Input_Manager } from './Input_Manager';
 const { ccclass, property } = _decorator;
 
 export enum Action_Button {
@@ -24,10 +26,6 @@ export class Action_Button_Group extends Component {
     @property(Node) btn_b: Node = null;
 
     #buttons: [Node, Node, Node, Node] = [null, null, null, null];
-    #btn_ended_down: boolean = false;
-    #button_idx: number = 0;
-    #processed_count: number = 0;
-    #pressed_at: number = 0;
 
     start() {
         this.#buttons[Action_Button.X] = this.btn_x;
@@ -36,23 +34,10 @@ export class Action_Button_Group extends Component {
         this.#buttons[Action_Button.B] = this.btn_b;
     }
 
-    get state(): Action_Button_Input {
-        let press_long_enough: boolean = false;
-        if (this.#btn_ended_down) {
-            const pressing_duration = new Date().getTime() - this.#pressed_at;
-            if (pressing_duration >= this.#processed_count * Const.VALID_PRESSING_INTERVAL) {
-                press_long_enough = true;
-                this.#processed_count += 1;
-            }
-        }
+    input: Game_Input = null;
+    init(i: Game_Input) {
+        this.input = i;
 
-        return {
-            available: this.#btn_ended_down && press_long_enough,
-            btn_idx: this.#button_idx,
-        };
-    }
-
-    init() {
         this.btn_x.on(Node.EventType.TOUCH_START, this.#press_x, this);
         this.btn_y.on(Node.EventType.TOUCH_START, this.#press_y, this);
         this.btn_a.on(Node.EventType.TOUCH_START, this.#press_a, this);
@@ -70,6 +55,8 @@ export class Action_Button_Group extends Component {
     }
 
     clear() {
+        this.input = null;
+
         this.btn_x.off(Node.EventType.TOUCH_START, this.#press_x, this);
         this.btn_y.off(Node.EventType.TOUCH_START, this.#press_y, this);
         this.btn_a.off(Node.EventType.TOUCH_START, this.#press_a, this);
@@ -84,36 +71,61 @@ export class Action_Button_Group extends Component {
         this.btn_y.off(Node.EventType.TOUCH_CANCEL, this.#release_y, this);
         this.btn_a.off(Node.EventType.TOUCH_CANCEL, this.#release_a, this);
         this.btn_b.off(Node.EventType.TOUCH_CANCEL, this.#release_b, this);
-
-        this.#btn_ended_down = false;
-        this.#release_x;
-        this.#release_y;
-        this.#release_a;
-        this.#release_b;
     }
 
-    #press(idx: number) {
-        this.#buttons[idx].scale = Action_Button_Group.PRESSED_SCALE;
-        this.#pressed_at = new Date().getTime();
-        this.#btn_ended_down = true;
-        this.#processed_count = 0;
-        this.#button_idx = idx;
+    #press_x() {
+        this.btn_x.scale = Const.ACTION_BUTTON_PRESSED_SCALE;
+        const input = this.input;
+        const button = Input_Manager.Action_Button_To_Game_Button.get(Action_Button.X)
+        input.press(button);
     }
 
-    #release(idx: number) {
-        this.#buttons[idx].scale = Vec3.ONE;
-        this.#btn_ended_down = false;
+    #press_y() {
+        this.btn_y.scale = Const.ACTION_BUTTON_PRESSED_SCALE;
+        const input = this.input;
+        const button = Input_Manager.Action_Button_To_Game_Button.get(Action_Button.Y)
+        input.press(button);
     }
 
-    #press_x() { this.#press(Action_Button.X); }
-    #press_y() { this.#press(Action_Button.Y); }
-    #press_a() { this.#press(Action_Button.A); }
-    #press_b() { this.#press(Action_Button.B); }
+    #press_a() {
+        this.btn_a.scale = Const.ACTION_BUTTON_PRESSED_SCALE;
+        const input = this.input;
+        const button = Input_Manager.Action_Button_To_Game_Button.get(Action_Button.A)
+        input.press(button);
+    }
 
-    #release_x() { this.#release(Action_Button.X); }
-    #release_y() { this.#release(Action_Button.Y); }
-    #release_a() { this.#release(Action_Button.A); }
-    #release_b() { this.#release(Action_Button.B); }
+    #press_b() {
+        this.btn_b.scale = Const.ACTION_BUTTON_PRESSED_SCALE;
+        const input = this.input;
+        const button = Input_Manager.Action_Button_To_Game_Button.get(Action_Button.B)
+        input.press(button);
+    }
+
+    #release_x() {
+        this.btn_x.scale = Vec3.ONE;
+        const input = this.input;
+        const button = Input_Manager.Action_Button_To_Game_Button.get(Action_Button.X)
+        input.release(button);
+    }
+
+    #release_y() {
+        this.btn_y.scale = Vec3.ONE;
+        const input = this.input;
+        const button = Input_Manager.Action_Button_To_Game_Button.get(Action_Button.Y)
+        input.release(button);
+    }
+
+    #release_a() {
+        this.btn_a.scale = Vec3.ONE;
+        const input = this.input;
+        const button = Input_Manager.Action_Button_To_Game_Button.get(Action_Button.A)
+        input.release(button);
+    }
+
+    #release_b() {
+        this.btn_b.scale = Vec3.ONE;
+        const input = this.input;
+        const button = Input_Manager.Action_Button_To_Game_Button.get(Action_Button.B)
+        input.release(button);
+    }
 }
-
-

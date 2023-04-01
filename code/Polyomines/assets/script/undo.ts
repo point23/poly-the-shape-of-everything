@@ -1,4 +1,4 @@
-import { $$, Stack, String_Builder } from "./Const";
+import { $$, get_gameplay_time, set_gameplaytime, Stack, String_Builder } from "./Const";
 import { Entity_Manager } from "./Entity_Manager";
 import {
     clone_undoable_data,
@@ -395,19 +395,4 @@ function really_do_one_undo(manager: Entity_Manager, record: Undo_Record, is_red
 function clear_current_undo_frame(undo: Undo_Handler) {
     undo.undo_records.clear();
     undo.redo_records.clear();
-}
-
-
-function get_gameplay_time(): number {
-    if ($$.FOR_EDITING) {
-        return Level_Editor.instance.get_gameplay_time();
-    }
-    return Main.instance.get_gameplay_time();
-}
-
-function set_gameplaytime(t: number) {
-    if ($$.FOR_EDITING) {
-        return Level_Editor.instance.set_gameplay_time(t);
-    }
-    return Main.instance.set_gameplay_time(t);
 }

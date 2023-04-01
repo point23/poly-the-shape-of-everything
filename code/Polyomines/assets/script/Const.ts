@@ -1,4 +1,8 @@
-import { Color, Quat, Size, Vec3 } from 'cc';
+import { Color, KeyCode, Quat, Size, Vec3 } from 'cc';
+import { Keyboard_Command_Button } from './input/Game_Input_Handler';
+import { keymap } from './input/Input_Manager';
+import { Level_Editor } from './Level_Editor';
+import { Main } from './Main';
 
 export enum Direction {
     LEFT,
@@ -95,6 +99,20 @@ export class Stack<T> {
     }
 }
 
+export function get_gameplay_time(): number {
+    if ($$.FOR_EDITING) {
+        return Level_Editor.instance.get_gameplay_time();
+    }
+    return Main.instance.get_gameplay_time();
+}
+
+export function set_gameplaytime(t: number) {
+    if ($$.FOR_EDITING) {
+        return Level_Editor.instance.set_gameplay_time(t);
+    }
+    return Main.instance.set_gameplay_time(t);
+}
+
 
 export function random(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1) + min)
@@ -148,10 +166,10 @@ export class Const {
 
     static Default_Game_Board_Size: Size = new Size(10, 10);
 
-    static SPEED_ROVER: number = 4;
-    static SLOW_ROVER: number = 8;
+    static SPEED_ROVER: number = 6;
+    static SLOW_ROVER: number = 12;
 
-    static Tick_Interval: number = (0.2 / (1 << 3));
+    static Tick_Interval: number = (0.1 / (1 << 3)); // 0.1 / 8 => 0.0125, which means 100ms-per-round in normal duration
     static Ticks_Per_Loop: number[] = [
         1 << 0,
         1 << 1,
@@ -181,17 +199,18 @@ export class Const {
     static Game_Board_Orgin_Pos = new Vec3(0, 0, 0);
 
     static JOYSTICK_DEADZONE = 0.05;
+    static VALID_PRESSING_INTERVAL = 2; // For now there're some zigzag when it's not n times tick-interval(ms)
 
-    static Input_Query_Interval = (0.1 / (1 << 3));
-    static VALID_PRESSING_INTERVAL = 600; // @fixme For now there're some zigzag when it's not n times tick-interval(ms)
-
-    static SWITCH_HERO_DURATION = 1.5;
+    static SWITCH_HERO_DURATION = 0.5;
     static HINTS_DURATION = 3;
     static HINTS_SHOW_COLOR = new Color(247, 53, 153, 139);
     static HINTS_HIDE_COLOR = new Color(0, 0, 0, 0);
 
     static Mouse_Jiggling_Interval = 0.01;
     static Double_Click_Time_Interval = 0.25;
+
+    static ACTION_BUTTON_PRESSED_SCALE = new Vec3(0.5, 0.5, 1);
+    static DPAD_PRESSED_SCALE = new Vec3(0.5, 0.5, 1);
 
     static Cover_Selected_Color = new Color(0, 255, 0, 64);
     static Cover_Invalid_Color = new Color(255, 0, 0, 64);
@@ -214,4 +233,20 @@ export class Const {
         /* DOWN */ new Quat(0, 0, 0, 1),
     ];
     static Direction_Names: string[] = ['LEFT', 'RIGHT', 'FORWARD', 'BACKWARD', 'UP', 'DOWN'];
+
+    static DEFAULT_KEYMAP: keymap = {
+        // Action Buttons
+        undo: [KeyCode.KEY_Z],
+        reset: [KeyCode.KEY_R],
+        switch: [KeyCode.TAB],
+
+        // Movement Buttons
+        backward: [KeyCode.ARROW_UP, KeyCode.KEY_W],
+        forward: [KeyCode.ARROW_DOWN, KeyCode.KEY_S],
+        left: [KeyCode.ARROW_LEFT, KeyCode.KEY_A],
+        right: [KeyCode.ARROW_RIGHT, KeyCode.KEY_D],
+
+        // Command Buttons
+        command_rotate: Keyboard_Command_Button.SHIFT,
+    }
 }

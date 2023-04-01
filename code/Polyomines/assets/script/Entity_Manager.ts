@@ -41,7 +41,7 @@ export class Entity_Manager {
     switch_hero() {
         const idx = this.active_hero_idx;
         this.active_hero_idx = (idx + 1) % this.num_heros;
-        Efx_Manager.instance.show_hide_efx(Efx_Manager.instance.efx_switch_hero, this.active_hero)
+        Efx_Manager.instance.switch_hero_efx(this.active_hero)
     }
 
     proximity_grid: Proximity_Grid = null;

@@ -1,10 +1,10 @@
 import { _decorator, Component, Node, Input, Label, tween, Color, Material, EventHandler, Button } from 'cc';
 import { Audio_Manager } from './Audio_Manager';
 import { Camera3D_Controller } from './Camera3D_Controller';
-import { $$, Const } from './Const';
+import { $$, Const, Direction } from './Const';
 import { Efx_Manager } from './Efx_Manager';
 import { Entity_Manager } from './Entity_Manager';
-import { Game_Button } from './input/Game_Input_Handler';
+import { ended_down, Game_Button } from './input/Game_Input_Handler';
 import { Input_Manager } from './input/Input_Manager';
 import { Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
@@ -93,12 +93,14 @@ export class Main extends Component {
     startup: boolean = true;
     switch_turned_on: boolean = false;
     main_loop() {
+        // @fixme About Sampling!!!
         if (!$$.IS_RUNNING) return;
 
         const transaction_manager = Transaction_Manager.instance;
         const game = this;
 
         this.process_inputs();
+
         if (!$$.DOING_UNDO && !$$.RELOADING) {
             generate_rover_moves_if_switch_turned_on(transaction_manager, this.#round);
             transaction_manager.execute();
@@ -146,45 +148,70 @@ export class Main extends Component {
                 });
             }
         }
-
-        $$.DOING_UNDO = false;
     }
 
     process_inputs() {
+        if (!$$.IS_RUNNING) return;
+
         const entity_manager = this.entity_manager;
         const transaction_manager = this.transaction_manager;
         const input = this.input_manager.game_input;
-        const current_button = input.current_button;
         const game = this;
 
-        if (!input.availble) return;
-        if (current_button == Game_Button.RESET) {
-            $$.RELOADING = true;
-            load_current_level(game);
-        } else if (current_button == Game_Button.UNDO) {
-            $$.DOING_UNDO = true;
-            do_one_undo(entity_manager);
-            Audio_Manager.instance.play(Audio_Manager.instance.rewind);
-        } else if (current_button == Game_Button.SWITCH_HERO) {
-            if (entity_manager.num_heros == 1) {
-                Audio_Manager.instance.play(Audio_Manager.instance.invalid);
-            } else {
-                entity_manager.switch_hero();
-                Audio_Manager.instance.play(Audio_Manager.instance.switch_hero);
-            }
-        } else if (input.moved || input.rotated) {
-            let direction = 0;
-            const step = input.moved ? 1 : 0;
+        if (!ended_down(input.button_states, Game_Button.UNDO))
+            $$.DOING_UNDO = false;
 
-            for (let i = Game_Button.MOVE_LEFT; i <= Game_Button.FACE_BACKWARD; i++) {
-                if (current_button == i) {
-                    direction = i % 4;
-                    break;
+        for (let i of input.pending_record) {
+            if (i == Game_Button.RESET) {
+                $$.RELOADING = true;
+                reload_current_level(game);
+            }
+
+            if (i == Game_Button.UNDO) {
+                $$.DOING_UNDO = true;
+                do_one_undo(entity_manager);
+                Audio_Manager.instance.play(Audio_Manager.instance.rewind);
+            }
+
+            if (i == Game_Button.SWITCH_HERO) {
+                if (entity_manager.num_heros == 1) {
+                    Audio_Manager.instance.play(Audio_Manager.instance.invalid);
+                } else {
+                    entity_manager.switch_hero();
+                    Audio_Manager.instance.play(Audio_Manager.instance.switch_hero);
                 }
             }
-            generate_controller_proc(transaction_manager, entity_manager, direction, step);
+
+            // Move
+            if (i == Game_Button.MOVE_BACKWARD) {
+                generate_controller_proc(transaction_manager, entity_manager, Direction.BACKWORD, 1);
+            }
+            if (i == Game_Button.MOVE_FORWARD) {
+                generate_controller_proc(transaction_manager, entity_manager, Direction.FORWARD, 1);
+            }
+            if (i == Game_Button.MOVE_LEFT) {
+                generate_controller_proc(transaction_manager, entity_manager, Direction.LEFT, 1);
+            }
+            if (i == Game_Button.MOVE_RIGHT) {
+                generate_controller_proc(transaction_manager, entity_manager, Direction.RIGHT, 1);
+            }
+
+            // Rotate
+            if (i == Game_Button.FACE_BACKWARD) {
+                generate_controller_proc(transaction_manager, entity_manager, Direction.BACKWORD, 0);
+            }
+            if (i == Game_Button.FACE_FORWARD) {
+                generate_controller_proc(transaction_manager, entity_manager, Direction.FORWARD, 0);
+            }
+            if (i == Game_Button.FACE_LEFT) {
+                generate_controller_proc(transaction_manager, entity_manager, Direction.LEFT, 0);
+            }
+            if (i == Game_Button.FACE_RIGHT) {
+                generate_controller_proc(transaction_manager, entity_manager, Direction.RIGHT, 0);
+            }
         }
-        input.reset();
+
+        input.pending_record = [];
     }
 
     click_anywhere_to_start() {
@@ -283,7 +310,7 @@ export function load_succeed_level(game: Main) {
     game.resource_manager.load_succeed_level(game, init);
 }
 
-function load_current_level(game: Main) {
+function reload_current_level(game: Main) {
     clear(game);
     game.resource_manager.load_current_level(game, init);
 }

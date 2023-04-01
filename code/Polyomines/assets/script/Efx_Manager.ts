@@ -11,16 +11,18 @@ export class Efx_Manager extends Component {
     }
     @property(Node) efx_switch_hero: Node = null;
 
-    public show_hide_efx(effect: Node, entity: Game_Entity) {
+    public switch_hero_efx(entity: Game_Entity) {
+        const effect = this.efx_switch_hero;
         effect.setWorldPosition(entity.node.getWorldPosition());
         effect.setParent(entity.node);
         effect.setPosition(Vec3.ZERO);
         effect.active = true;
+        $$.IS_RUNNING = false;
 
         this.scheduleOnce(() => {
             effect.setParent(this.node);
             effect.active = false;
-
+            $$.IS_RUNNING = true;
         }, Const.SWITCH_HERO_DURATION)
     }
 }

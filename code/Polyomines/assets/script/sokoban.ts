@@ -178,7 +178,7 @@ export class Controller_Proc_Move extends Single_Move {
         }
         //#SCOPE
 
-        if (already_exist_one(Transaction_Control_Flags.CONTROLLER_MOVE)) return false;
+        // if (already_exist_one(Transaction_Control_Flags.CONTsROLLER_MOVE)) return false;
 
         const manager = transaction.entity_manager;
         const e_target = manager.find(this.info.target_entity_id);
