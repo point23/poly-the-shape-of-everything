@@ -4,7 +4,8 @@ import { Camera3D_Controller } from './Camera3D_Controller';
 import { $$, Const, Direction } from './Const';
 import { Efx_Manager } from './Efx_Manager';
 import { Entity_Manager } from './Entity_Manager';
-import { ended_down, Game_Button } from './input/Game_Input_Handler';
+import { Gameplay_Timer } from './Gameplay_Timer';
+import { Button_State, Game_Button, Game_Input } from './input/Game_Input_Handler';
 import { Input_Manager } from './input/Input_Manager';
 import { Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
@@ -46,7 +47,6 @@ export class Main extends Component {
 
     onLoad() {
         this.settle_singletons();
-
         Resource_Manager.instance.load_levels(this, init);
     }
 
@@ -66,152 +66,7 @@ export class Main extends Component {
             this.btn_hints.clickEvents.push(e);
         }
 
-        this.schedule(this.tick, Const.Tick_Interval);
-    }
-
-    get_gameplay_time(): number {
-        return this.#round;
-    }
-
-    set_gameplay_time(t: number) {
-        this.#round = t;
-    }
-
-    get ticks_per_loop(): number {
-        return Const.Ticks_Per_Loop[this.transaction_manager.duration_idx];
-    };
-
-    #round: number = 0;
-    #tick: number = 0;
-    tick() {
-        if ((this.#tick % this.ticks_per_loop) == 0) {
-            this.main_loop();
-        }
-        this.#tick = (this.#tick + 1) % (1 << 16);
-    }
-
-    startup: boolean = true;
-    switch_turned_on: boolean = false;
-    main_loop() {
-        // @fixme About Sampling!!!
-        if (!$$.IS_RUNNING) return;
-
-        const transaction_manager = Transaction_Manager.instance;
-        const game = this;
-
-        this.process_inputs();
-
-        if (!$$.DOING_UNDO && !$$.RELOADING) {
-            generate_rover_moves_if_switch_turned_on(transaction_manager, this.#round);
-            transaction_manager.execute();
-            this.#round = (this.#round + 1) % (1 << 8);
-
-            if (!this.switch_turned_on) { // @note Make some noise when switch is turned on...
-                if (this.entity_manager.switch_turned_on) {
-                    this.switch_turned_on = true;
-                    Audio_Manager.instance.play(Audio_Manager.instance.switch_turned_on);
-                }
-            } else {
-                this.switch_turned_on = this.entity_manager.switch_turned_on;
-            }
-
-            const pending_entering = this.entity_manager.entering_other_level;
-            if (pending_entering.entering) {
-                Audio_Manager.instance.play(Audio_Manager.instance.pending_win);
-                $$.IS_RUNNING = false;
-                this.ui_manager.show_and_hide({
-                    target: game.dim,
-                    show_delay: 1,
-                    show_duration: 1,
-                    hide_delay: 0,
-                    hide_duration: 0,
-                    type: Show_Hide_Type.BLINDS,
-                    callback: () => {
-                        load_level(this, pending_entering.idx);
-                    }
-                });
-            }
-
-            if (this.entity_manager.pending_win) {
-                Audio_Manager.instance.play(Audio_Manager.instance.pending_win);
-                $$.IS_RUNNING = false;
-                this.ui_manager.show_and_hide({
-                    target: game.dim,
-                    show_delay: 1,
-                    show_duration: 1,
-                    hide_delay: 0,
-                    hide_duration: 0,
-                    type: Show_Hide_Type.BLINDS,
-                    callback: () => {
-                        load_succeed_level(game);
-                    }
-                });
-            }
-        }
-    }
-
-    process_inputs() {
-        if (!$$.IS_RUNNING) return;
-
-        const entity_manager = this.entity_manager;
-        const transaction_manager = this.transaction_manager;
-        const input = this.input_manager.game_input;
-        const game = this;
-
-        if (!ended_down(input.button_states, Game_Button.UNDO))
-            $$.DOING_UNDO = false;
-
-        for (let i of input.pending_record) {
-            if (i == Game_Button.RESET) {
-                $$.RELOADING = true;
-                reload_current_level(game);
-            }
-
-            if (i == Game_Button.UNDO) {
-                $$.DOING_UNDO = true;
-                do_one_undo(entity_manager);
-                Audio_Manager.instance.play(Audio_Manager.instance.rewind);
-            }
-
-            if (i == Game_Button.SWITCH_HERO) {
-                if (entity_manager.num_heros == 1) {
-                    Audio_Manager.instance.play(Audio_Manager.instance.invalid);
-                } else {
-                    entity_manager.switch_hero();
-                    Audio_Manager.instance.play(Audio_Manager.instance.switch_hero);
-                }
-            }
-
-            // Move
-            if (i == Game_Button.MOVE_BACKWARD) {
-                generate_controller_proc(transaction_manager, entity_manager, Direction.BACKWORD, 1);
-            }
-            if (i == Game_Button.MOVE_FORWARD) {
-                generate_controller_proc(transaction_manager, entity_manager, Direction.FORWARD, 1);
-            }
-            if (i == Game_Button.MOVE_LEFT) {
-                generate_controller_proc(transaction_manager, entity_manager, Direction.LEFT, 1);
-            }
-            if (i == Game_Button.MOVE_RIGHT) {
-                generate_controller_proc(transaction_manager, entity_manager, Direction.RIGHT, 1);
-            }
-
-            // Rotate
-            if (i == Game_Button.FACE_BACKWARD) {
-                generate_controller_proc(transaction_manager, entity_manager, Direction.BACKWORD, 0);
-            }
-            if (i == Game_Button.FACE_FORWARD) {
-                generate_controller_proc(transaction_manager, entity_manager, Direction.FORWARD, 0);
-            }
-            if (i == Game_Button.FACE_LEFT) {
-                generate_controller_proc(transaction_manager, entity_manager, Direction.LEFT, 0);
-            }
-            if (i == Game_Button.FACE_RIGHT) {
-                generate_controller_proc(transaction_manager, entity_manager, Direction.RIGHT, 0);
-            }
-        }
-
-        input.pending_record = [];
+        Gameplay_Timer.run(this, Const.DEFAULT_DURATION_IDX, main_loop);
     }
 
     click_anywhere_to_start() {
@@ -221,9 +76,9 @@ export class Main extends Component {
             hide_duration: 2,
             type: Show_Hide_Type.FADE,
             callback: () => {
-                $$.IS_RUNNING = true;
-                this.set_gameplay_time(0);
                 Input_Manager.instance.init();
+                Gameplay_Timer.reset();
+                $$.IS_RUNNING = true;
             }
         });
 
@@ -234,26 +89,36 @@ export class Main extends Component {
     }
 
     game_pause() {
-        Audio_Manager.instance.play(Audio_Manager.instance.click);
+        Audio_Manager.instance.play_sfx(Audio_Manager.instance.click);
         $$.IS_RUNNING = false;
         this.game_pause_panel.node.active = true;
     }
 
-    #showing_hints: boolean = false;
     show_and_hide_hints() {
-        Audio_Manager.instance.play(Audio_Manager.instance.click);
-        if (this.#showing_hints) return;
-        // VFX?
+        function stop_show_hints_immediately() {
+            $$.SHOWING_HINTS = false;
+            audio.end_sfx();
+            hints.forEach(it => { it.node.active = false; });
+        }
+        //#SCOPE
         const hints = this.entity_manager.hints;
+        const audio = Audio_Manager.instance;
+        const mat = this.hint_mat;
+
+        Audio_Manager.instance.play_sfx(Audio_Manager.instance.click);
+        if ($$.SHOWING_HINTS) return;
+        $$.SHOWING_HINTS = true;
+
         if (hints.length == 0) {
-            Audio_Manager.instance.play(Audio_Manager.instance.invalid);
+            audio.play_sfx(audio.invalid);
+            $$.SHOWING_HINTS = false;
             return;
         }
 
-        Audio_Manager.instance.play(Audio_Manager.instance.show_hints);
+        audio.play_sfx(audio.show_hints);
         hints.forEach(it => { it.node.active = true; });
-        const mat = this.hint_mat;
         mat.setProperty('mainColor', Const.HINTS_HIDE_COLOR);
+
         type bind_target = { alpha: number };
         let t = { alpha: 0 };
         tween(t)
@@ -267,6 +132,10 @@ export class Main extends Component {
                         const color = new Color().set(Const.HINTS_SHOW_COLOR);
                         color.a = b.alpha;
                         mat.setProperty('mainColor', color);
+
+                        if (!$$.IS_RUNNING) {
+                            stop_show_hints_immediately();
+                        }
                     }
                 })
             .delay(0)
@@ -280,6 +149,10 @@ export class Main extends Component {
                         const color = new Color().set(Const.HINTS_SHOW_COLOR);
                         color.a = b.alpha;
                         mat.setProperty('mainColor', color);
+
+                        if (!$$.IS_RUNNING) {
+                            stop_show_hints_immediately();
+                        }
                     }
                 })
             .call(() => {
@@ -290,7 +163,6 @@ export class Main extends Component {
 
     settle_singletons() {
         Main.instance = this;
-
         Input_Manager.Settle(this.input_manager);
         Resource_Manager.Settle(this.resource_manager);
         Transaction_Manager.Settle(this.transaction_manager);
@@ -316,7 +188,6 @@ function reload_current_level(game: Main) {
 }
 
 function clear(game: Main) {
-    game.switch_turned_on = false; // @hack 
     $$.IS_RUNNING = false;
     $$.RELOADING = true;
 
@@ -330,9 +201,9 @@ function clear(game: Main) {
 
 function init(game: Main) {
     function init_ui() {
-        if (game.startup) {
-            Audio_Manager.instance.loop(Audio_Manager.instance.main_theme);
-            game.startup = false;
+        if ($$.STARTUP) {
+            audio.loop(audio.main_theme);
+            $$.STARTUP = false;
 
             ui.show_and_hide({
                 target: game.dim,
@@ -399,9 +270,9 @@ function init(game: Main) {
                 hide_duration: 1,
                 type: Show_Hide_Type.BLINDS,
                 callback: () => {
-                    $$.IS_RUNNING = true;
-                    game.set_gameplay_time(0);
                     Input_Manager.instance.init();
+                    Gameplay_Timer.reset();
+                    $$.IS_RUNNING = true;
                 }
             });
         }
@@ -428,6 +299,7 @@ function init(game: Main) {
 
     const ui = game.ui_manager;
     const resource = game.resource_manager;
+    const audio = game.audio_manager;
     const transaction = game.transaction_manager;
     const config = resource.current_level_config;
 
@@ -437,6 +309,132 @@ function init(game: Main) {
 
     $$.RELOADING = false;
 
-    transaction.duration_idx = Const.Init_Duration_Idx;
+    transaction.duration_idx = Const.DEFAULT_DURATION_IDX;
     transaction.clear();
+}
+
+function main_loop() {
+    const transaction_manager = Transaction_Manager.instance;
+    const entity_manager = Entity_Manager.current;
+    const ui = UI_Manager.instance;
+    const game = Main.instance;
+    const audio = Audio_Manager.instance;
+
+    process_inputs();
+    if (!$$.DOING_UNDO && !$$.RELOADING) {
+        generate_rover_moves_if_switch_turned_on(transaction_manager);
+        transaction_manager.execute();
+
+        if (!$$.SWITCH_TURNED_ON) {
+            if (entity_manager.switch_turned_on) {
+                $$.SWITCH_TURNED_ON = true;
+                audio.play_sfx(Audio_Manager.instance.switch_turned_on);
+            }
+        } else {
+            $$.SWITCH_TURNED_ON = entity_manager.switch_turned_on;
+        }
+
+        const pending_enter = entity_manager.entering_other_level;
+        if (pending_enter.entering) {
+            audio.play_sfx(audio.pending_win);
+            $$.IS_RUNNING = false;
+            ui.show_and_hide({
+                target: game.dim,
+                show_delay: 1,
+                show_duration: 1,
+                hide_delay: 0,
+                hide_duration: 0,
+                type: Show_Hide_Type.BLINDS,
+                callback: () => {
+                    load_level(game, pending_enter.idx);
+                }
+            });
+        }
+
+        if (entity_manager.pending_win) {
+            Audio_Manager.instance.play_sfx(Audio_Manager.instance.pending_win);
+            $$.IS_RUNNING = false;
+            ui.show_and_hide({
+                target: game.dim,
+                show_delay: 1,
+                show_duration: 1,
+                hide_delay: 0,
+                hide_duration: 0,
+                type: Show_Hide_Type.BLINDS,
+                callback: () => {
+                    load_succeed_level(game);
+                }
+            });
+        }
+    }
+}
+
+function process_inputs() {
+    if (!$$.IS_RUNNING) return;
+
+    const entity_manager = Entity_Manager.current;
+    const transaction_manager = Transaction_Manager.instance;
+    const input: Game_Input = Input_Manager.instance.game_input;
+    const game = Main.instance;
+    const audio = Audio_Manager.instance;
+    const records = input.pending_records;
+
+    if (!(input.button_states.get(Game_Button.UNDO).ended_down)) {
+        $$.DOING_UNDO = false;
+    }
+
+    records.sort((a: Button_State, b: Button_State) => { return a.counter - b.counter });// @note a > b if a - b < 0,
+
+    for (let record of input.pending_records) {
+        const button = record.button;
+
+        if (button == Game_Button.RESET) {
+            $$.RELOADING = true;
+            reload_current_level(game);
+        }
+
+        if (button == Game_Button.UNDO) {
+            $$.DOING_UNDO = true;
+            do_one_undo(entity_manager);
+        }
+
+        if (button == Game_Button.SWITCH_HERO) {
+            if (entity_manager.num_heros == 1) {
+                audio.play_sfx(audio.invalid);
+            } else {
+                entity_manager.switch_hero();
+                audio.play_sfx(audio.switch_hero);
+            }
+        }
+
+        // Move
+        if (button == Game_Button.MOVE_BACKWARD) {
+            generate_controller_proc(transaction_manager, entity_manager, Direction.BACKWORD, 1);
+        }
+        if (button == Game_Button.MOVE_FORWARD) {
+            generate_controller_proc(transaction_manager, entity_manager, Direction.FORWARD, 1);
+        }
+        if (button == Game_Button.MOVE_LEFT) {
+            generate_controller_proc(transaction_manager, entity_manager, Direction.LEFT, 1);
+        }
+        if (button == Game_Button.MOVE_RIGHT) {
+            generate_controller_proc(transaction_manager, entity_manager, Direction.RIGHT, 1);
+        }
+
+        // Rotate
+        if (button == Game_Button.FACE_BACKWARD) {
+            generate_controller_proc(transaction_manager, entity_manager, Direction.BACKWORD, 0);
+        }
+        if (button == Game_Button.FACE_FORWARD) {
+            generate_controller_proc(transaction_manager, entity_manager, Direction.FORWARD, 0);
+        }
+        if (button == Game_Button.FACE_LEFT) {
+            generate_controller_proc(transaction_manager, entity_manager, Direction.LEFT, 0);
+        }
+        if (button == Game_Button.FACE_RIGHT) {
+            generate_controller_proc(transaction_manager, entity_manager, Direction.RIGHT, 0);
+        }
+    }
+
+    input.pending_records = [];
 }

@@ -47,26 +47,33 @@ export class Input_Manager extends Component {
     @property(Keyboard) keyboard: Keyboard = null;
 
     input_handlers: Game_Input_Handler[] = [];
-    game_input: Game_Input = new Game_Input();
+    game_input: Game_Input = null;
 
     onLoad() {
-        input.on(Input.EventType.KEY_DOWN, this.on_key_down, this);
-        input.on(Input.EventType.KEY_UP, this.on_key_up, this);
         this.input_handlers = [this.vcontroller, this.keyboard];
-
         // Getting keymap from user config
         this.mapping_game_buttons(Const.DEFAULT_KEYMAP);
     }
 
     init() {
+        input.on(Input.EventType.KEY_DOWN, this.on_key_down, this);
+        input.on(Input.EventType.KEY_UP, this.on_key_up, this);
+
+        this.game_input = new Game_Input();
         this.input_handlers.forEach((it) => {
-            it.init();
+            it.init(this.game_input);
+            it.active = true;
         });
     }
 
     clear() {
+        input.off(Input.EventType.KEY_DOWN, this.on_key_down, this);
+        input.off(Input.EventType.KEY_UP, this.on_key_up, this);
+
+        this.game_input = null;
         this.input_handlers.forEach((it) => {
             it.clear();
+            it.active = false;
         });
     }
 
@@ -132,11 +139,9 @@ export class Input_Manager extends Component {
     update(dt: number) {
         if (!$$.IS_RUNNING) return;
 
-        this.keyboard.update_input();
-        this.vcontroller.update_input();
-
-        // this.game_input = this.vcontroller.input;
-        this.game_input = this.keyboard.input;
+        this.input_handlers.forEach((it) => {
+            it.update_input();
+        });
     }
 }
 

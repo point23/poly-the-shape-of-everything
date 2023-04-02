@@ -1,0 +1,9 @@
+#+begin_src plantuml :file Game_Input.png
+
+title Game Input Classes
+
+class Button_State {
+
+}
+
+#+end_src

@@ -2,6 +2,7 @@ import { assetManager, Vec3 } from "cc";
 import { Audio_Manager, Random_Audio_Group } from "./Audio_Manager";
 import { String_Builder, same_position, Const, Direction } from "./Const";
 import { Entity_Manager } from "./Entity_Manager";
+import { Gameplay_Timer } from "./Gameplay_Timer";
 import { Game_Entity, calcu_entity_future_position, same_direction, Entity_Type, calcu_target_direction, collinear_direction, clacu_reversed_direction, locate_entities_in_target_direction, Polyomino_Type, orthogonal_direction, reversed_direction } from "./Game_Entity";
 import { Transaction_Control_Flags, Transaction_Manager } from "./Transaction_Manager";
 
@@ -178,7 +179,10 @@ export class Controller_Proc_Move extends Single_Move {
         }
         //#SCOPE
 
-        // if (already_exist_one(Transaction_Control_Flags.CONTsROLLER_MOVE)) return false;
+        // @note DO NOT COMMENT THIS !!!
+        //  Yes we do not want that *blocked* feeling, but things went wrong when we allow multiply controller_proc_move
+        //  in a single transaction.
+        if (already_exist_one(Transaction_Control_Flags.CONTROLLER_MOVE)) return false;
 
         const manager = transaction.entity_manager;
         const e_target = manager.find(this.info.target_entity_id);
@@ -217,7 +221,7 @@ export class Controller_Proc_Move extends Single_Move {
         const entity = manager.find(this.target_entity_id);
 
         if (is_dirty(this, Move_Flags.MOVED)) {
-            Audio_Manager.instance.play(Audio_Manager.instance.footstep);
+            Audio_Manager.instance.play_sfx(Audio_Manager.instance.footstep);
         }
 
         may_move_entity(this, manager, entity);
@@ -232,7 +236,7 @@ export class Controller_Proc_Move extends Single_Move {
                 if (s.entity_type == Entity_Type.CHECKPOINT) possible_win = true;
             }
             if (possible_win) {
-                Audio_Manager.instance.play(Audio_Manager.instance.possible_win);
+                Audio_Manager.instance.play_sfx(Audio_Manager.instance.possible_win);
             }
         }
     }
@@ -691,8 +695,10 @@ export function sanity_check(transaction: Move_Transaction, move: Single_Move) {
     return true;
 }
 
-export function generate_rover_moves_if_switch_turned_on(transaction_manager: Transaction_Manager, gameplay_time: number) {
+export function generate_rover_moves_if_switch_turned_on(transaction_manager: Transaction_Manager) {
     const entity_manager = transaction_manager.entity_manager;
+    const gameplay_time = Gameplay_Timer.get_gameplay_time();
+
     if (entity_manager.pending_win) return;
     if (!entity_manager.switch_turned_on) return;
 
@@ -717,7 +723,7 @@ export function generate_rover_moves_if_switch_turned_on(transaction_manager: Tr
             }
         }
     }
-    if (at_least_one) Audio_Manager.instance.play(Audio_Manager.instance.rover_move);
+    if (at_least_one) Audio_Manager.instance.play_sfx(Audio_Manager.instance.rover_move);
 }
 
 export function generate_controller_proc(transaction_manager: Transaction_Manager, entity_manager: Entity_Manager, direction: Direction, step: number = 1) {

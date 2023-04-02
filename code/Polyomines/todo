@@ -111,12 +111,10 @@ AUDIO STUFF===
 - ISSUE#012: Undo -> Rewind
     When user keep pressing undo button, the gamecode should keep rewind, instead of undo once and start to generate
     rover moves immediatly... 
-+ ISSUE#011: ROVER NEEDS STATE
+- ISSUE#011: ROVER NEEDS STATE
     After redo action, rover will recalculate it's next direction depends on track and its orientation
     Rover move is generated relies on this val [Game Round Id % Rover Speed], but since we didn't rewind the Round Id,
         it introduced a lot of inconsistencies. We can't reenact some behavior after undo, which is horrifying.
-+ Undo checkpoints:
-    we should not count in those automatically generated moves
 + Look through occluding objects if there's a hero or special items like switch or gem
     - 2 shaders, one with ZTEST GEqual
 + Domino control

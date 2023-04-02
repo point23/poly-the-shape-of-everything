@@ -65,11 +65,7 @@ export class Audio_Manager extends Component {
         }
         item.last_idx = i;
         this.clip_groups.set(group, item);
-        this.play(clips[i]);
-    }
-
-    play(clip: AudioClip) {
-        this.secondary_audio.playOneShot(clip);
+        this.play_sfx(clips[i]);
     }
 
     loop(clip: AudioClip) {
@@ -79,5 +75,13 @@ export class Audio_Manager extends Component {
 
     end_loop() {
         this.primary_audio.stop();
+    }
+
+    play_sfx(clip: AudioClip) {
+        this.secondary_audio.playOneShot(clip);
+    }
+
+    end_sfx() {
+        this.secondary_audio.stop();
     }
 }

@@ -14,7 +14,7 @@ export class Game_Pause_Panel extends Component {
     start() {
         { // Resume Game
             this.btn_resume.node.on(Button.EventType.CLICK, () => {
-                Audio_Manager.instance.play(Audio_Manager.instance.click);
+                Audio_Manager.instance.play_sfx(Audio_Manager.instance.click);
                 $$.IS_RUNNING = true;
                 this.node.active = false;
             }, this);
@@ -22,7 +22,7 @@ export class Game_Pause_Panel extends Component {
 
         { // Exit Current Room
             this.btn_exit.node.on(Button.EventType.CLICK, () => {
-                Audio_Manager.instance.play(Audio_Manager.instance.click);
+                Audio_Manager.instance.play_sfx(Audio_Manager.instance.click);
                 this.node.active = false;
                 load_succeed_level(Main.instance);
             }, this);

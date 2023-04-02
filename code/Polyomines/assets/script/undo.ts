@@ -1,5 +1,6 @@
-import { $$, get_gameplay_time, set_gameplaytime, Stack, String_Builder } from "./Const";
+import { $$, Stack, String_Builder } from "./Const";
 import { Entity_Manager } from "./Entity_Manager";
+import { Gameplay_Timer } from "./Gameplay_Timer";
 import {
     clone_undoable_data,
     copy_undoable_data,
@@ -10,7 +11,6 @@ import {
     Undoable_Entity_Data
 } from "./Game_Entity";
 import { Level_Editor } from "./Level_Editor";
-import { Main } from "./Main";
 import { debug_print_quad_tree } from "./Proximity_Grid";
 
 export class Undo_Handler {
@@ -72,7 +72,7 @@ export function undo_end_frame(manager: Entity_Manager) {
     undo.redo_records.clear();
 
     const record = new Undo_Record();
-    record.gameplay_time = get_gameplay_time();
+    record.gameplay_time = Gameplay_Timer.get_gameplay_time();
     // record.checkpoint = $.take($.S_next_undo_record_is_checkpoint);
 
     // Count changes
@@ -107,7 +107,7 @@ export function undo_end_frame(manager: Entity_Manager) {
     if ($$.FOR_EDITING)
         Level_Editor.instance.show_undo_changes(num_changes);
 
-    record.transaction = builder.to_string(' '); // @hack
+    record.transaction = builder.to_string(' ');
     undo.undo_records.push(record);
 }
 
@@ -116,8 +116,7 @@ export function do_one_undo(manager: Entity_Manager) {
     if (undo.undo_records.empty()) return;
 
     const record = undo.undo_records.pop();
-    set_gameplaytime(record.gameplay_time);
-
+    Gameplay_Timer.set_gameplay_time(record.gameplay_time);
     really_do_one_undo(manager, record, false);
     undo.redo_records.push(record);
 
@@ -129,7 +128,7 @@ export function do_one_redo(manager: Entity_Manager) {
     if (undo.redo_records.empty()) return;
 
     const record = undo.redo_records.pop();
-    set_gameplaytime(record.gameplay_time);
+    Gameplay_Timer.set_gameplay_time(record.gameplay_time);
 
     really_do_one_undo(manager, record, true);
     undo.undo_records.push(record);

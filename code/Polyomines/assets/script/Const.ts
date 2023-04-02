@@ -1,8 +1,6 @@
 import { Color, KeyCode, Quat, Size, Vec3 } from 'cc';
 import { Keyboard_Command_Button } from './input/Game_Input_Handler';
 import { keymap } from './input/Input_Manager';
-import { Level_Editor } from './Level_Editor';
-import { Main } from './Main';
 
 export enum Direction {
     LEFT,
@@ -15,18 +13,27 @@ export enum Direction {
 
 /** Global Flags */
 export class $$ {
-    static IS_RUNNING: boolean;
-    static DOING_UNDO: boolean;
-    static RELOADING: boolean;
     static FOR_EDITING: boolean;
     static HINTS_EDITABLE: boolean;
 
+    static IS_RUNNING: boolean;
+    static DOING_UNDO: boolean;
+    static RELOADING: boolean;
+    static STARTUP: boolean;
+
+    static SWITCH_TURNED_ON: boolean;
+    static SHOWING_HINTS: boolean;
+
     static {
+        $$.STARTUP = true;
+
         $$.RELOADING = false;
         $$.IS_RUNNING = false;
         $$.DOING_UNDO = false;
         $$.FOR_EDITING = false;
         $$.HINTS_EDITABLE = false;
+        $$.SWITCH_TURNED_ON = false;
+        $$.SHOWING_HINTS = false;
     }
 }
 
@@ -99,25 +106,9 @@ export class Stack<T> {
     }
 }
 
-export function get_gameplay_time(): number {
-    if ($$.FOR_EDITING) {
-        return Level_Editor.instance.get_gameplay_time();
-    }
-    return Main.instance.get_gameplay_time();
-}
-
-export function set_gameplaytime(t: number) {
-    if ($$.FOR_EDITING) {
-        return Level_Editor.instance.set_gameplay_time(t);
-    }
-    return Main.instance.set_gameplay_time(t);
-}
-
-
 export function random(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1) + min)
 }
-
 
 export function compare_all_slots(a: any, b: any): boolean {
     // @tested
@@ -181,7 +172,7 @@ export class Const {
         1 << 7,
     ]
 
-    static Init_Duration_Idx: number = 3;
+    static DEFAULT_DURATION_IDX: number = 3;
     static Max_Duration_Idx: number = 7;
     static Duration: string[] = [
         '8',
@@ -199,7 +190,7 @@ export class Const {
     static Game_Board_Orgin_Pos = new Vec3(0, 0, 0);
 
     static JOYSTICK_DEADZONE = 0.05;
-    static VALID_PRESSING_INTERVAL = 2; // For now there're some zigzag when it's not n times tick-interval(ms)
+    static VALID_PRESSING_INTERVAL = 3; // For now there're some zigzag when it's not n times tick-interval(ms)
 
     static SWITCH_HERO_DURATION = 0.5;
     static HINTS_DURATION = 3;

@@ -1,0 +1,48 @@
+#+begin_src plantuml :file Game_Input.png
+
+title Game Input Classes
+
+class button_state {
+    ended_down: boolean;
+    counter: number;
+    pressed_at: number;
+}
+
+class Game_Input {
+    pending_records: Game_Button[] = [];
+    button_states: Map<number, button_state>
+    press(b: Game_Button)
+    increase_count(b: Game_Button)
+    release(b: Game_Button)
+}
+
+interface Game_Input_Handler {
+    init(i: Game_Input)
+    clear()
+    update_input()
+    get input(): Game_Input
+    get name(): string
+}
+
+class Virtual_Controller extends Game_Input_Handler 
+class Keyboard extends Game_Input_Handler
+
+enum Game_Button
+enum Dpad_Button
+enum Action_Button
+enum Keyboard_Command_Button
+
+Virtual_Controller --> Game_Button
+Virtual_Controller --> Dpad_Button
+Virtual_Controller --> Action_Button
+Virtual_Controller o-> Game_Input
+
+Keyboard --> Game_Button
+Keyboard --> Keyboard_Command_Button
+Keyboard o-> Game_Input
+
+Game_Input_Handler o-> Game_Input
+
+Game_Input --> button_state
+Game_Input --> Game_Button
+#+end_src

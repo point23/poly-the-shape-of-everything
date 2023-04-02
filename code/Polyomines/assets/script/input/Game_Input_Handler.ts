@@ -1,27 +1,13 @@
 import { _decorator, Component } from 'cc';
-import { $$, Const, get_gameplay_time } from '../Const';
-const { ccclass, property } = _decorator;
+import { $$, clone_all_slots, Const } from '../Const';
+import { Gameplay_Timer } from '../Gameplay_Timer';
+const { ccclass } = _decorator;
 
-export type button_state = {
-    ended_down: boolean,
-    counter: number,
-    pressed_at: number,
-}
-
-export function ended_down(map: Map<number, button_state>, idx: number): boolean {
-    return map.get(idx).ended_down;
-}
-
-export function pressed_long_enough(map: Map<number, button_state>, idx: number): boolean {
-    if (ended_down(map, idx)) {
-        const state = map.get(idx);
-        const t = state.counter;
-        const duration = get_gameplay_time() - state.pressed_at;
-        if (duration >= t * Const.VALID_PRESSING_INTERVAL) {
-            return true;
-        }
-    }
-    return false;
+export class Button_State {
+    button: Game_Button;
+    ended_down: boolean;    // Whether this button is currently ended down when current logic frame is processed
+    counter: number;        // How many times this button state has been processed
+    pressed_at: number;     // Gameplay time (round idx)
 }
 
 export enum Game_Button {
@@ -72,62 +58,90 @@ export enum Stick {
 }
 
 export class Game_Input {
-    availble: boolean = false;
-    moved: boolean = false;
-    rotated: boolean = false;
-    current_button: Game_Button = 0;
-
-    pending_record: Game_Button[] = [];
-    button_states: Map<number, button_state> = new Map();
+    pending_records: Button_State[] = [];
+    button_states: Map<number, Button_State> = new Map();
 
     constructor() {
-        for (let i = Game_Button.MOVE_LEFT; i <= Game_Button.SWITCH_HERO; i++) {
-            this.button_states.set(i, {
-                ended_down: false,
-                counter: 0,
-                pressed_at: 0,
-            });
+        for (let button = Game_Button.NULL; button <= Game_Button.SWITCH_HERO; button++) {
+            const state = new Button_State();
+            state.button = button;
+            state.ended_down = false;
+            state.counter = 0;
+            state.pressed_at = 0;
+
+            this.button_states.set(button, state);
         }
     }
 
     reset() {
-        this.availble = false;
-        this.moved = false;
-        this.rotated = false;
+        for (let key of this.button_states.keys()) {
+            this.release(key);
+        }
     }
 
     press(b: Game_Button) {
-        this.button_states.set(b, {
-            ended_down: true,
-            counter: 0,
-            pressed_at: get_gameplay_time(),
-        })
-    }
+        if (!$$.IS_RUNNING) return;
 
-    increase_count(b: Game_Button) {
         const state = this.button_states.get(b);
-        this.button_states.set(b, {
-            ended_down: true,
-            counter: state.counter + 1,
-            pressed_at: state.pressed_at,
-        })
+
+        state.ended_down = true;
+        state.counter = 1;
+        state.pressed_at = Gameplay_Timer.now();
+
+        this.pending_records.push(state);
     }
 
     release(b: Game_Button) {
         const state = this.button_states.get(b);
-        this.button_states.set(b, {
-            ended_down: false,
-            counter: 0,
-            pressed_at: state.pressed_at,
-        })
+        state.ended_down = false;
+        state.counter = 0;
+        state.pressed_at = -1;
+    }
+
+    pressed_long_enough(button: number): boolean {
+        const state = this.button_states.get(button);
+
+        if (state.ended_down) {
+            const t = state.counter;
+            const duration = Gameplay_Timer.calcu_delta_time(state.pressed_at, Gameplay_Timer.now());
+            if (duration >= t * Const.VALID_PRESSING_INTERVAL) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
 
 @ccclass('Game_Input_Handler')
 export class Game_Input_Handler extends Component {
-    init() { }
-    clear() { }
-    update_input() { }
-    get input(): Game_Input { return null; }
+    input: Game_Input = null;
+
+    get active(): boolean {
+        return this.node.active;
+    }
+    set active(active: boolean) {
+        this.node.active = active;
+    }
+
     get name(): string { return ""; }
+
+    init(i: Game_Input) { }
+
+    clear() { }
+
+    update_input() {
+        if (!this.active) return;
+        const input = this.input;
+        for (let button of input.button_states.keys()) {
+            if (input.pressed_long_enough(button)) {
+                const state = input.button_states.get(button)
+                const clone = new Button_State();
+                clone_all_slots(state, clone);
+
+                state.counter += 1;
+                input.pending_records.push(clone);
+            }
+        }
+    }
 }

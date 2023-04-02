@@ -189,7 +189,7 @@ function update_ui(editor: Level_Editor) {
     }
     function update_duration() {
         const duration = editor.durations;
-        editor.transaction_manager.duration_idx = Const.Init_Duration_Idx;
+        editor.transaction_manager.duration_idx = Const.DEFAULT_DURATION_IDX;
         duration.label_current.string = Const.Duration[editor.transaction_manager.duration_idx];
     }
     //#SCOPE
