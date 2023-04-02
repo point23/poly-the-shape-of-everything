@@ -341,7 +341,7 @@ class Pushed_Move extends Single_Move {
         const entity = manager.find(this.target_entity_id);
 
         if (is_dirty(this, Move_Flags.MOVED)) {
-            Audio_Manager.instance.random_play_one(Random_Audio_Group.PUSH);
+            Audio_Manager.instance.random_play_one_sfx(Random_Audio_Group.PUSH);
         }
 
         manager.move_entity(entity, this.end_position);
@@ -413,7 +413,7 @@ class Falling_Move extends Single_Move {
         const entity = manager.find(this.target_entity_id);
 
         if (is_dirty(this, Move_Flags.MOVED)) {
-            Audio_Manager.instance.random_play_one(Random_Audio_Group.DROP);
+            Audio_Manager.instance.random_play_one_sfx(Random_Audio_Group.DROP);
         }
 
         may_move_entity(this, manager, entity);

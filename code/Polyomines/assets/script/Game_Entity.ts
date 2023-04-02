@@ -226,6 +226,7 @@ export class Game_Entity extends Component {
     // }
 
     logically_rotate_to(dir: Direction) {
+        this.undoable.orientation = dir;
         this.indicator.rotate_to(dir);
     }
 }

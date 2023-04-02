@@ -29,7 +29,8 @@ export class Undo_Handler {
 
 export class Undo_Record {
     // checkpoint: boolean = false;
-    gameplay_time: number;
+    gameplay_time: number = 0;
+    active_hero_idx: number = 0;
     transaction: string = '';
 }
 
@@ -72,6 +73,7 @@ export function undo_end_frame(manager: Entity_Manager) {
     undo.redo_records.clear();
 
     const record = new Undo_Record();
+    record.active_hero_idx = manager.active_hero_idx;
     record.gameplay_time = Gameplay_Timer.get_gameplay_time();
     // record.checkpoint = $.take($.S_next_undo_record_is_checkpoint);
 
@@ -117,6 +119,8 @@ export function do_one_undo(manager: Entity_Manager) {
 
     const record = undo.undo_records.pop();
     Gameplay_Timer.set_gameplay_time(record.gameplay_time);
+    manager.switch_hero(record.active_hero_idx);
+
     really_do_one_undo(manager, record, false);
     undo.redo_records.push(record);
 
@@ -129,6 +133,7 @@ export function do_one_redo(manager: Entity_Manager) {
 
     const record = undo.redo_records.pop();
     Gameplay_Timer.set_gameplay_time(record.gameplay_time);
+    manager.switch_hero(record.active_hero_idx);
 
     really_do_one_undo(manager, record, true);
     undo.undo_records.push(record);
@@ -318,7 +323,10 @@ function really_do_one_undo(manager: Entity_Manager, record: Undo_Record, is_red
 
             update_entity_edit_cover(e_dest);
 
+            // @incomplete Separate hero & avatar?
+            const o = e_dest.orientation;
             manager.rotate_entity(e_dest, e_dest.rotation);
+            e_dest.logically_rotate_to(o);
             manager.move_entity(e_dest, e_dest.position);
         }
     }
@@ -342,7 +350,10 @@ function really_do_one_undo(manager: Entity_Manager, record: Undo_Record, is_red
 
                     update_entity_edit_cover(e_dest);
 
+                    // @incomplete Separate hero & avatar?
+                    const o = e_dest.orientation;
                     manager.rotate_entity(e_dest, e_dest.rotation);
+                    e_dest.logically_rotate_to(o);
                     manager.move_entity(e_dest, e_dest.position);
                 }
             } else {

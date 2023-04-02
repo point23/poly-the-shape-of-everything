@@ -50,7 +50,8 @@ export class Entity_Edit_Mode extends Game_Mode {
 
     is_jiggling: boolean = false;
     is_shift_down: boolean = false;
-    copied_entities: Serializable_Entity_Data[] = [];
+
+    copied_entities: Serializable_Entity_Data[] = []; // @note We may take them across levels...
 
     on_enter() {
         Level_Editor.instance.info("Entity Edit");
@@ -58,6 +59,7 @@ export class Entity_Edit_Mode extends Game_Mode {
     }
 
     on_exit() {
+        this.save_level();
         this.deselect_all();
     }
 

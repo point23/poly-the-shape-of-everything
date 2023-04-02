@@ -55,7 +55,7 @@ export class Audio_Manager extends Component {
         });
     }
 
-    random_play_one(group: Random_Audio_Group) {
+    random_play_one_sfx(group: Random_Audio_Group) {
         const item = this.clip_groups.get(group);
         const last_idx = item.last_idx;
         const clips = item.clips;

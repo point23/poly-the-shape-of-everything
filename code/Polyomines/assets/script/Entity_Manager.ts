@@ -38,10 +38,19 @@ export class Entity_Manager {
     active_hero_idx: number = 0;
     heros: Game_Entity[] = [];
     get num_heros(): number { return this.heros.length; }
-    switch_hero() {
-        const idx = this.active_hero_idx;
-        this.active_hero_idx = (idx + 1) % this.num_heros;
-        Efx_Manager.instance.switch_hero_efx(this.active_hero)
+    switch_hero(i: number = -1) {
+        let switched: boolean = true;
+        let idx = this.active_hero_idx;
+        if (i != -1) {
+            switched = i != idx;
+            idx = i;
+        } else {
+            idx = (idx + 1) % this.num_heros;
+        }
+
+        this.active_hero_idx = idx;
+        if (switched)
+            Efx_Manager.instance.switch_hero_efx(this.active_hero)
     }
 
     proximity_grid: Proximity_Grid = null;

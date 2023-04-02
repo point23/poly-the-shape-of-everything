@@ -2,7 +2,8 @@
 
 title Game Input Classes
 
-class button_state {
+class Button_State {
+    button: Game_Button
     ended_down: boolean;
     counter: number;
     pressed_at: number;
@@ -17,11 +18,11 @@ class Game_Input {
 }
 
 interface Game_Input_Handler {
+    input: Game_Input
     init(i: Game_Input)
     clear()
     update_input()
-    get input(): Game_Input
-    get name(): string
+    name(): string
 }
 
 class Virtual_Controller extends Game_Input_Handler 

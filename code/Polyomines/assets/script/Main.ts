@@ -13,7 +13,7 @@ import { generate_controller_proc, generate_rover_moves_if_switch_turned_on } fr
 import { Transaction_Manager } from './Transaction_Manager';
 import { Game_Pause_Panel } from './ui/Game_Pause_Panel';
 import { Show_Hide_Type, UI_Manager } from './UI_Manager';
-import { do_one_undo, Undo_Handler } from './undo';
+import { do_one_undo, undo_end_frame, Undo_Handler } from './undo';
 const { ccclass, property } = _decorator;
 
 @ccclass('Main')
