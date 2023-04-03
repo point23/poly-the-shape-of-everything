@@ -8,7 +8,7 @@ const { ccclass, property } = _decorator;
 export class Game_Pause_Panel extends Component {
     @property(Button) btn_resume: Button = null;
     @property(Button) btn_exit: Button = null;
-    @property(Button) btn_options: Button = null;
+    @property(Button) btn_settings: Button = null;
     @property(Button) btn_quit: Button = null;
 
     start() {
@@ -29,5 +29,3 @@ export class Game_Pause_Panel extends Component {
         }
     }
 }
-
-

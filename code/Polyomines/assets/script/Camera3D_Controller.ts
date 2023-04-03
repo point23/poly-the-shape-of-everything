@@ -35,4 +35,20 @@ export class Camera3D_Controller extends Component {
             this.current_rotation, this.last_rotation, new Vec3(0, 0, 1), radius);
         this.camera_base.setRotation(this.current_rotation);
     }
+
+    public rotate_y(theta: number) {
+        let radius = theta / 180 * Math.PI;
+        this.last_rotation = this.camera_base.getRotation();
+        this.current_rotation = Quat.rotateAround(
+            this.current_rotation, this.last_rotation, new Vec3(0, 1, 0), radius);
+        this.camera_base.setRotation(this.current_rotation);
+    }
+
+    public rotate_x(theta: number) {
+        let radius = theta / 180 * Math.PI;
+        this.last_rotation = this.camera_base.getRotation();
+        this.current_rotation = Quat.rotateAround(
+            this.current_rotation, this.last_rotation, new Vec3(1, 0, 0), radius);
+        this.camera_base.setRotation(this.current_rotation);
+    }
 }

@@ -1,7 +1,14 @@
 import { _decorator, Component, Node, Vec3 } from 'cc';
-import { Dpad_Button, Game_Input } from './Game_Input_Handler';
+import { Game_Input } from './Game_Input_Handler';
 import { Input_Manager } from './Input_Manager';
 const { ccclass, property } = _decorator;
+
+export enum Dpad_Button {
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT,
+}
 
 @ccclass('Dpad')
 export class Dpad extends Component {

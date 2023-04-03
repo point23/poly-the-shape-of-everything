@@ -41,7 +41,7 @@ const { ccclass, property } = _decorator;
 @ccclass('Entity_Edit_Mode')
 export class Entity_Edit_Mode extends Game_Mode {
     @property(Camera) readonly camera!: Camera;
-    @property(Navigator) entities_navigator: Navigator = null;
+    // @property(Navigator) entities_navigator: Navigator = null;
 
     ray: geometry.Ray = new geometry.Ray();
     get entity_manager(): Entity_Manager {

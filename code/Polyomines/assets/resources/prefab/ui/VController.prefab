@@ -584,8 +584,6 @@
     "joystick": null,
     "dpad": null,
     "action_buttons": null,
-    "btn_settings": null,
-    "btn_hints": null,
     "_id": ""
   },
   {
@@ -644,7 +642,7 @@
   {
     "__type__": "cc.TargetInfo",
     "localID": [
-      "38cNoQ5sxMRJMizNb7QPXI"
+      "1eA3xCd85FYbGtEx48pueV"
     ]
   },
   {

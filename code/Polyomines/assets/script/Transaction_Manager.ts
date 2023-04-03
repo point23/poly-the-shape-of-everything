@@ -24,18 +24,22 @@ export class Transaction_Manager extends Component {
     }
 
     speed_up() {
-        this.duration_idx = math.clamp(this.duration_idx - 1, 0, Const.Max_Duration_Idx);
+        const old_i = $$.DURATION_IDX;
+        const new_i = math.clamp(old_i - 1, 0, Const.Max_Duration_Idx);
+        $$.DURATION_IDX = new_i;
+
         if ($$.FOR_EDITING)
-            Level_Editor.instance.durations.label_current.string = Const.Duration[this.duration_idx];
+            Level_Editor.instance.durations.label_current.string = Const.Duration[new_i];
     }
 
     slow_down() {
-        this.duration_idx = math.clamp(this.duration_idx + 1, 0, Const.Max_Duration_Idx);
-        if ($$.FOR_EDITING)
-            Level_Editor.instance.durations.label_current.string = Const.Duration[this.duration_idx];
-    }
+        const old_i = $$.DURATION_IDX;
+        const new_i = math.clamp(old_i + 1, 0, Const.Max_Duration_Idx);
+        $$.DURATION_IDX = new_i;
 
-    duration_idx: number = 0;
+        if ($$.FOR_EDITING)
+            Level_Editor.instance.durations.label_current.string = Const.Duration[new_i];
+    }
 
     control_flags = 0;
 

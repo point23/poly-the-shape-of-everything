@@ -50,7 +50,7 @@ export class Test_Run_Mode extends Game_Mode {
         this.input_handlers.push(this.vcontroller);
 
         $$.IS_RUNNING = false;
-        Gameplay_Timer.run(this, Const.DEFAULT_DURATION_IDX, main_loop);
+        Gameplay_Timer.run(this, main_loop);
     }
 
     on_enter() {

@@ -13,7 +13,7 @@ import { generate_controller_proc, generate_rover_moves_if_switch_turned_on } fr
 import { Transaction_Manager } from './Transaction_Manager';
 import { Game_Pause_Panel } from './ui/Game_Pause_Panel';
 import { Show_Hide_Type, UI_Manager } from './UI_Manager';
-import { do_one_undo, undo_end_frame, Undo_Handler } from './undo';
+import { do_one_undo, Undo_Handler } from './undo';
 const { ccclass, property } = _decorator;
 
 @ccclass('Main')
@@ -38,15 +38,15 @@ export class Main extends Component {
     @property(Node) dim: Node = null;
     @property(Button) dummy_panel: Button = null;
 
-    @property(Button) btn_settings: Button = null;
+    @property(Button) btn_options: Button = null;
     @property(Button) btn_hints: Button = null;
-
     @property(Game_Pause_Panel) game_pause_panel = null;
 
     @property(Material) hint_mat: Material = null;
 
     onLoad() {
         this.settle_singletons();
+        $$.DURATION_IDX = Const.DEFAULT_DURATION_IDX;
         Resource_Manager.instance.load_levels(this, init);
     }
 
@@ -56,7 +56,7 @@ export class Main extends Component {
             e.target = this.node;
             e.component = "Main";
             e.handler = "game_pause";
-            this.btn_settings.clickEvents.push(e);
+            this.btn_options.clickEvents.push(e);
         }
         { // Hints
             const e = new EventHandler();
@@ -66,7 +66,7 @@ export class Main extends Component {
             this.btn_hints.clickEvents.push(e);
         }
 
-        Gameplay_Timer.run(this, Const.DEFAULT_DURATION_IDX, main_loop);
+        Gameplay_Timer.run(this, main_loop);
     }
 
     click_anywhere_to_start() {
@@ -309,7 +309,7 @@ function init(game: Main) {
 
     $$.RELOADING = false;
 
-    transaction.duration_idx = Const.DEFAULT_DURATION_IDX;
+    $$.DURATION_IDX = Const.DEFAULT_DURATION_IDX;
     transaction.clear();
 }
 

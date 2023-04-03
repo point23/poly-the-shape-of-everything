@@ -269,7 +269,10 @@
       "__uuid__": "577d3401-b2d9-4ef5-9d41-7033c0d3bf14",
       "__expectedType__": "cc.AudioClip"
     },
-    "invalid": null,
+    "invalid": {
+      "__uuid__": "b57a8391-6e38-4968-b7e6-34897298f5b7",
+      "__expectedType__": "cc.AudioClip"
+    },
     "click": {
       "__uuid__": "afcfd341-ca5b-48c7-9279-48916a5ad08e",
       "__expectedType__": "cc.AudioClip"

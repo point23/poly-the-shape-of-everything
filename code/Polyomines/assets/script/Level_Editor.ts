@@ -74,23 +74,13 @@ export class Level_Editor extends Component {
         this.settle_singletons();
         init_ui(this);
         Resource_Manager.instance.load_levels(this, init);
+        $$.DURATION_IDX = Const.DEFAULT_DURATION_IDX;
     }
 
     onDestroy() {
         clear_ui(this);
         this.contextual_manager.dispose();
         this.clear_current_level();
-    }
-
-
-    get_gameplay_time(): number {
-        // @fixme That's weird...
-        return this.contextual_manager.game_modes[0].getComponent(Test_Run_Mode).round;
-    }
-
-    set_gameplay_time(t: number) {
-        // @fixme That's weird...
-        this.contextual_manager.game_modes[0].getComponent(Test_Run_Mode).round = t;
     }
 
     game_mode: number = 1;
@@ -189,8 +179,8 @@ function update_ui(editor: Level_Editor) {
     }
     function update_duration() {
         const duration = editor.durations;
-        editor.transaction_manager.duration_idx = Const.DEFAULT_DURATION_IDX;
-        duration.label_current.string = Const.Duration[editor.transaction_manager.duration_idx];
+        $$.DURATION_IDX = Const.DEFAULT_DURATION_IDX;
+        duration.label_current.string = Const.Duration[$$.DURATION_IDX];
     }
     //#SCOPE
 

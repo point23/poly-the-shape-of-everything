@@ -33,10 +33,9 @@ export class Gameplay_Timer {
         return end - start;
     }
 
-    static run(caller: Component, duration: number, loop: () => void) {
+    static run(caller: Component, loop: () => void) {
         caller.schedule(() => {
-            const ticks_per_round = Const.Ticks_Per_Loop[duration];
-
+            const ticks_per_round = Const.Ticks_Per_Loop[$$.DURATION_IDX];
             if ((Gameplay_Timer.tick % ticks_per_round) == 0) {
                 if ($$.IS_RUNNING) {
                     loop();

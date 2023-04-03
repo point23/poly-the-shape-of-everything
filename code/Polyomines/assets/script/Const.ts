@@ -16,7 +16,7 @@ export class $$ {
     static FOR_EDITING: boolean;
     static HINTS_EDITABLE: boolean;
 
-    static IS_RUNNING: boolean;
+    static IS_RUNNING: boolean = false;
     static DOING_UNDO: boolean;
     static RELOADING: boolean;
     static STARTUP: boolean;
@@ -24,6 +24,9 @@ export class $$ {
     static SWITCH_TURNED_ON: boolean;
     static SHOWING_HINTS: boolean;
 
+    static DURATION_IDX: number = 0;
+
+    // @todo Remove it...
     static {
         $$.STARTUP = true;
 

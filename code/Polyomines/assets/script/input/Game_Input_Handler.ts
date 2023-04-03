@@ -29,13 +29,6 @@ export enum Game_Button {
     SWITCH_HERO,
 }
 
-export enum Dpad_Button {
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT,
-}
-
 export enum Action_Button {
     X,
     Y,

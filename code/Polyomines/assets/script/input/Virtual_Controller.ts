@@ -28,7 +28,7 @@ export class Virtual_Controller extends Game_Input_Handler {
         this.input = null;
 
         this.node.active = false;
-        this.joystick.clear();
+        // this.joystick.clear();
         this.dpad.clear();
         this.action_buttons.clear();
     }

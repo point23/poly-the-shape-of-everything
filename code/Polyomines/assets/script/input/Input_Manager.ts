@@ -1,7 +1,8 @@
-import { _decorator, Component, Node, EventKeyboard, input, Input, KeyCode } from 'cc';
+import { _decorator, Component, EventKeyboard, input, Input, KeyCode } from 'cc';
 import { $$, Const } from '../Const';
 import { Action_Button } from './Action_Button_Group';
-import { Dpad_Button, Game_Button, Game_Input, Game_Input_Handler, Keyboard_Command_Button } from './Game_Input_Handler';
+import { Dpad_Button } from './Dpad';
+import { Game_Button, Game_Input, Game_Input_Handler, Keyboard_Command_Button } from './Game_Input_Handler';
 import { Keyboard } from './Keyboard';
 import { Virtual_Controller } from './Virtual_Controller';
 const { ccclass, property } = _decorator;
