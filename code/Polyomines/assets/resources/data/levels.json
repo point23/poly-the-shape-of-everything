@@ -30,6 +30,11 @@
             "id": "level#006",
             "name": "don't be afraid",
             "successor": "level#004"
+        },
+        {
+            "id": "level#007",
+            "name": "entities",
+            "successor": "level#004"
         }
     ]
 }

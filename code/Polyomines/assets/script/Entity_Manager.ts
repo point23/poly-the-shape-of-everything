@@ -1,5 +1,5 @@
-import { assert, Vec3 } from 'cc';
-import { $$, Direction } from './Const';
+import { assert, tween, Vec3, Animation } from 'cc';
+import { $$, Const, Direction } from './Const';
 import { Efx_Manager } from './Efx_Manager';
 import {
     Serializable_Entity_Data,
@@ -17,6 +17,7 @@ import { debug_print_quad_tree, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
 import { is_a_board } from './sokoban';
 import { Undo_Handler } from './undo';
+import { Hero_Entity_Data } from './Hero_Entity_Data';
 
 /* 
  @note
@@ -168,7 +169,18 @@ export class Entity_Manager {
             this.heros.push(entity);
         }
 
-        if (entity.entity_type == Entity_Type.ROVER) this.rovers.push(entity);
+        if (entity.entity_type == Entity_Type.ROVER) {
+            this.rovers.push(entity);
+            if (entity.prefab == 'Rover#001') { // @hack
+                entity.derived_data = {
+                    rover_freq: Const.SLOW_ROVER_FREQ,
+                };
+            } else {
+                entity.derived_data = {
+                    rover_freq: Const.SPEED_ROVER_FREQ,
+                };
+            }
+        }
         if (entity.entity_type == Entity_Type.SWITCH) this.switches.push(entity);
 
         if (entity.entity_type == Entity_Type.ENTRANCE) {
@@ -190,6 +202,30 @@ export class Entity_Manager {
         e.undoable.position = p;
         this.proximity_grid.move_entity(e, p);
         this.proximity_grid.add_entity(e);
+    }
+
+    logically_move_entity(e: Game_Entity, p: Vec3) {
+        if (this.find(e.id)) {
+            this.proximity_grid.remove_entity(e);
+        }
+        e.undoable.position = p;
+        this.proximity_grid.add_entity(e);
+    }
+
+    move_entity_async(e: Game_Entity, p: Vec3) {
+        const grid = this.proximity_grid;
+        const duration = (Const.Ticks_Per_Loop[$$.DURATION_IDX] * Const.Tick_Interval) * 0.9;
+        this.logically_move_entity(e, p);
+
+        tween()
+            .target(e.node)
+            .to(duration, { position: grid.local2world(p) },
+                {
+                    onComplete() {
+                        grid.move_entity(e, p); // correct it
+                    }
+                })
+            .start();
     }
 
     rotate_entity(e: Game_Entity, d: Direction) {

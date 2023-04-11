@@ -118,8 +118,10 @@ export function do_one_undo(manager: Entity_Manager) {
     if (undo.undo_records.empty()) return;
 
     const record = undo.undo_records.pop();
-    Gameplay_Timer.set_gameplay_time(record.gameplay_time);
-    manager.switch_hero(record.active_hero_idx);
+    if (!$$.FOR_EDITING) {
+        Gameplay_Timer.set_gameplay_time(record.gameplay_time);
+        manager.switch_hero(record.active_hero_idx);
+    }
 
     really_do_one_undo(manager, record, false);
     undo.redo_records.push(record);
@@ -132,9 +134,10 @@ export function do_one_redo(manager: Entity_Manager) {
     if (undo.redo_records.empty()) return;
 
     const record = undo.redo_records.pop();
-    Gameplay_Timer.set_gameplay_time(record.gameplay_time);
-    manager.switch_hero(record.active_hero_idx);
-
+    if (!$$.FOR_EDITING) {
+        Gameplay_Timer.set_gameplay_time(record.gameplay_time);
+        manager.switch_hero(record.active_hero_idx);
+    }
     really_do_one_undo(manager, record, true);
     undo.undo_records.push(record);
 
@@ -314,7 +317,7 @@ function really_do_one_undo(manager: Entity_Manager, record: Undo_Record, is_red
             const e_dest = manager.find(entity_id);
             const cached_ued = undo.old_entity_state.get(entity_id);
 
-            const related_to_cd_action: boolean = !e_dest || !cached_ued; // @hack
+            const related_to_cd_action: boolean = (e_dest == null || cached_ued == null); // @hack
             apply_diff(num_slots, related_to_cd_action, cached_ued);
             if (related_to_cd_action) return;
 
@@ -350,10 +353,9 @@ function really_do_one_undo(manager: Entity_Manager, record: Undo_Record, is_red
 
                     update_entity_edit_cover(e_dest);
 
-                    // @incomplete Separate hero & avatar?
-                    const o = e_dest.orientation;
+                    // const o = e_dest.orientation;
                     manager.rotate_entity(e_dest, e_dest.rotation);
-                    e_dest.logically_rotate_to(o);
+                    // e_dest.logically_rotate_to(o);
                     manager.move_entity(e_dest, e_dest.position);
                 }
             } else {

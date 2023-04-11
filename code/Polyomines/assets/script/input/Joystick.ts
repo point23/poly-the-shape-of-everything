@@ -66,53 +66,53 @@ export class Joystick extends Component {
     }
 
     #touch_move(e: EventTouch) {
-        // let pos: Vec2 = new Vec2();
-        // e.getUILocation(pos);
-        // this.#update_state(pos);
+        let pos: Vec2 = new Vec2();
+        e.getUILocation(pos);
+        this.#update_state(pos);
 
-        // const input = this.input;
-        // const rad = Math.atan2(this.#position.y, this.#position.x);
-        // const deg: number = misc.radiansToDegrees(rad);
-        // const delta = this.#position.length();
+        const input = this.input;
+        const rad = Math.atan2(this.#position.y, this.#position.x);
+        const deg: number = misc.radiansToDegrees(rad);
+        const delta = this.#position.length();
 
-        // if ((delta / this.#radius) < Const.JOYSTICK_DEADZONE) {
-        //     input.release(Game_Button.FACE_BACKWARD);
-        //     input.release(Game_Button.FACE_FORWARD);
-        //     input.release(Game_Button.FACE_LEFT);
-        //     input.release(Game_Button.FACE_RIGHT);
-        //     return;
-        // }
+        if ((delta / this.#radius) < Const.JOYSTICK_DEADZONE) {
+            input.release(Game_Button.FACE_BACKWARD);
+            input.release(Game_Button.FACE_FORWARD);
+            input.release(Game_Button.FACE_LEFT);
+            input.release(Game_Button.FACE_RIGHT);
+            return;
+        }
 
-        // if (deg >= 45 && deg <= 135) { // BACKWARD
-        //     if (input.button_states.get(Game_Button.FACE_BACKWARD).ended_down) {
-        //         input.release(Game_Button.FACE_FORWARD);
-        //         input.release(Game_Button.FACE_LEFT);
-        //         input.release(Game_Button.FACE_RIGHT);
-        //         input.press(Game_Button.FACE_BACKWARD);
-        //     }
-        // } else if (deg <= -45 && deg >= -135) { // FORWARD
-        //     if (input.button_states.get(Game_Button.FACE_FORWARD).ended_down) {
-        //         input.release(Game_Button.FACE_BACKWARD);
-        //         input.release(Game_Button.FACE_LEFT);
-        //         input.release(Game_Button.FACE_RIGHT);
+        if (deg >= 45 && deg <= 135) { // BACKWARD
+            if (input.button_states.get(Game_Button.FACE_BACKWARD).ended_down) {
+                input.release(Game_Button.FACE_FORWARD);
+                input.release(Game_Button.FACE_LEFT);
+                input.release(Game_Button.FACE_RIGHT);
+                input.press(Game_Button.FACE_BACKWARD);
+            }
+        } else if (deg <= -45 && deg >= -135) { // FORWARD
+            if (input.button_states.get(Game_Button.FACE_FORWARD).ended_down) {
+                input.release(Game_Button.FACE_BACKWARD);
+                input.release(Game_Button.FACE_LEFT);
+                input.release(Game_Button.FACE_RIGHT);
 
-        //         input.press(Game_Button.FACE_FORWARD);
-        //     }
-        // } else if (deg >= 135 || deg <= -135) { // LEFT
-        //     if (input.button_states.get(Game_Button.FACE_LEFT).ended_down) {
-        //         input.release(Game_Button.FACE_BACKWARD);
-        //         input.release(Game_Button.FACE_FORWARD);
-        //         input.release(Game_Button.FACE_RIGHT);
-        //         input.press(Game_Button.FACE_LEFT);
-        //     }
-        // } else if (deg <= 45 && deg >= -45) { // RIGHT
-        //     if (input.button_states.get(Game_Button.FACE_RIGHT).ended_down) {
-        //         input.release(Game_Button.FACE_BACKWARD);
-        //         input.release(Game_Button.FACE_FORWARD);
-        //         input.release(Game_Button.FACE_LEFT);
-        //         input.press(Game_Button.FACE_RIGHT);
-        //     }
-        // }
+                input.press(Game_Button.FACE_FORWARD);
+            }
+        } else if (deg >= 135 || deg <= -135) { // LEFT
+            if (input.button_states.get(Game_Button.FACE_LEFT).ended_down) {
+                input.release(Game_Button.FACE_BACKWARD);
+                input.release(Game_Button.FACE_FORWARD);
+                input.release(Game_Button.FACE_RIGHT);
+                input.press(Game_Button.FACE_LEFT);
+            }
+        } else if (deg <= 45 && deg >= -45) { // RIGHT
+            if (input.button_states.get(Game_Button.FACE_RIGHT).ended_down) {
+                input.release(Game_Button.FACE_BACKWARD);
+                input.release(Game_Button.FACE_FORWARD);
+                input.release(Game_Button.FACE_LEFT);
+                input.press(Game_Button.FACE_RIGHT);
+            }
+        }
     }
 
     #touch_end(e: EventTouch) {

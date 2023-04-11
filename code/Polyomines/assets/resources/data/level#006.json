@@ -39,7 +39,7 @@
     },
     "entities": [
         {
-            "prefab": "Fox",
+            "prefab": "Ninja",
             "position": {
                 "x": 7,
                 "y": 8,
@@ -435,7 +435,7 @@
             "rotation": 0
         },
         {
-            "prefab": "Domino",
+            "prefab": "Stump#002",
             "position": {
                 "x": 10,
                 "y": 7,
@@ -471,22 +471,22 @@
             "rotation": 3
         },
         {
-            "prefab": "Monomino",
+            "prefab": "Rock#003",
             "position": {
                 "x": 13,
                 "y": 5,
                 "z": 1
             },
-            "rotation": 0
+            "rotation": 2
         },
         {
-            "prefab": "Monomino",
+            "prefab": "Rock#003",
             "position": {
                 "x": 8,
                 "y": 5,
                 "z": 1
             },
-            "rotation": 0
+            "rotation": 1
         }
     ]
 }

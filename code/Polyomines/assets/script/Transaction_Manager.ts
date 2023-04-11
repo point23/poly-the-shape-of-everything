@@ -3,7 +3,7 @@ import { $$, Const, Stack } from './Const';
 import { Entity_Manager } from './Entity_Manager';
 import { Level_Editor } from './Level_Editor';
 import { debug_print_quad_tree } from './Proximity_Grid';
-import { Move_Transaction, Single_Move, sanity_check } from './sokoban';
+import { Move_Flags, Move_Transaction, Move_Type, Single_Move, detect_conflicts, is_dirty } from './sokoban';
 import { undo_end_frame } from './undo';
 const { ccclass, property } = _decorator;
 
@@ -78,7 +78,7 @@ export class Transaction_Manager extends Component {
         for (let transaction of issued) {
             function is_sanity(): boolean {
                 for (const move of transaction.moves) {
-                    if (!sanity_check(transaction, move)) return false;;
+                    if (!detect_conflicts(transaction, move)) return false;;
                 }
                 return true;
             }
@@ -91,6 +91,11 @@ export class Transaction_Manager extends Component {
             }
 
             for (const move of transaction.moves) {
+                if (move.info.move_type == Move_Type.CONTROLLER_PROC
+                    && is_dirty(move, Move_Flags.MOVED)) { // @hack
+                    $$.HERO_VISUALLY_MOVING = true;
+                }
+
                 move.execute(transaction);
                 packed.moves.push(move);
             }

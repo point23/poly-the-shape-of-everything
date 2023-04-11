@@ -1,0 +1,1087 @@
+{
+  "ver": "2.3.3",
+  "importer": "fbx",
+  "imported": true,
+  "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9",
+  "files": [
+    "__original-animation-0.cconb",
+    "__original-animation-1.cconb",
+    "__original-animation-2.cconb",
+    "__original-animation-3.cconb",
+    "__original-animation-4.cconb",
+    "__original-animation-5.cconb",
+    "__original-animation-6.cconb",
+    "__original-animation-7.cconb",
+    "__original-animation-8.cconb",
+    "__original-animation-9.cconb"
+  ],
+  "subMetas": {
+    "37284": {
+      "importer": "texture",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@37284",
+      "displayName": "",
+      "id": "37284",
+      "name": "normalmap_texture-1.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "d05ab497-4af0-4e22-98ae-b7550663e4c9@421d7"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "89309": {
+      "importer": "texture",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@89309",
+      "displayName": "",
+      "id": "89309",
+      "name": "alpha_texture-5.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "d05ab497-4af0-4e22-98ae-b7550663e4c9@09885"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "90896": {
+      "importer": "texture",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@90896",
+      "displayName": "",
+      "id": "90896",
+      "name": "base_color_texture-4.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "d05ab497-4af0-4e22-98ae-b7550663e4c9@a3593"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "6589b": {
+      "importer": "gltf-mesh",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@6589b",
+      "displayName": "",
+      "id": "6589b",
+      "name": "Elvis_BodyGeo_Material0.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "a9981": {
+      "importer": "gltf-animation",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@a9981",
+      "displayName": "",
+      "id": "a9981",
+      "name": "Normal Idle.animation",
+      "userData": {
+        "gltfIndex": 0,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 1.9583333730697632
+        },
+        "events": []
+      },
+      "ver": "1.0.16",
+      "imported": true,
+      "files": [
+        ".cconb"
+      ],
+      "subMetas": {}
+    },
+    "0ab94": {
+      "importer": "gltf-animation",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@0ab94",
+      "displayName": "",
+      "id": "0ab94",
+      "name": "Jump Down.animation",
+      "userData": {
+        "gltfIndex": 1,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 2.6666667461395264
+        },
+        "events": []
+      },
+      "ver": "1.0.16",
+      "imported": true,
+      "files": [
+        ".cconb"
+      ],
+      "subMetas": {}
+    },
+    "3eaca": {
+      "importer": "gltf-animation",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@3eaca",
+      "displayName": "",
+      "id": "3eaca",
+      "name": "Pushing.animation",
+      "userData": {
+        "gltfIndex": 2,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 1.7083333730697632
+        },
+        "events": []
+      },
+      "ver": "1.0.16",
+      "imported": true,
+      "files": [
+        ".cconb"
+      ],
+      "subMetas": {}
+    },
+    "a4926": {
+      "importer": "gltf-animation",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@a4926",
+      "displayName": "",
+      "id": "a4926",
+      "name": "Running Forward.animation",
+      "userData": {
+        "gltfIndex": 3,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 1.0833333730697632
+        },
+        "events": [],
+        "speed": 2
+      },
+      "ver": "1.0.16",
+      "imported": true,
+      "files": [
+        ".cconb"
+      ],
+      "subMetas": {}
+    },
+    "8ee8b": {
+      "importer": "gltf-animation",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@8ee8b",
+      "displayName": "",
+      "id": "8ee8b",
+      "name": "Sad Idle.animation",
+      "userData": {
+        "gltfIndex": 4,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 2.7916667461395264
+        },
+        "events": []
+      },
+      "ver": "1.0.16",
+      "imported": true,
+      "files": [
+        ".cconb"
+      ],
+      "subMetas": {}
+    },
+    "6b997": {
+      "importer": "gltf-animation",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@6b997",
+      "displayName": "",
+      "id": "6b997",
+      "name": "Victory Idle.animation",
+      "userData": {
+        "gltfIndex": 5,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 1.875
+        },
+        "events": []
+      },
+      "ver": "1.0.16",
+      "imported": true,
+      "files": [
+        ".cconb"
+      ],
+      "subMetas": {}
+    },
+    "63ab1": {
+      "importer": "gltf-animation",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@63ab1",
+      "displayName": "",
+      "id": "63ab1",
+      "name": "Shoot.animation",
+      "userData": {
+        "gltfIndex": 6,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 3
+        },
+        "events": []
+      },
+      "ver": "1.0.16",
+      "imported": true,
+      "files": [
+        ".cconb"
+      ],
+      "subMetas": {}
+    },
+    "f1382": {
+      "importer": "gltf-animation",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@f1382",
+      "displayName": "",
+      "id": "f1382",
+      "name": "Normal Running.animation",
+      "userData": {
+        "gltfIndex": 7,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 0.7083333134651184
+        },
+        "events": [],
+        "speed": 3
+      },
+      "ver": "1.0.16",
+      "imported": true,
+      "files": [
+        ".cconb"
+      ],
+      "subMetas": {}
+    },
+    "ca7e4": {
+      "importer": "gltf-animation",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@ca7e4",
+      "displayName": "",
+      "id": "ca7e4",
+      "name": "Death.animation",
+      "userData": {
+        "gltfIndex": 8,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 3.9166667461395264
+        },
+        "events": []
+      },
+      "ver": "1.0.16",
+      "imported": true,
+      "files": [
+        ".cconb"
+      ],
+      "subMetas": {}
+    },
+    "dc888": {
+      "importer": "gltf-animation",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@dc888",
+      "displayName": "",
+      "id": "dc888",
+      "name": "Walking.animation",
+      "userData": {
+        "gltfIndex": 9,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 1.2083333730697632
+        },
+        "events": []
+      },
+      "ver": "1.0.16",
+      "imported": true,
+      "files": [
+        ".cconb"
+      ],
+      "subMetas": {}
+    },
+    "438fe": {
+      "importer": "gltf-skeleton",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@438fe",
+      "displayName": "",
+      "id": "438fe",
+      "name": "UnnamedSkeleton.skeleton",
+      "userData": {
+        "gltfIndex": 0,
+        "jointsLength": 189
+      },
+      "ver": "1.0.1",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "5e49e": {
+      "importer": "gltf-embeded-image",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@5e49e",
+      "displayName": "",
+      "id": "5e49e",
+      "name": "base_color_texture-0.image",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".jpg",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "421d7": {
+      "importer": "gltf-embeded-image",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@421d7",
+      "displayName": "",
+      "id": "421d7",
+      "name": "normalmap_texture-1.image",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".jpg",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "0991f": {
+      "importer": "gltf-embeded-image",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@0991f",
+      "displayName": "",
+      "id": "0991f",
+      "name": "base_color_texture-2.image",
+      "userData": {
+        "gltfIndex": 2
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".png"
+      ],
+      "subMetas": {}
+    },
+    "be382": {
+      "importer": "gltf-embeded-image",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@be382",
+      "displayName": "",
+      "id": "be382",
+      "name": "alpha_texture-3.image",
+      "userData": {
+        "gltfIndex": 3
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".png"
+      ],
+      "subMetas": {}
+    },
+    "a3593": {
+      "importer": "gltf-embeded-image",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@a3593",
+      "displayName": "",
+      "id": "a3593",
+      "name": "base_color_texture-4.image",
+      "userData": {
+        "gltfIndex": 4
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".png"
+      ],
+      "subMetas": {}
+    },
+    "09885": {
+      "importer": "gltf-embeded-image",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@09885",
+      "displayName": "",
+      "id": "09885",
+      "name": "alpha_texture-5.image",
+      "userData": {
+        "gltfIndex": 5
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".png"
+      ],
+      "subMetas": {}
+    },
+    "b8c74": {
+      "importer": "gltf-embeded-image",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@b8c74",
+      "displayName": "",
+      "id": "b8c74",
+      "name": "base_color_texture-6.image",
+      "userData": {
+        "gltfIndex": 6
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".png"
+      ],
+      "subMetas": {}
+    },
+    "0cd53": {
+      "importer": "gltf-embeded-image",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@0cd53",
+      "displayName": "",
+      "id": "0cd53",
+      "name": "alpha_texture-7.image",
+      "userData": {
+        "gltfIndex": 7
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".png"
+      ],
+      "subMetas": {}
+    },
+    "0a1ef": {
+      "importer": "texture",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@0a1ef",
+      "displayName": "",
+      "id": "0a1ef",
+      "name": "base_color_texture-0.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "d05ab497-4af0-4e22-98ae-b7550663e4c9@5e49e"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "b8518": {
+      "importer": "texture",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@b8518",
+      "displayName": "",
+      "id": "b8518",
+      "name": "base_color_texture-2.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "d05ab497-4af0-4e22-98ae-b7550663e4c9@0991f"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "7a1b4": {
+      "importer": "texture",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@7a1b4",
+      "displayName": "",
+      "id": "7a1b4",
+      "name": "alpha_texture-3.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "d05ab497-4af0-4e22-98ae-b7550663e4c9@be382"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "c47df": {
+      "importer": "texture",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@c47df",
+      "displayName": "",
+      "id": "c47df",
+      "name": "base_color_texture-6.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "d05ab497-4af0-4e22-98ae-b7550663e4c9@b8c74"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "6406a": {
+      "importer": "texture",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@6406a",
+      "displayName": "",
+      "id": "6406a",
+      "name": "alpha_texture-7.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "d05ab497-4af0-4e22-98ae-b7550663e4c9@0cd53"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "d1ecf": {
+      "importer": "gltf-material",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@d1ecf",
+      "displayName": "",
+      "id": "d1ecf",
+      "name": "Character_Fat_Elvis_body_color1.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4c5fc": {
+      "importer": "gltf-material",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@4c5fc",
+      "displayName": "",
+      "id": "4c5fc",
+      "name": "Elvis_Mouth_MAT1.material",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "0f359": {
+      "importer": "gltf-material",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@0f359",
+      "displayName": "",
+      "id": "0f359",
+      "name": "Elvis_Brows_MAT1.material",
+      "userData": {
+        "gltfIndex": 2
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "436bf": {
+      "importer": "gltf-material",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@436bf",
+      "displayName": "",
+      "id": "436bf",
+      "name": "Elvis_Eyes_MAT1.material",
+      "userData": {
+        "gltfIndex": 3
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "624d9": {
+      "importer": "gltf-scene",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@624d9",
+      "displayName": "",
+      "id": "624d9",
+      "name": "elvis.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [
+      {
+        "name": "base_color_texture",
+        "uri": "d05ab497-4af0-4e22-98ae-b7550663e4c9@5e49e"
+      },
+      {
+        "name": "normalmap_texture",
+        "uri": "d05ab497-4af0-4e22-98ae-b7550663e4c9@421d7"
+      },
+      {
+        "name": "base_color_texture",
+        "uri": "d05ab497-4af0-4e22-98ae-b7550663e4c9@0991f"
+      },
+      {
+        "name": "alpha_texture",
+        "uri": "d05ab497-4af0-4e22-98ae-b7550663e4c9@be382"
+      },
+      {
+        "name": "base_color_texture",
+        "uri": "d05ab497-4af0-4e22-98ae-b7550663e4c9@a3593"
+      },
+      {
+        "name": "alpha_texture",
+        "uri": "d05ab497-4af0-4e22-98ae-b7550663e4c9@09885"
+      },
+      {
+        "name": "base_color_texture",
+        "uri": "d05ab497-4af0-4e22-98ae-b7550663e4c9@b8c74"
+      },
+      {
+        "name": "alpha_texture",
+        "uri": "d05ab497-4af0-4e22-98ae-b7550663e4c9@0cd53"
+      }
+    ],
+    "fbx": {
+      "smartMaterialEnabled": true
+    },
+    "animationImportSettings": [
+      {
+        "name": "Normal Idle",
+        "duration": 1.9583333730697632,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "Normal Idle",
+            "from": 0,
+            "to": 1.9583333730697632,
+            "wrapMode": 2
+          }
+        ]
+      },
+      {
+        "name": "Jump Down",
+        "duration": 2.6666667461395264,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "Jump Down",
+            "from": 0,
+            "to": 2.6666667461395264,
+            "wrapMode": 2
+          }
+        ]
+      },
+      {
+        "name": "Pushing",
+        "duration": 1.7083333730697632,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "Pushing",
+            "from": 0,
+            "to": 1.7083333730697632,
+            "wrapMode": 2
+          }
+        ]
+      },
+      {
+        "name": "Running Forward",
+        "duration": 1.0833333730697632,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "Running Forward",
+            "from": 0,
+            "to": 1.0833333730697632,
+            "wrapMode": 2,
+            "speed": 2
+          }
+        ]
+      },
+      {
+        "name": "Sad Idle",
+        "duration": 2.7916667461395264,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "Sad Idle",
+            "from": 0,
+            "to": 2.7916667461395264,
+            "wrapMode": 2
+          }
+        ]
+      },
+      {
+        "name": "Victory Idle",
+        "duration": 1.875,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "Victory Idle",
+            "from": 0,
+            "to": 1.875,
+            "wrapMode": 2
+          }
+        ]
+      },
+      {
+        "name": "Shoot",
+        "duration": 3,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "Shoot",
+            "from": 0,
+            "to": 3,
+            "wrapMode": 2
+          }
+        ]
+      },
+      {
+        "name": "Normal Running",
+        "duration": 0.7083333134651184,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "Normal Running",
+            "from": 0,
+            "to": 0.7083333134651184,
+            "wrapMode": 2,
+            "speed": 3
+          }
+        ]
+      },
+      {
+        "name": "Death",
+        "duration": 3.9166667461395264,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "Death",
+            "from": 0,
+            "to": 3.9166667461395264,
+            "wrapMode": 2
+          }
+        ]
+      },
+      {
+        "name": "Walking",
+        "duration": 1.2083333730697632,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "Walking",
+            "from": 0,
+            "to": 1.2083333730697632,
+            "wrapMode": 2
+          }
+        ]
+      }
+    ],
+    "redirect": "d05ab497-4af0-4e22-98ae-b7550663e4c9@624d9",
+    "assetFinder": {
+      "meshes": [
+        "d05ab497-4af0-4e22-98ae-b7550663e4c9@6589b"
+      ],
+      "skeletons": [
+        "d05ab497-4af0-4e22-98ae-b7550663e4c9@438fe"
+      ],
+      "textures": [
+        "d05ab497-4af0-4e22-98ae-b7550663e4c9@0a1ef",
+        "d05ab497-4af0-4e22-98ae-b7550663e4c9@37284",
+        "d05ab497-4af0-4e22-98ae-b7550663e4c9@b8518",
+        "d05ab497-4af0-4e22-98ae-b7550663e4c9@7a1b4",
+        "d05ab497-4af0-4e22-98ae-b7550663e4c9@90896",
+        "d05ab497-4af0-4e22-98ae-b7550663e4c9@89309",
+        "d05ab497-4af0-4e22-98ae-b7550663e4c9@c47df",
+        "d05ab497-4af0-4e22-98ae-b7550663e4c9@6406a"
+      ],
+      "materials": [
+        "d05ab497-4af0-4e22-98ae-b7550663e4c9@d1ecf",
+        "d05ab497-4af0-4e22-98ae-b7550663e4c9@4c5fc",
+        "d05ab497-4af0-4e22-98ae-b7550663e4c9@0f359",
+        "d05ab497-4af0-4e22-98ae-b7550663e4c9@436bf"
+      ],
+      "scenes": [
+        "d05ab497-4af0-4e22-98ae-b7550663e4c9@624d9"
+      ]
+    },
+    "materials": {
+      "d05ab497-4af0-4e22-98ae-b7550663e4c9@0f359": {
+        "__type__": "cc.Material",
+        "_name": "",
+        "_objFlags": 0,
+        "_native": "",
+        "_effectAsset": {
+          "__uuid__": "f648964e-8d32-41fc-9ac9-7a1e714dd17b",
+          "__expectedType__": "cc.EffectAsset"
+        },
+        "_techIdx": 1,
+        "_defines": [
+          {
+            "DCC_APP_NAME": 2,
+            "USE_ALBEDO_MAP": true,
+            "USE_TRANSPARENCY_MAP": true,
+            "HAS_EXPORTED_METALLIC": true
+          },
+          {},
+          {}
+        ],
+        "_states": [
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          },
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          },
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          }
+        ],
+        "_props": [
+          {
+            "mainTexture": {
+              "__uuid__": "d05ab497-4af0-4e22-98ae-b7550663e4c9@90896",
+              "__expectedType__": "cc.Texture2D"
+            },
+            "shininessExponent": 19.99999952104794,
+            "specularFactor": 0.25,
+            "transparencyMap": {
+              "__uuid__": "d05ab497-4af0-4e22-98ae-b7550663e4c9@89309",
+              "__expectedType__": "cc.Texture2D"
+            }
+          },
+          {},
+          {}
+        ]
+      },
+      "d05ab497-4af0-4e22-98ae-b7550663e4c9@436bf": {
+        "__type__": "cc.Material",
+        "_name": "",
+        "_objFlags": 0,
+        "_native": "",
+        "_effectAsset": {
+          "__uuid__": "f648964e-8d32-41fc-9ac9-7a1e714dd17b",
+          "__expectedType__": "cc.EffectAsset"
+        },
+        "_techIdx": 1,
+        "_defines": [
+          {
+            "DCC_APP_NAME": 2,
+            "USE_ALBEDO_MAP": true,
+            "USE_TRANSPARENCY_MAP": true,
+            "HAS_EXPORTED_METALLIC": true
+          },
+          {},
+          {}
+        ],
+        "_states": [
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          },
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          },
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          }
+        ],
+        "_props": [
+          {
+            "mainTexture": {
+              "__uuid__": "d05ab497-4af0-4e22-98ae-b7550663e4c9@c47df",
+              "__expectedType__": "cc.Texture2D"
+            },
+            "shininessExponent": 19.99999952104794,
+            "specularFactor": 0.25,
+            "transparencyMap": {
+              "__uuid__": "d05ab497-4af0-4e22-98ae-b7550663e4c9@6406a",
+              "__expectedType__": "cc.Texture2D"
+            }
+          },
+          {},
+          {}
+        ]
+      },
+      "d05ab497-4af0-4e22-98ae-b7550663e4c9@4c5fc": {
+        "__type__": "cc.Material",
+        "_name": "",
+        "_objFlags": 0,
+        "_native": "",
+        "_effectAsset": {
+          "__uuid__": "f648964e-8d32-41fc-9ac9-7a1e714dd17b",
+          "__expectedType__": "cc.EffectAsset"
+        },
+        "_techIdx": 1,
+        "_defines": [
+          {
+            "DCC_APP_NAME": 2,
+            "USE_ALBEDO_MAP": true,
+            "USE_TRANSPARENCY_MAP": true,
+            "HAS_EXPORTED_METALLIC": true
+          },
+          {},
+          {}
+        ],
+        "_states": [
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          },
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          },
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          }
+        ],
+        "_props": [
+          {
+            "mainTexture": {
+              "__uuid__": "d05ab497-4af0-4e22-98ae-b7550663e4c9@b8518",
+              "__expectedType__": "cc.Texture2D"
+            },
+            "shininessExponent": 19.99999952104794,
+            "specularFactor": 0.25,
+            "transparencyMap": {
+              "__uuid__": "d05ab497-4af0-4e22-98ae-b7550663e4c9@7a1b4",
+              "__expectedType__": "cc.Texture2D"
+            }
+          },
+          {},
+          {}
+        ]
+      }
+    }
+  }
+}

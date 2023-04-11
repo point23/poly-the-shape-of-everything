@@ -2,15 +2,15 @@
     "difficulty": 5,
     "camera": {
         "position": {
-            "x": -3.5,
-            "y": 13,
-            "z": 5.5
+            "x": -4.5,
+            "y": 10,
+            "z": 4.5
         },
         "rotation": {
-            "x": -0.3535533905932751,
-            "y": -0.6123724356958039,
-            "z": -0.3535533905932738,
-            "w": 0.6123724356957994
+            "x": -0.32650557562197796,
+            "y": -0.6272113751262596,
+            "z": -0.32650557562197696,
+            "w": 0.6272113751262542
         }
     },
     "grid": {
@@ -31,18 +31,18 @@
             "z": 9.5
         },
         "rotation": {
-            "x": -0.2705980500731002,
-            "y": -0.6532814824381972,
-            "z": -0.27059805007309945,
-            "w": 0.6532814824381922
+            "x": -0.09811384209095877,
+            "y": -0.7844328158277292,
+            "z": 0.06326553111325396,
+            "w": 0.6091274940566265
         }
     },
     "entities": [
         {
-            "prefab": "Fox",
+            "prefab": "Ninja",
             "position": {
                 "x": 4,
-                "y": 6,
+                "y": 4,
                 "z": 1
             },
             "rotation": 2
@@ -93,15 +93,6 @@
             "rotation": 0
         },
         {
-            "prefab": "Rock#001",
-            "position": {
-                "x": 7,
-                "y": 3,
-                "z": 1
-            },
-            "rotation": 1
-        },
-        {
             "prefab": "Fence#001",
             "position": {
                 "x": 1,
@@ -136,24 +127,6 @@
                 "z": 0
             },
             "rotation": 2
-        },
-        {
-            "prefab": "Rock#001",
-            "position": {
-                "x": 7,
-                "y": 3,
-                "z": 3
-            },
-            "rotation": 1
-        },
-        {
-            "prefab": "Rock#001",
-            "position": {
-                "x": 7,
-                "y": 3,
-                "z": 2
-            },
-            "rotation": 1
         },
         {
             "prefab": "Ground#001",
@@ -411,24 +384,6 @@
             "prefab": "Ground#001",
             "position": {
                 "x": 6,
-                "y": 5,
-                "z": 1
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 6,
-                "y": 5,
-                "z": 2
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 6,
                 "y": 2,
                 "z": 0
             },
@@ -469,6 +424,96 @@
                 "z": 0
             },
             "rotation": 0
+        },
+        {
+            "prefab": "Rock#002",
+            "position": {
+                "x": 7,
+                "y": 3,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Rock#002",
+            "position": {
+                "x": 7,
+                "y": 3,
+                "z": 2
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Rock#002",
+            "position": {
+                "x": 7,
+                "y": 3,
+                "z": 3
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Ruin#002",
+            "position": {
+                "x": 6,
+                "y": 5,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ruin#002",
+            "position": {
+                "x": 6,
+                "y": 5,
+                "z": 2
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 0,
+                "y": 3,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 0,
+                "y": 4,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 0,
+                "y": 5,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Fence#001",
+            "position": {
+                "x": 0,
+                "y": 5,
+                "z": 0
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Fence#001",
+            "position": {
+                "x": 0,
+                "y": 3,
+                "z": 0
+            },
+            "rotation": 3
         },
         {
             "prefab": "Hint#001",

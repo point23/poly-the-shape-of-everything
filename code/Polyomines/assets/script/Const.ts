@@ -24,6 +24,11 @@ export class $$ {
     static SWITCH_TURNED_ON: boolean;
     static SHOWING_HINTS: boolean;
 
+    static TAKING_USER_INPUT = true;
+    static HERO_VISUALLY_MOVING = false;
+
+    static KEEP_PRESSING_MOVING_BTN = false;
+
     static DURATION_IDX: number = 0;
 
     // @todo Remove it...
@@ -160,8 +165,8 @@ export class Const {
 
     static Default_Game_Board_Size: Size = new Size(10, 10);
 
-    static SPEED_ROVER: number = 6;
-    static SLOW_ROVER: number = 12;
+    static SPEED_ROVER_FREQ: number = 12;
+    static SLOW_ROVER_FREQ: number = 24;
 
     static Tick_Interval: number = (0.1 / (1 << 3)); // 0.1 / 8 => 0.0125, which means 100ms-per-round in normal duration
     static Ticks_Per_Loop: number[] = [
@@ -186,14 +191,30 @@ export class Const {
         '-2',
         '-4',
         '-8',
-    ]
+    ];
+
+    static COEFFICIENT_FOR_SINGLE_CONTROLLER_MOVE = 4;
+
+    static ANIM_SPEED: number[] = [
+        8,
+        4,
+        2,
+        1,
+        0.5,
+        0.25,
+        0.125,
+        0.0625,
+    ];
 
     static Game_Board_Square_Size = 1;
     static Game_Board_Half_Square_Size = 0.5;
     static Game_Board_Orgin_Pos = new Vec3(0, 0, 0);
 
     static JOYSTICK_DEADZONE = 0.05;
-    static VALID_PRESSING_INTERVAL = 3; // For now there're some zigzag when it's not n times tick-interval(ms)
+
+    static VALID_PRESSING_INTERVAL = 2; // For now there're some zigzag when it's not n times tick-interval(ms)
+
+    static MOVING_VELOCITY = 0.01;
 
     static SWITCH_HERO_DURATION = 0.5;
     static HINTS_DURATION = 3;
@@ -217,6 +238,8 @@ export class Const {
     static RADIUS_225: number = 1.25 * Math.PI;
     static RADIUS_270: number = 1.5 * Math.PI;
     static RADIUS_315: number = 1.75 * Math.PI;
+
+    static RATIO_PUSHING_START = 0.2;
 
     static Direction2Quat: Quat[] = [
         /* LEFT */ new Quat(0, Math.sin(this.RADIUS_90), 0, Math.cos(this.RADIUS_90)),

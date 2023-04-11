@@ -24,7 +24,7 @@
       }
     ],
     "_prefab": {
-      "__id__": 31
+      "__id__": 34
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -147,6 +147,15 @@
       },
       {
         "__id__": 30
+      },
+      {
+        "__id__": 31
+      },
+      {
+        "__id__": 32
+      },
+      {
+        "__id__": 33
       }
     ],
     "entities_parent": null,
@@ -369,6 +378,30 @@
     "id": "Rover#001",
     "prefab": {
       "__uuid__": "4b302a7c-6ec0-480f-a54a-c4ae33adfab3",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Rock#002",
+    "prefab": {
+      "__uuid__": "34076ac2-e8a4-4d46-9e44-5273e5712b6d",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Rock#003",
+    "prefab": {
+      "__uuid__": "9fb15337-47c3-4f88-a5ac-f17fdc343ab7",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Ninja",
+    "prefab": {
+      "__uuid__": "a514c82f-cf86-483d-bc2d-29f989f205f9",
       "__expectedType__": "cc.Prefab"
     }
   },

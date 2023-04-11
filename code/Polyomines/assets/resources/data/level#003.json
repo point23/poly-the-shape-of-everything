@@ -39,7 +39,7 @@
     },
     "entities": [
         {
-            "prefab": "Fox",
+            "prefab": "Ninja",
             "position": {
                 "x": 8,
                 "y": 5,

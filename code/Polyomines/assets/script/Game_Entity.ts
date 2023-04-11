@@ -178,6 +178,11 @@ export class Undoable_Entity_Data {
     }
 };
 
+export class Interpolation {
+    ratio: number = 0;
+    duration: number = 0;
+}
+
 @ccclass('Game_Entity')
 export class Game_Entity extends Component {
     id: number;
@@ -185,14 +190,14 @@ export class Game_Entity extends Component {
     scheduled_for_destruction: boolean = false;
     prefab: string = "";
 
-    derived_data: any = {}
+    derived_data: any = {};
+    interpolation: Interpolation = new Interpolation();
 
     get position(): Vec3 { return this.undoable.position };
     get rotation(): Direction { return this.undoable.rotation };
     get orientation(): Direction { return this.undoable.orientation; };
     get flags(): number { return this.undoable.flags; }
 
-    @property(SkeletalAnimation) animation: SkeletalAnimation = null;
     @property(MeshRenderer) editing_cover: MeshRenderer = null;
     @property(Polygon_Entity) body: Polygon_Entity = null;
     @property(Polygon_Entity) indicator: Polygon_Entity = null;

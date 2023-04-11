@@ -1,4 +1,4 @@
-import { _decorator, EventHandler } from 'cc';
+import { _decorator, EventHandler, HorizontalTextAlignment, ReflectionProbeFlow } from 'cc';
 import { Audio_Manager } from '../Audio_Manager';
 import { Const, $$, Direction } from '../Const';
 import { Contextual_Manager } from '../Contextual_Manager';
@@ -19,6 +19,7 @@ import { Navigator } from '../ui/Navigator';
 import { do_one_undo, undo_mark_beginning } from '../undo';
 
 import { Game_Mode } from './Game_Mode_Base';
+import { HERO_ANIM_STATE, Hero_Entity_Data } from '../Hero_Entity_Data';
 
 const { ccclass, property } = _decorator;
 
@@ -40,7 +41,7 @@ export class Test_Run_Mode extends Game_Mode {
     get current_handler(): Game_Input_Handler { return this.input_handlers[this.current_handler_idx]; }
 
     get ticks_per_loop(): number {
-        return Const.Ticks_Per_Loop[Transaction_Manager.instance.duration_idx];
+        return Const.Ticks_Per_Loop[$$.DURATION_IDX];
     };
 
     start() {
@@ -67,7 +68,10 @@ export class Test_Run_Mode extends Game_Mode {
         undo_mark_beginning(this.entity_manager);
         Level_Editor.instance.info("Test Run");
 
+        init_animations();
+
         $$.IS_RUNNING = true;
+        $$.TAKING_USER_INPUT = true;
         $$.RELOADING = false;
     }
 
@@ -152,6 +156,9 @@ function main_loop() {
     const entity_manager = Entity_Manager.current;
 
     process_inputs();
+
+    process_animations();
+
     if (!$$.DOING_UNDO && !$$.RELOADING) {
         generate_rover_moves_if_switch_turned_on(transaction_manager);
         transaction_manager.execute();
@@ -171,8 +178,32 @@ function main_loop() {
     }
 }
 
+function init_animations() {
+    const entity_manager = Entity_Manager.current;
+    entity_manager.heros.forEach((it) => { // @hack 
+        const hero = it.getComponent(Hero_Entity_Data);
+        hero.normal_idle();
+    });
+}
+
+function process_animations() {
+    if (!$$.IS_RUNNING) return;
+
+    const entity_manager = Entity_Manager.current;
+    const hero = entity_manager.active_hero.getComponent(Hero_Entity_Data);
+
+    if ($$.HERO_VISUALLY_MOVING && $$.KEEP_PRESSING_MOVING_BTN) {
+        hero.animation.getState('Normal Running').speed = Const.ANIM_SPEED[$$.DURATION_IDX];
+    }
+
+    if (!$$.HERO_VISUALLY_MOVING && !$$.KEEP_PRESSING_MOVING_BTN) { // @hack
+        hero.normal_idle();
+    }
+}
+
 function process_inputs() {
     if (!$$.IS_RUNNING) return;
+    if (!$$.TAKING_USER_INPUT) return;
 
     const entity_manager = Entity_Manager.current;
     const transaction_manager = Transaction_Manager.instance;
@@ -182,6 +213,15 @@ function process_inputs() {
 
     if (!(input.button_states.get(Game_Button.UNDO).ended_down)) {
         $$.DOING_UNDO = false;
+    }
+
+    { // Detect if user keep moving forward
+        $$.KEEP_PRESSING_MOVING_BTN = false;
+        for (let b of [Game_Button.MOVE_BACKWARD, Game_Button.MOVE_FORWARD, Game_Button.MOVE_LEFT, Game_Button.MOVE_RIGHT]) {
+            if (input.button_states.get(b).ended_down) {
+                $$.KEEP_PRESSING_MOVING_BTN = true;
+            }
+        }
     }
 
     records.sort((a: Button_State, b: Button_State) => { return a.counter - b.counter });// @note a > b if a - b < 0,
