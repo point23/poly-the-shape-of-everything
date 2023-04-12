@@ -11,11 +11,12 @@ import {
     get_serializable,
     clone_undoable_data,
     set_entrance_id as set_entrance_idx,
-    get_entrance_id as get_entrance_idx
+    get_entrance_id as get_entrance_idx,
+    set_rover_info
 } from './Game_Entity';
 import { debug_print_quad_tree, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
-import { is_a_board } from './sokoban';
+import { is_a_board_entity } from './sokoban';
 import { Undo_Handler } from './undo';
 import { Hero_Entity_Data } from './Hero_Entity_Data';
 
@@ -171,14 +172,11 @@ export class Entity_Manager {
 
         if (entity.entity_type == Entity_Type.ROVER) {
             this.rovers.push(entity);
+
             if (entity.prefab == 'Rover#001') { // @hack
-                entity.derived_data = {
-                    rover_freq: Const.SLOW_ROVER_FREQ,
-                };
+                set_rover_info(entity, { freq: Const.SLOW_ROVER_FREQ, counter: 0, })
             } else {
-                entity.derived_data = {
-                    rover_freq: Const.SPEED_ROVER_FREQ,
-                };
+                set_rover_info(entity, { freq: Const.SPEED_ROVER_FREQ, counter: 0, })
             }
         }
         if (entity.entity_type == Entity_Type.SWITCH) this.switches.push(entity);
@@ -283,7 +281,7 @@ export class Entity_Manager {
     locate_current_supporters(entity: Game_Entity): Game_Entity[] {
         const supporters = [];
         const set = new Set();
-        if (is_a_board(entity.entity_type)) {
+        if (is_a_board_entity(entity.entity_type)) {
             // @note A Board mush have at least one non board supporter!!!
             // supporting stack be like: [DYNAMIC_b, TRACK]
             //    === === ← BRIDGE
@@ -319,7 +317,7 @@ export class Entity_Manager {
                     if (supporter == null) continue;
                     if (set.has(supporter.id)) continue;
 
-                    if (is_a_board(supporter.entity_type)) {
+                    if (is_a_board_entity(supporter.entity_type)) {
                         board_as_supporter = true;
                     }
                 }
@@ -329,7 +327,7 @@ export class Entity_Manager {
                     if (set.has(supporter.id)) continue;
 
                     if (board_as_supporter) {
-                        if (is_a_board(supporter.entity_type)) {
+                        if (is_a_board_entity(supporter.entity_type)) {
                             supporters.push(supporter)
                             set.add(supporter.id);
                         } else {
@@ -381,12 +379,12 @@ export class Entity_Manager {
         for (let pos of squares) {
             let exist_one_board = false;
 
-            if (!is_a_board(entity.entity_type)) {
+            if (!is_a_board_entity(entity.entity_type)) {
                 for (let other of this.locate_entities(pos)) {
                     // @note Boards are located at the same square as their supportors
 
                     if (other.id == entity.id) continue;
-                    if (is_a_board(other.entity_type)) {
+                    if (is_a_board_entity(other.entity_type)) {
                         if (set.has(other.id)) continue;
 
                         exist_one_board = true

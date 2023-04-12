@@ -1,8 +1,8 @@
-import { _decorator, Component } from 'cc';
+import { _decorator, Component, Game, Vec2 } from 'cc';
 import { $$, Const } from './Const';
 
 export class Gameplay_Timer {
-    static tick = 0;
+    static tick_idx = 0;
     static round_idx = 0;
     static running_idx = 0;
 
@@ -10,19 +10,20 @@ export class Gameplay_Timer {
     static TICK_BOUNDS: number = 1 << 16;
 
     static reset() {
-        Gameplay_Timer.set_gameplay_time(0);
+        Gameplay_Timer.set_gameplay_time(Vec2.ZERO);
     }
 
     static now() {
         return Gameplay_Timer.running_idx;
     }
 
-    static set_gameplay_time(t: number) {
-        Gameplay_Timer.round_idx = t;
+    static set_gameplay_time(t: Vec2) {
+        Gameplay_Timer.tick_idx = t.x;
+        Gameplay_Timer.round_idx = t.y;
     }
 
-    static get_gameplay_time(): number {
-        return Gameplay_Timer.round_idx;
+    static get_gameplay_time(): Vec2 {
+        return new Vec2(Gameplay_Timer.tick_idx, Gameplay_Timer.round_idx);
     }
 
     static calcu_delta_time(start: number, end: number) {
@@ -41,7 +42,7 @@ export class Gameplay_Timer {
                 callback();
             }
 
-            if ((Gameplay_Timer.tick % ticks_per_round) == 0) {
+            if ((Gameplay_Timer.tick_idx % ticks_per_round) == 0) {
                 if ($$.IS_RUNNING) {
                     loop_callback();
 
@@ -51,7 +52,7 @@ export class Gameplay_Timer {
                 }
             }
 
-            Gameplay_Timer.tick = (Gameplay_Timer.tick + 1) % Gameplay_Timer.TICK_BOUNDS;
+            Gameplay_Timer.tick_idx = (Gameplay_Timer.tick_idx + 1) % Gameplay_Timer.TICK_BOUNDS;
         }, Const.Tick_Interval);
     }
 

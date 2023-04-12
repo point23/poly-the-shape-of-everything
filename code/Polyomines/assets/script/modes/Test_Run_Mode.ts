@@ -11,7 +11,7 @@ import { Virtual_Controller } from '../input/Virtual_Controller';
 import { Level_Editor } from '../Level_Editor';
 import {
     generate_controller_proc,
-    generate_rover_moves_if_switch_turned_on,
+    maybe_move_rovers,
 } from '../sokoban';
 
 import { Transaction_Manager } from '../Transaction_Manager';
@@ -158,7 +158,7 @@ function main_loop() {
     process_inputs();
 
     if (!$$.DOING_UNDO && !$$.RELOADING) {
-        generate_rover_moves_if_switch_turned_on(transaction_manager);
+        maybe_move_rovers(transaction_manager);
         transaction_manager.execute();
 
         if (entity_manager.pending_win) {

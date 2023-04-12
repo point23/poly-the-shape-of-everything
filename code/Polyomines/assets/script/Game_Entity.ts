@@ -1,4 +1,4 @@
-import { _decorator, Component, Enum, MeshRenderer, SkeletalAnimation, tween, Vec3, Game, Vec4 } from 'cc';
+import { _decorator, Component, Enum, MeshRenderer, SkeletalAnimation, tween, Vec3, Game, Vec4, ShadowFlow } from 'cc';
 import { Const, Direction, String_Builder } from './Const';
 import { Entity_Manager } from './Entity_Manager';
 import { Polygon_Entity } from './Polygon_Entity';
@@ -213,28 +213,20 @@ export class Game_Entity extends Component {
     get is_valid(): boolean { return (this.flags & Entity_Flags.INVALID) == 0; }
     get is_selected(): boolean { return (this.flags & Entity_Flags.SELECT) != 0; }
 
-    physically_move_to(world_pos: Vec3) {
+    visually_move_to(world_pos: Vec3) {
         this.node.setPosition(world_pos);
     }
 
-    physically_rotate_to(dir: Direction) {
+    visually_rotate_to(dir: Direction) {
         this.body.rotate_to(dir);
     }
 
     face_towards(dir: Direction) {
-        this.physically_rotate_to(dir);
+        this.visually_rotate_to(dir);
         if (this.entity_type != Entity_Type.STATIC) {
             this.logically_rotate_to(dir);
         }
     }
-
-    // async physically_move_to_async(world_pos: Vec3) {
-    //     tween().target(this.node).to(0.1, { position: world_pos }).start();
-    // }
-
-    // async move_to_async(world_pos: Vec3) {
-    //     await this.physically_move_to_async(world_pos);
-    // }
 
     logically_rotate_to(dir: Direction) {
         this.undoable.orientation = dir;
@@ -330,8 +322,31 @@ export function get_entrance_id(e: Game_Entity): number {
 
 export function set_entrance_id(e: Game_Entity, entrance_id: number) {
     if (e.entity_type != Entity_Type.ENTRANCE) return;
-    let slot = new Vec4();
+    const slot = new Vec4(); // @optimize
     slot.x = entrance_id;
+    e.undoable.customized_slot_0 = slot;
+}
+
+export type rover_info = {
+    freq: number,
+    counter: number,
+}
+
+export function get_rover_info(e: Game_Entity): rover_info {
+    if (e.entity_type != Entity_Type.ROVER) return;
+
+    return {
+        freq: e.undoable.customized_slot_0.x,
+        counter: e.undoable.customized_slot_0.y,
+    }
+}
+
+export function set_rover_info(e: Game_Entity, i: rover_info) {
+    if (e.entity_type != Entity_Type.ROVER) return;
+
+    const slot = new Vec4(); // @optimize
+    slot.x = i.freq;
+    slot.y = i.counter;
     e.undoable.customized_slot_0 = slot;
 }
 

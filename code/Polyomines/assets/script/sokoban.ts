@@ -3,7 +3,7 @@ import { Audio_Manager, Random_Audio_Group } from "./Audio_Manager";
 import { String_Builder, same_position, Const, Direction, $$ } from "./Const";
 import { Entity_Manager } from "./Entity_Manager";
 import { Gameplay_Timer } from "./Gameplay_Timer";
-import { Game_Entity, calcu_entity_future_position, same_direction, Entity_Type, calcu_target_direction, collinear_direction, clacu_reversed_direction, locate_entities_in_target_direction, Polyomino_Type, orthogonal_direction, reversed_direction, get_entity_squares, DIRECTION_TO_LOGIC_VEC3, DIRECTION_TO_WORLD_VEC3 } from "./Game_Entity";
+import { Game_Entity, calcu_entity_future_position, same_direction, Entity_Type, calcu_target_direction, collinear_direction, clacu_reversed_direction, locate_entities_in_target_direction, Polyomino_Type, orthogonal_direction, reversed_direction, get_entity_squares, DIRECTION_TO_LOGIC_VEC3, DIRECTION_TO_WORLD_VEC3, get_rover_info, set_rover_info } from "./Game_Entity";
 import { Transaction_Control_Flags, Transaction_Manager } from "./Transaction_Manager";
 import { HERO_ANIM_STATE, Hero_Entity_Data } from "./Hero_Entity_Data";
 
@@ -266,7 +266,7 @@ export class Controller_Proc_Move extends Single_Move {
                         onUpdate(target, ratio) { // Sync supportee and supporter
                             const temp = new Vec3(); // @optimize
                             Vec3.lerp(temp, start_world_position, end_world_position, ratio);
-                            entity.physically_move_to(temp);
+                            entity.visually_move_to(temp);
                             entity.interpolation.ratio = ratio;
                         },
                         onComplete() {
@@ -365,11 +365,13 @@ class Support_Move extends Single_Move {
                         onUpdate() { // Sync supportee and supporter
                             const ratio = supporter.interpolation.ratio;
 
-                            const temp = new Vec3()
-                                .set(supporter.world_position)
-                                .add(DIRECTION_TO_WORLD_VEC3[Direction.UP]);
-                            entity.physically_move_to(temp);
+                            const temp = new Vec3().set(supporter.world_position);
 
+                            if (!is_a_board_entity(entity.entity_type)) {
+                                temp.add(DIRECTION_TO_WORLD_VEC3[Direction.UP]);
+                            }
+
+                            entity.visually_move_to(temp);
                             entity.interpolation.ratio = ratio;
                         },
                         onComplete() {
@@ -448,6 +450,11 @@ class Pushed_Move extends Single_Move {
             const start_world_position = grid.local2world(this.start_position);
             const end_world_position = grid.local2world(this.end_position);
 
+            if (pusher.entity_type == Entity_Type.HERO) {
+                const hero = pusher.getComponent(Hero_Entity_Data);
+                hero.push();
+            }
+
             tween()
                 .target(entity.node)
                 .to(duration, { end_world_position },
@@ -455,18 +462,11 @@ class Pushed_Move extends Single_Move {
                         onStart() {
                             entity.interpolation.ratio = 0;
                         },
-
                         onUpdate(target, ratio) { // Sync supportee and supporter
                             const pusher_ratio = pusher.interpolation.ratio;
-
-                            if (pusher.entity_type == Entity_Type.HERO) {
-                                const hero = pusher.getComponent(Hero_Entity_Data);
-                                hero.push();
-                            }
-
                             const temp = new Vec3(); // @optimize
                             Vec3.lerp(temp, start_world_position, end_world_position, pusher_ratio);
-                            entity.physically_move_to(temp);
+                            entity.visually_move_to(temp);
 
                             entity.interpolation.ratio = pusher_ratio;
                         },
@@ -566,11 +566,10 @@ class Falling_Move extends Single_Move {
 
             const hero_jump_down = entity.entity_type == Entity_Type.HERO;
 
-            let caused_by_hero_pushing = false;
-            let possible_pusher = null; // Reasonable only when caused_by_hero_pushing == true
             if (this.source_entity_id) {
-                caused_by_hero_pushing = true;
-                possible_pusher = manager.find(this.source_entity_id);
+                const possible_pusher = manager.find(this.source_entity_id);
+                const hero = possible_pusher.getComponent(Hero_Entity_Data);
+                hero.push();
             }
 
             tween()
@@ -584,17 +583,13 @@ class Falling_Move extends Single_Move {
                             const temp = new Vec3(); // @optimize
                             if (ratio <= Const.RATIO_FALLING_IN) {
                                 const ratio_ = (ratio) / (Const.RATIO_FALLING_IN); // Mapping
-                                if (caused_by_hero_pushing) { // @hack
-                                    const hero = possible_pusher.getComponent(Hero_Entity_Data);
-                                    hero.push();
-                                }
                                 Vec3.lerp(temp, start_point, drop_point, ratio_);
                             } else {
                                 const ratio_ = (ratio - Const.RATIO_FALLING_IN) / (1 - Const.RATIO_FALLING_IN); // Mapping
                                 Vec3.lerp(temp, drop_point, end_point, ratio_);
                             }
 
-                            entity.physically_move_to(temp);
+                            entity.visually_move_to(temp);
                             entity.interpolation.ratio = ratio;
                         },
                         onComplete() {
@@ -638,8 +633,9 @@ class Rover_Move extends Single_Move {
             const supporters = manager.locate_future_supporters(r, d);
             for (let supporter of supporters) {
                 if (supporter.entity_type == Entity_Type.TRACK) {
-                    if (collinear_direction(supporter.rotation, rover.orientation))
+                    if (collinear_direction(supporter.rotation, rover.orientation)) {
                         return supporter;
+                    }
                 }
             }
             return null;
@@ -708,8 +704,8 @@ class Rover_Move extends Single_Move {
             const position = this.end_position;
             const grid = manager.proximity_grid;
 
-            const freq = entity.derived_data.rover_freq;
-            const duration = (Const.Ticks_Per_Loop[$$.DURATION_IDX] * Const.Tick_Interval) * (freq - 1) * 0.9;
+            const freq = get_rover_info(entity).freq;
+            const duration = (Const.Ticks_Per_Loop[$$.DURATION_IDX] * Const.Tick_Interval) * (freq + 2) * 0.9;
             entity.interpolation.duration = duration;
 
             manager.logically_move_entity(entity, position);
@@ -724,18 +720,20 @@ class Rover_Move extends Single_Move {
                 .to(duration, { end_world_position },
                     {
                         onStart() {
+                            console.log(Gameplay_Timer.get_gameplay_time());
                             entity.interpolation.ratio = 0;
                         },
-                        easing: "linear",
+                        easing: "sineInOut",
                         onUpdate(target, ratio) { // Sync with entities that supported by it or pushed by it.
 
                             const temp = new Vec3(); // @optimize
                             Vec3.lerp(temp, start_world_position, end_world_position, ratio);
-                            entity.physically_move_to(temp);
+                            entity.visually_move_to(temp);
 
                             entity.interpolation.ratio = ratio;
                         },
                         onComplete() {
+                            console.log(Gameplay_Timer.get_gameplay_time());
                             entity.interpolation.ratio = 0;
                             grid.move_entity(entity, position); // correct it
                         }
@@ -799,7 +797,7 @@ export function detect_conflicts(transaction: Move_Transaction, move: Single_Mov
         for (let another_entity of other_entities) {
             if (another_entity.id == target.id) continue;
             if (exist_in_another_move(another_entity)) continue;
-            if (another_entity.entity_type == Entity_Type.GATE || is_a_board(another_entity.entity_type)) continue;
+            if (another_entity.entity_type == Entity_Type.GATE || is_a_board_entity(another_entity.entity_type)) continue;
 
             res.is_taken = true;
             res.taken_by = another_entity;
@@ -891,13 +889,22 @@ export function detect_conflicts(transaction: Move_Transaction, move: Single_Mov
 
         if (supporter_no_longer_exist()) {
             console.log(`SANITY CHECK: NO SUPPORTER, target: ${target.id}, move: ${move.info.move_type}`);
-            let direction = 0;
-            if (move.info.move_type == Move_Type.PUSHED) { // @fixme Don't pay attention to this kinda of special cases...
-                direction = move.reaction_direction;
+
+            if (move.info.move_type == Move_Type.ROVER) {
+                const slap_it = new Rover_Move(target);
+                slap_it.try_add_itself(transaction);
             } else {
-                direction = move.end_direction;
+                let direction = 0;
+                if (move.info.move_type == Move_Type.PUSHED) {
+                    // @fixme Don't pay attention to this kinda of special cases...
+
+                    direction = move.reaction_direction;
+                } else {
+                    direction = move.end_direction;
+                }
+                possible_falling(transaction, target, direction);
             }
-            possible_falling(transaction, target, direction);
+
             remove_it();
             return true;
         }
@@ -918,34 +925,34 @@ export function detect_conflicts(transaction: Move_Transaction, move: Single_Mov
             }
         }
 
-        // remove_it();
         return false;
     }
     return true;
 }
 
-export function generate_rover_moves_if_switch_turned_on(transaction_manager: Transaction_Manager) {
+export function maybe_move_rovers(transaction_manager: Transaction_Manager) {
     const entity_manager = transaction_manager.entity_manager;
-    const gameplay_time = Gameplay_Timer.get_gameplay_time();
     const audio = Audio_Manager.instance;
 
     if (entity_manager.pending_win) return;
     if (!entity_manager.switch_turned_on) return;
 
-    // if ((gameplay_time % Const.SPEED_ROVER_FREQ) != 0) return;
-
     let at_least_one: boolean = false;
     for (let rover of entity_manager.rovers) {
-        if ((gameplay_time % rover.derived_data.rover_freq) == 0) {
+        const info = get_rover_info(rover);
+
+        if (info.counter == info.freq - 1) {
             const rover_move = new Rover_Move(rover);
             if (transaction_manager.try_add_new_move(rover_move)) {
                 at_least_one = true;
             }
         }
+
+        info.counter = (info.counter + 1) % info.freq;
+        set_rover_info(rover, info);
     }
 
     if (at_least_one) {
-        // console.log(Gameplay_Timer.get_gameplay_time());
         audio.play_sfx(audio.rover_move);
     }
 }
@@ -955,8 +962,18 @@ export function generate_controller_proc(transaction_manager: Transaction_Manage
     transaction_manager.try_add_new_move(new Controller_Proc_Move(hero, direction, step));
 }
 
-export function is_a_board(t: Entity_Type) {
-    return t == Entity_Type.TRACK || t == Entity_Type.BRIDGE;
+export function is_a_board_entity(t: Entity_Type): boolean {
+    let res = false;
+    switch (t) {
+        case Entity_Type.TRACK:
+        case Entity_Type.BRIDGE:
+        case Entity_Type.ENTRANCE:
+        case Entity_Type.SWITCH:
+            res = true;
+            break;
+    }
+
+    return res;
 }
 //#endregion PUBLIC
 
@@ -1007,7 +1024,7 @@ function try_push_others(t: Move_Transaction, e: Game_Entity, d: Direction): { p
     for (let other of locate_entities_in_target_direction(manager, e, d)) {
         if (other == null) continue;
         if (other == e) continue;
-        if (is_a_board(other.entity_type)) continue;
+        if (is_a_board_entity(other.entity_type)) continue;
 
         if (other.entity_type == Entity_Type.GATE) {
             const gate = other;

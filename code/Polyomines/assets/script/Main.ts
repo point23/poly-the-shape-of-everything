@@ -9,7 +9,7 @@ import { Button_State, Game_Button, Game_Input } from './input/Game_Input_Handle
 import { Input_Manager } from './input/Input_Manager';
 import { Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
-import { generate_controller_proc, generate_rover_moves_if_switch_turned_on } from './sokoban';
+import { generate_controller_proc, maybe_move_rovers } from './sokoban';
 import { Transaction_Manager } from './Transaction_Manager';
 import { Game_Pause_Panel } from './ui/Game_Pause_Panel';
 import { Show_Hide_Type, UI_Manager } from './UI_Manager';
@@ -322,7 +322,7 @@ function main_loop() {
 
     process_inputs();
     if (!$$.DOING_UNDO && !$$.RELOADING) {
-        generate_rover_moves_if_switch_turned_on(transaction_manager);
+        maybe_move_rovers(transaction_manager);
         transaction_manager.execute();
 
         if (!$$.SWITCH_TURNED_ON) {

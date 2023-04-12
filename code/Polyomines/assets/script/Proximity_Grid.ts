@@ -251,7 +251,7 @@ export class Proximity_Grid {
     }
 
     move_entity(e: Game_Entity, p: Vec3) {
-        e.physically_move_to(this.local2world(p));
+        e.visually_move_to(this.local2world(p));
     }
 
     add_entity(e: Game_Entity) {

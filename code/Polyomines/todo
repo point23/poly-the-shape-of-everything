@@ -21,7 +21,9 @@ UI ===
 + Click any place to start
 + Settings
 + Different Background Color
-+ Auto Fit for Multi-Resolution !!!
++ !!! Auto Fit for Multi-Resolution
++ !!! Guide
++ !!! Click to enter the target room
 + Clock and Slide for undo
 
 GAMEPLAY === 
@@ -54,16 +56,23 @@ GAMEPLAY ===
 - Let the Rover drop down!
 - Hints
 - Fix Input...
-+ Active Hero as an flag... 
+- Active Hero as an flag... 
+- Different Types of Checkpoints: HERO || ARTIFACTS?
 + ARTIFACTS
-+ Different Types of Checkpoints: HERO || ARTIFACTS?
 + Decorators
-    like grass on the ground...
+    Like grass on the ground.
+    Same solution as Hints.
++ Fog of war
++ Map
 + Better camera controller
+    Fallow character
 + Capee / POCCESS MOVE
 + Ocean
 + River
 + Elevator
+
++ !!! Stop all of the interpolations when doing undo, it is visually wrong.
++ !!! Visual_Interpolation class, tick related update
 
 AI STUFF ===
 + What about monsters? how they react?
@@ -71,13 +80,16 @@ AI STUFF ===
 
 ART STUFF===
 - More realistic rocks
-+ Wavelets
-+ Beam vfx made with Particle-System
+- Beam vfx made with Particle-System
     + Glowing vfx for checkpoint
     + Glowing vfx for switch turn on/off
     + Shining gems
-+ Animation
+- Animation
++ Animation State Mechine
 + Plants
++ Wavelets
++ Look through occluding objects if there's a hero or special items like switch or gem
+    - 2 shaders, one with ZTEST GEqual
 
 AUDIO STUFF===
 - Main Theme
@@ -86,6 +98,7 @@ AUDIO STUFF===
 @deprecated ###
 - Redo & Undo <= Command Pattern
 - Entity Type: Channel
+- Schedule Game Loops by Scheduler
 
 @fixme ### 
 - ISSUE#001: 2d local position is limited
@@ -109,17 +122,28 @@ AUDIO STUFF===
     Boards are the FIRST CLASS supporter and supportee
     Boards should have at least one non-board supporter
     If supportee has other suppoter, it should not be moved.
-- ISSUE#012: Undo -> Rewind
-    When user keep pressing undo button, the gamecode should keep rewind, instead of undo once and start to generate
-    rover moves immediatly... 
-- ISSUE#011: ROVER NEEDS STATE
+- ISSUE#011: Rover need state
     After redo action, rover will recalculate it's next direction depends on track and its orientation
     Rover move is generated relies on this val [Game Round Id % Rover Speed], but since we didn't rewind the Round Id,
         it introduced a lot of inconsistencies. We can't reenact some behavior after undo, which is horrifying.
-+ Look through occluding objects if there's a hero or special items like switch or gem
-    - 2 shaders, one with ZTEST GEqual
-+ Stop all of the tweens when doing undo, it is visually wrong.
-+ Since gameplay timer is flip to 0 when count to 1 << 8, 2 rover move will be generate at 2 neighber rounds, each rover should has its own couter!!!
+    Since gameplay timer is flip to 0 when count to 1 << 8, 2 rover move will be generate at 2 neighber rounds, each rover should has its own couter!!!
+- ISSUE#012: Undo -> Rewind
+    When user keep pressing undo button, the gamecode should keep rewind, instead of undo once and start to generate
+    rover moves immediatly... 
++ ISSUE#013: Zigzag Supportees
+    For those whom are supported by as Domino, the world y position can not simply calcu by Support.position + Direction2Vec3[ Direction.Up ].
++ ISSUE#014: Schrodinger's Hints Item
+    When we entered edit mode - test it - switch to another level - switch back...
+    Hints items ganna shown up at a wierd position. 
++ ISSUE#015: Time Operator
+    There're many weird stuff caused by the Gameplay_Timer -
+        when we do visual interpolation with tween system, it's hard to get the rover moving consistently since the tween duration is calculated wrong!!!
+    There're 2 possible solvement to this:
+        1. Gameplay_Timer.get_gameplay_time returns a Vec2()
+            x -> tick_idx;
+            y -> round_idx;
+            So we can get a more detailed info about exactly how long should we move.
+        2. Make the interpolation system on our own.
 
 @optimize ###
 + Draw-Call is too high

@@ -12,6 +12,7 @@ import {
 } from "./Game_Entity";
 import { Level_Editor } from "./Level_Editor";
 import { debug_print_quad_tree } from "./Proximity_Grid";
+import { Vec2 } from "cc";
 
 export class Undo_Handler {
     manager: Entity_Manager = null;
@@ -29,7 +30,7 @@ export class Undo_Handler {
 
 export class Undo_Record {
     // checkpoint: boolean = false;
-    gameplay_time: number = 0;
+    gameplay_time: Vec2 = new Vec2();
     active_hero_idx: number = 0;
     transaction: string = '';
 }
