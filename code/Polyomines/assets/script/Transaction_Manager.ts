@@ -92,7 +92,6 @@ export class Transaction_Manager extends Component {
 
             // @note Pusher and Supporter should be executed first
             transaction.moves.sort((a, b) => b.piority - a.piority);
-            // transaction.moves.reverse(); // @hack
 
             for (const move of transaction.moves) {
                 if (move.info.move_type == Move_Type.CONTROLLER_PROC

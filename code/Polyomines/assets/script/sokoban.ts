@@ -1,4 +1,4 @@
-import { assetManager, math, tween, Vec3 } from "cc";
+import { assetManager, EditBox, math, tween, Vec3 } from "cc";
 import { Audio_Manager, Random_Audio_Group } from "./Audio_Manager";
 import { String_Builder, same_position, Const, Direction, $$ } from "./Const";
 import { Entity_Manager } from "./Entity_Manager";
@@ -599,6 +599,10 @@ class Falling_Move extends Single_Move {
                         },
                         onComplete() {
                             entity.interpolation.ratio = 0;
+                            if (hero_jump_down) {
+                                const hero = entity.getComponent(Hero_Entity_Data);
+                                hero.landing();
+                            }
                             grid.move_entity(entity, position); // correct it
                         }
                     })

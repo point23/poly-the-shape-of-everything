@@ -71,6 +71,8 @@ export class Test_Run_Mode extends Game_Mode {
         $$.IS_RUNNING = true;
         $$.TAKING_USER_INPUT = true;
         $$.RELOADING = false;
+
+        init_animations();
     }
 
     on_exit() {
@@ -174,13 +176,17 @@ function main_loop() {
     }
 }
 
-// function init_animations() {
-//     const entity_manager = Entity_Manager.current;
-//     entity_manager.heros.forEach((it) => { // @hack 
-//         const hero = it.getComponent(Hero_Entity_Data);
-//         hero.normal_idle();
-//     });
-// }
+function init_animations() {
+    const entity_manager = Entity_Manager.current;
+    entity_manager.heros.forEach((it) => { // @hack 
+        const hero = it.getComponent(Hero_Entity_Data);
+        if (entity_manager.active_hero.id == it.id) {
+            hero.active();
+        } else {
+            hero.inactive();
+        }
+    });
+}
 
 function process_animations() {
     if (!$$.IS_RUNNING) return;
@@ -199,7 +205,7 @@ function process_animations() {
     }
 
     if (!$$.HERO_VISUALLY_MOVING && !keep_pressing_moving_btn) { // @hack
-        hero.normal_idle(1.5);
+        hero.active(2);
     }
 }
 

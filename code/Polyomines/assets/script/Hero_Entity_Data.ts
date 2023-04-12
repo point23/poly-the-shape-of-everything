@@ -4,12 +4,14 @@ const { ccclass, property } = _decorator;
 
 export enum HERO_ANIM_STATE {
     NULL,
-    NORMAL_IDLE,
-    SAD_IDLE,
-    VICTORY_IDLE,
-    NORMAL_RUNNING,
-    PUSHING,
-    FALLING,
+    ACTIVE,
+    INACTIVE,
+    VICTORY,
+    RUN,
+    DEAD,
+    PUSH,
+    PULL,
+    LANDING,
 }
 
 @ccclass('Hero_Entity_Data')
@@ -18,36 +20,55 @@ export class Hero_Entity_Data extends Component {
 
     anim_state: HERO_ANIM_STATE = HERO_ANIM_STATE.NULL;
 
-    normal_idle(duration: number = 0) {
-        if (this.anim_state == HERO_ANIM_STATE.NORMAL_IDLE) return;
+    active_anims = ['Active-Left', 'Active-Right'];
+    active_anim_idx = 0;
 
-        this.animation.getState('Normal Idle').speed = Const.ANIM_SPEED[$$.DURATION_IDX];
-        this.animation.crossFade('Normal Idle', duration);
-        this.anim_state = HERO_ANIM_STATE.NORMAL_IDLE;
+    active(duration: number = 0) {
+        if (this.anim_state == HERO_ANIM_STATE.ACTIVE) return;
+        // if (this.anim_state == HERO_ANIM_STATE.LANDING) return;
+
+        const anim = this.active_anims[this.active_anim_idx];
+        this.active_anim_idx = 1 - this.active_anim_idx;
+
+        this.animation.getState(anim).speed = Const.ANIM_SPEED[$$.DURATION_IDX];
+        this.animation.crossFade(anim, duration);
+        this.anim_state = HERO_ANIM_STATE.ACTIVE;
+    }
+
+    inactive() {
+        if (this.anim_state == HERO_ANIM_STATE.INACTIVE) return;
+
+        const anim = 'Inactive';
+        this.animation.getState(anim).speed = Const.ANIM_SPEED[$$.DURATION_IDX];
+        this.animation.crossFade(anim);
+        this.anim_state = HERO_ANIM_STATE.INACTIVE;
     }
 
     push() {
-        if (this.anim_state == HERO_ANIM_STATE.PUSHING) return;
+        if (this.anim_state == HERO_ANIM_STATE.PUSH) return;
 
-        this.animation.getState('Pushing').speed = Const.ANIM_SPEED[$$.DURATION_IDX];
-        this.animation.crossFade('Pushing');
-        this.anim_state = HERO_ANIM_STATE.PUSHING;
+        const anim = 'Push';
+        this.animation.getState(anim).speed = Const.ANIM_SPEED[$$.DURATION_IDX];
+        this.animation.crossFade(anim);
+        this.anim_state = HERO_ANIM_STATE.PUSH;
     }
 
     run(hard: boolean = false) {
-        if (this.anim_state == HERO_ANIM_STATE.NORMAL_RUNNING) return;
-        if (!hard && this.anim_state == HERO_ANIM_STATE.PUSHING) return;
+        if (this.anim_state == HERO_ANIM_STATE.RUN) return;
+        if (!hard && this.anim_state == HERO_ANIM_STATE.PUSH) return;
 
-        this.animation.getState('Normal Running').speed = Const.ANIM_SPEED[$$.DURATION_IDX];
-        this.animation.crossFade("Normal Running");
-        this.anim_state = HERO_ANIM_STATE.NORMAL_RUNNING;
+        const anim = 'Run';
+        this.animation.getState(anim).speed = Const.ANIM_SPEED[$$.DURATION_IDX];
+        this.animation.crossFade(anim);
+        this.anim_state = HERO_ANIM_STATE.RUN;
     }
 
-    fall() {
-        if (this.anim_state == HERO_ANIM_STATE.FALLING) return;
+    landing() {
+        if (this.anim_state == HERO_ANIM_STATE.LANDING) return;
 
-        this.animation.getState('Jump Down').speed = Const.ANIM_SPEED[$$.DURATION_IDX];
-        this.animation.crossFade('Jump Down');
-        this.anim_state = HERO_ANIM_STATE.FALLING;
+        const anim = 'Landing';
+        this.animation.getState(anim).speed = Const.ANIM_SPEED[$$.DURATION_IDX];
+        this.animation.crossFade(anim);
+        this.anim_state = HERO_ANIM_STATE.LANDING;
     }
 }

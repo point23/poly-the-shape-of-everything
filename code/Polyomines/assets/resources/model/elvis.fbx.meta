@@ -12,10 +12,26 @@
     "__original-animation-5.cconb",
     "__original-animation-6.cconb",
     "__original-animation-7.cconb",
-    "__original-animation-8.cconb",
-    "__original-animation-9.cconb"
+    "__original-animation-8.cconb"
   ],
   "subMetas": {
+    "30732": {
+      "importer": "gltf-skeleton",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@30732",
+      "displayName": "",
+      "id": "30732",
+      "name": "UnnamedSkeleton-0.skeleton",
+      "userData": {
+        "gltfIndex": 0,
+        "jointsLength": 189
+      },
+      "ver": "1.0.1",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
     "37284": {
       "importer": "texture",
       "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@37284",
@@ -85,12 +101,12 @@
       ],
       "subMetas": {}
     },
-    "6589b": {
+    "4679d": {
       "importer": "gltf-mesh",
-      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@6589b",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@4679d",
       "displayName": "",
-      "id": "6589b",
-      "name": "Elvis_BodyGeo_Material0.mesh",
+      "id": "4679d",
+      "name": "Elvis_BodyGeo.mesh",
       "userData": {
         "gltfIndex": 0
       },
@@ -102,12 +118,63 @@
       ],
       "subMetas": {}
     },
-    "a9981": {
-      "importer": "gltf-animation",
-      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@a9981",
+    "3d312": {
+      "importer": "gltf-mesh",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@3d312",
       "displayName": "",
-      "id": "a9981",
-      "name": "Normal Idle.animation",
+      "id": "3d312",
+      "name": "Elvis_MouthAnimGeo.mesh",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "5d447": {
+      "importer": "gltf-mesh",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@5d447",
+      "displayName": "",
+      "id": "5d447",
+      "name": "Elvis_EyesAnimGeo.mesh",
+      "userData": {
+        "gltfIndex": 2
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "49e9d": {
+      "importer": "gltf-mesh",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@49e9d",
+      "displayName": "",
+      "id": "49e9d",
+      "name": "Elvis_BrowsAnimGeo.mesh",
+      "userData": {
+        "gltfIndex": 3
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "5dcbb": {
+      "importer": "gltf-animation",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@5dcbb",
+      "displayName": "",
+      "id": "5dcbb",
+      "name": "Active-Right.animation",
       "userData": {
         "gltfIndex": 0,
         "wrapMode": 2,
@@ -125,14 +192,37 @@
       ],
       "subMetas": {}
     },
-    "0ab94": {
+    "4d530": {
       "importer": "gltf-animation",
-      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@0ab94",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@4d530",
       "displayName": "",
-      "id": "0ab94",
-      "name": "Jump Down.animation",
+      "id": "4d530",
+      "name": "Active-Left.animation",
       "userData": {
         "gltfIndex": 1,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 1.9583333730697632
+        },
+        "events": []
+      },
+      "ver": "1.0.16",
+      "imported": true,
+      "files": [
+        ".cconb"
+      ],
+      "subMetas": {}
+    },
+    "8541f": {
+      "importer": "gltf-animation",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@8541f",
+      "displayName": "",
+      "id": "8541f",
+      "name": "Inactive.animation",
+      "userData": {
+        "gltfIndex": 2,
         "wrapMode": 2,
         "sample": 30,
         "span": {
@@ -148,45 +238,21 @@
       ],
       "subMetas": {}
     },
-    "3eaca": {
+    "b9330": {
       "importer": "gltf-animation",
-      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@3eaca",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@b9330",
       "displayName": "",
-      "id": "3eaca",
-      "name": "Pushing.animation",
-      "userData": {
-        "gltfIndex": 2,
-        "wrapMode": 2,
-        "sample": 30,
-        "span": {
-          "from": 0,
-          "to": 1.7083333730697632
-        },
-        "events": []
-      },
-      "ver": "1.0.16",
-      "imported": true,
-      "files": [
-        ".cconb"
-      ],
-      "subMetas": {}
-    },
-    "a4926": {
-      "importer": "gltf-animation",
-      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@a4926",
-      "displayName": "",
-      "id": "a4926",
-      "name": "Running Forward.animation",
+      "id": "b9330",
+      "name": "Landing.animation",
       "userData": {
         "gltfIndex": 3,
         "wrapMode": 2,
         "sample": 30,
         "span": {
           "from": 0,
-          "to": 1.0833333730697632
+          "to": 2
         },
-        "events": [],
-        "speed": 1
+        "events": []
       },
       "ver": "1.0.16",
       "imported": true,
@@ -195,19 +261,19 @@
       ],
       "subMetas": {}
     },
-    "8ee8b": {
+    "abdea": {
       "importer": "gltf-animation",
-      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@8ee8b",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@abdea",
       "displayName": "",
-      "id": "8ee8b",
-      "name": "Sad Idle.animation",
+      "id": "abdea",
+      "name": "Pull.animation",
       "userData": {
         "gltfIndex": 4,
         "wrapMode": 2,
         "sample": 30,
         "span": {
           "from": 0,
-          "to": 2.7916667461395264
+          "to": 1.0833333730697632
         },
         "events": []
       },
@@ -218,43 +284,19 @@
       ],
       "subMetas": {}
     },
-    "6b997": {
+    "cc737": {
       "importer": "gltf-animation",
-      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@6b997",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@cc737",
       "displayName": "",
-      "id": "6b997",
-      "name": "Victory Idle.animation",
+      "id": "cc737",
+      "name": "Push.animation",
       "userData": {
         "gltfIndex": 5,
         "wrapMode": 2,
         "sample": 30,
         "span": {
           "from": 0,
-          "to": 1.875
-        },
-        "events": [],
-        "speed": 2
-      },
-      "ver": "1.0.16",
-      "imported": true,
-      "files": [
-        ".cconb"
-      ],
-      "subMetas": {}
-    },
-    "63ab1": {
-      "importer": "gltf-animation",
-      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@63ab1",
-      "displayName": "",
-      "id": "63ab1",
-      "name": "Shoot.animation",
-      "userData": {
-        "gltfIndex": 6,
-        "wrapMode": 2,
-        "sample": 30,
-        "span": {
-          "from": 0,
-          "to": 3
+          "to": 2.6666667461395264
         },
         "events": []
       },
@@ -265,22 +307,22 @@
       ],
       "subMetas": {}
     },
-    "f1382": {
+    "9292d": {
       "importer": "gltf-animation",
-      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@f1382",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@9292d",
       "displayName": "",
-      "id": "f1382",
-      "name": "Normal Running.animation",
+      "id": "9292d",
+      "name": "Run.animation",
       "userData": {
-        "gltfIndex": 7,
+        "gltfIndex": 6,
         "wrapMode": 2,
+        "speed": 1,
         "sample": 30,
         "span": {
           "from": 0,
           "to": 0.7083333134651184
         },
-        "events": [],
-        "speed": 2
+        "events": []
       },
       "ver": "1.0.16",
       "imported": true,
@@ -289,14 +331,14 @@
       ],
       "subMetas": {}
     },
-    "ca7e4": {
+    "130ce": {
       "importer": "gltf-animation",
-      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@ca7e4",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@130ce",
       "displayName": "",
-      "id": "ca7e4",
-      "name": "Death.animation",
+      "id": "130ce",
+      "name": "Dead.animation",
       "userData": {
-        "gltfIndex": 8,
+        "gltfIndex": 7,
         "wrapMode": 2,
         "sample": 30,
         "span": {
@@ -312,22 +354,22 @@
       ],
       "subMetas": {}
     },
-    "dc888": {
+    "e4391": {
       "importer": "gltf-animation",
-      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@dc888",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@e4391",
       "displayName": "",
-      "id": "dc888",
-      "name": "Walking.animation",
+      "id": "e4391",
+      "name": "Victory.animation",
       "userData": {
-        "gltfIndex": 9,
+        "gltfIndex": 8,
         "wrapMode": 2,
-        "sample": 24,
+        "speed": 2,
+        "sample": 30,
         "span": {
           "from": 0,
-          "to": 1.2083333730697632
+          "to": 1.875
         },
-        "events": [],
-        "speed": 4
+        "events": []
       },
       "ver": "1.0.16",
       "imported": true,
@@ -336,14 +378,48 @@
       ],
       "subMetas": {}
     },
-    "438fe": {
+    "f1394": {
       "importer": "gltf-skeleton",
-      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@438fe",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@f1394",
       "displayName": "",
-      "id": "438fe",
-      "name": "UnnamedSkeleton.skeleton",
+      "id": "f1394",
+      "name": "UnnamedSkeleton-1.skeleton",
       "userData": {
-        "gltfIndex": 0,
+        "gltfIndex": 1,
+        "jointsLength": 189
+      },
+      "ver": "1.0.1",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "75ee4": {
+      "importer": "gltf-skeleton",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@75ee4",
+      "displayName": "",
+      "id": "75ee4",
+      "name": "UnnamedSkeleton-2.skeleton",
+      "userData": {
+        "gltfIndex": 2,
+        "jointsLength": 189
+      },
+      "ver": "1.0.1",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "a72ab": {
+      "importer": "gltf-skeleton",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@a72ab",
+      "displayName": "",
+      "id": "a72ab",
+      "name": "UnnamedSkeleton-3.skeleton",
+      "userData": {
+        "gltfIndex": 3,
         "jointsLength": 189
       },
       "ver": "1.0.1",
@@ -725,12 +801,12 @@
     },
     "animationImportSettings": [
       {
-        "name": "Normal Idle",
+        "name": "Active-Right",
         "duration": 1.9583333730697632,
         "fps": 30,
         "splits": [
           {
-            "name": "Normal Idle",
+            "name": "Active-Right",
             "from": 0,
             "to": 1.9583333730697632,
             "wrapMode": 2
@@ -738,12 +814,25 @@
         ]
       },
       {
-        "name": "Jump Down",
+        "name": "Active-Left",
+        "duration": 1.9583333730697632,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "Active-Left",
+            "from": 0,
+            "to": 1.9583333730697632,
+            "wrapMode": 2
+          }
+        ]
+      },
+      {
+        "name": "Inactive",
         "duration": 2.6666667461395264,
         "fps": 30,
         "splits": [
           {
-            "name": "Jump Down",
+            "name": "Inactive",
             "from": 0,
             "to": 2.6666667461395264,
             "wrapMode": 2
@@ -751,94 +840,65 @@
         ]
       },
       {
-        "name": "Pushing",
-        "duration": 1.7083333730697632,
+        "name": "Landing",
+        "duration": 2,
         "fps": 30,
         "splits": [
           {
-            "name": "Pushing",
+            "name": "Landing",
             "from": 0,
-            "to": 1.7083333730697632,
+            "to": 2,
             "wrapMode": 2
           }
         ]
       },
       {
-        "name": "Running Forward",
+        "name": "Pull",
         "duration": 1.0833333730697632,
         "fps": 30,
         "splits": [
           {
-            "name": "Running Forward",
+            "name": "Pull",
             "from": 0,
             "to": 1.0833333730697632,
+            "wrapMode": 2
+          }
+        ]
+      },
+      {
+        "name": "Push",
+        "duration": 2.6666667461395264,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "Push",
+            "from": 0,
+            "to": 2.6666667461395264,
+            "wrapMode": 2
+          }
+        ]
+      },
+      {
+        "name": "Run",
+        "duration": 0.7083333134651184,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "Run",
+            "from": 0,
+            "to": 0.7083333134651184,
             "wrapMode": 2,
             "speed": 1
           }
         ]
       },
       {
-        "name": "Sad Idle",
-        "duration": 2.7916667461395264,
-        "fps": 30,
-        "splits": [
-          {
-            "name": "Sad Idle",
-            "from": 0,
-            "to": 2.7916667461395264,
-            "wrapMode": 2
-          }
-        ]
-      },
-      {
-        "name": "Victory Idle",
-        "duration": 1.875,
-        "fps": 30,
-        "splits": [
-          {
-            "name": "Victory Idle",
-            "from": 0,
-            "to": 1.875,
-            "fps": 30,
-            "wrapMode": 2,
-            "speed": 2
-          }
-        ]
-      },
-      {
-        "name": "Shoot",
-        "duration": 3,
-        "fps": 30,
-        "splits": [
-          {
-            "name": "Shoot",
-            "from": 0,
-            "to": 3,
-            "wrapMode": 2
-          }
-        ]
-      },
-      {
-        "name": "Normal Running",
-        "duration": 0.7083333134651184,
-        "fps": 30,
-        "splits": [
-          {
-            "name": "Normal Running",
-            "from": 0,
-            "to": 0.7083333134651184,
-            "wrapMode": 2,
-            "speed": 2
-          }
-        ]
-      },
-      {
-        "name": "Death",
+        "name": "Dead",
         "duration": 3.9166667461395264,
         "fps": 30,
         "splits": [
           {
-            "name": "Death",
+            "name": "Dead",
             "from": 0,
             "to": 3.9166667461395264,
             "wrapMode": 2
@@ -846,17 +906,15 @@
         ]
       },
       {
-        "name": "Walking",
-        "duration": 1.2083333730697632,
+        "name": "Victory",
+        "duration": 1.875,
         "fps": 30,
         "splits": [
           {
-            "name": "Walking",
+            "name": "Victory",
             "from": 0,
-            "to": 1.2083333730697632,
-            "fps": 24,
-            "wrapMode": 2,
-            "speed": 4
+            "to": 1.875,
+            "wrapMode": 2
           }
         ]
       }
@@ -864,10 +922,16 @@
     "redirect": "d05ab497-4af0-4e22-98ae-b7550663e4c9@624d9",
     "assetFinder": {
       "meshes": [
-        "d05ab497-4af0-4e22-98ae-b7550663e4c9@6589b"
+        "d05ab497-4af0-4e22-98ae-b7550663e4c9@4679d",
+        "d05ab497-4af0-4e22-98ae-b7550663e4c9@3d312",
+        "d05ab497-4af0-4e22-98ae-b7550663e4c9@5d447",
+        "d05ab497-4af0-4e22-98ae-b7550663e4c9@49e9d"
       ],
       "skeletons": [
-        "d05ab497-4af0-4e22-98ae-b7550663e4c9@438fe"
+        "d05ab497-4af0-4e22-98ae-b7550663e4c9@30732",
+        "d05ab497-4af0-4e22-98ae-b7550663e4c9@f1394",
+        "d05ab497-4af0-4e22-98ae-b7550663e4c9@75ee4",
+        "d05ab497-4af0-4e22-98ae-b7550663e4c9@a72ab"
       ],
       "textures": [
         "d05ab497-4af0-4e22-98ae-b7550663e4c9@0a1ef",
@@ -1074,7 +1138,7 @@
         "_props": [
           {
             "mainTexture": {
-              "__uuid__": "d05ab497-4af0-4e22-98ae-b7550663e4c9@b8518",
+              "__uuid__": "d05ab497-4af0-4e22-98ae-b7550663e4c9@c47df",
               "__expectedType__": "cc.Texture2D"
             },
             "shininessExponent": 19.99999952104794,
