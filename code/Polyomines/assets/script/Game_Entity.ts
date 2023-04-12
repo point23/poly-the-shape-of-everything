@@ -198,6 +198,12 @@ export class Game_Entity extends Component {
     get orientation(): Direction { return this.undoable.orientation; };
     get flags(): number { return this.undoable.flags; }
 
+    #world_position = new Vec3();
+    get world_position(): Vec3 {
+        this.node.getWorldPosition(this.#world_position);
+        return this.#world_position;
+    }
+
     @property(MeshRenderer) editing_cover: MeshRenderer = null;
     @property(Polygon_Entity) body: Polygon_Entity = null;
     @property(Polygon_Entity) indicator: Polygon_Entity = null;
@@ -354,13 +360,29 @@ const polyomino_deltas: Vec3[][][] = [
     ],
 ];
 
-const direction_to_vec3: Vec3[] = [
+// Y -> X
+// Z -> Y
+// X -> Z
+export const DIRECTION_TO_LOGIC_VEC3: Vec3[] = [
     /* LEFT */ new Vec3(-1, 0, 0),
     /* RIGHT */ new Vec3(1, 0, 0),
+
     /* FORWARD */ new Vec3(0, -1, 0),
     /* BACKWARD */ new Vec3(0, 1, 0),
+
     /* UP */ new Vec3(0, 0, 1),
     /* DOWN */ new Vec3(0, 0, -1),
+];
+
+export const DIRECTION_TO_WORLD_VEC3: Vec3[] = [
+    new Vec3(0, 0, -1),
+    new Vec3(0, 0, 1),
+
+    new Vec3(-1, 0, 0),
+    new Vec3(1, 0, 0),
+
+    new Vec3(0, 1, 0),
+    new Vec3(0, -1, 0),
 ];
 
 export function get_entity_squares(e: Game_Entity): Vec3[] {
@@ -389,7 +411,7 @@ export function locate_entities_in_target_direction(m: Entity_Manager, e: Game_E
 }
 
 export function calcu_entity_future_position(e: Game_Entity, dir: Direction, step: number = 1): Vec3 {
-    const delta = direction_to_vec3[dir];
+    const delta = DIRECTION_TO_LOGIC_VEC3[dir];
     let o = new Vec3(e.position);
     for (let i = 0; i < step; i++)
         o.add(delta);

@@ -51,7 +51,7 @@ export class Test_Run_Mode extends Game_Mode {
         this.input_handlers.push(this.vcontroller);
 
         $$.IS_RUNNING = false;
-        Gameplay_Timer.run(this, main_loop);
+        Gameplay_Timer.run(this, main_loop, [process_animations]);
     }
 
     on_enter() {
@@ -67,8 +67,6 @@ export class Test_Run_Mode extends Game_Mode {
 
         undo_mark_beginning(this.entity_manager);
         Level_Editor.instance.info("Test Run");
-
-        init_animations();
 
         $$.IS_RUNNING = true;
         $$.TAKING_USER_INPUT = true;
@@ -157,8 +155,6 @@ function main_loop() {
 
     process_inputs();
 
-    process_animations();
-
     if (!$$.DOING_UNDO && !$$.RELOADING) {
         generate_rover_moves_if_switch_turned_on(transaction_manager);
         transaction_manager.execute();
@@ -178,26 +174,32 @@ function main_loop() {
     }
 }
 
-function init_animations() {
-    const entity_manager = Entity_Manager.current;
-    entity_manager.heros.forEach((it) => { // @hack 
-        const hero = it.getComponent(Hero_Entity_Data);
-        hero.normal_idle();
-    });
-}
+// function init_animations() {
+//     const entity_manager = Entity_Manager.current;
+//     entity_manager.heros.forEach((it) => { // @hack 
+//         const hero = it.getComponent(Hero_Entity_Data);
+//         hero.normal_idle();
+//     });
+// }
 
 function process_animations() {
     if (!$$.IS_RUNNING) return;
 
     const entity_manager = Entity_Manager.current;
     const hero = entity_manager.active_hero.getComponent(Hero_Entity_Data);
+    const input: Game_Input = Input_Manager.instance.game_input;
 
-    if ($$.HERO_VISUALLY_MOVING && $$.KEEP_PRESSING_MOVING_BTN) {
-        hero.animation.getState('Normal Running').speed = Const.ANIM_SPEED[$$.DURATION_IDX];
+    let keep_pressing_moving_btn = false;
+    { // Detect if user keep moving forward
+        for (let b of [Game_Button.MOVE_BACKWARD, Game_Button.MOVE_FORWARD, Game_Button.MOVE_LEFT, Game_Button.MOVE_RIGHT]) {
+            if (input.button_states.get(b).ended_down) {
+                keep_pressing_moving_btn = true;
+            }
+        }
     }
 
-    if (!$$.HERO_VISUALLY_MOVING && !$$.KEEP_PRESSING_MOVING_BTN) { // @hack
-        hero.normal_idle();
+    if (!$$.HERO_VISUALLY_MOVING && !keep_pressing_moving_btn) { // @hack
+        hero.normal_idle(1.5);
     }
 }
 
@@ -213,15 +215,6 @@ function process_inputs() {
 
     if (!(input.button_states.get(Game_Button.UNDO).ended_down)) {
         $$.DOING_UNDO = false;
-    }
-
-    { // Detect if user keep moving forward
-        $$.KEEP_PRESSING_MOVING_BTN = false;
-        for (let b of [Game_Button.MOVE_BACKWARD, Game_Button.MOVE_FORWARD, Game_Button.MOVE_LEFT, Game_Button.MOVE_RIGHT]) {
-            if (input.button_states.get(b).ended_down) {
-                $$.KEEP_PRESSING_MOVING_BTN = true;
-            }
-        }
     }
 
     records.sort((a: Button_State, b: Button_State) => { return a.counter - b.counter });// @note a > b if a - b < 0,

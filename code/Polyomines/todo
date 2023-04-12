@@ -118,7 +118,8 @@ AUDIO STUFF===
         it introduced a lot of inconsistencies. We can't reenact some behavior after undo, which is horrifying.
 + Look through occluding objects if there's a hero or special items like switch or gem
     - 2 shaders, one with ZTEST GEqual
-+ Domino control
++ Stop all of the tweens when doing undo, it is visually wrong.
++ Since gameplay timer is flip to 0 when count to 1 << 8, 2 rover move will be generate at 2 neighber rounds, each rover should has its own couter!!!
 
 @optimize ###
 + Draw-Call is too high

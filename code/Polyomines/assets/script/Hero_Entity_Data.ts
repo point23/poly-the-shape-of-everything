@@ -9,6 +9,7 @@ export enum HERO_ANIM_STATE {
     VICTORY_IDLE,
     NORMAL_RUNNING,
     PUSHING,
+    FALLING,
 }
 
 @ccclass('Hero_Entity_Data')
@@ -17,11 +18,11 @@ export class Hero_Entity_Data extends Component {
 
     anim_state: HERO_ANIM_STATE = HERO_ANIM_STATE.NULL;
 
-    normal_idle(duration = 1) {
+    normal_idle(duration: number = 0) {
         if (this.anim_state == HERO_ANIM_STATE.NORMAL_IDLE) return;
 
         this.animation.getState('Normal Idle').speed = Const.ANIM_SPEED[$$.DURATION_IDX];
-        this.animation.crossFade('Normal Idle', 1);
+        this.animation.crossFade('Normal Idle', duration);
         this.anim_state = HERO_ANIM_STATE.NORMAL_IDLE;
     }
 
@@ -33,12 +34,20 @@ export class Hero_Entity_Data extends Component {
         this.anim_state = HERO_ANIM_STATE.PUSHING;
     }
 
-    run() {
+    run(hard: boolean = false) {
         if (this.anim_state == HERO_ANIM_STATE.NORMAL_RUNNING) return;
-        if (this.anim_state == HERO_ANIM_STATE.PUSHING) return;
+        if (!hard && this.anim_state == HERO_ANIM_STATE.PUSHING) return;
 
         this.animation.getState('Normal Running').speed = Const.ANIM_SPEED[$$.DURATION_IDX];
         this.animation.crossFade("Normal Running");
         this.anim_state = HERO_ANIM_STATE.NORMAL_RUNNING;
+    }
+
+    fall() {
+        if (this.anim_state == HERO_ANIM_STATE.FALLING) return;
+
+        this.animation.getState('Jump Down').speed = Const.ANIM_SPEED[$$.DURATION_IDX];
+        this.animation.crossFade('Jump Down');
+        this.anim_state = HERO_ANIM_STATE.FALLING;
     }
 }
