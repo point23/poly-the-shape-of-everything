@@ -205,7 +205,7 @@ export class Const {
     static Game_Board_Half_Square_Size = 0.5;
     static Game_Board_Orgin_Pos = new Vec3(0, 0, 0);
 
-    static SUPPORT_PIORITY_DOWNGRADE_FACTOR = 0.9;
+    static SUPPORTEE_PIORITY_DOWNGRADE_FACTOR = 0.9;
 
     static JOYSTICK_DEADZONE = 0.05;
 
