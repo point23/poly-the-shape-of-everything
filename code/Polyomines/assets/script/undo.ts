@@ -13,6 +13,7 @@ import {
 import { Level_Editor } from "./Level_Editor";
 import { debug_print_quad_tree } from "./Proximity_Grid";
 import { Vec2 } from "cc";
+import { Visual_Interpolation } from "./interpolation";
 
 export class Undo_Handler {
     manager: Entity_Manager = null;
@@ -117,6 +118,8 @@ export function undo_end_frame(manager: Entity_Manager) {
 export function do_one_undo(manager: Entity_Manager) {
     const undo = manager.undo_handler;
     if (undo.undo_records.empty()) return;
+
+    Visual_Interpolation.running_interpolations = []; // @fixme Move it to somewhere else, maybe Entity_Manager?
 
     const record = undo.undo_records.pop();
     if (!$$.FOR_EDITING) {

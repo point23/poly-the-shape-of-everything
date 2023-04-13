@@ -5,6 +5,7 @@ import { Level_Editor } from './Level_Editor';
 import { debug_print_quad_tree } from './Proximity_Grid';
 import { Move_Flags, Move_Transaction, Move_Type, Single_Move, detect_conflicts, is_dirty } from './sokoban';
 import { undo_end_frame } from './undo';
+import { Gameplay_Timer } from './Gameplay_Timer';
 const { ccclass, property } = _decorator;
 
 export enum Transaction_Control_Flags {
@@ -104,11 +105,11 @@ export class Transaction_Manager extends Component {
             }
         }
 
-        packed.commit_time = new Date(Date.now());
+        packed.commit_time = Gameplay_Timer.get_gameplay_time();
         this.commited_stack.push(packed);
         this.control_flags = 0;
 
-        undo_end_frame(this.entity_manager);
+        // undo_end_frame(this.entity_manager); // @deprecated
 
         if ($$.FOR_EDITING) {
             debug_print_quad_tree(this.entity_manager.proximity_grid.quad_tree);

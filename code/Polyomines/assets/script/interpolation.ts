@@ -1,63 +1,147 @@
-import { _decorator, Vec3 } from 'cc';
+import { _decorator, Quat, Vec3 } from 'cc';
 import { Game_Entity } from './Game_Entity';
 import { gameplay_time, Gameplay_Timer } from './Gameplay_Timer';
 
-// type interpolation_phase = {
-//     end_at: number, // @note Ratio
+export class Interpolation_Message {
+    at: number; // @todo We might need a threshold or sth???
+    send: (() => void);
 
-//     start_point: Vec3;
-//     end_point: Vec3;
+    constructor(at: number) {
+        this.at = at;
+    }
+}
 
-//     on_complete: (() => void),
-// };
+export class Interpolation_Phase {
+    moving: boolean = false;
+    rotating: boolean = false;
 
-export class Visual_Interpolation {
-    static running_interpolations: Visual_Interpolation[] = [];
-
-    ratio: number;
-
-    entity: Game_Entity;
-
-    start_at: gameplay_time = null;
-    end_at: gameplay_time = null;
+    end_at: number; // @note Ratio
 
     start_point: Vec3 = null;
     end_point: Vec3 = null;
 
-    // phases: interpolation_phase[];
+    start_ratation: Quat = null;
+    end_rotation: Quat = null;
 
-    constructor(entity: Game_Entity, start_at: gameplay_time, end_at: gameplay_time, start_point: Vec3, end_point: Vec3) {
-        this.entity = entity;
-
-        this.start_at = start_at;
-        this.end_at = end_at;
-
-        this.start_point = start_point;
-        this.end_point = end_point;
-
-        Visual_Interpolation.running_interpolations.push(this);
+    static movement(end_at: number, start_point: Vec3, end_point: Vec3): Interpolation_Phase {
+        const p = new Interpolation_Phase();
+        p.moving = true;
+        p.end_at = end_at;
+        p.start_point = start_point;
+        p.end_point = end_point;
+        return p;
     }
 
-    process() {
-        const duration = Gameplay_Timer.calcu_delta_ticks(this.start_at, this.end_at); // @optimize
-        const passed = Gameplay_Timer.calcu_delta_ticks(this.start_at);                // @optimize
-        const ratio = passed / duration;
-        this.ratio = ratio;
-        console.log("+========+");
-        console.log(this.ratio);
-        console.log(passed);
-        console.log(Gameplay_Timer.compare(Gameplay_Timer.get_gameplay_time(), this.end_at));
+    on_complete: (() => void);
+};
 
-        const temp = new Vec3(); // @optimize
+export class Visual_Interpolation {
+    static running_interpolations: Visual_Interpolation[] = [];
+
+    current_ratio: number = 0;
+    entity: Game_Entity = null;
+    children: Visual_Interpolation[] = [];
+
+    start_at: gameplay_time = null;
+    end_at: gameplay_time = null;
+
+    current_phase_idx = 0;
+    phases: Interpolation_Phase[] = [];
+    current_msg_idx = 0;
+    messages: Interpolation_Message[] = [];
+
+    // @note Let those static messages to handle contructions with limited params for us.
+    constructor(
+        entity: Game_Entity,
+        start_at: gameplay_time,
+        end_at: gameplay_time,
+        phases: Interpolation_Phase[],
+        messages?: Interpolation_Message[],
+        parent?: Visual_Interpolation) {
+
+        const i = this;
+        // Target
+        i.entity = entity;
+
+        // Time-Range
+        i.start_at = start_at;
+        i.end_at = end_at;
+
+        i.phases = phases;
+        i.messages = messages;
+
+        if (!parent) {
+            Visual_Interpolation.running_interpolations.push(i);
+        } else {
+            i.start_at = parent.start_at;
+            i.end_at = parent.end_at;
+            parent.children.push(i);
+        }
+    }
+
+    process(ratio_?: number) {
         const entity = this.entity;
 
-        Vec3.lerp(temp, this.start_point, this.end_point, ratio);
-        entity.visually_move_to(temp);
-        entity.interpolation.ratio = ratio;
+        let ratio = 0;
+        if (ratio_) {
+            ratio = ratio_; // @note Sync with the parent.
+        } else {
+            const duration = Gameplay_Timer.calcu_delta_ticks(this.start_at, this.end_at); // @optimize
+            const passed = Gameplay_Timer.calcu_delta_ticks(this.start_at);                // @optimize
+            this.current_ratio = ratio = passed / duration;
+        }
 
-        if (this.ratio == 1 || 0 == Gameplay_Timer.compare(Gameplay_Timer.get_gameplay_time(), this.end_at)) {
+        if (ratio > 1) {
+            console.log("================MISS A TICK================"); // @fixme 
+            this.current_ratio = ratio = 1;
+        }
+
+        { // Mapping to current phase and lerp it.
+            let current_phase = this.phases[this.current_phase_idx];
+            if (ratio < 1 && current_phase.end_at < ratio) { // @fixme The end.at might not be exactly that tick???
+                current_phase = this.phases[this.current_phase_idx++];
+            }
+
+            let phase_duration = current_phase.end_at;
+            let last_phase_end_at = 0;
+            if (this.current_phase_idx != 0) {
+                last_phase_end_at = this.phases[this.current_phase_idx - 1].end_at;
+                phase_duration -= last_phase_end_at;
+            }
+
+            let mapped_ratio = (ratio - last_phase_end_at) * (1 / phase_duration);
+            if (mapped_ratio > 1) {
+                mapped_ratio = 1;
+            }
+
+            if (current_phase.moving) {
+                const temp = new Vec3(); // @optimize
+                Vec3.lerp(temp, current_phase.start_point, current_phase.end_point, mapped_ratio);
+                entity.visually_move_to(temp);
+            }
+        }
+
+        { // Process it's children
+            if (this.children) {
+                this.children.forEach((it) => { it.process(ratio); });
+            }
+        }
+
+        { // Send it's messages
+            if (this.messages) {
+                const current_message = this.messages[this.current_msg_idx];
+                if (this.current_msg_idx < this.messages.length) {
+                    if (ratio >= current_message.at) {
+                        current_message.send();
+                        this.current_msg_idx += 1;
+                    }
+                }
+            }
+        }
+
+        if (this.current_ratio >= 1 || Gameplay_Timer.compare(Gameplay_Timer.get_gameplay_time(), this.end_at) >= 0) {
             const idx = Visual_Interpolation.running_interpolations.indexOf(this);
-            Visual_Interpolation.running_interpolations.splice(idx, 1);
+            Visual_Interpolation.running_interpolations.splice(idx, 1); // Remove itself.
             this.on_complete();
         }
     }

@@ -137,7 +137,7 @@ export class Input_Manager extends Component {
         this.keyboard.handle_key_up(key_code);
     }
 
-    update(dt: number) {
+    update_inputs() {
         if (!$$.IS_RUNNING) return;
 
         this.input_handlers.forEach((it) => {

@@ -234,7 +234,7 @@ export class Const {
     static RADIUS_270: number = 1.5 * Math.PI;
     static RADIUS_315: number = 1.75 * Math.PI;
 
-    static RATIO_FALLING_IN = 0.95;
+    static RATIO_FALLING_BEGIN = 0.8;
 
     static DIRECTION2QUAT: Quat[] = [
         /* LEFT */ new Quat(0, Math.sin(this.RADIUS_90), 0, Math.cos(this.RADIUS_90)),

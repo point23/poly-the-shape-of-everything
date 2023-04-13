@@ -51,7 +51,7 @@ export class Test_Run_Mode extends Game_Mode {
         this.input_handlers.push(this.vcontroller);
 
         $$.IS_RUNNING = false;
-        Gameplay_Timer.run(this, main_loop, [process_animations]);
+        Gameplay_Timer.run(this, main_loop, [process_animations, update_inputs]);
     }
 
     on_enter() {
@@ -186,6 +186,10 @@ function init_animations() {
             hero.inactive();
         }
     });
+}
+
+function update_inputs() {
+    Input_Manager.instance.update_inputs();
 }
 
 function process_animations() {

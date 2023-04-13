@@ -2,6 +2,10 @@ import { _decorator, Component, Game, Vec2 } from 'cc';
 import { $$, Const } from './Const';
 import { Visual_Interpolation } from './interpolation';
 
+export function time_to_string(t: gameplay_time) {
+    return `${t.round}-${t.tick}`
+}
+
 export type gameplay_time = {
     round: number,
     tick: number,
@@ -20,7 +24,7 @@ export class Gameplay_Timer {
             tick: 0,
         });
 
-        Visual_Interpolation.running_interpolations = []; // @fixme Move it to somewhere else.
+        Visual_Interpolation.running_interpolations = []; // @fixme Move it to somewhere else, maybe Entity_Manager?
     }
 
     static compare(a: gameplay_time, b: gameplay_time): number {
@@ -28,6 +32,7 @@ export class Gameplay_Timer {
         if (a.round < b.round) return -1;
         if (a.tick > b.tick) return 1;
         if (a.tick < b.tick) return -1;
+
         return 0;
     }
 
@@ -36,25 +41,26 @@ export class Gameplay_Timer {
         Gameplay_Timer.round_idx = t.round;
     }
 
-    static get_gameplay_time(): gameplay_time {
+    static get_gameplay_time(delta: number = 0): gameplay_time {
         return {
-            round: Gameplay_Timer.round_idx,
+            round: Gameplay_Timer.round_idx + delta,
             tick: Gameplay_Timer.tick_idx,
         };
     }
 
     static calcu_delta_rounds(start: gameplay_time, end: gameplay_time = this.get_gameplay_time()): number {
-        if (start.round > end.round) {
+        if (start.round > end.round) { // @incomplete We need to compare them.
             return (Gameplay_Timer.ROUND_BOUNDS - start.round) + end.round;
         }
+
         return end.round - start.round;
     }
 
     static calcu_delta_ticks(start: gameplay_time, end: gameplay_time = this.get_gameplay_time()): number {
         const ticks_per_round = Const.Ticks_Per_Loop[$$.DURATION_IDX];
 
-        if (start.round > end.round) {
-            return 0; // @incomplete We need to compare them.
+        if (start.round > end.round) { // @incomplete We need to compare them.
+            return 0;
         }
 
         return (end.round - start.round - 1) * ticks_per_round + (ticks_per_round - start.tick) + end.tick;

@@ -1,12 +1,26 @@
-import { tween, Vec3 } from "cc";
+import { Vec3 } from "cc";
 import { Audio_Manager, Random_Audio_Group } from "./Audio_Manager";
 import { String_Builder, same_position, Const, Direction, $$ } from "./Const";
 import { Entity_Manager } from "./Entity_Manager";
-import { Gameplay_Timer } from "./Gameplay_Timer";
-import { Game_Entity, calcu_entity_future_position, same_direction, Entity_Type, calcu_target_direction, collinear_direction, clacu_reversed_direction, locate_entities_in_target_direction, Polyomino_Type, orthogonal_direction, reversed_direction, get_entity_squares, DIRECTION_TO_LOGIC_VEC3, DIRECTION_TO_WORLD_VEC3, get_rover_info, set_rover_info } from "./Game_Entity";
+import { Gameplay_Timer, gameplay_time, time_to_string } from "./Gameplay_Timer";
+import {
+    Game_Entity,
+    calcu_entity_future_position,
+    same_direction,
+    Entity_Type,
+    calcu_target_direction,
+    collinear_direction,
+    clacu_reversed_direction,
+    locate_entities_in_target_direction,
+    Polyomino_Type,
+    reversed_direction,
+    DIRECTION_TO_WORLD_VEC3,
+    get_rover_info,
+    set_rover_info,
+} from "./Game_Entity";
 import { Transaction_Control_Flags, Transaction_Manager } from "./Transaction_Manager";
 import { Hero_Entity_Data } from "./Hero_Entity_Data";
-import { Visual_Interpolation } from "./interpolation";
+import { Interpolation_Message, Interpolation_Phase, Visual_Interpolation } from "./interpolation";
 
 export enum Move_Type {
     CONTROLLER_PROC,
@@ -90,11 +104,11 @@ export class Move_Transaction {
     moves: Single_Move[];
     entity_manager: Entity_Manager;
     piority: number = 0;
-    issue_time: Date;
-    commit_time: Date;
+    issue_time: gameplay_time;
+    commit_time: gameplay_time;
 
     public constructor(entity_manager: Entity_Manager) {
-        this.issue_time = new Date(Date.now());
+        this.issue_time = Gameplay_Timer.get_gameplay_time();
         this.id = Move_Transaction.next_id;
         // this.duration = Transaction_Manager.instance.duration;
         this.moves = [];
@@ -109,7 +123,7 @@ export class Move_Transaction {
     debug_info(): string {
         let builder = new String_Builder();
         builder.append('Transaction#').append(this.id);
-        builder.append(' commited at ').append(this.commit_time.toISOString());
+        builder.append(' commited at ').append(time_to_string(this.commit_time));
         builder.append('\n');
         for (let move of this.moves) {
             builder.append('\t- ').append(move.debug_info()).append('\n');
@@ -242,8 +256,6 @@ export class Controller_Proc_Move extends Single_Move {
             const position = this.end_position;
             const grid = manager.proximity_grid;
 
-            const duration = (Const.Ticks_Per_Loop[$$.DURATION_IDX] * Const.Tick_Interval) * 0.9;
-            entity.interpolation.duration = duration;
             manager.logically_move_entity(entity, position); // @hack
 
             const start_point = grid.local2world(this.start_position);
@@ -255,42 +267,18 @@ export class Controller_Proc_Move extends Single_Move {
             $$.HERO_VISUALLY_MOVING = true;
             hero.run();
 
-            { // @implementMe
+            {
                 const begin_at = Gameplay_Timer.get_gameplay_time();
-                const end_at = Gameplay_Timer.get_gameplay_time();
-                end_at.round += 1;
-                const v = new Visual_Interpolation(entity, begin_at, end_at, start_point, end_point);
-                v.on_complete = () => {
+                const end_at = Gameplay_Timer.get_gameplay_time(1);
+                const p_0 = Interpolation_Phase.movement(1, start_point, end_point);
+                const i = new Visual_Interpolation(entity, begin_at, end_at, [p_0]);
+                i.on_complete = () => {
                     $$.TAKING_USER_INPUT = true;
                     $$.HERO_VISUALLY_MOVING = false;
-
-                    entity.interpolation.ratio = 0;
                     grid.move_entity(entity, position); // correct it
                 };
+                entity.interpolation = i;
             }
-
-            // tween()
-            //     .target(entity.node)
-            //     .to(duration, { end_world_position: end_point },
-            //         {
-            //             onStart() {
-            //                 entity.interpolation.ratio = 0;
-            //             },
-            //             onUpdate(target, ratio) { // Sync supportee and supporter
-            //                 const temp = new Vec3(); // @optimize
-            //                 Vec3.lerp(temp, start_point, end_point, ratio);
-            //                 entity.visually_move_to(temp);
-            //                 entity.interpolation.ratio = ratio;
-            //             },
-            //             onComplete() {
-            //                 $$.TAKING_USER_INPUT = true;
-            //                 $$.HERO_VISUALLY_MOVING = false;
-
-            //                 entity.interpolation.ratio = 0;
-            //                 grid.move_entity(entity, position); // correct it
-            //             }
-            //         })
-            //     .start();
         }
 
         may_rotate_entity(this, manager, entity);
@@ -303,6 +291,7 @@ export class Controller_Proc_Move extends Single_Move {
             for (let s of manager.locate_current_supporters(entity)) {
                 if (s.entity_type == Entity_Type.CHECKPOINT) possible_win = true;
             }
+
             if (possible_win) {
                 audio.play_sfx(audio.possible_win);
             }
@@ -359,8 +348,6 @@ class Support_Move extends Single_Move {
 
         if (is_dirty(this, Move_Flags.MOVED)) {
             const grid = manager.proximity_grid;
-            const duration = supporter.interpolation.duration;
-            entity.interpolation.duration = duration;
             const position = this.end_position;
 
             manager.logically_move_entity(entity, position); // @hack
@@ -368,28 +355,17 @@ class Support_Move extends Single_Move {
             const start_point = grid.local2world(this.start_position);
             const end_point = grid.local2world(this.end_position);
 
-            tween()
-                .target(entity.node)
-                .to(duration, { end_world_position: end_point },
-                    {
-                        onStart() {
-                            entity.interpolation.ratio = 0;
-                        },
-                        onUpdate() { // Sync supportee and supporter
-                            const ratio = supporter.interpolation.ratio;
-                            const temp = new Vec3(); // @optimize
-
-                            Vec3.lerp(temp, start_point, end_point, ratio);
-                            entity.visually_move_to(temp);
-
-                            entity.interpolation.ratio = ratio;
-                        },
-                        onComplete() {
-                            entity.interpolation.ratio = 0;
-                            grid.move_entity(entity, position); // correct it
-                        }
-                    })
-                .start();
+            {
+                const begin_at = Gameplay_Timer.get_gameplay_time();
+                const end_at = Gameplay_Timer.get_gameplay_time(1);
+                const p_0 = Interpolation_Phase.movement(1, start_point, end_point);
+                const i = new Visual_Interpolation(entity, begin_at, end_at, [p_0], null, supporter.interpolation);
+                i.on_complete = () => {
+                    entity.interpolation = null;
+                    grid.move_entity(entity, position); // correct it
+                };
+                entity.interpolation = i;
+            }
         }
 
         may_rotate_entity(this, manager, entity);
@@ -451,11 +427,7 @@ class Pushed_Move extends Single_Move {
         if (is_dirty(this, Move_Flags.MOVED)) {
             audio.random_play_one_sfx(Random_Audio_Group.PUSH);
             const grid = manager.proximity_grid;
-            const duration = pusher.interpolation.duration;
-            entity.interpolation.duration = duration;
             const position = this.end_position;
-
-            manager.logically_move_entity(entity, position);
 
             const start_point = grid.local2world(this.start_position);
             const end_point = grid.local2world(this.end_position);
@@ -465,27 +437,23 @@ class Pushed_Move extends Single_Move {
                 hero.push();
             }
 
-            tween()
-                .target(entity.node)
-                .to(duration, { end_world_position: end_point },
-                    {
-                        onStart() {
-                            entity.interpolation.ratio = 0;
-                        },
-                        onUpdate(target, ratio) { // Sync supportee and supporter
-                            const pusher_ratio = pusher.interpolation.ratio;
-                            const temp = new Vec3(); // @optimize
-                            Vec3.lerp(temp, start_point, end_point, pusher_ratio);
-                            entity.visually_move_to(temp);
+            {
+                const begin_at = pusher.interpolation.start_at;
+                const end_at = pusher.interpolation.end_at;
+                const p_0 = Interpolation_Phase.movement(1, start_point, end_point);
 
-                            entity.interpolation.ratio = pusher_ratio;
-                        },
-                        onComplete() {
-                            entity.interpolation.ratio = 0;
-                            grid.move_entity(entity, position); // correct it
-                        }
-                    })
-                .start();
+                const m_0 = new Interpolation_Message(0.5);
+                m_0.send = () => {
+                    manager.logically_move_entity(entity, position);
+                };
+
+                const i = new Visual_Interpolation(entity, begin_at, end_at, [p_0], [m_0], pusher.interpolation);
+                i.on_complete = () => {
+                    entity.interpolation = null;
+                    grid.move_entity(entity, position); // correct it
+                };
+                entity.interpolation = i;
+            }
         }
     }
 
@@ -574,18 +542,16 @@ class Falling_Move extends Single_Move {
             const position = this.end_position;
             const grid = manager.proximity_grid;
 
-            const duration = (Const.Ticks_Per_Loop[$$.DURATION_IDX] * Const.Tick_Interval) * 0.9;
-            entity.interpolation.duration = duration;
-
-            manager.logically_move_entity(entity, position); // @hack
+            // const duration = (Const.Ticks_Per_Loop[$$.DURATION_IDX] * Const.Tick_Interval) * 0.9;
 
             const start_point = grid.local2world(this.start_position);
             const end_point = grid.local2world(this.end_position);
             const drop_point = new Vec3()
                 .set(start_point)
                 .add(DIRECTION_TO_WORLD_VEC3[this.end_direction]);
-
             const hero_jump_down = entity.entity_type == Entity_Type.HERO;
+
+            manager.logically_move_entity(entity, position); // @hack
 
             if (this.source_entity_id) {
                 const possible_pusher = manager.find(this.source_entity_id);
@@ -595,36 +561,23 @@ class Falling_Move extends Single_Move {
                 }
             }
 
-            tween()
-                .target(entity.node)
-                .to(duration, { end_world_position: end_point },
-                    {
-                        onStart() {
-                            entity.interpolation.ratio = 0;
-                        },
-                        onUpdate(target, ratio) { // Sync with entities that supported by it or pushed by it.
-                            const temp = new Vec3(); // @optimize
-                            if (ratio <= Const.RATIO_FALLING_IN) {
-                                const ratio_ = (ratio) / (Const.RATIO_FALLING_IN); // Mapping
-                                Vec3.lerp(temp, start_point, drop_point, ratio_);
-                            } else {
-                                const ratio_ = (ratio - Const.RATIO_FALLING_IN) / (1 - Const.RATIO_FALLING_IN); // Mapping
-                                Vec3.lerp(temp, drop_point, end_point, ratio_);
-                            }
+            {
+                const begin_at = Gameplay_Timer.get_gameplay_time();
+                const end_at = Gameplay_Timer.get_gameplay_time(1);
+                const p_0 = Interpolation_Phase.movement(Const.RATIO_FALLING_BEGIN, start_point, drop_point);
+                const p_1 = Interpolation_Phase.movement(1, drop_point, end_point);
+                const i = new Visual_Interpolation(entity, begin_at, end_at, [p_0, p_1]);
+                i.on_complete = () => {
+                    entity.interpolation = null;
+                    if (hero_jump_down) {
+                        const hero = entity.getComponent(Hero_Entity_Data);
+                        hero.landing();
+                    }
+                    grid.move_entity(entity, position); // correct it
+                };
 
-                            entity.visually_move_to(temp);
-                            entity.interpolation.ratio = ratio;
-                        },
-                        onComplete() {
-                            entity.interpolation.ratio = 0;
-                            if (hero_jump_down) {
-                                const hero = entity.getComponent(Hero_Entity_Data);
-                                hero.landing();
-                            }
-                            grid.move_entity(entity, position); // correct it
-                        }
-                    })
-                .start();
+                entity.interpolation = i;
+            }
         }
 
         may_rotate_entity(this, manager, entity);
@@ -727,44 +680,30 @@ class Rover_Move extends Single_Move {
             const position = this.end_position;
             const grid = manager.proximity_grid;
 
-            const freq = get_rover_info(entity).freq;
-            const duration = (Const.Ticks_Per_Loop[$$.DURATION_IDX] * Const.Tick_Interval) * (freq + 2) * 0.9;
-            entity.interpolation.duration = duration;
+            const start_point = grid.local2world(this.start_position);
+            const end_point = grid.local2world(this.end_position);
+            {
+                const begin_at = Gameplay_Timer.get_gameplay_time();
+                const freq = get_rover_info(entity).freq;
+                const end_at = Gameplay_Timer.get_gameplay_time(freq);
 
-            manager.logically_move_entity(entity, position);
+                const p_0 = Interpolation_Phase.movement(1, start_point, end_point);
 
-            const start_world_position = grid.local2world(this.start_position);
-            const end_world_position = grid.local2world(this.end_position);
+                const m_0 = new Interpolation_Message(0.5);
+                m_0.send = () => {
+                    manager.logically_move_entity(entity, position);
+                };
 
-            tween()
-                // @note There're only 2 GIVER for now - controller_proc and rover, which sets interpolation ratios
-                // others may only read these ratios.
-                .target(entity.node)
-                .to(duration, { end_world_position },
-                    {
-                        onStart() {
-                            console.log(Gameplay_Timer.get_gameplay_time());
-                            entity.interpolation.ratio = 0;
-                        },
-                        easing: "sineInOut",
-                        onUpdate(target, ratio) { // Sync with entities that supported by it or pushed by it.
-
-                            const temp = new Vec3(); // @optimize
-                            Vec3.lerp(temp, start_world_position, end_world_position, ratio);
-                            entity.visually_move_to(temp);
-
-                            entity.interpolation.ratio = ratio;
-                        },
-                        onComplete() {
-                            console.log(Gameplay_Timer.get_gameplay_time());
-                            entity.interpolation.ratio = 0;
-                            grid.move_entity(entity, position); // correct it
-                        }
-                    })
-                .start();
+                const i = new Visual_Interpolation(entity, begin_at, end_at, [p_0], [m_0]);
+                i.on_complete = () => {
+                    entity.interpolation = null;
+                    grid.move_entity(entity, position); // correct it
+                };
+                entity.interpolation = i;
+            }
         }
 
-        if (this.flags & Move_Flags.ROTATED) {
+        if (this.flags & Move_Flags.ROTATED) { // @hack
             entity.undoable.orientation = this.end_direction; // @implementMe Extract it to entity manager
             entity.logically_rotate_to(this.end_direction);
         }

@@ -3,6 +3,7 @@ import { Const, Direction, String_Builder } from './Const';
 import { Entity_Manager } from './Entity_Manager';
 import { Polygon_Entity } from './Polygon_Entity';
 import { Resource_Manager } from './Resource_Manager';
+import { Visual_Interpolation } from './interpolation';
 
 const { ccclass, property } = _decorator;
 
@@ -178,11 +179,6 @@ export class Undoable_Entity_Data {
     }
 };
 
-export class Interpolation {
-    ratio: number = 0;
-    duration: number = 0;
-}
-
 @ccclass('Game_Entity')
 export class Game_Entity extends Component {
     id: number;
@@ -191,7 +187,7 @@ export class Game_Entity extends Component {
     prefab: string = "";
 
     derived_data: any = {};
-    interpolation: Interpolation = new Interpolation();
+    interpolation: Visual_Interpolation = null;
 
     get position(): Vec3 { return this.undoable.position };
     get rotation(): Direction { return this.undoable.rotation };
