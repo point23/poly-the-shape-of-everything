@@ -1,6 +1,6 @@
 import { $$, Stack, String_Builder } from "./Const";
 import { Entity_Manager } from "./Entity_Manager";
-import { Gameplay_Timer } from "./Gameplay_Timer";
+import { Gameplay_Timer, gameplay_time } from "./Gameplay_Timer";
 import {
     clone_undoable_data,
     copy_undoable_data,
@@ -30,7 +30,7 @@ export class Undo_Handler {
 
 export class Undo_Record {
     // checkpoint: boolean = false;
-    gameplay_time: Vec2 = new Vec2();
+    gameplay_time: gameplay_time = null;
     active_hero_idx: number = 0;
     transaction: string = '';
 }

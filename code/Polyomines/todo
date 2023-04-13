@@ -18,13 +18,13 @@ UI ===
 - Stars for difficulty
 - Fade in and Fade out
 - Typer
-+ Click any place to start
-+ Settings
+- Click any place to start
+- Settings
 + Different Background Color
++ Clock and Slide for undo
 + !!! Auto Fit for Multi-Resolution
 + !!! Guide
 + !!! Click to enter the target room
-+ Clock and Slide for undo
 
 GAMEPLAY === 
 - Polyominoes
@@ -130,7 +130,7 @@ AUDIO STUFF===
 - ISSUE#012: Undo -> Rewind
     When user keep pressing undo button, the gamecode should keep rewind, instead of undo once and start to generate
     rover moves immediatly... 
-+ ISSUE#013: Zigzag Supportees
+- ISSUE#013: Zigzag Supportees
     For those whom are supported by as Domino, the world y position can not simply calcu by Support.position + Direction2Vec3[ Direction.Up ].
 + ISSUE#014: Schrodinger's Hints Item
     When we entered edit mode - test it - switch to another level - switch back...

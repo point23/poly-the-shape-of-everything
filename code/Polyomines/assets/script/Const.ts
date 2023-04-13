@@ -163,7 +163,7 @@ export class Const {
     static Default_Game_Board_Size: Size = new Size(10, 10);
 
     static SPEED_ROVER_FREQ: number = 6;
-    static SLOW_ROVER_FREQ: number = 12;
+    static SLOW_ROVER_FREQ: number = 18;
 
     static Tick_Interval: number = (0.1 / (1 << 3)); // 0.1 / 8 => 0.0125, which means 100ms-per-round in normal duration
     static Ticks_Per_Loop: number[] = [

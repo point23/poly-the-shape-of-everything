@@ -1,11 +1,12 @@
-import { assetManager, EditBox, game, Game, math, tween, Vec3 } from "cc";
+import { tween, Vec3 } from "cc";
 import { Audio_Manager, Random_Audio_Group } from "./Audio_Manager";
 import { String_Builder, same_position, Const, Direction, $$ } from "./Const";
 import { Entity_Manager } from "./Entity_Manager";
 import { Gameplay_Timer } from "./Gameplay_Timer";
 import { Game_Entity, calcu_entity_future_position, same_direction, Entity_Type, calcu_target_direction, collinear_direction, clacu_reversed_direction, locate_entities_in_target_direction, Polyomino_Type, orthogonal_direction, reversed_direction, get_entity_squares, DIRECTION_TO_LOGIC_VEC3, DIRECTION_TO_WORLD_VEC3, get_rover_info, set_rover_info } from "./Game_Entity";
 import { Transaction_Control_Flags, Transaction_Manager } from "./Transaction_Manager";
-import { HERO_ANIM_STATE, Hero_Entity_Data } from "./Hero_Entity_Data";
+import { Hero_Entity_Data } from "./Hero_Entity_Data";
+import { Visual_Interpolation } from "./interpolation";
 
 export enum Move_Type {
     CONTROLLER_PROC,
@@ -243,10 +244,10 @@ export class Controller_Proc_Move extends Single_Move {
 
             const duration = (Const.Ticks_Per_Loop[$$.DURATION_IDX] * Const.Tick_Interval) * 0.9;
             entity.interpolation.duration = duration;
-            manager.logically_move_entity(entity, position);
+            manager.logically_move_entity(entity, position); // @hack
 
-            const start_world_position = grid.local2world(this.start_position);
-            const end_world_position = grid.local2world(this.end_position);
+            const start_point = grid.local2world(this.start_position);
+            const end_point = grid.local2world(this.end_position);
 
             const hero = entity.getComponent(Hero_Entity_Data);
 
@@ -254,30 +255,42 @@ export class Controller_Proc_Move extends Single_Move {
             $$.HERO_VISUALLY_MOVING = true;
             hero.run();
 
-            tween()
-                // @note There're only 2 GIVER for now - controller_proc and rover, which sets interpolation ratios
-                // others may only read these ratios.
-                .target(entity.node)
-                .to(duration, { end_world_position },
-                    {
-                        onStart() {
-                            entity.interpolation.ratio = 0;
-                        },
-                        onUpdate(target, ratio) { // Sync supportee and supporter
-                            const temp = new Vec3(); // @optimize
-                            Vec3.lerp(temp, start_world_position, end_world_position, ratio);
-                            entity.visually_move_to(temp);
-                            entity.interpolation.ratio = ratio;
-                        },
-                        onComplete() {
-                            $$.TAKING_USER_INPUT = true;
-                            $$.HERO_VISUALLY_MOVING = false;
+            { // @implementMe
+                const begin_at = Gameplay_Timer.get_gameplay_time();
+                const end_at = Gameplay_Timer.get_gameplay_time();
+                end_at.round += 1;
+                const v = new Visual_Interpolation(entity, begin_at, end_at, start_point, end_point);
+                v.on_complete = () => {
+                    $$.TAKING_USER_INPUT = true;
+                    $$.HERO_VISUALLY_MOVING = false;
 
-                            entity.interpolation.ratio = 0;
-                            grid.move_entity(entity, position); // correct it
-                        }
-                    })
-                .start();
+                    entity.interpolation.ratio = 0;
+                    grid.move_entity(entity, position); // correct it
+                };
+            }
+
+            // tween()
+            //     .target(entity.node)
+            //     .to(duration, { end_world_position: end_point },
+            //         {
+            //             onStart() {
+            //                 entity.interpolation.ratio = 0;
+            //             },
+            //             onUpdate(target, ratio) { // Sync supportee and supporter
+            //                 const temp = new Vec3(); // @optimize
+            //                 Vec3.lerp(temp, start_point, end_point, ratio);
+            //                 entity.visually_move_to(temp);
+            //                 entity.interpolation.ratio = ratio;
+            //             },
+            //             onComplete() {
+            //                 $$.TAKING_USER_INPUT = true;
+            //                 $$.HERO_VISUALLY_MOVING = false;
+
+            //                 entity.interpolation.ratio = 0;
+            //                 grid.move_entity(entity, position); // correct it
+            //             }
+            //         })
+            //     .start();
         }
 
         may_rotate_entity(this, manager, entity);
@@ -1162,11 +1175,6 @@ function can_pass_through(m: Entity_Manager, e: Game_Entity, d: Direction) {
 }
 
 // === Physically Update Entities === 
-function maybe_move_entity(move: Single_Move, manager: Entity_Manager, entity: Game_Entity) {
-    if (!is_dirty(move, Move_Flags.MOVED)) return;
-    manager.move_entity_async(entity, move.end_position);
-}
-
 function may_rotate_entity(move: Single_Move, manager: Entity_Manager, entity: Game_Entity) {
     if (!is_dirty(move, Move_Flags.ROTATED)) return;
     manager.rotate_entity(entity, move.end_direction);

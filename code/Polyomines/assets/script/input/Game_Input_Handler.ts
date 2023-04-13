@@ -1,13 +1,13 @@
 import { _decorator, Component } from 'cc';
 import { $$, clone_all_slots, Const } from '../Const';
-import { Gameplay_Timer } from '../Gameplay_Timer';
+import { gameplay_time, Gameplay_Timer } from '../Gameplay_Timer';
 const { ccclass } = _decorator;
 
 export class Button_State {
     button: Game_Button;
     ended_down: boolean;    // Whether this button is currently ended down when current logic frame is processed
     counter: number;        // How many times this button state has been processed
-    pressed_at: number;     // Gameplay time (round idx)
+    pressed_at: gameplay_time;     // Gameplay time (round idx)
 }
 
 export enum Game_Button {
@@ -60,7 +60,6 @@ export class Game_Input {
             state.button = button;
             state.ended_down = false;
             state.counter = 0;
-            state.pressed_at = 0;
 
             this.button_states.set(button, state);
         }
@@ -79,7 +78,7 @@ export class Game_Input {
 
         state.ended_down = true;
         state.counter = 1;
-        state.pressed_at = Gameplay_Timer.now();
+        state.pressed_at = Gameplay_Timer.get_gameplay_time();
 
         this.pending_records.push(state);
     }
@@ -88,7 +87,6 @@ export class Game_Input {
         const state = this.button_states.get(b);
         state.ended_down = false;
         state.counter = 0;
-        state.pressed_at = -1;
     }
 
     pressed_long_enough(button: number): boolean {
@@ -96,7 +94,7 @@ export class Game_Input {
 
         if (state.ended_down) {
             const t = state.counter;
-            const duration = Gameplay_Timer.calcu_delta_time(state.pressed_at, Gameplay_Timer.now());
+            const duration = Gameplay_Timer.calcu_delta_rounds(state.pressed_at);
             if (duration >= t * Const.VALID_PRESSING_INTERVAL) {
                 return true;
             }
