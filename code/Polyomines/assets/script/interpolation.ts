@@ -3,10 +3,18 @@ import { Game_Entity } from './Game_Entity';
 import { gameplay_time, Gameplay_Timer } from './Gameplay_Timer';
 
 export class Interpolation_Message {
-    at: number; // @todo We might need a threshold or sth???
-    send: (() => void);
+    tag: string = "";
+    at: number = -1; // @todo We might need a threshold or sth???
+    chidren: Interpolation_Message[] = [];
+    do: (() => void);
 
-    constructor(at: number) {
+    send() {
+        this.do();
+        this.chidren.forEach((it) => it.do());
+    }
+
+    constructor(tag: string, at: number) {
+        this.tag = tag;
         this.at = at;
     }
 }
@@ -36,7 +44,7 @@ export class Interpolation_Phase {
 };
 
 export class Visual_Interpolation {
-    static running_interpolations: Visual_Interpolation[] = [];
+    static running_interpolations: Map<number, Visual_Interpolation> = new Map();
 
     current_ratio: number = 0;
     entity: Game_Entity = null;
@@ -47,8 +55,7 @@ export class Visual_Interpolation {
 
     current_phase_idx = 0;
     phases: Interpolation_Phase[] = [];
-    current_msg_idx = 0;
-    messages: Interpolation_Message[] = [];
+    messages: Map<String, Interpolation_Message> = new Map();
 
     // @note Let those static messages to handle contructions with limited params for us.
     constructor(
@@ -68,10 +75,21 @@ export class Visual_Interpolation {
         i.end_at = end_at;
 
         i.phases = phases;
-        i.messages = messages;
+
+        if (messages) {
+            for (let m of messages) {
+                i.messages.set(m.tag, m);
+            }
+        }
+
+        if (entity.interpolation != null) { // @hack
+            console.log('===== CATCHED UP AN INTERPOLATION =====')
+            entity.interpolation.on_complete();
+        }
+        entity.interpolation = i;
 
         if (!parent) {
-            Visual_Interpolation.running_interpolations.push(i);
+            Visual_Interpolation.running_interpolations.set(entity.id, i);
         } else {
             i.start_at = parent.start_at;
             i.end_at = parent.end_at;
@@ -88,11 +106,16 @@ export class Visual_Interpolation {
         } else {
             const duration = Gameplay_Timer.calcu_delta_ticks(this.start_at, this.end_at); // @optimize
             const passed = Gameplay_Timer.calcu_delta_ticks(this.start_at);                // @optimize
-            this.current_ratio = ratio = passed / duration;
+            ratio = passed / duration;
+
+            if (ratio < this.current_ratio) { // @note Duration changed.
+                ratio = this.current_ratio;
+            }
+            this.current_ratio = ratio;
         }
 
         if (ratio > 1) {
-            console.log("================MISS A TICK================"); // @fixme 
+            console.log("===== MISS A TICK ====="); // @fixme 
             this.current_ratio = ratio = 1;
         }
 
@@ -128,20 +151,17 @@ export class Visual_Interpolation {
         }
 
         { // Send it's messages
-            if (this.messages) {
-                const current_message = this.messages[this.current_msg_idx];
-                if (this.current_msg_idx < this.messages.length) {
-                    if (ratio >= current_message.at) {
-                        current_message.send();
-                        this.current_msg_idx += 1;
-                    }
+            for (let m of this.messages.values()) {
+                if (ratio >= m.at) {
+                    m.send();
+                    this.messages.delete(m.tag);
                 }
             }
         }
 
-        if (this.current_ratio >= 1 || Gameplay_Timer.compare(Gameplay_Timer.get_gameplay_time(), this.end_at) >= 0) {
-            const idx = Visual_Interpolation.running_interpolations.indexOf(this);
-            Visual_Interpolation.running_interpolations.splice(idx, 1); // Remove itself.
+        if (this.current_ratio >= 1
+            || Gameplay_Timer.compare(Gameplay_Timer.get_gameplay_time(), this.end_at) >= 0) {
+            Visual_Interpolation.running_interpolations.delete(this.entity.id); // Remove itself.
             this.on_complete();
         }
     }

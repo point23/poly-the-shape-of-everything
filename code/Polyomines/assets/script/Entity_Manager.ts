@@ -205,6 +205,8 @@ export class Entity_Manager {
         if (this.find(e.id)) {
             this.proximity_grid.remove_entity(e);
         }
+        // console.log(`=== entity: ${e.id}, p: ${p} ===`);
+
         e.undoable.position = p;
         this.proximity_grid.add_entity(e);
     }

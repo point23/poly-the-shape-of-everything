@@ -24,8 +24,7 @@ export class $$ {
     static SWITCH_TURNED_ON: boolean;
     static SHOWING_HINTS: boolean;
 
-    static TAKING_USER_INPUT = true;
-    static HERO_VISUALLY_MOVING = false;
+    static HERO_VISUALLY_MOVING = false; // @deprecated
 
     static DURATION_IDX: number = 0;
 

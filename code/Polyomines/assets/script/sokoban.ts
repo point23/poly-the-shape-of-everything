@@ -256,14 +256,11 @@ export class Controller_Proc_Move extends Single_Move {
             const position = this.end_position;
             const grid = manager.proximity_grid;
 
-            manager.logically_move_entity(entity, position); // @hack
-
             const start_point = grid.local2world(this.start_position);
             const end_point = grid.local2world(this.end_position);
 
             const hero = entity.getComponent(Hero_Entity_Data);
 
-            $$.TAKING_USER_INPUT = false;
             $$.HERO_VISUALLY_MOVING = true;
             hero.run();
 
@@ -271,9 +268,13 @@ export class Controller_Proc_Move extends Single_Move {
                 const begin_at = Gameplay_Timer.get_gameplay_time();
                 const end_at = Gameplay_Timer.get_gameplay_time(1);
                 const p_0 = Interpolation_Phase.movement(1, start_point, end_point);
-                const i = new Visual_Interpolation(entity, begin_at, end_at, [p_0]);
+                const m_0 = new Interpolation_Message('Logically Moved', 0.5);
+                m_0.do = () => {
+                    manager.logically_move_entity(entity, position);
+                };
+
+                const i = new Visual_Interpolation(entity, begin_at, end_at, [p_0], [m_0]);
                 i.on_complete = () => {
-                    $$.TAKING_USER_INPUT = true;
                     $$.HERO_VISUALLY_MOVING = false;
                     grid.move_entity(entity, position); // correct it
                 };
@@ -350,8 +351,6 @@ class Support_Move extends Single_Move {
             const grid = manager.proximity_grid;
             const position = this.end_position;
 
-            manager.logically_move_entity(entity, position); // @hack
-
             const start_point = grid.local2world(this.start_position);
             const end_point = grid.local2world(this.end_position);
 
@@ -359,6 +358,15 @@ class Support_Move extends Single_Move {
                 const begin_at = Gameplay_Timer.get_gameplay_time();
                 const end_at = Gameplay_Timer.get_gameplay_time(1);
                 const p_0 = Interpolation_Phase.movement(1, start_point, end_point);
+
+                const m_tag = 'Logically Moved';
+                const m_0 = new Interpolation_Message(m_tag, 0.5);
+                m_0.do = () => {
+                    manager.logically_move_entity(entity, position);
+                };
+                const m_parent = supporter.interpolation.messages.get(m_tag);
+                m_parent.chidren.push(m_0);
+
                 const i = new Visual_Interpolation(entity, begin_at, end_at, [p_0], null, supporter.interpolation);
                 i.on_complete = () => {
                     entity.interpolation = null;
@@ -442,12 +450,15 @@ class Pushed_Move extends Single_Move {
                 const end_at = pusher.interpolation.end_at;
                 const p_0 = Interpolation_Phase.movement(1, start_point, end_point);
 
-                const m_0 = new Interpolation_Message(0.5);
-                m_0.send = () => {
+                const m_tag = 'Logically Moved';
+                const m_0 = new Interpolation_Message(m_tag, 0.5);
+                m_0.do = () => {
                     manager.logically_move_entity(entity, position);
                 };
+                const m_parent = pusher.interpolation.messages.get(m_tag);
+                m_parent.chidren.push(m_0);
 
-                const i = new Visual_Interpolation(entity, begin_at, end_at, [p_0], [m_0], pusher.interpolation);
+                const i = new Visual_Interpolation(entity, begin_at, end_at, [p_0], null, pusher.interpolation);
                 i.on_complete = () => {
                     entity.interpolation = null;
                     grid.move_entity(entity, position); // correct it
@@ -689,8 +700,8 @@ class Rover_Move extends Single_Move {
 
                 const p_0 = Interpolation_Phase.movement(1, start_point, end_point);
 
-                const m_0 = new Interpolation_Message(0.5);
-                m_0.send = () => {
+                const m_0 = new Interpolation_Message('Logically Moved', 0.5);
+                m_0.do = () => {
                     manager.logically_move_entity(entity, position);
                 };
 
@@ -699,7 +710,6 @@ class Rover_Move extends Single_Move {
                     entity.interpolation = null;
                     grid.move_entity(entity, position); // correct it
                 };
-                entity.interpolation = i;
             }
         }
 

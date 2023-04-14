@@ -119,7 +119,7 @@ export function do_one_undo(manager: Entity_Manager) {
     const undo = manager.undo_handler;
     if (undo.undo_records.empty()) return;
 
-    Visual_Interpolation.running_interpolations = []; // @fixme Move it to somewhere else, maybe Entity_Manager?
+    Visual_Interpolation.running_interpolations.clear(); // @fixme Move it to somewhere else, maybe Entity_Manager?
 
     const record = undo.undo_records.pop();
     if (!$$.FOR_EDITING) {

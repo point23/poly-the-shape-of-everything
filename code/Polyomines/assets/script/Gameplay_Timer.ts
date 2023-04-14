@@ -24,7 +24,7 @@ export class Gameplay_Timer {
             tick: 0,
         });
 
-        Visual_Interpolation.running_interpolations = []; // @fixme Move it to somewhere else, maybe Entity_Manager?
+        Visual_Interpolation.running_interpolations.clear(); // @fixme Move it to somewhere else, maybe Entity_Manager?
     }
 
     static compare(a: gameplay_time, b: gameplay_time): number {
@@ -82,7 +82,9 @@ export class Gameplay_Timer {
 
             if ($$.IS_RUNNING) {
                 tick_callbacks.forEach((it) => { it(); })
-                Visual_Interpolation.running_interpolations.forEach((it) => it.process());
+                for (let i of Visual_Interpolation.running_interpolations.values()) {
+                    i.process();
+                }
             }
 
             Gameplay_Timer.tick_idx = (Gameplay_Timer.tick_idx + 1) % ticks_per_round;
@@ -91,5 +93,6 @@ export class Gameplay_Timer {
 
     static stop(caller: Component) {
         caller.unscheduleAllCallbacks();
+        Gameplay_Timer.reset();
     }
 }
