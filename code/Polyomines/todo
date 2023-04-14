@@ -58,11 +58,12 @@ GAMEPLAY ===
 - Fix Input...
 - Active Hero as an flag... 
 - Different Types of Checkpoints: HERO || ARTIFACTS?
++ PRE and POST messages
 + ARTIFACTS
 + Decorators
     Like grass on the ground.
     Same solution as Hints.
-+ Fog of war
++ Fog of wars
 + Map
 + Better camera controller
     Fallow character

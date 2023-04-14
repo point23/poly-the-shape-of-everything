@@ -27,6 +27,10 @@ export class Gameplay_Timer {
         Visual_Interpolation.running_interpolations.clear(); // @fixme Move it to somewhere else, maybe Entity_Manager?
     }
 
+    static now(): number {
+        return Gameplay_Timer.running_idx;
+    }
+
     static compare(a: gameplay_time, b: gameplay_time): number {
         if (a.round > b.round) return 1;
         if (a.round < b.round) return -1;

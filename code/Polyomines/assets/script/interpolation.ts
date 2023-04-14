@@ -2,18 +2,22 @@ import { _decorator, Quat, Vec3 } from 'cc';
 import { Game_Entity } from './Game_Entity';
 import { gameplay_time, Gameplay_Timer } from './Gameplay_Timer';
 
+export enum Messgae_Tag {
+    LOGICALLY_MOVEMENT,
+}
+
 export class Interpolation_Message {
-    tag: string = "";
+    tag: Messgae_Tag;
     at: number = -1; // @todo We might need a threshold or sth???
     chidren: Interpolation_Message[] = [];
     do: (() => void);
 
     send() {
+        this.chidren.forEach((it) => it.send()); // @note Now children has to do it first.
         this.do();
-        this.chidren.forEach((it) => it.do());
     }
 
-    constructor(tag: string, at: number) {
+    constructor(tag: Messgae_Tag, at: number = 10) { // @hack How to describe this kind of relationship???
         this.tag = tag;
         this.at = at;
     }
@@ -55,7 +59,7 @@ export class Visual_Interpolation {
 
     current_phase_idx = 0;
     phases: Interpolation_Phase[] = [];
-    messages: Map<String, Interpolation_Message> = new Map();
+    messages: Map<Messgae_Tag, Interpolation_Message> = new Map();
 
     // @note Let those static messages to handle contructions with limited params for us.
     constructor(
@@ -63,7 +67,7 @@ export class Visual_Interpolation {
         start_at: gameplay_time,
         end_at: gameplay_time,
         phases: Interpolation_Phase[],
-        messages?: Interpolation_Message[],
+        messages: Interpolation_Message[] = [],
         parent?: Visual_Interpolation) {
 
         const i = this;
@@ -76,10 +80,8 @@ export class Visual_Interpolation {
 
         i.phases = phases;
 
-        if (messages) {
-            for (let m of messages) {
-                i.messages.set(m.tag, m);
-            }
+        for (let m of messages) {
+            i.messages.set(m.tag, m);
         }
 
         if (entity.interpolation != null) { // @hack
@@ -162,6 +164,7 @@ export class Visual_Interpolation {
         if (this.current_ratio >= 1
             || Gameplay_Timer.compare(Gameplay_Timer.get_gameplay_time(), this.end_at) >= 0) {
             Visual_Interpolation.running_interpolations.delete(this.entity.id); // Remove itself.
+            entity.interpolation = null;
             this.on_complete();
         }
     }

@@ -157,7 +157,7 @@ function main_loop() {
     process_inputs();
 
     if (!$$.DOING_UNDO && !$$.RELOADING) {
-        undo_end_frame(entity_manager);
+        // undo_end_frame(entity_manager);  // @deprecated
 
         maybe_move_rovers(transaction_manager);
         transaction_manager.execute();

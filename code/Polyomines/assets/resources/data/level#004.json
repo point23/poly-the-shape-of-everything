@@ -1,16 +1,16 @@
 {
-    "difficulty": 6,
+    "difficulty": 1,
     "camera": {
         "position": {
-            "x": -2.5,
-            "y": 9,
+            "x": -1.5,
+            "y": 4,
             "z": 9.5
         },
         "rotation": {
-            "x": -0.298836238730121,
-            "y": -0.6408563820557946,
-            "z": -0.29883623873012133,
-            "w": 0.6408563820557941
+            "x": -0.1530459187330331,
+            "y": -0.6903455270798606,
+            "z": -0.15304591873303355,
+            "w": 0.6903455270798596
         }
     },
     "light": {
@@ -20,10 +20,10 @@
             "z": 9.5
         },
         "rotation": {
-            "x": -0.35355339059327445,
-            "y": -0.6123724356958016,
-            "z": -0.3535533905932748,
-            "w": 0.6123724356958014
+            "x": 0.9224389489918843,
+            "y": -0.16610529355079784,
+            "z": -0.016887644029845415,
+            "w": 0.34818130954474247
         }
     },
     "grid": {
@@ -59,8 +59,8 @@
         {
             "prefab": "Monomino",
             "position": {
-                "x": 13,
-                "y": 5,
+                "x": 11,
+                "y": 9,
                 "z": 1
             },
             "rotation": 0
@@ -68,8 +68,8 @@
         {
             "prefab": "Domino",
             "position": {
-                "x": 7,
-                "y": 7,
+                "x": 8,
+                "y": 4,
                 "z": 1
             },
             "rotation": 0
@@ -293,8 +293,8 @@
         {
             "prefab": "Null",
             "position": {
-                "x": 8,
-                "y": 5,
+                "x": 9,
+                "y": 6,
                 "z": 0
             },
             "rotation": 0
@@ -322,7 +322,7 @@
             "position": {
                 "x": 8,
                 "y": 4,
-                "z": 0
+                "z": -1
             },
             "rotation": 0
         },
@@ -485,8 +485,8 @@
         {
             "prefab": "Entrance#001",
             "position": {
-                "x": 11,
-                "y": 7,
+                "x": 12,
+                "y": 6,
                 "z": 0
             },
             "rotation": 0,
@@ -497,9 +497,9 @@
         {
             "prefab": "Entrance#001",
             "position": {
-                "x": 7,
-                "y": 4,
-                "z": 0
+                "x": 9,
+                "y": 7,
+                "z": 1
             },
             "rotation": 0,
             "derived_data": {
@@ -522,13 +522,112 @@
             "prefab": "Entrance#001",
             "position": {
                 "x": 12,
-                "y": 10,
+                "y": 9,
                 "z": 0
             },
             "rotation": 0,
             "derived_data": {
                 "level_id": "level#006"
             }
+        },
+        {
+            "prefab": "Null",
+            "position": {
+                "x": 8,
+                "y": 6,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Null",
+            "position": {
+                "x": 8,
+                "y": 5,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Null",
+            "position": {
+                "x": 9,
+                "y": 5,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Null",
+            "position": {
+                "x": 9,
+                "y": 4,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Monomino",
+            "position": {
+                "x": 7,
+                "y": 4,
+                "z": 2
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Null",
+            "position": {
+                "x": 13,
+                "y": 6,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Null",
+            "position": {
+                "x": 13,
+                "y": 6,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Null",
+            "position": {
+                "x": 13,
+                "y": 7,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Null",
+            "position": {
+                "x": 6,
+                "y": 9,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Board",
+            "position": {
+                "x": 10,
+                "y": 4,
+                "z": 0
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Rock#002",
+            "position": {
+                "x": 9,
+                "y": 7,
+                "z": 1
+            },
+            "rotation": 2
         }
     ]
 }

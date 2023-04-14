@@ -20,7 +20,8 @@ import {
 } from "./Game_Entity";
 import { Transaction_Control_Flags, Transaction_Manager } from "./Transaction_Manager";
 import { Hero_Entity_Data } from "./Hero_Entity_Data";
-import { Interpolation_Message, Interpolation_Phase, Visual_Interpolation } from "./interpolation";
+import { Interpolation_Message, Interpolation_Phase, Messgae_Tag, Visual_Interpolation } from "./interpolation";
+import { undo_end_frame } from "./undo";
 
 export enum Move_Type {
     CONTROLLER_PROC,
@@ -268,9 +269,10 @@ export class Controller_Proc_Move extends Single_Move {
                 const begin_at = Gameplay_Timer.get_gameplay_time();
                 const end_at = Gameplay_Timer.get_gameplay_time(1);
                 const p_0 = Interpolation_Phase.movement(1, start_point, end_point);
-                const m_0 = new Interpolation_Message('Logically Moved', 0.5);
+                const m_0 = new Interpolation_Message(Messgae_Tag.LOGICALLY_MOVEMENT, 0.5);
                 m_0.do = () => {
                     manager.logically_move_entity(entity, position);
+                    undo_end_frame(manager);
                 };
 
                 const i = new Visual_Interpolation(entity, begin_at, end_at, [p_0], [m_0]);
@@ -278,7 +280,6 @@ export class Controller_Proc_Move extends Single_Move {
                     $$.HERO_VISUALLY_MOVING = false;
                     grid.move_entity(entity, position); // correct it
                 };
-                entity.interpolation = i;
             }
         }
 
@@ -351,28 +352,30 @@ class Support_Move extends Single_Move {
             const grid = manager.proximity_grid;
             const position = this.end_position;
 
-            const start_point = grid.local2world(this.start_position);
-            const end_point = grid.local2world(this.end_position);
-
             {
-                const begin_at = Gameplay_Timer.get_gameplay_time();
-                const end_at = Gameplay_Timer.get_gameplay_time(1);
+                const i_s = supporter.interpolation;
+                const start_at = i_s.start_at;
+                const end_at = i_s.end_at;
+
+                const start_point = grid.local2world(this.start_position);
+                const end_point = grid.local2world(this.end_position);
                 const p_0 = Interpolation_Phase.movement(1, start_point, end_point);
 
-                const m_tag = 'Logically Moved';
-                const m_0 = new Interpolation_Message(m_tag, 0.5);
+                const m_0 = new Interpolation_Message(Messgae_Tag.LOGICALLY_MOVEMENT);
                 m_0.do = () => {
                     manager.logically_move_entity(entity, position);
                 };
-                const m_parent = supporter.interpolation.messages.get(m_tag);
-                m_parent.chidren.push(m_0);
+                {
+                    const m_p = i_s.messages.get(Messgae_Tag.LOGICALLY_MOVEMENT);
+                    if (m_p) {
+                        m_p.chidren.push(m_0);
+                    }
+                }
 
-                const i = new Visual_Interpolation(entity, begin_at, end_at, [p_0], null, supporter.interpolation);
+                const i = new Visual_Interpolation(entity, start_at, end_at, [p_0], [m_0], i_s);
                 i.on_complete = () => {
-                    entity.interpolation = null;
                     grid.move_entity(entity, position); // correct it
                 };
-                entity.interpolation = i;
             }
         }
 
@@ -383,6 +386,7 @@ class Support_Move extends Single_Move {
         let builder = new String_Builder();
         builder.append('SUPPORT#').append(this.id);
         log_target_entity(builder, this);
+        builder.append('\n-   supporter#').append(this.info.source_entity_id);
         maybe_log_rotation(builder, this);
         maybe_log_movement(builder, this);
         return builder.to_string();
@@ -437,33 +441,35 @@ class Pushed_Move extends Single_Move {
             const grid = manager.proximity_grid;
             const position = this.end_position;
 
-            const start_point = grid.local2world(this.start_position);
-            const end_point = grid.local2world(this.end_position);
-
             if (pusher.entity_type == Entity_Type.HERO) {
                 const hero = pusher.getComponent(Hero_Entity_Data);
                 hero.push();
             }
 
             {
-                const begin_at = pusher.interpolation.start_at;
-                const end_at = pusher.interpolation.end_at;
+                const i_p = pusher.interpolation;
+                const start_at = i_p.start_at;
+                const end_at = i_p.end_at;
+
+                const start_point = grid.local2world(this.start_position);
+                const end_point = grid.local2world(this.end_position);
                 const p_0 = Interpolation_Phase.movement(1, start_point, end_point);
 
-                const m_tag = 'Logically Moved';
-                const m_0 = new Interpolation_Message(m_tag, 0.5);
+                const m_0 = new Interpolation_Message(Messgae_Tag.LOGICALLY_MOVEMENT);
                 m_0.do = () => {
                     manager.logically_move_entity(entity, position);
                 };
-                const m_parent = pusher.interpolation.messages.get(m_tag);
-                m_parent.chidren.push(m_0);
+                {
+                    const m_p = i_p.messages.get(Messgae_Tag.LOGICALLY_MOVEMENT);
+                    if (m_p) {
+                        m_p.chidren.push(m_0);
+                    }
+                }
 
-                const i = new Visual_Interpolation(entity, begin_at, end_at, [p_0], null, pusher.interpolation);
+                const i = new Visual_Interpolation(entity, start_at, end_at, [p_0], [m_0], pusher.interpolation);
                 i.on_complete = () => {
-                    entity.interpolation = null;
                     grid.move_entity(entity, position); // correct it
                 };
-                entity.interpolation = i;
             }
         }
     }
@@ -480,11 +486,11 @@ class Pushed_Move extends Single_Move {
 
 // @note Falling move is a replacement of a Pushed_Move or a Controller_Proc_Move
 class Falling_Move extends Single_Move {
-    constructor(entity: Game_Entity, direction: Direction, pusher?: Game_Entity) {
+    constructor(entity: Game_Entity, direction: Direction, e_source?: Game_Entity) {
         const move_info = new Move_Info();
         move_info.move_type = Move_Type.FALLING;
 
-        if (pusher) move_info.source_entity_id = pusher.id;
+        if (e_source) move_info.source_entity_id = e_source.id;
 
         move_info.target_entity_id = entity.id;
         move_info.start_position = entity.position;
@@ -497,6 +503,7 @@ class Falling_Move extends Single_Move {
     static support_falling(entity: Game_Entity, direction: Direction, position_delta: Vec3, parent: Falling_Move, transaction: Move_Transaction) {
         const move = new Falling_Move(entity, direction);
         move.info.end_position = new Vec3(move.start_position).add(position_delta);
+        move.info.source_entity_id = parent.source_entity_id;
         move.piority = parent.piority * Const.SUPPORTEE_PIORITY_DOWNGRADE_FACTOR;
         move.try_add_itself(transaction);
     }
@@ -562,12 +569,11 @@ class Falling_Move extends Single_Move {
                 .add(DIRECTION_TO_WORLD_VEC3[this.end_direction]);
             const hero_jump_down = entity.entity_type == Entity_Type.HERO;
 
-            manager.logically_move_entity(entity, position); // @hack
-
+            let possible_source_e: Game_Entity = null;
             if (this.source_entity_id) {
-                const possible_pusher = manager.find(this.source_entity_id);
-                if (possible_pusher.entity_type == Entity_Type.HERO) {
-                    const hero = possible_pusher.getComponent(Hero_Entity_Data);
+                possible_source_e = manager.find(this.source_entity_id);
+                if (possible_source_e.entity_type == Entity_Type.HERO) {
+                    const hero = possible_source_e.getComponent(Hero_Entity_Data);
                     hero.push();
                 }
             }
@@ -577,17 +583,30 @@ class Falling_Move extends Single_Move {
                 const end_at = Gameplay_Timer.get_gameplay_time(1);
                 const p_0 = Interpolation_Phase.movement(Const.RATIO_FALLING_BEGIN, start_point, drop_point);
                 const p_1 = Interpolation_Phase.movement(1, drop_point, end_point);
-                const i = new Visual_Interpolation(entity, begin_at, end_at, [p_0, p_1]);
-                i.on_complete = () => {
-                    entity.interpolation = null;
-                    if (hero_jump_down) {
-                        const hero = entity.getComponent(Hero_Entity_Data);
-                        hero.landing();
-                    }
-                    grid.move_entity(entity, position); // correct it
-                };
 
-                entity.interpolation = i;
+                let i: Visual_Interpolation = null;
+                if (possible_source_e == null) {
+                    i = new Visual_Interpolation(entity, begin_at, end_at, [p_0, p_1]);
+                    i.on_complete = () => {
+                        manager.logically_move_entity(entity, position); // @hack
+                        if (hero_jump_down) {
+                            const hero = entity.getComponent(Hero_Entity_Data);
+                            hero.landing();
+                        }
+                        grid.move_entity(entity, position); // correct it
+                        undo_end_frame(manager);
+                    };
+                } else {
+                    i = new Visual_Interpolation(entity, begin_at, end_at, [p_0, p_1], [], possible_source_e.interpolation);
+                    i.on_complete = () => {
+                        manager.logically_move_entity(entity, position); // @hack
+                        if (hero_jump_down) {
+                            const hero = entity.getComponent(Hero_Entity_Data);
+                            hero.landing();
+                        }
+                        grid.move_entity(entity, position); // correct it
+                    };
+                }
             }
         }
 
@@ -691,18 +710,19 @@ class Rover_Move extends Single_Move {
             const position = this.end_position;
             const grid = manager.proximity_grid;
 
-            const start_point = grid.local2world(this.start_position);
-            const end_point = grid.local2world(this.end_position);
             {
                 const begin_at = Gameplay_Timer.get_gameplay_time();
                 const freq = get_rover_info(entity).freq;
                 const end_at = Gameplay_Timer.get_gameplay_time(freq);
 
+                const start_point = grid.local2world(this.start_position);
+                const end_point = grid.local2world(this.end_position);
                 const p_0 = Interpolation_Phase.movement(1, start_point, end_point);
 
-                const m_0 = new Interpolation_Message('Logically Moved', 0.5);
+                const m_0 = new Interpolation_Message(Messgae_Tag.LOGICALLY_MOVEMENT, 0.5);
                 m_0.do = () => {
                     manager.logically_move_entity(entity, position);
+                    undo_end_frame(manager);
                 };
 
                 const i = new Visual_Interpolation(entity, begin_at, end_at, [p_0], [m_0]);
@@ -913,14 +933,17 @@ export function maybe_move_rovers(transaction_manager: Transaction_Manager) {
     for (let rover of entity_manager.rovers) {
         const info = get_rover_info(rover);
 
+        let failed_to_move = false;
         if (info.counter == info.freq - 1) {
             const rover_move = new Rover_Move(rover);
             if (transaction_manager.try_add_new_move(rover_move)) {
                 at_least_one = true;
+            } else {
+                failed_to_move = true;
             }
         }
 
-        info.counter = (info.counter + 1) % info.freq;
+        if (!failed_to_move) info.counter = (info.counter + 1) % info.freq;
         set_rover_info(rover, info);
     }
 
