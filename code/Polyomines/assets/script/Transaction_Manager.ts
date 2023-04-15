@@ -47,73 +47,75 @@ export class Transaction_Manager extends Component {
     commited_stack: Stack<Move_Transaction> = new Stack<Move_Transaction>();
     issued_stack: Stack<Move_Transaction> = new Stack<Move_Transaction>();
 
+    issued_transactions: Move_Transaction[] = [];
+
     clear() {
         this.commited_stack.clear();
         this.issued_stack.clear();
     }
 
-    // @note A move that might be able to triger a series of moves
-    try_add_new_move(move: Single_Move): boolean {
-        const new_transaction = new Move_Transaction(this.entity_manager); // @hack
-        if (move.try_add_itself(new_transaction)) {
-            this.issued_stack.push(new_transaction);
+    new_transaction(move: Single_Move): boolean {
+        const t = new Move_Transaction(this.entity_manager);
+
+        if (move.try_add_itself(t)) {
+            this.issued_transactions.push(t);
             return true;
         }
+
         return false;
     }
 
-    execute() {
-        if (this.issued_stack.empty()) return;
+    update_transactions() {
+        if (this.issued_transactions.length == 0) return;
 
-        const packed = new Move_Transaction(this.entity_manager);
-
-        const issued: Move_Transaction[] = [];
-        while (this.issued_stack.size()) {
-            const t = this.issued_stack.pop();
-            issued.push(t);
-        }
-
+        const issued = this.issued_transactions;
         issued.sort((a, b) => b.piority - a.piority);
-        if (issued.length >= 2) console.log(issued); // @note Debug stuff
+        for (let t of issued) {
+            // function is_sanity(): boolean {
+            //     for (const move of t.moves) {
+            //         if (!detect_conflicts(t, move)) return false;;
+            //     }
+            //     return true;
+            // }
+            // //#SCOPE
 
-        for (let transaction of issued) {
-            function is_sanity(): boolean {
-                for (const move of transaction.moves) {
-                    if (!detect_conflicts(transaction, move)) return false;;
-                }
-                return true;
-            }
-            //#SCOPE
-
-            if (!is_sanity()) {
-                // Reject Current Transaction
-                console.log("Something Went Wrong!!!")
-                continue;
-            }
+            // if (!is_sanity()) {
+            //     // Reject Current Transaction
+            //     console.log("Something Went Wrong!!!")
+            //     continue;
+            // }
 
             // @note Pusher and Supporter should be executed first
-            transaction.moves.sort((a, b) => b.piority - a.piority);
 
-            for (const move of transaction.moves) {
-                if (move.info.move_type == Move_Type.CONTROLLER_PROC
-                    && is_dirty(move, Move_Flags.MOVED)) { // @hack
-                    $$.HERO_VISUALLY_MOVING = true;
+
+            // for (const move of t.moves) {
+            //     if (move.info.move_type == Move_Type.CONTROLLER_PROC
+            //         && is_dirty(move, Move_Flags.MOVED)) { // @hack
+            //         $$.HERO_VISUALLY_MOVING = true;
+            //     }
+
+            //     move.update(t);
+            //     packed.moves.push(move);
+            // }
+
+            t.update_single_moves();
+            if (t.closed) {
+                undo_end_frame(this.entity_manager);
+
+                array_remove(issued, t);
+                this.commited_stack.push(t);
+                if ($$.FOR_EDITING) {
+                    debug_print_quad_tree(this.entity_manager.proximity_grid.quad_tree);
+                    Level_Editor.instance.transaction_panel.note_new_transaction();
                 }
-
-                move.execute(transaction);
-                packed.moves.push(move);
             }
         }
 
-        packed.commit_time = Gameplay_Timer.get_gameplay_time();
-        this.commited_stack.push(packed);
         this.control_flags = 0;
-
-        // undo_end_frame(this.entity_manager); // @deprecated
-
-        if ($$.FOR_EDITING) {
-            debug_print_quad_tree(this.entity_manager.proximity_grid.quad_tree);
-            Level_Editor.instance.transaction_panel.note_new_transaction();
-        }
     }
 }
+
+function array_remove(arr: any[], item: any) {
+    const idx = arr.indexOf(item);
+    arr.splice(idx, 1);
+} 

@@ -1,4 +1,4 @@
-import { Vec3 } from "cc";
+import { Vec3, math } from "cc";
 import { Audio_Manager, Random_Audio_Group } from "./Audio_Manager";
 import { String_Builder, same_position, Const, Direction, $$ } from "./Const";
 import { Entity_Manager } from "./Entity_Manager";
@@ -91,7 +91,7 @@ export class Single_Move {
 
     try_add_itself(transaction: Move_Transaction): boolean { return false; }
 
-    execute(transaction: Move_Transaction) { }
+    update(transaction: Move_Transaction) { }
 
     debug_info(): string { return ''; }
 }
@@ -101,22 +101,37 @@ export class Move_Transaction {
     static get next_id(): number { return Move_Transaction.serial_idx++ };
 
     id: number;
-    // duration: number;
-    moves: Single_Move[];
+    moves: Single_Move[] = [];
     entity_manager: Entity_Manager;
-    piority: number = 0;
-    issue_time: gameplay_time;
-    commit_time: gameplay_time;
 
-    public constructor(entity_manager: Entity_Manager) {
-        this.issue_time = Gameplay_Timer.get_gameplay_time();
+    piority: number = 0;
+
+    issue_time: gameplay_time = null;
+    commit_time: gameplay_time = null;
+
+    closed: boolean = false;
+    duration: number = 0; // How many rounds this transaction ganna take.
+    elapsed: number = 0;  // How many rounds this transaction been through.
+
+    constructor(entity_manager: Entity_Manager, duration: number = 1) {
         this.id = Move_Transaction.next_id;
-        // this.duration = Transaction_Manager.instance.duration;
-        this.moves = [];
         this.entity_manager = entity_manager;
+        this.duration = duration;
+        this.issue_time = Gameplay_Timer.get_gameplay_time();
     }
 
-    public add_move(move: Single_Move) {
+    update_single_moves() {
+        this.moves.sort((a, b) => b.piority - a.piority); // @note In case there is some newly added move?
+        this.elapsed += 1;
+        const ratio = math.clamp((this.elapsed / this.duration), 0, 1);
+        for (let move of this.moves) {
+            move.update(this/* , ratio */);
+        }
+
+        this.closed = (this.elapsed >= this.duration);
+    }
+
+    add_move(move: Single_Move) {
         this.moves.push(move);
         this.piority += move.piority;
     }
@@ -124,6 +139,7 @@ export class Move_Transaction {
     debug_info(): string {
         let builder = new String_Builder();
         builder.append('Transaction#').append(this.id);
+        builder.append(' issued at ').append(time_to_string(this.issue_time));
         builder.append(' commited at ').append(time_to_string(this.commit_time));
         builder.append('\n');
         for (let move of this.moves) {
@@ -133,7 +149,7 @@ export class Move_Transaction {
     }
 }
 
-
+/*
 export class Possess_Move extends Single_Move {
     public constructor(entity: Game_Entity) {
         const move_info = new Move_Info();
@@ -170,12 +186,13 @@ export class Possess_Move extends Single_Move {
         return false; // @hack
     }
 
-    async execute() {
+    update() {
         // Entity_Manager.instance.reclaim(this.source_entity);
         // this.target_entity.entity_type = Entity_Type.AVATAR;
         // Entity_Manager.instance.current_character = this.target_entity;
     }
 }
+*/
 
 export class Controller_Proc_Move extends Single_Move {
 
@@ -228,26 +245,35 @@ export class Controller_Proc_Move extends Single_Move {
         if (hit_the_barrier(manager, e_target, end_direction)) return at_least_rotated;
         if (blocked_by_barrier(manager, e_target, end_direction)) return at_least_rotated;
 
-        const push_res = try_push_others(transaction, e_target, end_direction);
+        // function blocked_by_coming_entity(manager: Entity_Manager, p: Vec3): boolean {
+        //     for (let e of manager.moving_entities) {
+        //         if (e.interpolation.caused_by.end_position == p
+        //             && e.interpolation.current_ratio >= 0.4) {
+        //             return true;
+        //         }
+        //     }
+        //     return false;
+        // }
+        // if (blocked_by_coming_entity(manager, end_position)) return at_least_rotated;
+
+        const push_res = try_push_others(e_target, end_direction, transaction);
         if (push_res.pushed && !push_res.push_succeed) return at_least_rotated;
 
         const fall_res = possible_falling(transaction, e_target, end_direction);
-        if (fall_res.fell) return (fall_res.fall_succeed || at_least_rotated);
-
+        if (fall_res.fell) {
+            return (fall_res.fall_succeed || at_least_rotated);
+        }
         transaction.add_move(this);
 
         // Update entities that are supported by target entity
         const position_delta = new Vec3(this.end_position).subtract(this.start_position);
         move_supportees(transaction, e_target, position_delta, 0);
 
-        // Update transaction control flags
-        Transaction_Manager.instance.control_flags |= Transaction_Control_Flags.CONTROLLER_MOVE;
-
         set_dirty(this, Move_Flags.MOVED);
         return true;
     }
 
-    async execute(transaction: Move_Transaction) {
+    update(transaction: Move_Transaction) {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
         const audio = Audio_Manager.instance;
@@ -260,25 +286,21 @@ export class Controller_Proc_Move extends Single_Move {
             const start_point = grid.local2world(this.start_position);
             const end_point = grid.local2world(this.end_position);
 
-            const hero = entity.getComponent(Hero_Entity_Data);
+            manager.logically_move_entity(entity, position);
 
-            $$.HERO_VISUALLY_MOVING = true;
-            hero.run();
+            // const hero = entity.getComponent(Hero_Entity_Data);
+            // $$.HERO_VISUALLY_MOVING = true;
+            // hero.run();
 
             {
                 const begin_at = Gameplay_Timer.get_gameplay_time();
                 const end_at = Gameplay_Timer.get_gameplay_time(1);
                 const p_0 = Interpolation_Phase.movement(1, start_point, end_point);
                 const m_0 = new Interpolation_Message(Messgae_Tag.LOGICALLY_MOVEMENT, 0.5);
-                m_0.do = () => {
-                    manager.logically_move_entity(entity, position);
-                    undo_end_frame(manager);
-                };
 
-                const i = new Visual_Interpolation(entity, begin_at, end_at, [p_0], [m_0]);
+                const i = new Visual_Interpolation(this, entity, begin_at, end_at, [p_0], [m_0]);
                 i.on_complete = () => {
-                    $$.HERO_VISUALLY_MOVING = false;
-                    grid.move_entity(entity, position); // correct it
+                    // $$.HERO_VISUALLY_MOVING = false;
                 };
             }
         }
@@ -343,7 +365,7 @@ class Support_Move extends Single_Move {
         return true;
     }
 
-    async execute(transaction: Move_Transaction) {
+    update(transaction: Move_Transaction) {
         const manager = transaction.entity_manager;
         const supporter = manager.find(this.source_entity_id);
         const entity = manager.find(this.target_entity_id);
@@ -352,6 +374,7 @@ class Support_Move extends Single_Move {
             const grid = manager.proximity_grid;
             const position = this.end_position;
 
+            manager.logically_move_entity(entity, position);
             {
                 const i_s = supporter.interpolation;
                 const start_at = i_s.start_at;
@@ -363,7 +386,7 @@ class Support_Move extends Single_Move {
 
                 const m_0 = new Interpolation_Message(Messgae_Tag.LOGICALLY_MOVEMENT);
                 m_0.do = () => {
-                    manager.logically_move_entity(entity, position);
+
                 };
                 {
                     const m_p = i_s.messages.get(Messgae_Tag.LOGICALLY_MOVEMENT);
@@ -372,10 +395,7 @@ class Support_Move extends Single_Move {
                     }
                 }
 
-                const i = new Visual_Interpolation(entity, start_at, end_at, [p_0], [m_0], i_s);
-                i.on_complete = () => {
-                    grid.move_entity(entity, position); // correct it
-                };
+                const i = new Visual_Interpolation(this, entity, start_at, end_at, [p_0], [m_0], i_s);
             }
         }
 
@@ -394,7 +414,7 @@ class Support_Move extends Single_Move {
 
 }
 
-class Pushed_Move extends Single_Move {
+class Push_Move extends Single_Move {
 
     public constructor(source: Game_Entity, target: Game_Entity, direction: Direction, step: number = 1) {
         const move_info = new Move_Info();
@@ -430,7 +450,7 @@ class Pushed_Move extends Single_Move {
         return true;
     }
 
-    async execute(transaction: Move_Transaction) {
+    update(transaction: Move_Transaction) {
         const manager = transaction.entity_manager;
         const pusher = manager.find(this.source_entity_id);
         const entity = manager.find(this.target_entity_id);
@@ -441,10 +461,12 @@ class Pushed_Move extends Single_Move {
             const grid = manager.proximity_grid;
             const position = this.end_position;
 
-            if (pusher.entity_type == Entity_Type.HERO) {
-                const hero = pusher.getComponent(Hero_Entity_Data);
-                hero.push();
-            }
+            // if (pusher.entity_type == Entity_Type.HERO) {
+            //     const hero = pusher.getComponent(Hero_Entity_Data);
+            //     hero.push();
+            // }
+
+            manager.logically_move_entity(entity, position);
 
             {
                 const i_p = pusher.interpolation;
@@ -457,8 +479,8 @@ class Pushed_Move extends Single_Move {
 
                 const m_0 = new Interpolation_Message(Messgae_Tag.LOGICALLY_MOVEMENT);
                 m_0.do = () => {
-                    manager.logically_move_entity(entity, position);
                 };
+
                 {
                     const m_p = i_p.messages.get(Messgae_Tag.LOGICALLY_MOVEMENT);
                     if (m_p) {
@@ -466,10 +488,7 @@ class Pushed_Move extends Single_Move {
                     }
                 }
 
-                const i = new Visual_Interpolation(entity, start_at, end_at, [p_0], [m_0], pusher.interpolation);
-                i.on_complete = () => {
-                    grid.move_entity(entity, position); // correct it
-                };
+                const i = new Visual_Interpolation(this, entity, start_at, end_at, [p_0], [m_0], pusher.interpolation);
             }
         }
     }
@@ -478,10 +497,10 @@ class Pushed_Move extends Single_Move {
         let builder = new String_Builder();
         builder.append('PUSHED#').append(this.id);
         log_target_entity(builder, this);
+        builder.append('\n-   pusher#').append(this.info.source_entity_id);
         maybe_log_movement(builder, this);
         return builder.to_string();
     }
-
 }
 
 // @note Falling move is a replacement of a Pushed_Move or a Controller_Proc_Move
@@ -548,7 +567,7 @@ class Falling_Move extends Single_Move {
         return true;
     }
 
-    async execute(transaction: Move_Transaction) {
+    update(transaction: Move_Transaction) {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
 
@@ -560,51 +579,50 @@ class Falling_Move extends Single_Move {
             const position = this.end_position;
             const grid = manager.proximity_grid;
 
-            // const duration = (Const.Ticks_Per_Loop[$$.DURATION_IDX] * Const.Tick_Interval) * 0.9;
-
-            const start_point = grid.local2world(this.start_position);
-            const end_point = grid.local2world(this.end_position);
-            const drop_point = new Vec3()
-                .set(start_point)
-                .add(DIRECTION_TO_WORLD_VEC3[this.end_direction]);
-            const hero_jump_down = entity.entity_type == Entity_Type.HERO;
-
             let possible_source_e: Game_Entity = null;
             if (this.source_entity_id) {
                 possible_source_e = manager.find(this.source_entity_id);
-                if (possible_source_e.entity_type == Entity_Type.HERO) {
-                    const hero = possible_source_e.getComponent(Hero_Entity_Data);
-                    hero.push();
-                }
+                // if (possible_source_e.entity_type == Entity_Type.HERO) {
+                //     const hero = possible_source_e.getComponent(Hero_Entity_Data);
+                //     hero.push();
+                // }
             }
 
             {
-                const begin_at = Gameplay_Timer.get_gameplay_time();
-                const end_at = Gameplay_Timer.get_gameplay_time(1);
+                manager.logically_move_entity(entity, position);
+
+                // const hero_jump_down = entity.entity_type == Entity_Type.HERO;
+                const start_point = grid.local2world(this.start_position);
+                const end_point = grid.local2world(this.end_position);
+                const drop_point = new Vec3()
+                    .set(start_point)
+                    .add(DIRECTION_TO_WORLD_VEC3[this.end_direction]);
+
                 const p_0 = Interpolation_Phase.movement(Const.RATIO_FALLING_BEGIN, start_point, drop_point);
                 const p_1 = Interpolation_Phase.movement(1, drop_point, end_point);
 
-                let i: Visual_Interpolation = null;
-                if (possible_source_e == null) {
-                    i = new Visual_Interpolation(entity, begin_at, end_at, [p_0, p_1]);
+                if (!possible_source_e) {
+                    const start_at = Gameplay_Timer.get_gameplay_time();
+                    const end_at = Gameplay_Timer.get_gameplay_time(1);
+
+                    const i = new Visual_Interpolation(this, entity, start_at, end_at, [p_0, p_1]);
                     i.on_complete = () => {
-                        manager.logically_move_entity(entity, position); // @hack
-                        if (hero_jump_down) {
-                            const hero = entity.getComponent(Hero_Entity_Data);
-                            hero.landing();
-                        }
-                        grid.move_entity(entity, position); // correct it
+                        // if (hero_jump_down) {
+                        //     const hero = entity.getComponent(Hero_Entity_Data);
+                        //     hero.landing();
+                        // }
                         undo_end_frame(manager);
                     };
                 } else {
-                    i = new Visual_Interpolation(entity, begin_at, end_at, [p_0, p_1], [], possible_source_e.interpolation);
+                    const start_at = possible_source_e.interpolation.start_at;
+                    const end_at = possible_source_e.interpolation.end_at;
+
+                    const i = new Visual_Interpolation(this, entity, start_at, end_at, [p_0, p_1], [], possible_source_e.interpolation);
                     i.on_complete = () => {
-                        manager.logically_move_entity(entity, position); // @hack
-                        if (hero_jump_down) {
-                            const hero = entity.getComponent(Hero_Entity_Data);
-                            hero.landing();
-                        }
-                        grid.move_entity(entity, position); // correct it
+                        // if (hero_jump_down) {
+                        //     const hero = entity.getComponent(Hero_Entity_Data);
+                        //     hero.landing();
+                        // }
                     };
                 }
             }
@@ -660,7 +678,7 @@ class Rover_Move extends Single_Move {
             turned_around = true;
         } else {
             if (collinear_direction(track.rotation, rover.orientation)) {
-                const push_res = try_push_others(transaction, rover, direction);
+                const push_res = try_push_others(rover, direction, transaction);
                 turned_around = push_res.pushed && !push_res.push_succeed;
             } else {
                 // @implementMe Turning is a problem for now, we don't even have a suitable model...
@@ -675,7 +693,7 @@ class Rover_Move extends Single_Move {
                 stucked = true;
             } else {
                 if (collinear_direction(track.rotation, rover.orientation)) {
-                    const push_res = try_push_others(transaction, rover, direction);
+                    const push_res = try_push_others(rover, direction, transaction);
                     stucked = push_res.pushed && !push_res.push_succeed;
                 } else {
                     // @implementMe Turning is a problem for now, we don't even have a suitable model...
@@ -702,14 +720,16 @@ class Rover_Move extends Single_Move {
         return true;
     }
 
-    async execute(transaction: Move_Transaction) {
+    update(transaction: Move_Transaction) {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
 
         if (is_dirty(this, Move_Flags.MOVED)) {
             const position = this.end_position;
+            const direction = this.end_direction;
             const grid = manager.proximity_grid;
 
+            manager.logically_move_entity(entity, position);
             {
                 const begin_at = Gameplay_Timer.get_gameplay_time();
                 const freq = get_rover_info(entity).freq;
@@ -721,15 +741,9 @@ class Rover_Move extends Single_Move {
 
                 const m_0 = new Interpolation_Message(Messgae_Tag.LOGICALLY_MOVEMENT, 0.5);
                 m_0.do = () => {
-                    manager.logically_move_entity(entity, position);
-                    undo_end_frame(manager);
                 };
 
-                const i = new Visual_Interpolation(entity, begin_at, end_at, [p_0], [m_0]);
-                i.on_complete = () => {
-                    entity.interpolation = null;
-                    grid.move_entity(entity, position); // correct it
-                };
+                const i = new Visual_Interpolation(this, entity, begin_at, end_at, [p_0], [m_0]);
             }
         }
 
@@ -936,7 +950,7 @@ export function maybe_move_rovers(transaction_manager: Transaction_Manager) {
         let failed_to_move = false;
         if (info.counter == info.freq - 1) {
             const rover_move = new Rover_Move(rover);
-            if (transaction_manager.try_add_new_move(rover_move)) {
+            if (transaction_manager.new_transaction(rover_move)) {
                 at_least_one = true;
             } else {
                 failed_to_move = true;
@@ -954,7 +968,10 @@ export function maybe_move_rovers(transaction_manager: Transaction_Manager) {
 
 export function generate_controller_proc(transaction_manager: Transaction_Manager, entity_manager: Entity_Manager, direction: Direction, step: number = 1) {
     const hero = entity_manager.active_hero;
-    transaction_manager.try_add_new_move(new Controller_Proc_Move(hero, direction, step));
+    if (transaction_manager.new_transaction(new Controller_Proc_Move(hero, direction, step))) {
+        // Update transaction control flags
+        transaction_manager.control_flags |= Transaction_Control_Flags.CONTROLLER_MOVE;
+    }
 }
 
 export function is_a_board_entity(t: Entity_Type): boolean {
@@ -1013,9 +1030,13 @@ function can_push(e_source: Game_Entity, e_target: Game_Entity): boolean {
     return true;
 }
 
-function try_push_others(t: Move_Transaction, e: Game_Entity, d: Direction): { pushed: boolean, push_succeed: boolean } {
+function try_push_others(e: Game_Entity, d: Direction, t?: Move_Transaction): { pushed: boolean, push_succeed: boolean } {
     const res = { pushed: false, push_succeed: true };
-    const manager = t.entity_manager;
+
+    let manager = null;
+    if (t) manager = t.entity_manager;
+    else manager = Entity_Manager.current;
+
     for (let other of locate_entities_in_target_direction(manager, e, d)) {
         if (other == null) continue;
         if (other == e) continue;
@@ -1033,11 +1054,33 @@ function try_push_others(t: Move_Transaction, e: Game_Entity, d: Direction): { p
             continue;
         }
 
-        res.pushed = true;
-        const pushed_move = new Pushed_Move(e, other, d);
-        if (!pushed_move.try_add_itself(t)) {
-            res.push_succeed = false;
+        if (other.interpolation) {
+            if (other.interpolation.caused_by) {
+                const single = other.interpolation.caused_by;
+
+                if (single.info.move_type == Move_Type.PUSHED) {
+                    if (single.source_entity_id == e.id
+                        && other.interpolation.current_ratio < 0.5) { // @hack
+                        return res;
+                    }
+                }
+            }
         }
+
+        res.pushed = true;
+        const pushed_move = new Push_Move(e, other, d);
+        if (t)
+            if (!pushed_move.try_add_itself(t)) {
+                res.push_succeed = false;
+            } else {
+                other.interpolation?.destroy(); // @note Just drop it?
+            }
+        else
+            if (Transaction_Manager.instance.new_transaction(pushed_move)) {
+                res.push_succeed = false;
+            } else {
+                other.interpolation?.destroy(); // @note Just drop it?
+            }
     }
 
     return res;

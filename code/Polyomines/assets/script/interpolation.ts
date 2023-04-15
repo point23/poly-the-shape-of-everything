@@ -1,23 +1,45 @@
 import { _decorator, Quat, Vec3 } from 'cc';
 import { Game_Entity } from './Game_Entity';
 import { gameplay_time, Gameplay_Timer } from './Gameplay_Timer';
+import { Single_Move } from './sokoban';
+
+/// @note 1-N relationship
+//  - You can express this kinda of relationship by:
+/*
+    1.
+        parent {
+            children: node[];
+        }
+    2. 
+        chlid {
+            parent: node;
+        }
+*/
 
 export enum Messgae_Tag {
     LOGICALLY_MOVEMENT,
+    ROVER_DETECTION,
 }
 
 export class Interpolation_Message {
+    interpolation: Visual_Interpolation = null;
+
     tag: Messgae_Tag;
     at: number = -1; // @todo We might need a threshold or sth???
     chidren: Interpolation_Message[] = [];
-    do: (() => void);
 
     send() {
-        this.chidren.forEach((it) => it.send()); // @note Now children has to do it first.
+        this.chidren.forEach((it) => {
+            if (!it.interpolation.scheduled_for_destruction) {
+                it.send()
+            }
+        }); // @note Now children has to do it first.
         this.do();
     }
 
-    constructor(tag: Messgae_Tag, at: number = 10) { // @hack How to describe this kind of relationship???
+    do() { }
+
+    constructor(tag: Messgae_Tag, at: number = 10) {
         this.tag = tag;
         this.at = at;
     }
@@ -51,8 +73,11 @@ export class Visual_Interpolation {
     static running_interpolations: Map<number, Visual_Interpolation> = new Map();
 
     current_ratio: number = 0;
+
+    caused_by: Single_Move = null;
     entity: Game_Entity = null;
-    children: Visual_Interpolation[] = [];
+
+    parent: Visual_Interpolation = null;
 
     start_at: gameplay_time = null;
     end_at: gameplay_time = null;
@@ -61,8 +86,11 @@ export class Visual_Interpolation {
     phases: Interpolation_Phase[] = [];
     messages: Map<Messgae_Tag, Interpolation_Message> = new Map();
 
+    scheduled_for_destruction: boolean = false;
+
     // @note Let those static messages to handle contructions with limited params for us.
     constructor(
+        single: Single_Move,
         entity: Game_Entity,
         start_at: gameplay_time,
         end_at: gameplay_time,
@@ -71,7 +99,9 @@ export class Visual_Interpolation {
         parent?: Visual_Interpolation) {
 
         const i = this;
+
         // Target
+        i.caused_by = single;
         i.entity = entity;
 
         // Time-Range
@@ -82,29 +112,25 @@ export class Visual_Interpolation {
 
         for (let m of messages) {
             i.messages.set(m.tag, m);
+            m.interpolation = i;
         }
 
         if (entity.interpolation != null) { // @hack
             console.log('===== CATCHED UP AN INTERPOLATION =====')
             entity.interpolation.on_complete();
         }
-        entity.interpolation = i;
 
-        if (!parent) {
-            Visual_Interpolation.running_interpolations.set(entity.id, i);
-        } else {
-            i.start_at = parent.start_at;
-            i.end_at = parent.end_at;
-            parent.children.push(i);
-        }
+        this.parent = parent;
+        entity.interpolation = i;
+        Visual_Interpolation.running_interpolations.set(entity.id, i);
     }
 
-    process(ratio_?: number) {
+    process() {
         const entity = this.entity;
 
         let ratio = 0;
-        if (ratio_) {
-            ratio = ratio_; // @note Sync with the parent.
+        if (this.parent) {
+            ratio = this.parent.current_ratio; // @note Sync with the parent.
         } else {
             const duration = Gameplay_Timer.calcu_delta_ticks(this.start_at, this.end_at); // @optimize
             const passed = Gameplay_Timer.calcu_delta_ticks(this.start_at);                // @optimize
@@ -113,8 +139,8 @@ export class Visual_Interpolation {
             if (ratio < this.current_ratio) { // @note Duration changed.
                 ratio = this.current_ratio;
             }
-            this.current_ratio = ratio;
         }
+        this.current_ratio = ratio;
 
         if (ratio > 1) {
             console.log("===== MISS A TICK ====="); // @fixme 
@@ -146,12 +172,6 @@ export class Visual_Interpolation {
             }
         }
 
-        { // Process it's children
-            if (this.children) {
-                this.children.forEach((it) => { it.process(ratio); });
-            }
-        }
-
         { // Send it's messages
             for (let m of this.messages.values()) {
                 if (ratio >= m.at) {
@@ -163,11 +183,19 @@ export class Visual_Interpolation {
 
         if (this.current_ratio >= 1
             || Gameplay_Timer.compare(Gameplay_Timer.get_gameplay_time(), this.end_at) >= 0) {
-            Visual_Interpolation.running_interpolations.delete(this.entity.id); // Remove itself.
-            entity.interpolation = null;
+
             this.on_complete();
+            this.destroy();
         }
     }
 
+    destroy() {
+        // Remove it.
+        this.entity.interpolation = null;
+        this.scheduled_for_destruction = true;
+        Visual_Interpolation.running_interpolations.delete(this.entity.id); // Remove itself.
+    }
+
+    on_start() { }
     on_complete() { }
 }

@@ -157,10 +157,8 @@ function main_loop() {
     process_inputs();
 
     if (!$$.DOING_UNDO && !$$.RELOADING) {
-        // undo_end_frame(entity_manager);  // @deprecated
-
         maybe_move_rovers(transaction_manager);
-        transaction_manager.execute();
+        transaction_manager.update_transactions();
 
         if (entity_manager.pending_win) {
             Level_Editor.instance.load_succeed_level();
@@ -178,15 +176,15 @@ function main_loop() {
 }
 
 function init_animations() {
-    const entity_manager = Entity_Manager.current;
-    entity_manager.heros.forEach((it) => { // @hack 
-        const hero = it.getComponent(Hero_Entity_Data);
-        if (entity_manager.active_hero.id == it.id) {
-            hero.active();
-        } else {
-            hero.inactive();
-        }
-    });
+    // const entity_manager = Entity_Manager.current;
+    // entity_manager.heros.forEach((it) => { // @hack 
+    //     const hero = it.getComponent(Hero_Entity_Data);
+    //     if (entity_manager.active_hero.id == it.id) {
+    //         hero.active();
+    //     } else {
+    //         hero.inactive();
+    //     }
+    // });
 }
 
 function update_inputs() {
@@ -194,24 +192,24 @@ function update_inputs() {
 }
 
 function process_animations() {
-    if (!$$.IS_RUNNING) return;
+    // if (!$$.IS_RUNNING) return;
 
-    const entity_manager = Entity_Manager.current;
-    const hero = entity_manager.active_hero.getComponent(Hero_Entity_Data);
-    const input: Game_Input = Input_Manager.instance.game_input;
+    // const entity_manager = Entity_Manager.current;
+    // const hero = entity_manager.active_hero.getComponent(Hero_Entity_Data);
+    // const input: Game_Input = Input_Manager.instance.game_input;
 
-    let keep_pressing_moving_btn = false;
-    { // Detect if user keep moving forward
-        for (let b of [Game_Button.MOVE_BACKWARD, Game_Button.MOVE_FORWARD, Game_Button.MOVE_LEFT, Game_Button.MOVE_RIGHT]) {
-            if (input.button_states.get(b).ended_down) {
-                keep_pressing_moving_btn = true;
-            }
-        }
-    }
+    // let keep_pressing_moving_btn = false;
+    // { // Detect if user keep moving forward
+    //     for (let b of [Game_Button.MOVE_BACKWARD, Game_Button.MOVE_FORWARD, Game_Button.MOVE_LEFT, Game_Button.MOVE_RIGHT]) {
+    //         if (input.button_states.get(b).ended_down) {
+    //             keep_pressing_moving_btn = true;
+    //         }
+    //     }
+    // }
 
-    if (!$$.HERO_VISUALLY_MOVING && !keep_pressing_moving_btn) { // @hack
-        hero.active(2);
-    }
+    // if (!$$.HERO_VISUALLY_MOVING && !keep_pressing_moving_btn) { // @hack
+    //     hero.active(2);
+    // }
 }
 
 function process_inputs() {

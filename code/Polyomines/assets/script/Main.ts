@@ -323,7 +323,7 @@ function main_loop() {
     process_inputs();
     if (!$$.DOING_UNDO && !$$.RELOADING) {
         maybe_move_rovers(transaction_manager);
-        transaction_manager.execute();
+        transaction_manager.update_transactions();
 
         if (!$$.SWITCH_TURNED_ON) {
             if (entity_manager.switch_turned_on) {

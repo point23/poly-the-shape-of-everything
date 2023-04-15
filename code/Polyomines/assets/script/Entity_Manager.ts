@@ -59,6 +59,16 @@ export class Entity_Manager {
     all_entities: Game_Entity[] = [];
     checkpoints: Game_Entity[] = [];
 
+    get moving_entities(): Game_Entity[] { // @hack
+        const res = []
+        for (let e of this.all_entities) {
+            if (!e.interpolation) continue;
+
+            res.push(e);
+        }
+        return res;
+    }
+
     rovers: Game_Entity[] = [];
     switches: Game_Entity[] = [];
     hints: Game_Entity[] = [];

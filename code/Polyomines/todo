@@ -136,7 +136,7 @@ AUDIO STUFF===
 + ISSUE#014: Schrodinger's Hints Item
     When we entered edit mode - test it - switch to another level - switch back...
     Hints items ganna shown up at a wierd position. 
-+ ISSUE#015: Time Operator
+- ISSUE#015: Time Operator
     There're many weird stuff caused by the Gameplay_Timer -
         when we do visual interpolation with tween system, it's hard to get the rover moving consistently since the tween duration is calculated wrong!!!
     There're 2 possible solvement to this:
@@ -145,8 +145,12 @@ AUDIO STUFF===
             y -> round_idx;
             So we can get a more detailed info about exactly how long should we move.
         2. Make the interpolation system on our own.
-+ ISSUE#016: Undo Mistake...
+- ISSUE#016: Undo Mistake...
     We need to pick anothr place to undo that end frame
+- ISSUE#017: Pacing
+    Rover is slower, visually.
+    When it's start to move, we still think that we can run to that square.
+    Which destroy the system, since we don't detect mistakes in fly.
 
 @optimize ###
 + Draw-Call is too high
