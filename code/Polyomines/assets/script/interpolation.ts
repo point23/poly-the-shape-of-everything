@@ -28,16 +28,17 @@ export class Interpolation_Message {
     at: number = -1; // @todo We might need a threshold or sth???
     chidren: Interpolation_Message[] = [];
 
-    send() {
+    send_message() {
         this.chidren.forEach((it) => {
             if (!it.interpolation.scheduled_for_destruction) {
-                it.send()
+                it.send_message()
             }
         }); // @note Now children has to do it first.
-        this.do();
+
+        this.process(this);
     }
 
-    do() { }
+    process(m: Interpolation_Message) { }
 
     constructor(tag: Messgae_Tag, at: number = 10) {
         this.tag = tag;
@@ -56,6 +57,15 @@ export class Interpolation_Phase {
 
     start_ratation: Quat = null;
     end_rotation: Quat = null;
+
+    static rotation(end_at: number, start_rotation: Quat, end_rotation: Quat): Interpolation_Phase {
+        const p = new Interpolation_Phase();
+        p.rotating = true;
+        p.end_at = end_at;
+        p.start_ratation = start_rotation;
+        p.end_rotation = end_rotation;
+        return p;
+    }
 
     static movement(end_at: number, start_point: Vec3, end_point: Vec3): Interpolation_Phase {
         const p = new Interpolation_Phase();
@@ -148,34 +158,42 @@ export class Visual_Interpolation {
         }
 
         { // Mapping to current phase and lerp it.
-            let current_phase = this.phases[this.current_phase_idx];
-            if (ratio < 1 && current_phase.end_at < ratio) { // @fixme The end.at might not be exactly that tick???
-                current_phase = this.phases[this.current_phase_idx++];
-            }
+            if (this.phases.length != 0) {
+                let current_phase = this.phases[this.current_phase_idx];
+                if (ratio < 1 && current_phase.end_at < ratio) { // @fixme The end.at might not be exactly that tick???
+                    current_phase = this.phases[this.current_phase_idx++];
+                }
 
-            let phase_duration = current_phase.end_at;
-            let last_phase_end_at = 0;
-            if (this.current_phase_idx != 0) {
-                last_phase_end_at = this.phases[this.current_phase_idx - 1].end_at;
-                phase_duration -= last_phase_end_at;
-            }
+                let phase_duration = current_phase.end_at;
+                let last_phase_end_at = 0;
+                if (this.current_phase_idx != 0) {
+                    last_phase_end_at = this.phases[this.current_phase_idx - 1].end_at;
+                    phase_duration -= last_phase_end_at;
+                }
 
-            let mapped_ratio = (ratio - last_phase_end_at) * (1 / phase_duration);
-            if (mapped_ratio > 1) {
-                mapped_ratio = 1;
-            }
+                let mapped_ratio = (ratio - last_phase_end_at) * (1 / phase_duration);
+                if (mapped_ratio > 1) {
+                    mapped_ratio = 1;
+                }
 
-            if (current_phase.moving) {
-                const temp = new Vec3(); // @optimize
-                Vec3.lerp(temp, current_phase.start_point, current_phase.end_point, mapped_ratio);
-                entity.visually_move_to(temp);
+                if (current_phase.moving) {
+                    const temp = new Vec3(); // @optimize
+                    Vec3.lerp(temp, current_phase.start_point, current_phase.end_point, mapped_ratio);
+                    entity.visually_move_to(temp);
+                }
+
+                if (current_phase.rotating) {
+                    const temp = new Quat(); // @optimize
+                    Quat.lerp(temp, current_phase.start_ratation, current_phase.end_rotation, mapped_ratio);
+                    entity.visually_rotate_to(temp);
+                }
             }
         }
 
         { // Send it's messages
             for (let m of this.messages.values()) {
                 if (ratio >= m.at) {
-                    m.send();
+                    m.send_message();
                     this.messages.delete(m.tag);
                 }
             }

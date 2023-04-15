@@ -41,7 +41,7 @@ export class Test_Run_Mode extends Game_Mode {
     get current_handler(): Game_Input_Handler { return this.input_handlers[this.current_handler_idx]; }
 
     get ticks_per_loop(): number {
-        return Const.Ticks_Per_Loop[$$.DURATION_IDX];
+        return Const.TICKS_PER_ROUND[$$.DURATION_IDX];
     };
 
     start() {
@@ -190,7 +190,6 @@ function init_animations() {
 function update_inputs() {
     Input_Manager.instance.update_inputs();
 }
-
 function process_animations() {
     // if (!$$.IS_RUNNING) return;
 

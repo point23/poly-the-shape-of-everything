@@ -20,26 +20,28 @@ export class Transaction_Manager extends Component {
         Transaction_Manager.instance = instance;
     }
 
+    running_moves: Map<number, Single_Move> = new Map(); // @note Idxed by entity_id.
+
     get entity_manager(): Entity_Manager {
         return Entity_Manager.current;
     }
 
     speed_up() {
         const old_i = $$.DURATION_IDX;
-        const new_i = math.clamp(old_i - 1, 0, Const.Max_Duration_Idx);
+        const new_i = math.clamp(old_i - 1, 0, Const.MAX_DURATION_IDX);
         $$.DURATION_IDX = new_i;
 
         if ($$.FOR_EDITING)
-            Level_Editor.instance.durations.label_current.string = Const.Duration[new_i];
+            Level_Editor.instance.durations.label_current.string = Const.DURATION_NAMES[new_i];
     }
 
     slow_down() {
         const old_i = $$.DURATION_IDX;
-        const new_i = math.clamp(old_i + 1, 0, Const.Max_Duration_Idx);
+        const new_i = math.clamp(old_i + 1, 0, Const.MAX_DURATION_IDX);
         $$.DURATION_IDX = new_i;
 
         if ($$.FOR_EDITING)
-            Level_Editor.instance.durations.label_current.string = Const.Duration[new_i];
+            Level_Editor.instance.durations.label_current.string = Const.DURATION_NAMES[new_i];
     }
 
     control_flags = 0;
@@ -57,7 +59,7 @@ export class Transaction_Manager extends Component {
     new_transaction(move: Single_Move): boolean {
         const t = new Move_Transaction(this.entity_manager);
 
-        if (move.try_add_itself(t)) {
+        if (move.enact(t)) {
             this.issued_transactions.push(t);
             return true;
         }

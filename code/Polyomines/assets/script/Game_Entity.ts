@@ -1,4 +1,4 @@
-import { _decorator, Component, Enum, MeshRenderer, SkeletalAnimation, tween, Vec3, Game, Vec4, ShadowFlow } from 'cc';
+import { _decorator, Component, Enum, MeshRenderer, SkeletalAnimation, tween, Vec3, Game, Vec4, ShadowFlow, Quat } from 'cc';
 import { Const, Direction, String_Builder } from './Const';
 import { Entity_Manager } from './Entity_Manager';
 import { Polygon_Entity } from './Polygon_Entity';
@@ -194,11 +194,18 @@ export class Game_Entity extends Component {
     get orientation(): Direction { return this.undoable.orientation; };
     get flags(): number { return this.undoable.flags; }
 
-    #world_position = new Vec3();
-    get world_position(): Vec3 {
-        this.node.getWorldPosition(this.#world_position);
-        return this.#world_position;
+    #visual_position = new Vec3();
+    get visual_position(): Vec3 {
+        this.node.getWorldPosition(this.#visual_position);
+        return this.#visual_position;
     }
+
+    #visual_rotation = new Quat();
+    get visual_rotation(): Quat {
+        this.node.getWorldRotation(this.#visual_rotation);
+        return this.#visual_rotation;
+    }
+
 
     @property(MeshRenderer) editing_cover: MeshRenderer = null;
     @property(Polygon_Entity) body: Polygon_Entity = null;
@@ -213,12 +220,16 @@ export class Game_Entity extends Component {
         this.node.setPosition(world_pos);
     }
 
-    visually_rotate_to(dir: Direction) {
-        this.body.rotate_to(dir);
+    visually_face_towards(dir: Direction) {
+        this.body.rotate_to(Const.DIRECTION2QUAT[dir]);
+    }
+
+    visually_rotate_to(quat: Quat) {
+        this.body.rotate_to(quat);
     }
 
     face_towards(dir: Direction) {
-        this.visually_rotate_to(dir);
+        this.visually_face_towards(dir);
         if (this.entity_type != Entity_Type.STATIC) {
             this.logically_rotate_to(dir);
         }
@@ -226,7 +237,7 @@ export class Game_Entity extends Component {
 
     logically_rotate_to(dir: Direction) {
         this.undoable.orientation = dir;
-        this.indicator.rotate_to(dir);
+        this.indicator.rotate_to(Const.DIRECTION2QUAT[dir]);
     }
 }
 

@@ -180,7 +180,7 @@ function update_ui(editor: Level_Editor) {
     function update_duration() {
         const duration = editor.durations;
         $$.DURATION_IDX = Const.DEFAULT_DURATION_IDX;
-        duration.label_current.string = Const.Duration[$$.DURATION_IDX];
+        duration.label_current.string = Const.DURATION_NAMES[$$.DURATION_IDX];
     }
     //#SCOPE
 

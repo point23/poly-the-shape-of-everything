@@ -16,7 +16,7 @@ import {
 } from './Game_Entity';
 import { debug_print_quad_tree, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
-import { is_a_board_entity } from './sokoban';
+import { is_a_board_like_entity } from './sokoban';
 import { Undo_Handler } from './undo';
 
 /* 
@@ -276,7 +276,7 @@ export class Entity_Manager {
     locate_current_supporters(entity: Game_Entity): Game_Entity[] {
         const supporters = [];
         const set = new Set();
-        if (is_a_board_entity(entity.entity_type)) {
+        if (is_a_board_like_entity(entity)) {
             // @note A Board mush have at least one non board supporter!!!
             // supporting stack be like: [DYNAMIC_b, TRACK]
             //    === === ← BRIDGE
@@ -312,7 +312,7 @@ export class Entity_Manager {
                     if (supporter == null) continue;
                     if (set.has(supporter.id)) continue;
 
-                    if (is_a_board_entity(supporter.entity_type)) {
+                    if (is_a_board_like_entity(supporter)) {
                         board_as_supporter = true;
                     }
                 }
@@ -322,7 +322,7 @@ export class Entity_Manager {
                     if (set.has(supporter.id)) continue;
 
                     if (board_as_supporter) {
-                        if (is_a_board_entity(supporter.entity_type)) {
+                        if (is_a_board_like_entity(supporter)) {
                             supporters.push(supporter)
                             set.add(supporter.id);
                         } else {
@@ -374,12 +374,12 @@ export class Entity_Manager {
         for (let pos of squares) {
             let exist_one_board = false;
 
-            if (!is_a_board_entity(entity.entity_type)) {
+            if (!is_a_board_like_entity(entity)) {
                 for (let other of this.locate_entities(pos)) {
                     // @note Boards are located at the same square as their supportors
 
                     if (other.id == entity.id) continue;
-                    if (is_a_board_entity(other.entity_type)) {
+                    if (is_a_board_like_entity(other)) {
                         if (set.has(other.id)) continue;
 
                         exist_one_board = true

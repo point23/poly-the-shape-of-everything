@@ -12,6 +12,11 @@ type random_audio_group = {
     clips: AudioClip[],
 }
 
+// @implementMe The future AUDIO api format...
+function audio_play_sfx(sfx_name: string) {
+
+}
+
 @ccclass('Audio_Manager')
 export class Audio_Manager extends Component {
     public static instance: Audio_Manager = null;

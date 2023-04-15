@@ -61,7 +61,7 @@ export class Gameplay_Timer {
     }
 
     static calcu_delta_ticks(start: gameplay_time, end: gameplay_time = this.get_gameplay_time()): number {
-        const ticks_per_round = Const.Ticks_Per_Loop[$$.DURATION_IDX];
+        const ticks_per_round = Const.TICKS_PER_ROUND[$$.DURATION_IDX];
 
         if (start.round > end.round) { // @incomplete We need to compare them.
             return 0;
@@ -70,9 +70,29 @@ export class Gameplay_Timer {
         return (end.round - start.round - 1) * ticks_per_round + (ticks_per_round - start.tick) + end.tick;
     }
 
+    static last_ms: number = -1;
+    static dts: number[] = [];
+
     static run(caller: Component, loop_callback: (() => void), tick_callbacks: (() => void)[] = []) {
         caller.schedule(() => {
-            const ticks_per_round = Const.Ticks_Per_Loop[$$.DURATION_IDX];
+            // @note Debug stuff
+            // if (Gameplay_Timer.last_ms == -1) {
+            //     this.last_ms = new Date().getTime();
+            // } else {
+            //     const current_ms = new Date().getTime();
+            //     const dt = current_ms - Gameplay_Timer.last_ms;
+            //     Gameplay_Timer.dts.push(dt);
+            //     if (Gameplay_Timer.dts.length == (1 << 4)) {
+            //         let sum = 0;
+            //         Gameplay_Timer.dts.forEach((it) => sum += it);
+            //         const avg = sum >> 4;
+            //         console.log(`=== avg dt: ${avg} ===`);
+            //         Gameplay_Timer.dts = [];
+            //     }
+            //     this.last_ms = current_ms;
+            // }
+
+            const ticks_per_round = Const.TICKS_PER_ROUND[$$.DURATION_IDX];
 
             if ((Gameplay_Timer.tick_idx == 0)) {
                 if ($$.IS_RUNNING) {
@@ -92,7 +112,7 @@ export class Gameplay_Timer {
             }
 
             Gameplay_Timer.tick_idx = (Gameplay_Timer.tick_idx + 1) % ticks_per_round;
-        }, Const.Tick_Interval);
+        }, Const.DEBUG_TICK_INTERVAL);
     }
 
     static stop(caller: Component) {

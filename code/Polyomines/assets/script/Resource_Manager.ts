@@ -48,7 +48,7 @@ export class Resource_Manager extends Component {
     }
 
     load_levels(caller: any, callback: (any) => void) {
-        const file_path: string = `${Const.Data_Path}/levels`;
+        const file_path: string = `${Const.DATA_PATH}/levels`;
         resources.load(file_path, JsonAsset, (e, asset) => {
             const result = asset.json;
             this.levels = result.levels;
@@ -78,7 +78,7 @@ export class Resource_Manager extends Component {
 
     load_current_level(caller: any, callback: (any) => void) {
         const filename = this.current_level.id;
-        const file_path: string = `${Const.Data_Path}/${filename}`;
+        const file_path: string = `${Const.DATA_PATH}/${filename}`;
 
         resources.load(file_path, JsonAsset, (e, asset) => {
             const result = asset.json;

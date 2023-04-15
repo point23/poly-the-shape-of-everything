@@ -330,7 +330,7 @@ export class Proximity_Grid {
 export function debug_render_grid(grid: Proximity_Grid, renderer: Node) {
     const square_size = Const.Game_Board_Square_Size;
     const half_square_size = Const.Game_Board_Half_Square_Size;
-    const origin_pos = Const.Game_Board_Orgin_Pos;
+    const origin_pos = Const.GAME_BOARD_ORIGIN;
     const grid_size = grid.grid_size;
 
     const grid_pos_z = origin_pos.z - half_square_size + square_size * grid_size.width / 2;

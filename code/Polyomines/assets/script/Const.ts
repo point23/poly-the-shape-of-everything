@@ -26,6 +26,8 @@ export class $$ {
 
     static HERO_VISUALLY_MOVING = false; // @deprecated
 
+    static DOING_USER_MOVE: boolean = false;
+
     static DURATION_IDX: number = 0;
 
     // @todo Remove it...
@@ -157,15 +159,14 @@ export class Const {
     static FORWARD = 0;
     static BACKWARD = 0;
 
-    static Data_Path: string = 'data';
-
-    static Default_Game_Board_Size: Size = new Size(10, 10);
+    static DATA_PATH: string = 'data';
 
     static SPEED_ROVER_FREQ: number = 6;
     static SLOW_ROVER_FREQ: number = 18;
 
-    static Tick_Interval: number = (0.1 / (1 << 3)); // 0.1 / 8 => 0.0125, which means 100ms-per-round in normal duration
-    static Ticks_Per_Loop: number[] = [
+    static DEBUG_TICK_INTERVAL: number = 0.008; // @note On PC, we can run at 160 fps, so we just run as fast as we can.
+
+    static TICKS_PER_ROUND: number[] = [
         1 << 0,
         1 << 1,
         1 << 2,
@@ -177,8 +178,8 @@ export class Const {
     ]
 
     static DEFAULT_DURATION_IDX: number = 3;
-    static Max_Duration_Idx: number = 7;
-    static Duration: string[] = [
+    static MAX_DURATION_IDX: number = 7;
+    static DURATION_NAMES: string[] = [
         '8',
         '4',
         '2',
@@ -200,15 +201,16 @@ export class Const {
         0.0625,
     ];
 
+    static Default_Game_Board_Size: Size = new Size(10, 10);
     static Game_Board_Square_Size = 1;
     static Game_Board_Half_Square_Size = 0.5;
-    static Game_Board_Orgin_Pos = new Vec3(0, 0, 0);
+    static GAME_BOARD_ORIGIN = new Vec3(0, 0, 0);
 
     static SUPPORTEE_PIORITY_DOWNGRADE_FACTOR = 0.9;
 
     static JOYSTICK_DEADZONE = 0.05;
 
-    static VALID_PRESSING_INTERVAL = 2; // For now there're some zigzag when it's not n times tick-interval(ms)
+    static VALID_PRESSING_INTERVAL = 3; // For now there're some zigzag when it's not n times tick-interval(ms)
 
     static SWITCH_HERO_DURATION = 0.5;
     static HINTS_DURATION = 3;
@@ -232,8 +234,6 @@ export class Const {
     static RADIUS_225: number = 1.25 * Math.PI;
     static RADIUS_270: number = 1.5 * Math.PI;
     static RADIUS_315: number = 1.75 * Math.PI;
-
-    static RATIO_FALLING_BEGIN = 0.8;
 
     static DIRECTION2QUAT: Quat[] = [
         /* LEFT */ new Quat(0, Math.sin(this.RADIUS_90), 0, Math.cos(this.RADIUS_90)),
