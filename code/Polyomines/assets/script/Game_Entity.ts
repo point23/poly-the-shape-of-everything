@@ -1,4 +1,4 @@
-import { _decorator, Component, Enum, MeshRenderer, SkeletalAnimation, tween, Vec3, Game, Vec4, ShadowFlow, Quat } from 'cc';
+import { _decorator, Component, Enum, MeshRenderer, Vec3, Vec4, Quat } from 'cc';
 import { Const, Direction, String_Builder } from './Const';
 import { Entity_Manager } from './Entity_Manager';
 import { Polygon_Entity } from './Polygon_Entity';
@@ -46,7 +46,7 @@ export function reversed_direction(d1: Direction, d2: Direction): boolean {
 }
 
 export function calcu_target_direction(d: Direction, delta: number): Direction {
-    return (d + delta + 4) % 4;
+    return (d + delta + 4) % 4; // @fixme WRONG!!!!!!!
 }
 
 export enum Entity_Type {

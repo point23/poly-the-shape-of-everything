@@ -51,7 +51,7 @@ export class Transaction_Panel extends Component {
             this.clear_logs();
             const idx = this.transaction_idx;
             this.navigator.label_current.string = `#${idx + 1}`; // @note Let's just start counting at 1...
-            t.moves.forEach((it, it_idx) => {
+            t.all_moves.forEach((it, it_idx) => {
                 const label = this.single_logs[it_idx].getComponentInChildren(Label);
                 label.string = it.debug_info();
                 this.single_logs[it_idx].active = true;

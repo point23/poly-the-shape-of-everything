@@ -1,4 +1,4 @@
-import { Color, KeyCode, Quat, Size, Vec3 } from 'cc';
+import { Color, KeyCode, Quat, Size, Vec2, Vec3 } from 'cc';
 import { Keyboard_Command_Button } from './input/Game_Input_Handler';
 import { keymap } from './input/Input_Manager';
 
@@ -6,7 +6,8 @@ export enum Direction {
     LEFT,
     RIGHT,
     FORWARD,
-    BACKWORD,
+    BACKWORD, // @fixmeHard coded order for now?
+
     UP,
     DOWN,
 }
@@ -157,6 +158,29 @@ export class Stack<T> {
     clear() {
         this.storage = [];
     }
+}
+
+type vector = Vec2 | Vec3;
+export function vec_add(a: vector, b: vector) {
+    let res = null;
+    if (a instanceof Vec3) {
+        res = new Vec3(a);
+    } else {
+        res = new Vec2(a);
+    }
+
+    return res.add(b);
+}
+
+export function vec_sub(a: vector, b: vector) {
+    let res = null;
+    if (a instanceof Vec3) {
+        res = new Vec3(a);
+    } else {
+        res = new Vec2(a);
+    }
+
+    return res.subtract(b);
 }
 
 export function random(min: number, max: number): number {

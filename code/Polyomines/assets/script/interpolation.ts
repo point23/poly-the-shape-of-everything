@@ -1,5 +1,5 @@
 import { _decorator, math, Quat, Vec3 } from 'cc';
-import { calcu_entity_future_position, Game_Entity } from './Game_Entity';
+import { Game_Entity } from './Game_Entity';
 import { gameplay_time, Gameplay_Timer, time_to_string } from './Gameplay_Timer';
 import { Single_Move } from './sokoban';
 import { Stack, String_Builder } from './Const';
@@ -17,6 +17,8 @@ import { Stack, String_Builder } from './Const';
         }
 */
 
+/* 
+// @deprecated We now move this to Single_Move.
 export enum Messgae_Tag {
     LOGICALLY_MOVEMENT,
     ROVER_DETECTION,
@@ -45,7 +47,8 @@ export class Interpolation_Message {
         this.tag = tag;
         this.at = at;
     }
-}
+} 
+*/
 
 export class Interpolation_Phase {
     moving: boolean = false;
@@ -108,7 +111,6 @@ export class Visual_Interpolation {
 
     current_phase_idx = 0;
     phases: Stack<Interpolation_Phase> = new Stack();
-    messages: Map<Messgae_Tag, Interpolation_Message> = new Map();
 
     scheduled_for_destruction: boolean = false;
 
@@ -119,7 +121,6 @@ export class Visual_Interpolation {
         start_at: gameplay_time,
         end_at: gameplay_time,
         phases: Interpolation_Phase[],
-        messages: Interpolation_Message[] = [],
         parent?: Visual_Interpolation) {
 
         const i = this;
@@ -135,11 +136,6 @@ export class Visual_Interpolation {
         phases.sort((a, b) => b.end_at - a.end_at);
         for (let p of phases) {
             this.phases.push(p);
-        }
-
-        for (let m of messages) {
-            i.messages.set(m.tag, m);
-            m.interpolation = i;
         }
 
         this.parent = parent;
@@ -162,7 +158,7 @@ export class Visual_Interpolation {
         return builder.to_string();
     }
 
-    last_phase_end_at = 0;
+    #last_phase_end_at = 0;
     process() {
         const entity = this.entity;
 
@@ -180,6 +176,10 @@ export class Visual_Interpolation {
         }
         this.current_ratio = ratio;
 
+        if (ratio == 0) {
+            this.on_start();
+        }
+
         if (ratio > 1) {
             console.log("===== MISS A TICK ====="); // @fixme 
             this.current_ratio = ratio = 1;
@@ -194,7 +194,7 @@ export class Visual_Interpolation {
                 if (ratio <= current_phase.end_at) {
                     available = true;
                 } else {
-                    this.last_phase_end_at = current_phase.end_at;
+                    this.#last_phase_end_at = current_phase.end_at;
                     this.phases.pop();
                     if (!this.phases.empty()) {
                         available = true;
@@ -204,8 +204,8 @@ export class Visual_Interpolation {
 
             if (available) {
                 const current_phase = this.phases.peek();
-                let phase_duration = current_phase.end_at - this.last_phase_end_at;
-                let mapped_ratio = (ratio - this.last_phase_end_at) * (1 / phase_duration);
+                let phase_duration = current_phase.end_at - this.#last_phase_end_at;
+                let mapped_ratio = (ratio - this.#last_phase_end_at) * (1 / phase_duration);
                 mapped_ratio = math.clamp(mapped_ratio, 0, 1);
 
                 if (current_phase.moving) {
@@ -221,15 +221,6 @@ export class Visual_Interpolation {
                 }
             }
 
-        }
-
-        { // Send it's messages
-            for (let m of this.messages.values()) {
-                if (ratio >= m.at) {
-                    m.send_message();
-                    this.messages.delete(m.tag);
-                }
-            }
         }
 
         if (this.current_ratio >= 1

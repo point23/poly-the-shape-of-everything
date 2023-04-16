@@ -72,6 +72,8 @@ export class Test_Run_Mode extends Game_Mode {
         $$.RELOADING = false;
         $$.PLAYER_MOVE_NOT_YET_EXECUTED = false;
 
+        undo_end_frame(this.entity_manager); // @note Store the initial states.
+
         init_animations();
     }
 
@@ -259,6 +261,7 @@ function process_inputs() {
 
     if (!input.buffered_player_moves.empty() && !$$.PLAYER_MOVE_NOT_YET_EXECUTED) {
         const button = input.buffered_player_moves.dequeue();
+
         // Move
         if (button == Game_Button.MOVE_BACKWARD) {
             generate_player_move(transaction_manager, entity_manager, Direction.BACKWORD, 1);

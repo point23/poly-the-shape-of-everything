@@ -112,6 +112,9 @@ export function undo_end_frame(manager: Entity_Manager) {
         Level_Editor.instance.show_undo_changes(num_changes);
 
     record.transaction = builder.to_string(' ');
+
+    // console.log(record.transaction); 
+
     undo.undo_records.push(record);
 }
 

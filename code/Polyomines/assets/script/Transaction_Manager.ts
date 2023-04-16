@@ -73,32 +73,34 @@ export class Transaction_Manager extends Component {
         const issued = this.issued_transactions;
         issued.sort((a, b) => b.piority - a.piority);
         for (let t of issued) {
-            // function is_sanity(): boolean {
-            //     for (const move of t.moves) {
-            //         if (!detect_conflicts(t, move)) return false;;
-            //     }
-            //     return true;
-            // }
-            // //#SCOPE
-
-            // if (!is_sanity()) {
-            //     // Reject Current Transaction
-            //     console.log("Something Went Wrong!!!")
-            //     continue;
-            // }
-
-            // @note Pusher and Supporter should be executed first
-
-
-            // for (const move of t.moves) {
-            //     if (move.info.move_type == Move_Type.CONTROLLER_PROC
-            //         && is_dirty(move, Move_Flags.MOVED)) { // @hack
-            //         $$.HERO_VISUALLY_MOVING = true;
-            //     }
-
-            //     move.update(t);
-            //     packed.moves.push(move);
-            // }
+            /*  // @deprecated
+             function is_sanity(): boolean {
+                 for (const move of t.moves) {
+                     if (!detect_conflicts(t, move)) return false;;
+                 }
+                 return true;
+             }
+             //#SCOPE
+ 
+             if (!is_sanity()) {
+                 // Reject Current Transaction
+                 console.log("Something Went Wrong!!!")
+                 continue;
+             }
+ 
+             // @note Pusher and Supporter should be executed first
+ 
+ 
+             for (const move of t.moves) {
+                 if (move.info.move_type == Move_Type.CONTROLLER_PROC
+                     && is_dirty(move, Move_Flags.MOVED)) { // @hack
+                     $$.HERO_VISUALLY_MOVING = true;
+                 }
+ 
+                 move.update(t);
+                 packed.moves.push(move);
+             } 
+            */
 
             t.update_single_moves();
             if (t.closed) {

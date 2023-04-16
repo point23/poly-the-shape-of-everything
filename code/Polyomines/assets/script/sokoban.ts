@@ -1,6 +1,6 @@
-import { Quat, Vec3, math } from "cc";
+import { Quat, TransformBit, Vec3, math, pseudoRandom } from "cc";
 import { Audio_Manager, Random_Audio_Group } from "./Audio_Manager";
-import { String_Builder, same_position, Const, Direction, $$ } from "./Const";
+import { String_Builder, same_position, Const, Direction, $$, vec_add, vec_sub } from "./Const";
 import { Entity_Manager } from "./Entity_Manager";
 import { Gameplay_Timer, gameplay_time, time_to_string } from "./Gameplay_Timer";
 import {
@@ -20,7 +20,7 @@ import {
 } from "./Game_Entity";
 import { Transaction_Control_Flags, Transaction_Manager } from "./Transaction_Manager";
 import { Hero_Entity_Data } from "./Hero_Entity_Data";
-import { Interpolation_Message, Interpolation_Phase, Messgae_Tag, Visual_Interpolation } from "./interpolation";
+import { Interpolation_Phase, Visual_Interpolation } from "./interpolation";
 import { undo_end_frame } from "./undo";
 
 export enum Move_Type {
@@ -99,6 +99,8 @@ export class Single_Move {
         this.info = move_info;
     }
 
+    execute(transaction: Move_Transaction) { }
+
     enact(transaction: Move_Transaction): boolean { return false; }
 
     update(transaction: Move_Transaction, ratio: number) { }
@@ -111,7 +113,6 @@ export class Move_Transaction {
     static get next_id(): number { return Move_Transaction.serial_idx++ };
 
     id: number;
-    moves: Single_Move[] = [];
     entity_manager: Entity_Manager;
 
     piority: number = 0;
@@ -123,6 +124,23 @@ export class Move_Transaction {
     duration: number = 0; // How many rounds this transaction ganna take.
     elapsed: number = 0;  // How many rounds this transaction been through.
 
+    moves: Map<number, Single_Move> = new Map(); // entity_id => running move
+    arcs: Map<number, Single_Move> = new Map();  // move_id   => child move
+    #array_moves: Single_Move[] = [];
+
+    get all_moves(): Single_Move[] {
+        if (this.#array_moves.length == 0) {
+            for (let m of this.moves.values()) {
+                this.#array_moves.push(m);
+            }
+        }
+        return this.#array_moves;
+    }
+
+    get sorted_moves(): Single_Move[] {
+        return this.all_moves.sort((a, b) => b.piority - a.piority);
+    }
+
     constructor(entity_manager: Entity_Manager, duration: number = 1) {
         this.id = Move_Transaction.next_id;
         this.entity_manager = entity_manager;
@@ -132,10 +150,9 @@ export class Move_Transaction {
     }
 
     update_single_moves() {
-        this.moves.sort((a, b) => b.piority - a.piority); // @note In case there is some newly added move?
         this.elapsed += 1;
         const ratio = math.clamp01((this.elapsed / this.duration));
-        for (let move of this.moves) {
+        for (let move of this.sorted_moves) {
             move.update(this, ratio);
         }
 
@@ -143,9 +160,16 @@ export class Move_Transaction {
     }
 
     add_move(move: Single_Move) {
-        Transaction_Manager.instance.running_moves.set(move.target_entity_id, move);
-        this.moves.push(move);
+        this.moves.set(move.target_entity_id, move);
+        this.add_arc(move);
+
         this.piority += move.piority;
+    }
+
+    add_arc(move: Single_Move) {
+        if (move.source_entity_id == null) return;
+
+        this.arcs.set(move.source_entity_id, move);
     }
 
     debug_info(): string {
@@ -154,7 +178,7 @@ export class Move_Transaction {
         builder.append(' issued at ').append(time_to_string(this.issue_time));
         builder.append(' commited at ').append(time_to_string(this.commit_time));
         builder.append('\n');
-        for (let move of this.moves) {
+        for (let move of this.all_moves) {
             builder.append('\t- ').append(move.debug_info()).append('\n');
         }
         return builder.to_string();
@@ -212,11 +236,14 @@ export class Player_Move extends Single_Move {
         const move_info = new Move_Info();
         move_info.move_type = Move_Type.CONTROLLER_PROC;
         move_info.target_entity_id = entity.id;
+
         move_info.start_direction = entity.orientation;
         move_info.end_direction = direction;
+
         move_info.start_position = entity.position;
         move_info.end_position = calcu_entity_future_position(entity, direction, step);
         super(move_info);
+
         this.piority = Move_Piorities.CONTROLLER_PROC;
     }
 
@@ -247,11 +274,9 @@ export class Player_Move extends Single_Move {
 
         const d_start = this.start_direction;
         const d_end = this.end_direction;
-        const d_delta = d_end - d_start;
 
         const p_start = this.start_position;
         const p_end = this.end_position;
-        const p_delta = new Vec3(this.end_position).subtract(this.start_position);
 
         entity.interpolation?.destroy(); // @temprory?
 
@@ -268,6 +293,11 @@ export class Player_Move extends Single_Move {
             || no_supporter(manager, p_end)) {
             // @note Several reasons that we can not move...
 
+            if (at_least_rotated) {
+                this.info.end_position = this.info.start_position; // @hack Maybe detect this by flags?
+                move_supportees(transaction, entity, this);
+            }
+
             return at_least_rotated;
         }
 
@@ -280,36 +310,44 @@ export class Player_Move extends Single_Move {
         //     return (fall_res.fall_succeed || at_least_rotated);
         // }
 
-        move_supportees(transaction, entity, p_delta, d_delta);
+        move_supportees(transaction, entity, this);
 
         set_dirty(this, Move_Flags.MOVED);
         return true;
     }
 
-    #executed: boolean = false; // @note Kinda like IEnumerable? ---> State mechine?
+    execute(transaction: Move_Transaction) {
+        const manager = transaction.entity_manager;
+        const entity = manager.find(this.target_entity_id);
+        const child = transaction.arcs.get(entity.id);
+        child?.execute(transaction);
+
+        $$.PLAYER_MOVE_NOT_YET_EXECUTED = false;
+
+        if (is_dirty(this, Move_Flags.MOVED))
+            manager.logically_move_entity(entity, this.end_position);
+        if (is_dirty(this, Move_Flags.ROTATED)) {
+            entity.logically_rotate_to(this.end_direction);
+            entity.visually_face_towards(this.end_direction); // @hack We are not good at lerping quats, ignore this for now...?
+        }
+
+        const fall_res = possible_falling(transaction, entity);
+        if (!fall_res.fell) {
+            { // @deprecated
+                const audio = Audio_Manager.instance;
+                audio.play_sfx(audio.footstep);
+            }
+        }
+
+        undo_end_frame(manager);
+    }
+
     update(transaction: Move_Transaction, ratio: number) { // @note The ratio param should been clamped by caller.'
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
 
-        if (ratio >= 0.5 && !this.#executed) {
-            this.#executed = true;
-            $$.PLAYER_MOVE_NOT_YET_EXECUTED = false;
-
-            if (is_dirty(this, Move_Flags.MOVED))
-                manager.logically_move_entity(entity, this.end_position);
-            if (is_dirty(this, Move_Flags.ROTATED)) {
-                entity.logically_rotate_to(this.end_direction);
-                entity.visually_face_towards(this.end_direction); // @hack We are not good at lerping quats, ignore this for now...?
-            }
-
-            const fall_res = possible_falling(transaction, entity);
-
-            if (!fall_res.fell) {
-                { // @deprecated
-                    const audio = Audio_Manager.instance;
-                    audio.play_sfx(audio.footstep);
-                }
-            }
+        if (ratio >= 0.5) {
+            this.execute(transaction);
         }
 
         { // Start visual interpolation stuff
@@ -367,71 +405,105 @@ export class Player_Move extends Single_Move {
 }
 
 class Support_Move extends Single_Move {
-    constructor(supportor: Game_Entity, supportee: Game_Entity, direction_delta: number, position_delta: Vec3 = Vec3.ZERO) {
+    constructor(supportor: Game_Entity, supportee: Game_Entity, direction_delta: number, position_delta: Vec3 = Vec3.ZERO, direction: Direction) {
         const move_info = new Move_Info();
         move_info.move_type = Move_Type.SUPPORT;
         move_info.source_entity_id = supportor.id;
         move_info.target_entity_id = supportee.id;
+
         move_info.start_direction = supportee.orientation;
         move_info.end_direction = calcu_target_direction(supportee.orientation, direction_delta);
+        move_info.reaction_direction = direction;
+
         move_info.start_position = supportee.position;
-        move_info.end_position = new Vec3(move_info.start_position).add(position_delta)
+        move_info.end_position = vec_add(move_info.start_position, position_delta);
+
         super(move_info);
         this.piority = Move_Piorities.SUPPORT;
     }
 
     enact(transaction: Move_Transaction): boolean {
-        // // @note Let the func::detect_conlicts handle if target entity hit others!!!
-        // const manager = transaction.entity_manager;
-        // const supportee = manager.find(this.info.target_entity_id);
-        // const direction_delta = this.end_direction - this.start_direction;
-        // const position_delta = new Vec3(this.end_position).subtract(this.start_position);
-        // move_supportees(transaction, supportee, position_delta, direction_delta, this.piority);
+        const manager = transaction.entity_manager;
+        const entity = manager.find(this.info.target_entity_id);
 
-        // if (!same_position(this.start_position, this.end_position))
-        //     set_dirty(this, Move_Flags.MOVED);
-        // if (this.start_direction != this.end_direction)
-        //     set_dirty(this, Move_Flags.ROTATED);
+        const p_start = this.start_position;
+        const p_end = this.end_position;
 
-        // transaction.add_move(this);
+        this.start_visual_position = manager.proximity_grid.local2world(p_start);
+        this.end_visual_position = manager.proximity_grid.local2world(p_end);
+
+        const d = this.reaction_direction;
+        if (d != Direction.DOWN && d != Direction.UP)
+            if (same_position(p_start, p_end)
+                || blocked_by_barrier_in_current_squares(manager, entity, d)
+                || blocked_by_barrier_in_target_squares(manager, entity, d)
+                || !manager.proximity_grid.verify_pos(p_end)
+                || no_supporter(manager, p_end)) {
+                // @note Several reasons that we can not move...
+                // @implementMe Possible Falling?
+
+                return false;
+            }
+
+        move_supportees(transaction, entity, this);
+
+        if (!same_position(this.start_position, this.end_position))
+            set_dirty(this, Move_Flags.MOVED);
+
+        if (!same_direction(this.start_direction, this.end_direction))
+            set_dirty(this, Move_Flags.ROTATED);
+
+        transaction.add_move(this);
         return true;
     }
 
-    update(transaction: Move_Transaction) {
-        // const manager = transaction.entity_manager;
-        // const supporter = manager.find(this.source_entity_id);
-        // const entity = manager.find(this.target_entity_id);
+    execute(transaction: Move_Transaction) {
+        console.log('xxx');
 
-        // if (is_dirty(this, Move_Flags.MOVED)) {
-        //     const grid = manager.proximity_grid;
-        //     const position = this.end_position;
+        const manager = transaction.entity_manager;
+        const entity = manager.find(this.target_entity_id);
+        const child = transaction.arcs.get(entity.id);
+        child?.execute(transaction);
 
-        //     manager.logically_move_entity(entity, position);
-        //     {
-        //         const i_s = supporter.interpolation;
-        //         const start_at = i_s.start_at;
-        //         const end_at = i_s.end_at;
+        if (is_dirty(this, Move_Flags.MOVED)) {
+            manager.logically_move_entity(entity, this.end_position);
+        }
 
-        //         const start_point = grid.local2world(this.start_position);
-        //         const end_point = grid.local2world(this.end_position);
-        //         const p_0 = Interpolation_Phase.movement(1, start_point, end_point);
+        if (is_dirty(this, Move_Flags.ROTATED)) {
+            entity.logically_rotate_to(this.end_direction);
+            entity.visually_face_towards(this.end_direction); // @hack We are not good at lerping quats, ignore this for now...?
+        }
+    }
 
-        //         const m_0 = new Interpolation_Message(Messgae_Tag.LOGICALLY_MOVEMENT);
-        //         m_0.do = () => {
+    update(transaction: Move_Transaction, ratio: number) {
+        const manager = transaction.entity_manager;
+        const supporter = manager.find(this.source_entity_id);
+        const entity = manager.find(this.target_entity_id);
 
-        //         };
-        //         {
-        //             const m_p = i_s.messages.get(Messgae_Tag.LOGICALLY_MOVEMENT);
-        //             if (m_p) {
-        //                 m_p.chidren.push(m_0);
-        //             }
-        //         }
+        { // Start visual interpolation stuff
+            const phases: Interpolation_Phase[] = [];
 
-        //         const i = new Visual_Interpolation(this, entity, start_at, end_at, [p_0], [m_0], i_s);
-        //     }
-        // }
+            if (is_dirty(this, Move_Flags.ROTATED)) {
+                // const r_start = entity.visual_rotation;
+                // const r_end = new Quat();
+                // Quat.lerp(r_end, this.start_visual_rotation, this.end_visual_rotation, ratio);
+                // const p_0 = Interpolation_Phase.rotation(0.2, r_start, r_end); // @implementMe We are not good at lerping quats, ignore this for now...?
+                // phases.push(p_0)
+            }
 
-        // may_rotate_entity(this, manager, entity);
+            if (is_dirty(this, Move_Flags.MOVED)) {
+                const p_start = entity.visual_position;
+                const p_end = new Vec3();
+                Vec3.lerp(p_end, this.start_visual_position, this.end_visual_position, ratio);
+                const p_1 = Interpolation_Phase.movement(1, p_start, p_end);
+                phases.push(p_1);
+            }
+
+            const t_start = supporter.interpolation.start_at;
+            const t_end = supporter.interpolation.end_at;
+            const v = new Visual_Interpolation(this, entity, t_start, t_end, phases, supporter.interpolation);
+            // Set on_complete event?
+        }
     }
 
     debug_info(): string {
@@ -551,11 +623,11 @@ class Falling_Move extends Single_Move {
         const entity = manager.find(this.target_entity_id);
 
         this.info.end_position = resolve_new_landing_point(manager, entity);
-
         const p_delta = new Vec3(this.end_position).subtract(this.start_position);
         const supportees = manager.locate_current_supportees(entity);
+
         for (let supportee of supportees) {
-            const support = new Support_Move(entity, supportee, 0, p_delta);
+            const support = new Support_Move(entity, supportee, 0, p_delta, Direction.DOWN);
             support.enact(transaction);
         }
 
@@ -567,24 +639,32 @@ class Falling_Move extends Single_Move {
         return true;
     }
 
-    #executed: boolean = false; // @note Kinda like IEnumerable? ---> State mechine?
+    execute(transaction: Move_Transaction) {
+        const manager = transaction.entity_manager;
+        const entity = manager.find(this.target_entity_id);
+        const child = transaction.arcs.get(entity.id);
+        child?.execute(transaction);
+
+        { // @deprecated 
+            Audio_Manager.instance.random_play_one_sfx(Random_Audio_Group.DROP);
+        }
+
+        if (is_dirty(this, Move_Flags.MOVED))
+            manager.logically_move_entity(entity, this.end_position);
+        if (is_dirty(this, Move_Flags.ROTATED)) {
+            entity.logically_rotate_to(this.end_direction);
+            entity.visually_face_towards(this.end_direction); // @hack We are not good at lerping quats, ignore this for now...?
+        }
+    }
+
     update(transaction: Move_Transaction, ratio: number) {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
 
         // @implementMe Handle if we get a new supporter middle way.
 
-        if (ratio >= 0.5 && !this.#executed) {
-            this.#executed = true;
-
-            Audio_Manager.instance.random_play_one_sfx(Random_Audio_Group.DROP); // @deprecated NEW AUDIO API!!!
-
-            if (is_dirty(this, Move_Flags.MOVED))
-                manager.logically_move_entity(entity, this.end_position);
-            if (is_dirty(this, Move_Flags.ROTATED)) {
-                entity.logically_rotate_to(this.end_direction);
-                entity.visually_face_towards(this.end_direction); // @hack We are not good at lerping quats, ignore this for now...?
-            }
+        if (ratio >= 0.5) {
+            this.execute(transaction);
         }
 
         { // Start visual interpolation stuff
@@ -741,12 +821,12 @@ class Rover_Move extends Single_Move {
 //#region PUBLIC
 export function detect_conflicts(transaction: Move_Transaction, move: Single_Move) {
     function remove_it() {
-        const idx = transaction.moves.indexOf(move);
-        transaction.moves.splice(idx, 1)
+        const idx = transaction.all_moves.indexOf(move);
+        transaction.all_moves.splice(idx, 1)
     }
 
     function taken_by_incoming_entity_from_same_transaction(pos: Vec3): boolean {
-        for (let another_move of transaction.moves) {
+        for (let another_move of transaction.all_moves) {
             if (another_move.target_entity_id == target.id) continue;
             if (another_move.id == move.id) continue;
             if (!is_dirty(another_move, Move_Flags.MOVED)) continue;
@@ -758,7 +838,7 @@ export function detect_conflicts(transaction: Move_Transaction, move: Single_Mov
     }
 
     function exist_in_another_move(another: Game_Entity): boolean {
-        for (let another_move of transaction.moves) {
+        for (let another_move of transaction.all_moves) {
             if (another_move.id == move.id) continue;
 
             if (another_move.target_entity_id == another.id
@@ -946,8 +1026,6 @@ export function generate_player_move(transaction_manager: Transaction_Manager, e
     if (transaction_manager.new_transaction(new Player_Move(hero, direction, step), $$.PLAYER_MOVE_DURATION)) {
         $$.PLAYER_MOVE_NOT_YET_EXECUTED = true;
 
-        undo_end_frame(entity_manager);
-
         // Update transaction control flags
         transaction_manager.control_flags |= Transaction_Control_Flags.CONTROLLER_MOVE;
     }
@@ -1048,25 +1126,35 @@ function try_push_others(mover: Game_Entity, direction: Direction, transaction: 
     return res;
 }
 
-function move_supportees(transaction: Move_Transaction, entity: Game_Entity, position_delta: Vec3, rotation_delta: number, parent_piority?: number) {
+function move_supportees(transaction: Move_Transaction, supporter: Game_Entity, parent_move: Single_Move) {
     function has_other_supporter(e: Game_Entity): boolean {
         const supporters = manager.locate_current_supporters(e);
         for (let s of supporters) {
-            if (s.id != entity.id) return true;
+            if (s.id != supporter.id) return true;
         }
         return false;
     }
 
     const manager = transaction.entity_manager;
-    for (let supportee of manager.locate_current_supportees(entity)) {
-        if (supportee.id == entity.id) continue;
+    for (let supportee of manager.locate_current_supportees(supporter)) {
+        if (supportee.id == supporter.id) continue;
         if (has_other_supporter(supportee)) continue;
 
-        const support_move = new Support_Move(entity, supportee, rotation_delta, position_delta);
-        if (parent_piority) support_move.piority = parent_piority * Const.SUPPORTEE_PIORITY_DOWNGRADE_FACTOR;
+        let d = parent_move.end_direction;
+        { // @hack
+            if (parent_move.info.move_type == Move_Type.SUPPORT) {
+                d = parent_move.reaction_direction;
+            }
+        }
 
-        if (!support_move.enact(transaction)) {
-            const res = possible_falling(transaction, entity);
+        const d_delta = parent_move.end_direction - parent_move.start_direction;
+        const p_delta = vec_sub(parent_move.end_position, parent_move.start_position);
+
+        const support = new Support_Move(supporter, supportee, d_delta, p_delta, d);
+        support.piority = downgrade_piority(parent_move);
+
+        if (!support.enact(transaction)) {
+            const res = possible_falling(transaction, supporter);
             // if (res.fell) { return res.fall_succeed; }
         }
     }
@@ -1183,10 +1271,8 @@ function can_pass_through(m: Entity_Manager, e: Game_Entity, d: Direction) {
     return true;
 }
 
-// === Physically Update Entities === 
-function may_rotate_entity(move: Single_Move, manager: Entity_Manager, entity: Game_Entity) {
-    if (!is_dirty(move, Move_Flags.ROTATED)) return;
-    manager.rotate_entity(entity, move.end_direction);
+function downgrade_piority(p: Single_Move): number {
+    return p.piority * Const.SUPPORTEE_PIORITY_DOWNGRADE_FACTOR;
 }
 
 // === LOG STUFF ===

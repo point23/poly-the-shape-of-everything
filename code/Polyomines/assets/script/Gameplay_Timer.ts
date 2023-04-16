@@ -75,22 +75,22 @@ export class Gameplay_Timer {
 
     static run(caller: Component, loop_callback: (() => void), tick_callbacks: (() => void)[] = []) {
         caller.schedule(() => {
-            // @note Debug stuff
-            // if (Gameplay_Timer.last_ms == -1) {
-            //     this.last_ms = new Date().getTime();
-            // } else {
-            //     const current_ms = new Date().getTime();
-            //     const dt = current_ms - Gameplay_Timer.last_ms;
-            //     Gameplay_Timer.dts.push(dt);
-            //     if (Gameplay_Timer.dts.length == (1 << 4)) {
-            //         let sum = 0;
-            //         Gameplay_Timer.dts.forEach((it) => sum += it);
-            //         const avg = sum >> 4;
-            //         console.log(`=== avg dt: ${avg} ===`);
-            //         Gameplay_Timer.dts = [];
-            //     }
-            //     this.last_ms = current_ms;
-            // }
+            /* // @note Debug stuff
+             if (Gameplay_Timer.last_ms == -1) {
+                 this.last_ms = new Date().getTime();
+             } else {
+                 const current_ms = new Date().getTime();
+                 const dt = current_ms - Gameplay_Timer.last_ms;
+                 Gameplay_Timer.dts.push(dt);
+                 if (Gameplay_Timer.dts.length == (1 << 4)) {
+                     let sum = 0;
+                     Gameplay_Timer.dts.forEach((it) => sum += it);
+                     const avg = sum >> 4;
+                     console.log(`=== avg dt: ${avg} ===`);
+                     Gameplay_Timer.dts = [];
+                 }
+                 this.last_ms = current_ms;
+             } */
 
             const ticks_per_round = Const.TICKS_PER_ROUND[$$.DURATION_IDX];
 
