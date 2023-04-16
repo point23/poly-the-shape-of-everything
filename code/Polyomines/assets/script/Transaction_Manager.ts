@@ -56,8 +56,8 @@ export class Transaction_Manager extends Component {
         this.issued_stack.clear();
     }
 
-    new_transaction(move: Single_Move): boolean {
-        const t = new Move_Transaction(this.entity_manager);
+    new_transaction(move: Single_Move, duration: number = 1): boolean {
+        const t = new Move_Transaction(this.entity_manager, duration);
 
         if (move.enact(t)) {
             this.issued_transactions.push(t);
@@ -102,8 +102,7 @@ export class Transaction_Manager extends Component {
 
             t.update_single_moves();
             if (t.closed) {
-                undo_end_frame(this.entity_manager);
-
+                // undo_end_frame(this.entity_manager); // @deprecated 
                 array_remove(issued, t);
                 this.commited_stack.push(t);
                 if ($$.FOR_EDITING) {
@@ -120,4 +119,4 @@ export class Transaction_Manager extends Component {
 function array_remove(arr: any[], item: any) {
     const idx = arr.indexOf(item);
     arr.splice(idx, 1);
-} 
+}

@@ -9,7 +9,7 @@ import { Button_State, Game_Button, Game_Input } from './input/Game_Input_Handle
 import { Input_Manager } from './input/Input_Manager';
 import { Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
-import { generate_controller_proc, maybe_move_rovers } from './sokoban';
+import { generate_player_move, maybe_move_rovers } from './sokoban';
 import { Transaction_Manager } from './Transaction_Manager';
 import { Game_Pause_Panel } from './ui/Game_Pause_Panel';
 import { Show_Hide_Type, UI_Manager } from './UI_Manager';
@@ -409,30 +409,30 @@ function process_inputs() {
 
         // Move
         if (button == Game_Button.MOVE_BACKWARD) {
-            generate_controller_proc(transaction_manager, entity_manager, Direction.BACKWORD, 1);
+            generate_player_move(transaction_manager, entity_manager, Direction.BACKWORD, 1);
         }
         if (button == Game_Button.MOVE_FORWARD) {
-            generate_controller_proc(transaction_manager, entity_manager, Direction.FORWARD, 1);
+            generate_player_move(transaction_manager, entity_manager, Direction.FORWARD, 1);
         }
         if (button == Game_Button.MOVE_LEFT) {
-            generate_controller_proc(transaction_manager, entity_manager, Direction.LEFT, 1);
+            generate_player_move(transaction_manager, entity_manager, Direction.LEFT, 1);
         }
         if (button == Game_Button.MOVE_RIGHT) {
-            generate_controller_proc(transaction_manager, entity_manager, Direction.RIGHT, 1);
+            generate_player_move(transaction_manager, entity_manager, Direction.RIGHT, 1);
         }
 
         // Rotate
         if (button == Game_Button.FACE_BACKWARD) {
-            generate_controller_proc(transaction_manager, entity_manager, Direction.BACKWORD, 0);
+            generate_player_move(transaction_manager, entity_manager, Direction.BACKWORD, 0);
         }
         if (button == Game_Button.FACE_FORWARD) {
-            generate_controller_proc(transaction_manager, entity_manager, Direction.FORWARD, 0);
+            generate_player_move(transaction_manager, entity_manager, Direction.FORWARD, 0);
         }
         if (button == Game_Button.FACE_LEFT) {
-            generate_controller_proc(transaction_manager, entity_manager, Direction.LEFT, 0);
+            generate_player_move(transaction_manager, entity_manager, Direction.LEFT, 0);
         }
         if (button == Game_Button.FACE_RIGHT) {
-            generate_controller_proc(transaction_manager, entity_manager, Direction.RIGHT, 0);
+            generate_player_move(transaction_manager, entity_manager, Direction.RIGHT, 0);
         }
     }
 

@@ -1,7 +1,8 @@
-import { _decorator, Quat, Vec3 } from 'cc';
-import { Game_Entity } from './Game_Entity';
-import { gameplay_time, Gameplay_Timer } from './Gameplay_Timer';
+import { _decorator, math, Quat, Vec3 } from 'cc';
+import { calcu_entity_future_position, Game_Entity } from './Game_Entity';
+import { gameplay_time, Gameplay_Timer, time_to_string } from './Gameplay_Timer';
 import { Single_Move } from './sokoban';
+import { Stack, String_Builder } from './Const';
 
 /// @note 1-N relationship
 //  - You can express this kinda of relationship by:
@@ -77,6 +78,19 @@ export class Interpolation_Phase {
     }
 
     on_complete: (() => void);
+
+    debug_log(): string {
+        const builder = new String_Builder();
+        builder.append("[end at: ").append(this.end_at).append(", ");
+        if (this.moving) {
+            builder.append("position ( start: ").append(this.start_point).append(", end: ").append(this.end_point).append('), ');
+        }
+        if (this.rotating) {
+            builder.append("rotation ( start: ").append(this.start_ratation).append(", end: ").append(this.end_rotation).append('), ');
+        }
+        builder.append("]");
+        return builder.to_string();
+    }
 };
 
 export class Visual_Interpolation {
@@ -93,7 +107,7 @@ export class Visual_Interpolation {
     end_at: gameplay_time = null;
 
     current_phase_idx = 0;
-    phases: Interpolation_Phase[] = [];
+    phases: Stack<Interpolation_Phase> = new Stack();
     messages: Map<Messgae_Tag, Interpolation_Message> = new Map();
 
     scheduled_for_destruction: boolean = false;
@@ -118,23 +132,37 @@ export class Visual_Interpolation {
         i.start_at = start_at;
         i.end_at = end_at;
 
-        i.phases = phases;
+        phases.sort((a, b) => b.end_at - a.end_at);
+        for (let p of phases) {
+            this.phases.push(p);
+        }
 
         for (let m of messages) {
             i.messages.set(m.tag, m);
             m.interpolation = i;
         }
 
-        if (entity.interpolation != null) { // @hack
-            console.log('===== CATCHED UP AN INTERPOLATION =====')
-            entity.interpolation.on_complete();
-        }
-
         this.parent = parent;
+        entity.interpolation?.destroy();
         entity.interpolation = i;
+
+        // console.log(i.debug_log()); 
+
         Visual_Interpolation.running_interpolations.set(entity.id, i);
     }
 
+    debug_log(): string {
+        const builder = new String_Builder();
+        builder.append("start at: ").append(time_to_string(this.start_at)).append(", ");
+        builder.append("end at: ").append(time_to_string(this.end_at)).append(", {");
+        this.phases.storage.forEach((it, it_idx) => {
+            builder.append(`phase#${it_idx}`).append(it.debug_log()).append(", ");
+        });
+        builder.append("}")
+        return builder.to_string();
+    }
+
+    last_phase_end_at = 0;
     process() {
         const entity = this.entity;
 
@@ -158,23 +186,27 @@ export class Visual_Interpolation {
         }
 
         { // Mapping to current phase and lerp it.
-            if (this.phases.length != 0) {
-                let current_phase = this.phases[this.current_phase_idx];
-                if (ratio < 1 && current_phase.end_at < ratio) { // @fixme The end.at might not be exactly that tick???
-                    current_phase = this.phases[this.current_phase_idx++];
-                }
+            // Not sure if it's ok.
 
-                let phase_duration = current_phase.end_at;
-                let last_phase_end_at = 0;
-                if (this.current_phase_idx != 0) {
-                    last_phase_end_at = this.phases[this.current_phase_idx - 1].end_at;
-                    phase_duration -= last_phase_end_at;
+            let available: boolean = false;
+            if (!this.phases.empty()) {
+                let current_phase = this.phases.peek();
+                if (ratio <= current_phase.end_at) {
+                    available = true;
+                } else {
+                    this.last_phase_end_at = current_phase.end_at;
+                    this.phases.pop();
+                    if (!this.phases.empty()) {
+                        available = true;
+                    }
                 }
+            }
 
-                let mapped_ratio = (ratio - last_phase_end_at) * (1 / phase_duration);
-                if (mapped_ratio > 1) {
-                    mapped_ratio = 1;
-                }
+            if (available) {
+                const current_phase = this.phases.peek();
+                let phase_duration = current_phase.end_at - this.last_phase_end_at;
+                let mapped_ratio = (ratio - this.last_phase_end_at) * (1 / phase_duration);
+                mapped_ratio = math.clamp(mapped_ratio, 0, 1);
 
                 if (current_phase.moving) {
                     const temp = new Vec3(); // @optimize
@@ -188,6 +220,7 @@ export class Visual_Interpolation {
                     entity.visually_rotate_to(temp);
                 }
             }
+
         }
 
         { // Send it's messages

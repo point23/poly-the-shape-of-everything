@@ -26,9 +26,11 @@ export class $$ {
 
     static HERO_VISUALLY_MOVING = false; // @deprecated
 
-    static DOING_USER_MOVE: boolean = false;
+    static PLAYER_MOVE_NOT_YET_EXECUTED: boolean = false;
+    static PLAYER_MOVE_DURATION: number = 1;
 
     static DURATION_IDX: number = 0;
+
 
     // @todo Remove it...
     static {
@@ -76,8 +78,52 @@ export class String_Builder {
     }
 }
 
+
+export class Queue<T> {
+    storage: T[] = []; // @optimize Refactor this into sth like memory impl by Uint32Array...
+
+    constructor(private capacity: number = Infinity) { }
+
+    get(i: number): T {
+        return this.storage[i];
+    }
+
+    empty(): boolean {
+        return this.size() == 0;
+    }
+
+    size(): number {
+        return this.storage.length;
+    }
+
+    enqueue(item: T) {
+        if (this.size() === this.capacity) {
+            throw Error('Reached max capacity');
+        }
+        this.storage.push(item);
+    }
+
+    dequeue(): T {
+        const res = this.head();
+        this.storage.splice(0, 1);
+        return res;
+    }
+
+    head(): T {
+        return this.storage[0];
+    }
+
+    tail(): T {
+        return this.storage[this.size() - 1];
+    }
+
+    clear() {
+        this.storage = [];
+    }
+}
+
 export class Stack<T> {
-    private storage: T[] = []; // @todo Refactor this into sth like memory impl by Uint32Array...
+    storage: T[] = []; // @todo Refactor this into sth like memory impl by Uint32Array...
 
     constructor(private capacity: number = Infinity) { }
 

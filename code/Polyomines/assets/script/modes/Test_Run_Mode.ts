@@ -10,7 +10,7 @@ import { Keyboard } from '../input/Keyboard';
 import { Virtual_Controller } from '../input/Virtual_Controller';
 import { Level_Editor } from '../Level_Editor';
 import {
-    generate_controller_proc,
+    generate_player_move,
     maybe_move_rovers,
 } from '../sokoban';
 
@@ -70,6 +70,7 @@ export class Test_Run_Mode extends Game_Mode {
 
         $$.IS_RUNNING = true;
         $$.RELOADING = false;
+        $$.PLAYER_MOVE_NOT_YET_EXECUTED = false;
 
         init_animations();
     }
@@ -190,6 +191,7 @@ function init_animations() {
 function update_inputs() {
     Input_Manager.instance.update_inputs();
 }
+
 function process_animations() {
     // if (!$$.IS_RUNNING) return;
 
@@ -249,34 +251,40 @@ function process_inputs() {
             }
         }
 
-        // Move
-        if (button == Game_Button.MOVE_BACKWARD) {
-            generate_controller_proc(transaction_manager, entity_manager, Direction.BACKWORD, 1);
-        }
-        if (button == Game_Button.MOVE_FORWARD) {
-            generate_controller_proc(transaction_manager, entity_manager, Direction.FORWARD, 1);
-        }
-        if (button == Game_Button.MOVE_LEFT) {
-            generate_controller_proc(transaction_manager, entity_manager, Direction.LEFT, 1);
-        }
-        if (button == Game_Button.MOVE_RIGHT) {
-            generate_controller_proc(transaction_manager, entity_manager, Direction.RIGHT, 1);
-        }
-
-        // Rotate
-        if (button == Game_Button.FACE_BACKWARD) {
-            generate_controller_proc(transaction_manager, entity_manager, Direction.BACKWORD, 0);
-        }
-        if (button == Game_Button.FACE_FORWARD) {
-            generate_controller_proc(transaction_manager, entity_manager, Direction.FORWARD, 0);
-        }
-        if (button == Game_Button.FACE_LEFT) {
-            generate_controller_proc(transaction_manager, entity_manager, Direction.LEFT, 0);
-        }
-        if (button == Game_Button.FACE_RIGHT) {
-            generate_controller_proc(transaction_manager, entity_manager, Direction.RIGHT, 0);
-        }
+        // @fixme There might be other buttons.
+        input.buffered_player_moves.enqueue(button);
     }
 
     input.pending_records = [];
+
+    if (!input.buffered_player_moves.empty() && !$$.PLAYER_MOVE_NOT_YET_EXECUTED) {
+        const button = input.buffered_player_moves.dequeue();
+        // Move
+        if (button == Game_Button.MOVE_BACKWARD) {
+            generate_player_move(transaction_manager, entity_manager, Direction.BACKWORD, 1);
+        }
+        if (button == Game_Button.MOVE_FORWARD) {
+            generate_player_move(transaction_manager, entity_manager, Direction.FORWARD, 1);
+        }
+        if (button == Game_Button.MOVE_LEFT) {
+            generate_player_move(transaction_manager, entity_manager, Direction.LEFT, 1);
+        }
+        if (button == Game_Button.MOVE_RIGHT) {
+            generate_player_move(transaction_manager, entity_manager, Direction.RIGHT, 1);
+        }
+
+        // Rotate @deprecated Should be pull?
+        if (button == Game_Button.FACE_BACKWARD) {
+            generate_player_move(transaction_manager, entity_manager, Direction.BACKWORD, 0);
+        }
+        if (button == Game_Button.FACE_FORWARD) {
+            generate_player_move(transaction_manager, entity_manager, Direction.FORWARD, 0);
+        }
+        if (button == Game_Button.FACE_LEFT) {
+            generate_player_move(transaction_manager, entity_manager, Direction.LEFT, 0);
+        }
+        if (button == Game_Button.FACE_RIGHT) {
+            generate_player_move(transaction_manager, entity_manager, Direction.RIGHT, 0);
+        }
+    }
 }

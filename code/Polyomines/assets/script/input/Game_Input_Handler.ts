@@ -1,5 +1,5 @@
 import { _decorator, Component, Game } from 'cc';
-import { $$, clone_all_slots, Const } from '../Const';
+import { $$, clone_all_slots, Const, Queue } from '../Const';
 import { gameplay_time, Gameplay_Timer } from '../Gameplay_Timer';
 const { ccclass } = _decorator;
 
@@ -52,6 +52,7 @@ export enum Stick {
 
 export class Game_Input {
     pending_records: Button_State[] = [];
+    buffered_player_moves: Queue<Game_Button> = new Queue();
     button_states: Map<number, Button_State> = new Map();
 
     constructor() {
