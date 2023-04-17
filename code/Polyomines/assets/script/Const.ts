@@ -28,7 +28,8 @@ export class $$ {
     static HERO_VISUALLY_MOVING = false; // @Deprecated
 
     static PLAYER_MOVE_NOT_YET_EXECUTED: boolean = false;
-    static PLAYER_MOVE_DURATION: number = 1;
+
+    static SHOULD_DO_UNDO_AT: number = -1;
 
     static DURATION_IDX: number = 0;
 
@@ -275,6 +276,9 @@ export class Const {
     static GAME_BOARD_ORIGIN = new Vec3(0, 0, 0);
 
     static SUPPORTEE_PIORITY_DOWNGRADE_FACTOR = 0.9;
+
+    static PLAYER_MOVE_DURATION: number = 1;
+    static FALLING_MOVE_DURATION: number = 1;
 
     static JOYSTICK_DEADZONE = 0.05;
     static WEIRD_USER_INPUT_COUNTS = 3;

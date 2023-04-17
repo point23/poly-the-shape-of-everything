@@ -1,4 +1,4 @@
-import { _decorator, EventHandler, HorizontalTextAlignment, ReflectionProbeFlow } from 'cc';
+import { _decorator, EventHandler, } from 'cc';
 import { Audio_Manager } from '../Audio_Manager';
 import { Const, $$, Direction } from '../Const';
 import { Contextual_Manager } from '../Contextual_Manager';
@@ -71,8 +71,6 @@ export class Test_Run_Mode extends Game_Mode {
         $$.IS_RUNNING = true;
         $$.RELOADING = false;
         $$.PLAYER_MOVE_NOT_YET_EXECUTED = false;
-
-        undo_end_frame(this.entity_manager); // @Note Store the initial states.
 
         init_animations();
     }
@@ -175,6 +173,10 @@ function main_loop() {
             $$.IS_RUNNING = false;
             return;
         }
+    }
+
+    if ($$.SHOULD_DO_UNDO_AT == Gameplay_Timer.get_gameplay_time().round) {
+        undo_end_frame(entity_manager);
     }
 }
 

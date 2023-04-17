@@ -68,6 +68,11 @@ class Move_Info {
     public constructor() { }
 }
 
+// @Temporary Naming!!!
+enum Move_Completion_Flags {
+    FALLING = 1 << 0,
+}
+
 export class Single_Move {
     static serial_idx = 1;
     static get next_id(): number { return Single_Move.serial_idx++ };
@@ -114,18 +119,21 @@ export class Single_Move {
         this.execute(transaction);
     }
 
-    complete_in_preorder(transaction: Move_Transaction) {
+    complete_in_preorder(transaction: Move_Transaction): number {
+        let flag = 0;
+
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
         const children = transaction.arcs.get(entity.id);
-        children?.forEach((it) => it.complete_in_preorder(transaction));
-        this.complete(transaction);
+        children?.forEach((it) => { flag |= it.complete_in_preorder(transaction) });
+        flag |= this.complete(transaction);
+        return flag;
     }
 
     enact(transaction: Move_Transaction): boolean { return false; }
     update(transaction: Move_Transaction, ratio: number) { }
     execute(transaction: Move_Transaction) { }
-    complete(transaction: Move_Transaction) { }
+    complete(transaction: Move_Transaction): number { return 0; }
 
     debug_info(): string { return ''; }
 }
@@ -331,12 +339,6 @@ export class Player_Move extends Single_Move {
         const push_res = try_push_others(entity, d_end, transaction);
         if (push_res.pushed && !push_res.push_succeed) return at_least_rotated;
 
-        // @Deprecated Maybe we will do the falling check at the end stage of single moves?
-        // const fall_res = possible_falling(transaction, entity, d_end);
-        // if (fall_res.fell) {
-        //     return (fall_res.fall_succeed || at_least_rotated);
-        // }
-
         move_supportees(transaction, entity, this);
 
         set_dirty(this, Move_Flags.MOVED);
@@ -346,25 +348,27 @@ export class Player_Move extends Single_Move {
     execute(transaction: Move_Transaction): void {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
-        if (is_dirty(this, Move_Flags.MOVED))
+        if (is_dirty(this.flags, Move_Flags.MOVED))
             manager.logically_move_entity(entity, this.end_position);
-        if (is_dirty(this, Move_Flags.ROTATED)) {
+        if (is_dirty(this.flags, Move_Flags.ROTATED)) {
             entity.logically_rotate_to(this.end_direction);
             entity.visually_face_towards(this.end_direction); // @Hack We are not good at lerping quats, ignore this for now...?
         }
     }
 
-    complete(transaction: Move_Transaction): void {
+    complete(transaction: Move_Transaction): number {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
         const fall_res = possible_falling(entity);
         if (!fall_res.fell) {
-            // undo_end_frame(manager);
             { // @Deprecated
                 const audio = Audio_Manager.instance;
                 audio.play_sfx(audio.footstep);
             }
+            return 0;
         }
+
+        return Move_Completion_Flags.FALLING;
     }
 
     update(transaction: Move_Transaction, ratio: number) { // @Note The ratio param should been clamped by caller.'
@@ -372,13 +376,15 @@ export class Player_Move extends Single_Move {
         const entity = manager.find(this.target_entity_id);
 
         if (ratio >= 0.5) {
+            undo_end_frame(manager); // @Temporary
+
             this.execute_in_preorder(transaction);
         }
 
         { // Start visual interpolation stuff
             let phases: Interpolation_Phase[] = [];
 
-            if (is_dirty(this, Move_Flags.ROTATED)) {
+            if (is_dirty(this.flags, Move_Flags.ROTATED)) {
                 // const r_start = entity.visual_rotation;
                 // const r_end = new Quat();
                 // Quat.lerp(r_end, this.start_visual_rotation, this.end_visual_rotation, ratio);
@@ -386,7 +392,7 @@ export class Player_Move extends Single_Move {
                 // phases.push(p_0)
             }
 
-            if (is_dirty(this, Move_Flags.MOVED)) {
+            if (is_dirty(this.flags, Move_Flags.MOVED)) {
                 const p_start = entity.visual_position;
                 const p_end = new Vec3();
                 Vec3.lerp(p_end, this.start_visual_position, this.end_visual_position, ratio);
@@ -402,7 +408,11 @@ export class Player_Move extends Single_Move {
 
         if (ratio == 1) {
             $$.PLAYER_MOVE_NOT_YET_EXECUTED = false;
-            this.complete_in_preorder(transaction);
+            const f = this.complete_in_preorder(transaction);
+            if (is_dirty(f, Move_Completion_Flags.FALLING)) {
+                $$.SHOULD_DO_UNDO_AT += Const.FALLING_MOVE_DURATION;
+            }
+
             { // @Note Check possible win
                 // @Incomplete Handle it differently in test run mode?
 
@@ -490,17 +500,17 @@ class Support_Move extends Single_Move {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
 
-        if (is_dirty(this, Move_Flags.MOVED)) {
+        if (is_dirty(this.flags, Move_Flags.MOVED)) {
             manager.logically_move_entity(entity, this.end_position);
         }
 
-        if (is_dirty(this, Move_Flags.ROTATED)) {
+        if (is_dirty(this.flags, Move_Flags.ROTATED)) {
             entity.logically_rotate_to(this.end_direction);
             entity.visually_face_towards(this.end_direction); // @Hack We are not good at lerping quats, ignore this for now...?
         }
     }
 
-    complete(transaction: Move_Transaction): void {
+    complete(transaction: Move_Transaction): number {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
 
@@ -509,7 +519,9 @@ class Support_Move extends Single_Move {
             note_entity_is_not_falling(entity);
         }
 
-        possible_falling(entity);
+        const fall_res = possible_falling(entity);
+        if (fall_res.fell && fall_res.fall_succeed) return Move_Completion_Flags.FALLING;
+        return 0;
     }
 
     update(transaction: Move_Transaction, ratio: number) {
@@ -520,7 +532,7 @@ class Support_Move extends Single_Move {
         { // Start visual interpolation stuff
             const phases: Interpolation_Phase[] = [];
 
-            if (is_dirty(this, Move_Flags.ROTATED)) {
+            if (is_dirty(this.flags, Move_Flags.ROTATED)) {
                 // const r_start = entity.visual_rotation;
                 // const r_end = new Quat();
                 // Quat.lerp(r_end, this.start_visual_rotation, this.end_visual_rotation, ratio);
@@ -528,7 +540,7 @@ class Support_Move extends Single_Move {
                 // phases.push(p_0)
             }
 
-            if (is_dirty(this, Move_Flags.MOVED)) {
+            if (is_dirty(this.flags, Move_Flags.MOVED)) {
                 const p_start = entity.visual_position;
                 const p_end = new Vec3();
                 Vec3.lerp(p_end, this.start_visual_position, this.end_visual_position, ratio);
@@ -599,9 +611,9 @@ class Push_Move extends Single_Move {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
 
-        if (is_dirty(this, Move_Flags.MOVED))
+        if (is_dirty(this.flags, Move_Flags.MOVED))
             manager.logically_move_entity(entity, this.end_position);
-        if (is_dirty(this, Move_Flags.ROTATED)) {
+        if (is_dirty(this.flags, Move_Flags.ROTATED)) {
             entity.logically_rotate_to(this.end_direction);
             entity.visually_face_towards(this.end_direction); // @Hack We are not good at lerping quats, ignore this for now...?
         }
@@ -611,10 +623,12 @@ class Push_Move extends Single_Move {
         }
     }
 
-    complete(transaction: Move_Transaction): void {
+    complete(transaction: Move_Transaction): number {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
         const fall_res = possible_falling(entity);
+        if (fall_res.fell && fall_res.fall_succeed) return Move_Completion_Flags.FALLING;
+        return 0;
     }
 
     update(transaction: Move_Transaction, ratio: number) {
@@ -625,7 +639,7 @@ class Push_Move extends Single_Move {
         { // Start visual interpolation stuff
             let phases: Interpolation_Phase[] = [];
 
-            if (is_dirty(this, Move_Flags.MOVED)) {
+            if (is_dirty(this.flags, Move_Flags.MOVED)) {
                 const p_start = entity.visual_position;
                 const p_end = new Vec3();
                 Vec3.lerp(p_end, this.start_visual_position, this.end_visual_position, ratio);
@@ -685,9 +699,9 @@ class Falling_Move extends Single_Move {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
 
-        if (is_dirty(this, Move_Flags.MOVED))
+        if (is_dirty(this.flags, Move_Flags.MOVED))
             manager.logically_move_entity(entity, this.end_position);
-        if (is_dirty(this, Move_Flags.ROTATED)) {
+        if (is_dirty(this.flags, Move_Flags.ROTATED)) {
             entity.logically_rotate_to(this.end_direction);
             entity.visually_face_towards(this.end_direction); // @Hack We are not good at lerping quats, ignore this for now...?
         }
@@ -698,12 +712,10 @@ class Falling_Move extends Single_Move {
         note_entity_is_not_falling(entity);
     }
 
-    complete(transaction: Move_Transaction): void {
-        const manager = transaction.entity_manager;
-        const entity = manager.find(this.target_entity_id);
-        if (entity.id == manager.active_hero.id) { // @Temporary?
-            // undo_end_frame(manager);
-        }
+    complete(transaction: Move_Transaction): number {
+        // const manager = transaction.entity_manager;
+        // const entity = manager.find(this.target_entity_id);
+        return 0;
     }
 
     update(transaction: Move_Transaction, ratio: number) {
@@ -719,7 +731,7 @@ class Falling_Move extends Single_Move {
         { // Start visual interpolation stuff
             let phases: Interpolation_Phase[] = [];
 
-            if (is_dirty(this, Move_Flags.MOVED)) {
+            if (is_dirty(this.flags, Move_Flags.MOVED)) {
                 const p_start = entity.visual_position;
                 const p_end = new Vec3();
                 Vec3.lerp(p_end, this.start_visual_position, this.end_visual_position, ratio);
@@ -883,7 +895,7 @@ export function detect_conflicts(transaction: Move_Transaction, move: Single_Mov
         for (let another_move of transaction.all_moves) {
             if (another_move.target_entity_id == target.id) continue;
             if (another_move.id == move.id) continue;
-            if (!is_dirty(another_move, Move_Flags.MOVED)) continue;
+            if (!is_dirty(another_move.flags, Move_Flags.MOVED)) continue;
 
             if (same_position(another_move.end_position, pos)) return true;
         }
@@ -896,7 +908,7 @@ export function detect_conflicts(transaction: Move_Transaction, move: Single_Mov
             if (another_move.id == move.id) continue;
 
             if (another_move.target_entity_id == another.id
-                && is_dirty(another_move, Move_Flags.MOVED))
+                && is_dirty(another_move.flags, Move_Flags.MOVED))
                 return true;
         }
         return false;
@@ -981,7 +993,7 @@ export function detect_conflicts(transaction: Move_Transaction, move: Single_Mov
     }
     //#SCOPE
 
-    if (!is_dirty(move, Move_Flags.MOVED)) return true;
+    if (!is_dirty(move.flags, Move_Flags.MOVED)) return true;
     const manager = transaction.entity_manager;
     const target = manager.find(move.target_entity_id);
 
@@ -1000,7 +1012,7 @@ export function detect_conflicts(transaction: Move_Transaction, move: Single_Mov
 
     if (move.info.move_type != Move_Type.SUPPORT) {
         // It's only a rotate move
-        if (!is_dirty(move, Move_Flags.MOVED)) return true;
+        if (!is_dirty(move.flags, Move_Flags.MOVED)) return true;
 
         if (supporter_no_longer_exist()) {
             console.log(`SANITY CHECK: NO SUPPORTER, target: ${target.id}, move: ${move.info.move_type}`);
@@ -1078,8 +1090,9 @@ export function maybe_move_rovers(transaction_manager: Transaction_Manager) {
 
 export function generate_player_move(transaction_manager: Transaction_Manager, entity_manager: Entity_Manager, direction: Direction, step: number = 1) {
     const hero = entity_manager.active_hero;
-    if (transaction_manager.new_transaction(new Player_Move(hero, direction, step), $$.PLAYER_MOVE_DURATION)) {
+    if (transaction_manager.new_transaction(new Player_Move(hero, direction, step), Const.PLAYER_MOVE_DURATION)) {
         $$.PLAYER_MOVE_NOT_YET_EXECUTED = true;
+        $$.SHOULD_DO_UNDO_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_MOVE_DURATION;
 
         // console.log(time_to_string(Gameplay_Timer.get_gameplay_time()));
 
@@ -1295,7 +1308,7 @@ function can_pass_through(t: Move_Transaction, m: Entity_Manager, e: Game_Entity
         if (other == null) continue;
         if (other.id == e.id) continue;
         if (t.moves.has(other.id)) {
-            if (is_dirty(t.moves.get(other.id), Move_Flags.MOVED)) {
+            if (is_dirty(t.moves.get(other.id).flags, Move_Flags.MOVED)) {
                 continue;
             }
         }
@@ -1330,7 +1343,7 @@ function log_target_entity(builder: String_Builder, move: Single_Move) {
 }
 
 function maybe_log_movement(builder: String_Builder, move: Single_Move) {
-    if (!is_dirty(move, Move_Flags.MOVED)) return;
+    if (!is_dirty(move.flags, Move_Flags.MOVED)) return;
 
     builder.append('\n-   movement: from ')
         .append(move.start_position.toString())
@@ -1339,7 +1352,7 @@ function maybe_log_movement(builder: String_Builder, move: Single_Move) {
 }
 
 function maybe_log_rotation(builder: String_Builder, move: Single_Move) {
-    if (!is_dirty(move, Move_Flags.ROTATED)) return;
+    if (!is_dirty(move.flags, Move_Flags.ROTATED)) return;
 
     builder.append('\n-   rotation: from ')
         .append(Const.DIRECTION_NAMES[move.start_direction])
@@ -1348,8 +1361,8 @@ function maybe_log_rotation(builder: String_Builder, move: Single_Move) {
 }
 
 // === FLAG STUFF ===
-export function is_dirty(move: Single_Move, f: number): boolean {
-    return (move.flags & f) != 0;
+export function is_dirty(v: number, f: number): boolean {
+    return (v & f) != 0;
 }
 
 function set_dirty(move: Single_Move, f: number) {

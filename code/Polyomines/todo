@@ -152,10 +152,9 @@ AUDIO STUFF===
     Rover is slower, visually.
     When it's start to move, we still think that we can run to that square.
     Which destroy the system, since we don't detect mistakes in fly.
-+ ISSUE#018: RECTORING MOVEMENT SYSTEM!!!
+- ISSUE#018: RECTORING MOVEMENT SYSTEM!!!
     What do we want?
         1. Catch up & Jumped the gun?
-        2. 
 + ISSUE#019: LERPING QUATS
     ???
 
