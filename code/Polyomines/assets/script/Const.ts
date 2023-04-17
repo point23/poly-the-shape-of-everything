@@ -6,7 +6,7 @@ export enum Direction {
     LEFT,
     RIGHT,
     FORWARD,
-    BACKWORD, // @fixmeHard coded order for now?
+    BACKWORD, // @FixmeHard coded order for now?
 
     UP,
     DOWN,
@@ -25,15 +25,14 @@ export class $$ {
     static SWITCH_TURNED_ON: boolean;
     static SHOWING_HINTS: boolean;
 
-    static HERO_VISUALLY_MOVING = false; // @deprecated
+    static HERO_VISUALLY_MOVING = false; // @Deprecated
 
     static PLAYER_MOVE_NOT_YET_EXECUTED: boolean = false;
     static PLAYER_MOVE_DURATION: number = 1;
 
     static DURATION_IDX: number = 0;
 
-
-    // @todo Remove it...
+    // @Todo Remove it...
     static {
         $$.STARTUP = true;
 
@@ -79,9 +78,8 @@ export class String_Builder {
     }
 }
 
-
 export class Queue<T> {
-    storage: T[] = []; // @optimize Refactor this into sth like memory impl by Uint32Array...
+    storage: T[] = []; // @Optimize Refactor this into sth like memory impl by Uint32Array...
 
     constructor(private capacity: number = Infinity) { }
 
@@ -124,7 +122,7 @@ export class Queue<T> {
 }
 
 export class Stack<T> {
-    storage: T[] = []; // @todo Refactor this into sth like memory impl by Uint32Array...
+    storage: T[] = []; // @Todo Refactor this into sth like memory impl by Uint32Array...
 
     constructor(private capacity: number = Infinity) { }
 
@@ -234,7 +232,7 @@ export class Const {
     static SPEED_ROVER_FREQ: number = 6;
     static SLOW_ROVER_FREQ: number = 18;
 
-    static DEBUG_TICK_INTERVAL: number = 0.008; // @note On PC, we can run at 160 fps, so we just run as fast as we can.
+    static DEBUG_TICK_INTERVAL: number = 0.008; // @Note On PC, we can run at 160 fps, so we just run as fast as we can.
 
     static TICKS_PER_ROUND: number[] = [
         1 << 0,
@@ -279,7 +277,7 @@ export class Const {
     static SUPPORTEE_PIORITY_DOWNGRADE_FACTOR = 0.9;
 
     static JOYSTICK_DEADZONE = 0.05;
-
+    static WEIRD_USER_INPUT_COUNTS = 3;
     static VALID_PRESSING_INTERVAL = 3; // For now there're some zigzag when it's not n times tick-interval(ms)
 
     static SWITCH_HERO_DURATION = 0.5;

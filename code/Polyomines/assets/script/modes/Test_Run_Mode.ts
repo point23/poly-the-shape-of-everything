@@ -72,7 +72,7 @@ export class Test_Run_Mode extends Game_Mode {
         $$.RELOADING = false;
         $$.PLAYER_MOVE_NOT_YET_EXECUTED = false;
 
-        undo_end_frame(this.entity_manager); // @note Store the initial states.
+        undo_end_frame(this.entity_manager); // @Note Store the initial states.
 
         init_animations();
     }
@@ -180,7 +180,7 @@ function main_loop() {
 
 function init_animations() {
     // const entity_manager = Entity_Manager.current;
-    // entity_manager.heros.forEach((it) => { // @hack 
+    // entity_manager.heros.forEach((it) => { // @Hack 
     //     const hero = it.getComponent(Hero_Entity_Data);
     //     if (entity_manager.active_hero.id == it.id) {
     //         hero.active();
@@ -210,7 +210,7 @@ function process_animations() {
     //     }
     // }
 
-    // if (!$$.HERO_VISUALLY_MOVING && !keep_pressing_moving_btn) { // @hack
+    // if (!$$.HERO_VISUALLY_MOVING && !keep_pressing_moving_btn) { // @Hack
     //     hero.active(2);
     // }
 }
@@ -228,12 +228,13 @@ function process_inputs() {
         $$.DOING_UNDO = false;
     }
 
-    records.sort((a: Button_State, b: Button_State) => { return a.counter - b.counter });// @note a > b if a - b < 0,
+    records.sort((a: Button_State, b: Button_State) => { return a.counter - b.counter });// @Note a > b if a - b < 0,
 
     for (let record of input.pending_records) {
         const button = record.button;
 
         if (button == Game_Button.RESET) {
+            $$.IS_RUNNING = false;
             $$.RELOADING = true;
             Level_Editor.instance.reload_current_level();
         }
@@ -253,13 +254,18 @@ function process_inputs() {
             }
         }
 
-        // @fixme There might be other buttons.
+        // @Fixme There might be other buttons.
         input.buffered_player_moves.enqueue(button);
     }
 
     input.pending_records = [];
 
+    if ($$.DOING_UNDO || $$.RELOADING) return;
     if (!input.buffered_player_moves.empty() && !$$.PLAYER_MOVE_NOT_YET_EXECUTED) {
+        while (input.buffered_player_moves.size() >= Const.WEIRD_USER_INPUT_COUNTS) { // @Note Handle weird user inputs.
+            input.buffered_player_moves.storage.pop(); // @Hack
+        }
+
         const button = input.buffered_player_moves.dequeue();
 
         // Move
@@ -276,7 +282,7 @@ function process_inputs() {
             generate_player_move(transaction_manager, entity_manager, Direction.RIGHT, 1);
         }
 
-        // Rotate @deprecated Should be pull?
+        // Rotate @Deprecated Should be pull?
         if (button == Game_Button.FACE_BACKWARD) {
             generate_player_move(transaction_manager, entity_manager, Direction.BACKWORD, 0);
         }

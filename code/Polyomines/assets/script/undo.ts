@@ -122,7 +122,7 @@ export function do_one_undo(manager: Entity_Manager) {
     const undo = manager.undo_handler;
     if (undo.undo_records.empty()) return;
 
-    Visual_Interpolation.running_interpolations.clear(); // @fixme Move it to somewhere else, maybe Entity_Manager?
+    Visual_Interpolation.running_interpolations.clear(); // @Fixme Move it to somewhere else, maybe Entity_Manager?
 
     const record = undo.undo_records.pop();
     if (!$$.FOR_EDITING) {
@@ -171,7 +171,7 @@ export function note_entity_destruction(m: Entity_Manager, e: Game_Entity) {
 
 // ==== private functions ==== 
 function get_cd_data(e: Game_Entity): string {
-    // @todo Maybe create a Pack_Info object, so that we can increment pack 
+    // @Todo Maybe create a Pack_Info object, so that we can increment pack 
     // count by ref, so that we can extract this function...
     type ued = Undoable_Entity_Data;
     function increment_pack_count() {
@@ -324,7 +324,7 @@ function really_do_one_undo(manager: Entity_Manager, record: Undo_Record, is_red
             const e_dest = manager.find(entity_id);
             const cached_ued = undo.old_entity_state.get(entity_id);
 
-            const related_to_cd_action: boolean = (e_dest == null || cached_ued == null); // @hack
+            const related_to_cd_action: boolean = (e_dest == null || cached_ued == null); // @Hack
             apply_diff(num_slots, related_to_cd_action, cached_ued);
             if (related_to_cd_action) return;
 
@@ -333,7 +333,7 @@ function really_do_one_undo(manager: Entity_Manager, record: Undo_Record, is_red
 
             update_entity_edit_cover(e_dest);
 
-            // @incomplete Separate hero & avatar?
+            // @Incomplete Separate hero & avatar?
             const o = e_dest.orientation;
             manager.rotate_entity(e_dest, e_dest.rotation);
             e_dest.logically_rotate_to(o);

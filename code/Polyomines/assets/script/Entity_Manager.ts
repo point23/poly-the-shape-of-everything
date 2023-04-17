@@ -20,7 +20,7 @@ import { is_a_board_like_entity } from './sokoban';
 import { Undo_Handler } from './undo';
 
 /* 
- @note
+ @Note
   - Manage entity pools
   - Get and retrieve entities
   - Move entities
@@ -59,7 +59,7 @@ export class Entity_Manager {
     all_entities: Game_Entity[] = [];
     checkpoints: Game_Entity[] = [];
 
-    get moving_entities(): Game_Entity[] { // @hack
+    get moving_entities(): Game_Entity[] { // @Hack
         const res = []
         for (let e of this.all_entities) {
             if (!e.interpolation) continue;
@@ -173,7 +173,7 @@ export class Entity_Manager {
         const clone = clone_undoable_data(entity);
         this.undo_handler.old_entity_state.set(entity.id, clone);
 
-        // @note Handle entities with special types
+        // @Note Handle entities with special types
         if (entity.entity_type == Entity_Type.CHECKPOINT) this.checkpoints.push(entity);
         if (entity.entity_type == Entity_Type.HERO) {
             this.heros.push(entity);
@@ -182,7 +182,7 @@ export class Entity_Manager {
         if (entity.entity_type == Entity_Type.ROVER) {
             this.rovers.push(entity);
 
-            if (entity.prefab == 'Rover#001') { // @hack
+            if (entity.prefab == 'Rover#001') { // @Hack
                 set_rover_info(entity, { freq: Const.SLOW_ROVER_FREQ, counter: 0, })
             } else {
                 set_rover_info(entity, { freq: Const.SPEED_ROVER_FREQ, counter: 0, })
@@ -234,7 +234,7 @@ export class Entity_Manager {
         return null;
     }
 
-    reclaim(e: Game_Entity) { // @optimize Object Pool?
+    reclaim(e: Game_Entity) { // @Optimize Object Pool?
         const idx = this.all_entities.indexOf(e);
         this.all_entities.splice(idx, 1);
 
@@ -246,7 +246,7 @@ export class Entity_Manager {
     get_entities_info(): any {
         let entities_info: Serializable_Entity_Data[] = [];
         for (let e of this.all_entities) {
-            // @todo
+            // @Todo
             // In our own programming language, we should achive that entity
             // can be treat as *target* type and read its metadata at runtime
             entities_info.push(get_serializable(e));
@@ -265,19 +265,33 @@ export class Entity_Manager {
         return this.proximity_grid.point_search(pos);
     }
 
+    locate_availble_supporters(pos: Vec3, depth: number = 1): Game_Entity[] { // @V 1
+        const res = [];
+        for (let e of this.locate_entities(new Vec3(pos).subtract(new Vec3(0, 0, depth)))) {
+            if (e.entity_type == Entity_Type.FENCE) continue;
+            res.push(e);
+        }
+        return res;
+    }
+
     locate_supporters(pos: Vec3, depth: number = 1): Game_Entity[] {
         return this.locate_entities(new Vec3(pos).subtract(new Vec3(0, 0, depth)));
     }
 
-    locate_supportees(pos: Vec3): Game_Entity[] {
-        return this.locate_entities(pos.clone().add(Vec3.UNIT_Z));
+    locate_current_available_supporters(entity: Game_Entity): Game_Entity[] { // @V 1
+        const res = [];
+        for (let e of this.locate_current_supporters(entity)) {
+            if (e.entity_type == Entity_Type.FENCE) continue;
+            res.push(e);
+        }
+        return res;
     }
 
     locate_current_supporters(entity: Game_Entity): Game_Entity[] {
         const supporters = [];
         const set = new Set();
         if (is_a_board_like_entity(entity)) {
-            // @note A Board mush have at least one non board supporter!!!
+            // @Note A Board mush have at least one non board supporter!!!
             // supporting stack be like: [DYNAMIC_b, TRACK]
             //    === === ← BRIDGE
             //   |   |///|
@@ -297,7 +311,7 @@ export class Entity_Manager {
                 }
             }
         } else {
-            // @note Boards as 1 level supporter
+            // @Note Boards as 1 level supporter
             //  support stack be like: [DYNMIC_a, TRACK, DYNMIC_b]
             //    DYNAMIC_b
             //   |_↓_|
@@ -339,8 +353,17 @@ export class Entity_Manager {
         return supporters;
     }
 
+    locate_future_available_supporters(entity: Game_Entity, dir: Direction, max_depth: number = 1): Game_Entity[] { // @V 1
+        const res = [];
+        for (let e of this.locate_future_supporters(entity, dir, max_depth)) {
+            if (e.entity_type == Entity_Type.FENCE) continue;
+            res.push(e);
+        }
+        return res;
+    }
+
     locate_future_supporters(entity: Game_Entity, dir: Direction, max_depth: number = 1): Game_Entity[] {
-        // @note Special case: Boards will never showup in a falling move.
+        // @Note Special case: Boards will never showup in a falling move.
         const squares = calcu_entity_future_squares(entity, dir);
         const supporters = [];
         for (let d = 1; d <= max_depth; d++) {
@@ -357,8 +380,12 @@ export class Entity_Manager {
         return supporters;
     }
 
+    locate_supportees(pos: Vec3): Game_Entity[] {
+        return this.locate_entities(pos.clone().add(Vec3.UNIT_Z));
+    }
+
     locate_current_supportees(entity: Game_Entity): Game_Entity[] {
-        // @note Boards as 1 level supportee
+        // @Note Boards as 1 level supportee
         // Supporting stack be like: [DYNMIC_a, TRACK, DYNMIC_b]
         //    DYNAMIC_b
         //     ↓  
@@ -376,7 +403,7 @@ export class Entity_Manager {
 
             if (!is_a_board_like_entity(entity)) {
                 for (let other of this.locate_entities(pos)) {
-                    // @note Boards are located at the same square as their supportors
+                    // @Note Boards are located at the same square as their supportors
 
                     if (other.id == entity.id) continue;
                     if (is_a_board_like_entity(other)) {

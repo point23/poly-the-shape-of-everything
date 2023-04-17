@@ -43,7 +43,7 @@ export enum Keyboard_Command_Button {
 }
 
 export enum Stick {
-    // @incomplete There might be more states than this, so for now we give up that mapping stuff in Joystick class
+    // @Incomplete There might be more states than this, so for now we give up that mapping stuff in Joystick class
     UP,
     DOWN,
     LEFT,

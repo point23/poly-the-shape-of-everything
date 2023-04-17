@@ -43,7 +43,7 @@ export class Keyboard extends Game_Input_Handler {
                         game_input.press(game_button);
                     }
                 } else {
-                    if (!any_command_button_ended_down) // @note Ignore it when Command Button is Down
+                    if (!any_command_button_ended_down) // @Note Ignore it when Command Button is Down
                         game_input.press(game_button);
                 }
             }

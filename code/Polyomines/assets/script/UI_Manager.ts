@@ -88,7 +88,7 @@ export class UI_Manager extends Component {
             case Show_Hide_Type.FADE: {
                 info.target.active = true;
 
-                // @note Here we had asume that it's initial colored.
+                // @Note Here we had asume that it's initial colored.
                 const sprite = info.target.getComponent(Sprite);
                 const show_color = new Color().set(sprite.color);
                 const hide_color = new Color().set(sprite.color);
@@ -177,7 +177,7 @@ export class UI_Manager extends Component {
         const target = info.target;
         target.active = false;
 
-        const should_hide = Number.isFinite(info.hide_delay); // @note Handling those weird special cases
+        const should_hide = Number.isFinite(info.hide_delay); // @Note Handling those weird special cases
         if (!should_hide) info.hide_delay = 0;
 
         switch (info.type) {

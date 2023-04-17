@@ -41,16 +41,16 @@ export function orthogonal_direction(d1: Direction, d2: Direction): boolean {
 
 export function reversed_direction(d1: Direction, d2: Direction): boolean {
     if (same_direction(d1, d2)) return false;
-    // @note We can't use /2 here, cause they're float numbers
+    // @Note We can't use /2 here, cause they're float numbers
     return ((d1 >> 1) == (d2 >> 1));
 }
 
 export function calcu_target_direction(d: Direction, delta: number): Direction {
-    return (d + delta + 4) % 4; // @fixme WRONG!!!!!!!
+    return (d + delta + 4) % 4; // @Fixme WRONG!!!!!!!
 }
 
 export enum Entity_Type {
-    // @note There're actually 2 kinds of derived data
+    // @Note There're actually 2 kinds of derived data
     //      - Rover, Checkpoint: 
     //          There derived types are limited: Speed/Slow Rover, Hero/Dynamic Checkpoint
     //      - Artifact, Hero, Avatar
@@ -58,11 +58,11 @@ export enum Entity_Type {
 
     STATIC,// It means we're not avaliale to  push them
     DYNAMIC,
-    HERO, // @incomplete
+    HERO, // @Incomplete
     // There're ganna be many possible characters for player to chose
     // The relationship between "derived" part and game entity seems like
     // a Composite Pattern? 
-    AVATAR, // @incomplete 
+    AVATAR, // @Incomplete 
     // Kinda like cappee in Super Mario: Odyssey
     // Different avatars can have different powers, like chained warms? owls? bats?
     CHECKPOINT, // Possible win? But in a multiple character level, the winning condition
@@ -125,7 +125,7 @@ export class Serializable_Entity_Data {
     }
 }
 
-// @incomplete
+// @Incomplete
 /* 
     Memory:
     S32 [
@@ -215,6 +215,7 @@ export class Game_Entity extends Component {
 
     get is_valid(): boolean { return (this.flags & Entity_Flags.INVALID) == 0; }
     get is_selected(): boolean { return (this.flags & Entity_Flags.SELECT) != 0; }
+    get is_falling(): boolean { return (this.flags & Entity_Flags.FALLING) != 0; }
 
     visually_move_to(world_pos: Vec3) {
         this.node.setPosition(world_pos);
@@ -287,6 +288,18 @@ export function copy_undoable_data(s: Undoable_Entity_Data, d: Undoable_Entity_D
     }
 }
 
+export function note_entity_is_falling(e: Game_Entity) {
+    if (!e.is_falling) {
+        e.undoable.flags |= Entity_Flags.FALLING;
+    }
+}
+
+export function note_entity_is_not_falling(e: Game_Entity) {
+    if (e.is_falling) {
+        e.undoable.flags -= Entity_Flags.FALLING;
+    }
+}
+
 export function note_entity_is_invalid(e: Game_Entity) {
     if (e.is_valid) {
         e.undoable.flags |= Entity_Flags.INVALID;
@@ -329,7 +342,7 @@ export function get_entrance_id(e: Game_Entity): number {
 
 export function set_entrance_id(e: Game_Entity, entrance_id: number) {
     if (e.entity_type != Entity_Type.ENTRANCE) return;
-    const slot = new Vec4(); // @optimize
+    const slot = new Vec4(); // @Optimize
     slot.x = entrance_id;
     e.undoable.customized_slot_0 = slot;
 }
@@ -351,14 +364,14 @@ export function get_rover_info(e: Game_Entity): rover_info {
 export function set_rover_info(e: Game_Entity, i: rover_info) {
     if (e.entity_type != Entity_Type.ROVER) return;
 
-    const slot = new Vec4(); // @optimize
+    const slot = new Vec4(); // @Optimize
     slot.x = i.freq;
     slot.y = i.counter;
     e.undoable.customized_slot_0 = slot;
 }
 
 // === Calculation === 
-// @todo Support more types of entity
+// @Todo Support more types of entity
 const polyomino_deltas: Vec3[][][] = [
     /* Monomino */
     [],
@@ -377,8 +390,8 @@ const polyomino_deltas: Vec3[][][] = [
             /* RIGHT */[new Vec3(-1, 0, 0), new Vec3(1, 0, 0)],
             /* FORWARD */[new Vec3(0, 1, 0), new Vec3(0, -1, 0)],
             /* BACKWORD */[new Vec3(0, 1, 0), new Vec3(0, -1, 0)],
-            /* UP */[new Vec3(0, 0, 1)], // @implementMe
-            /* DOWN */[new Vec3(0, 0, -1)], // @implementMe
+            /* UP */[new Vec3(0, 0, 1)], // @ImplementMe
+            /* DOWN */[new Vec3(0, 0, -1)], // @ImplementMe
     ],
 ];
 
@@ -490,7 +503,7 @@ export function debug_validate_tiling(manager: Entity_Manager) {
 
     // Check if entities are in the same pos
     for (let e of manager.all_entities) {
-        // @fixme What if there several entity in the same square?
+        // @Fixme What if there several entity in the same square?
         if (e.entity_type == Entity_Type.CHECKPOINT) continue;
         if (e.entity_type == Entity_Type.FENCE) continue;
         if (e.entity_type == Entity_Type.TRACK) continue;

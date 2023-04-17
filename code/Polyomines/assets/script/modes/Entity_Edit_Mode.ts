@@ -51,7 +51,7 @@ export class Entity_Edit_Mode extends Game_Mode {
     is_jiggling: boolean = false;
     is_shift_down: boolean = false;
 
-    copied_entities: Serializable_Entity_Data[] = []; // @note We may take them across levels...
+    copied_entities: Serializable_Entity_Data[] = []; // @Note We may take them across levels...
 
     on_enter() {
         Level_Editor.instance.info("Entity Edit");
@@ -89,7 +89,7 @@ export class Entity_Edit_Mode extends Game_Mode {
     }
 
     handle_mouse_down(event: EventMouse) {
-        // @fixme There is a bug of cocos:
+        // @Fixme There is a bug of cocos:
         // const left_btn: boolean = event.getButton() == EventMouse.BUTTON_LEFT;
         // const right_btn: boolean = event.getButton() == EventMouse.BUTTON_RIGHT;
         if (this.is_jiggling) return;
@@ -237,14 +237,14 @@ export class Entity_Edit_Mode extends Game_Mode {
         if (e.is_selected) return;
         note_entity_is_selected(e);
 
-        undo_end_frame(this.entity_manager); // @hack
+        undo_end_frame(this.entity_manager); // @Hack
     }
 
     deselect(e: Game_Entity) {
         if (!e.is_selected) return;
         note_entity_is_deselected(e);
 
-        undo_end_frame(this.entity_manager); // @hack
+        undo_end_frame(this.entity_manager); // @Hack
     }
 
     select_all() {
@@ -259,7 +259,7 @@ export class Entity_Edit_Mode extends Game_Mode {
         for (let e of entities) {
             note_entity_is_deselected(e);
         }
-        undo_end_frame(this.entity_manager); // @hack
+        undo_end_frame(this.entity_manager); // @Hack
     }
 
     move_selected_entities(direction: Direction) {

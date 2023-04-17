@@ -97,7 +97,7 @@ class Tree_Node {
         this.children = [null, null, null, null, null];
     }
 
-    // @note Visitor pattern
+    // @Note Visitor pattern
     accept<T>(v: Visitor<T>): T {
         return v.visit_tree_node(this);
     }
@@ -136,7 +136,7 @@ function point_search(r: Tree_Node, p: Vec3): Tree_Node {
 }
 
 /* 
-    // @implementMe
+    // @ImplementMe
     class Region {
         bounds: [number, number, number, number];
         get l(): number { return this.bounds[0]; }
@@ -215,7 +215,7 @@ function insert(n: Tree_Node, k: Game_Entity) {
     }
 }
 
-// @incomplete
+// @Incomplete
 function remove(n: Tree_Node, k: Game_Entity) {
     function remove_once(kx: number, ky: number) {
         const p = point_search(n, new Vec3(kx, ky));
@@ -234,7 +234,7 @@ function remove(n: Tree_Node, k: Game_Entity) {
 }
 
 /*
- @note
+ @Note
  - Draw debug info on invalid squares.
  - Show grids.
  - Transform from board-coords to world-position.
@@ -264,7 +264,7 @@ export class Proximity_Grid {
         }
     }
 
-    // @todo
+    // @Todo
     remove_entity(e: Game_Entity) {
         remove(this.quad_tree, e);
     }

@@ -22,8 +22,8 @@ export class Resource_Manager extends Component {
     prefabs: Map<String, Prefab> = new Map<String, Prefab>();
     @property(Node) entities_parent: Node;
 
-    level_id_to_idx: Map<string, number> = new Map(); // @note Level id is the json file name.
-    level_idx_to_id: Map<number, string> = new Map(); // @note Level id is the json file name.
+    level_id_to_idx: Map<string, number> = new Map(); // @Note Level id is the json file name.
+    level_idx_to_id: Map<number, string> = new Map(); // @Note Level id is the json file name.
     levels: Level_Data[] = []
 
     current_level_idx = 0;

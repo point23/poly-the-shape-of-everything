@@ -24,7 +24,7 @@ export class Gameplay_Timer {
             tick: 0,
         });
 
-        Visual_Interpolation.running_interpolations.clear(); // @fixme Move it to somewhere else, maybe Entity_Manager?
+        Visual_Interpolation.running_interpolations.clear(); // @Fixme Move it to somewhere else, maybe Entity_Manager?
     }
 
     static now(): number {
@@ -53,7 +53,7 @@ export class Gameplay_Timer {
     }
 
     static calcu_delta_rounds(start: gameplay_time, end: gameplay_time = this.get_gameplay_time()): number {
-        if (start.round > end.round) { // @incomplete We need to compare them.
+        if (start.round > end.round) { // @Incomplete We need to compare them.
             return (Gameplay_Timer.ROUND_BOUNDS - start.round) + end.round;
         }
 
@@ -63,7 +63,7 @@ export class Gameplay_Timer {
     static calcu_delta_ticks(start: gameplay_time, end: gameplay_time = this.get_gameplay_time()): number {
         const ticks_per_round = Const.TICKS_PER_ROUND[$$.DURATION_IDX];
 
-        if (start.round > end.round) { // @incomplete We need to compare them.
+        if (start.round > end.round) { // @Incomplete We need to compare them.
             return 0;
         }
 
@@ -75,7 +75,7 @@ export class Gameplay_Timer {
 
     static run(caller: Component, loop_callback: (() => void), tick_callbacks: (() => void)[] = []) {
         caller.schedule(() => {
-            /* // @note Debug stuff
+            /* // @Note Debug stuff
              if (Gameplay_Timer.last_ms == -1) {
                  this.last_ms = new Date().getTime();
              } else {

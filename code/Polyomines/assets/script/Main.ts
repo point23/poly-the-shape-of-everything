@@ -221,7 +221,7 @@ function init(game: Main) {
                 show_duration: 2,
                 type: Show_Hide_Type.FADE,
                 callback: () => {
-                    // @todo Maybe i should chained them together?
+                    // @Todo Maybe i should chained them together?
 
                     ui.typer({
                         label: game.label_credit_in_title,
@@ -238,7 +238,7 @@ function init(game: Main) {
                                 duration: 3,
                                 hide_delay: Infinity,
                                 callback: () => {
-                                    { // @note Click the touch panel
+                                    { // @Note Click the touch panel
                                         const e = new EventHandler();
                                         e.target = game.node;
                                         e.component = 'Main';
@@ -383,7 +383,7 @@ function process_inputs() {
         $$.DOING_UNDO = false;
     }
 
-    records.sort((a: Button_State, b: Button_State) => { return a.counter - b.counter });// @note a > b if a - b < 0,
+    records.sort((a: Button_State, b: Button_State) => { return a.counter - b.counter });// @Note a > b if a - b < 0,
 
     for (let record of input.pending_records) {
         const button = record.button;

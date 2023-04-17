@@ -1,4 +1,4 @@
-@todo ###
+@Todo ###
 LEVEL EDITOR ===
 - Load and Save Camera
 - Load and Save Level
@@ -97,12 +97,12 @@ AUDIO STUFF===
 - Basic SFX: Move, Push, Rover
 + New version of audio api...
 
-@deprecated ###
+@Deprecated ###
 - Redo & Undo <= Command Pattern
 - Entity Type: Channel
 - Schedule Game Loops by Scheduler
 
-@fixme ### 
+@Fixme ### 
 - ISSUE#001: 2d local position is limited
     change it from 2d to 3d
 - ISSUE#002: Sth wrong with double-click:
@@ -159,5 +159,5 @@ AUDIO STUFF===
 + ISSUE#019: LERPING QUATS
     ???
 
-@optimize ###
+@Optimize ###
 + Draw-Call is too high

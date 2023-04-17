@@ -50,7 +50,7 @@ export class Transaction_Panel extends Component {
         if (this.singles_panel.active) {
             this.clear_logs();
             const idx = this.transaction_idx;
-            this.navigator.label_current.string = `#${idx + 1}`; // @note Let's just start counting at 1...
+            this.navigator.label_current.string = `#${idx + 1}`; // @Note Let's just start counting at 1...
             t.all_moves.forEach((it, it_idx) => {
                 const label = this.single_logs[it_idx].getComponentInChildren(Label);
                 label.string = it.debug_info();

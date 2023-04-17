@@ -4,7 +4,7 @@ import { gameplay_time, Gameplay_Timer, time_to_string } from './Gameplay_Timer'
 import { Single_Move } from './sokoban';
 import { Stack, String_Builder } from './Const';
 
-/// @note 1-N relationship
+/// @Note 1-N relationship
 //  - You can express this kinda of relationship by:
 /*
     1.
@@ -18,7 +18,7 @@ import { Stack, String_Builder } from './Const';
 */
 
 /* 
-// @deprecated We now move this to Single_Move.
+// @Deprecated We now move this to Single_Move.
 export enum Messgae_Tag {
     LOGICALLY_MOVEMENT,
     ROVER_DETECTION,
@@ -28,7 +28,7 @@ export class Interpolation_Message {
     interpolation: Visual_Interpolation = null;
 
     tag: Messgae_Tag;
-    at: number = -1; // @todo We might need a threshold or sth???
+    at: number = -1; // @Todo We might need a threshold or sth???
     chidren: Interpolation_Message[] = [];
 
     send_message() {
@@ -36,7 +36,7 @@ export class Interpolation_Message {
             if (!it.interpolation.scheduled_for_destruction) {
                 it.send_message()
             }
-        }); // @note Now children has to do it first.
+        }); // @Note Now children has to do it first.
 
         this.process(this);
     }
@@ -54,7 +54,7 @@ export class Interpolation_Phase {
     moving: boolean = false;
     rotating: boolean = false;
 
-    end_at: number; // @note Ratio
+    end_at: number; // @Note Ratio
 
     start_point: Vec3 = null;
     end_point: Vec3 = null;
@@ -114,7 +114,7 @@ export class Visual_Interpolation {
 
     scheduled_for_destruction: boolean = false;
 
-    // @note Let those static messages to handle contructions with limited params for us.
+    // @Note Let those static messages to handle contructions with limited params for us.
     constructor(
         single: Single_Move,
         entity: Game_Entity,
@@ -164,13 +164,13 @@ export class Visual_Interpolation {
 
         let ratio = 0;
         if (this.parent) {
-            ratio = this.parent.current_ratio; // @note Sync with the parent.
+            ratio = this.parent.current_ratio; // @Note Sync with the parent.
         } else {
-            const duration = Gameplay_Timer.calcu_delta_ticks(this.start_at, this.end_at); // @optimize
-            const passed = Gameplay_Timer.calcu_delta_ticks(this.start_at);                // @optimize
+            const duration = Gameplay_Timer.calcu_delta_ticks(this.start_at, this.end_at); // @Optimize
+            const passed = Gameplay_Timer.calcu_delta_ticks(this.start_at);                // @Optimize
             ratio = passed / duration;
 
-            if (ratio < this.current_ratio) { // @note Duration changed.
+            if (ratio < this.current_ratio) { // @Note Duration changed.
                 ratio = this.current_ratio;
             }
         }
@@ -181,7 +181,7 @@ export class Visual_Interpolation {
         }
 
         if (ratio > 1) {
-            console.log("===== MISS A TICK ====="); // @fixme 
+            console.log("===== MISS A TICK ====="); // @Fixme 
             this.current_ratio = ratio = 1;
         }
 
@@ -209,13 +209,13 @@ export class Visual_Interpolation {
                 mapped_ratio = math.clamp(mapped_ratio, 0, 1);
 
                 if (current_phase.moving) {
-                    const temp = new Vec3(); // @optimize
+                    const temp = new Vec3(); // @Optimize
                     Vec3.lerp(temp, current_phase.start_point, current_phase.end_point, mapped_ratio);
                     entity.visually_move_to(temp);
                 }
 
                 if (current_phase.rotating) {
-                    const temp = new Quat(); // @optimize
+                    const temp = new Quat(); // @Optimize
                     Quat.lerp(temp, current_phase.start_ratation, current_phase.end_rotation, mapped_ratio);
                     entity.visually_rotate_to(temp);
                 }

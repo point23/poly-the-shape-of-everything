@@ -20,8 +20,6 @@ export class Transaction_Manager extends Component {
         Transaction_Manager.instance = instance;
     }
 
-    running_moves: Map<number, Single_Move> = new Map(); // @note Idxed by entity_id.
-
     get entity_manager(): Entity_Manager {
         return Entity_Manager.current;
     }
@@ -47,13 +45,12 @@ export class Transaction_Manager extends Component {
     control_flags = 0;
 
     commited_stack: Stack<Move_Transaction> = new Stack<Move_Transaction>();
-    issued_stack: Stack<Move_Transaction> = new Stack<Move_Transaction>();
 
     issued_transactions: Move_Transaction[] = [];
 
     clear() {
+        this.issued_transactions = [];
         this.commited_stack.clear();
-        this.issued_stack.clear();
     }
 
     new_transaction(move: Single_Move, duration: number = 1): boolean {
@@ -73,7 +70,7 @@ export class Transaction_Manager extends Component {
         const issued = this.issued_transactions;
         issued.sort((a, b) => b.piority - a.piority);
         for (let t of issued) {
-            /*  // @deprecated
+            /*  // @Deprecated
              function is_sanity(): boolean {
                  for (const move of t.moves) {
                      if (!detect_conflicts(t, move)) return false;;
@@ -81,22 +78,22 @@ export class Transaction_Manager extends Component {
                  return true;
              }
              //#SCOPE
- 
+     
              if (!is_sanity()) {
                  // Reject Current Transaction
                  console.log("Something Went Wrong!!!")
                  continue;
              }
- 
-             // @note Pusher and Supporter should be executed first
- 
- 
+     
+             // @Note Pusher and Supporter should be executed first
+     
+     
              for (const move of t.moves) {
                  if (move.info.move_type == Move_Type.CONTROLLER_PROC
-                     && is_dirty(move, Move_Flags.MOVED)) { // @hack
+                     && is_dirty(move, Move_Flags.MOVED)) { // @Hack
                      $$.HERO_VISUALLY_MOVING = true;
                  }
- 
+     
                  move.update(t);
                  packed.moves.push(move);
              } 
@@ -104,7 +101,7 @@ export class Transaction_Manager extends Component {
 
             t.update_single_moves();
             if (t.closed) {
-                // undo_end_frame(this.entity_manager); // @deprecated 
+                // undo_end_frame(this.entity_manager); // @Deprecated 
                 array_remove(issued, t);
                 this.commited_stack.push(t);
                 if ($$.FOR_EDITING) {

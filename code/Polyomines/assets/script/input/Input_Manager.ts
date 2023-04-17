@@ -79,7 +79,7 @@ export class Input_Manager extends Component {
     }
 
     mapping_game_buttons(config: keymap) {
-        // @note: Keymap Config Example:
+        // @Note: Keymap Config Example:
         // undo: [z]
         // reset: [r]
         // switch: [tab]

@@ -19,7 +19,7 @@ import { Efx_Manager } from './Efx_Manager';
 const { ccclass, property } = _decorator;
 
 /**
- * @note
+ * @Note
  * - Game Loop
  */
 @ccclass('Level_Editor')
@@ -138,6 +138,7 @@ export class Level_Editor extends Component {
     }
 
     clear_current_level() {
+        Transaction_Manager.instance.clear();
         Contextual_Manager.instance.switch_mode(-1);
 
         const manager = this.entity_manager;
