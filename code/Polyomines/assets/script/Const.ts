@@ -182,6 +182,12 @@ export function vec_sub(a: vector, b: vector) {
     return res.subtract(b);
 }
 
+
+export function array_remove(arr: any[], item: any) {
+    const idx = arr.indexOf(item);
+    arr.splice(idx, 1);
+}
+
 export function random(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1) + min)
 }
@@ -230,8 +236,8 @@ export class Const {
 
     static DATA_PATH: string = 'data';
 
-    static SPEED_ROVER_FREQ: number = 6;
-    static SLOW_ROVER_FREQ: number = 18;
+    static SPEED_TRAM_FREQ: number = 12;
+    static SLOW_TRAM_FREQ: number = 24;
 
     static DEBUG_TICK_INTERVAL: number = 0.008; // @Note On PC, we can run at 160 fps, so we just run as fast as we can.
 

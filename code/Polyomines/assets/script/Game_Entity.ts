@@ -71,7 +71,7 @@ export enum Entity_Type {
     BRIDGE,
     GATE,
     FENCE,
-    ROVER,
+    TRAM,
     // There are Speed Rover and Slow Rover, with different speed to generate rover moves...
     TRACK,
     SWITCH,
@@ -347,13 +347,13 @@ export function set_entrance_id(e: Game_Entity, entrance_id: number) {
     e.undoable.customized_slot_0 = slot;
 }
 
-export type rover_info = {
+export type tram_info = {
     freq: number,
     counter: number,
 }
 
-export function get_rover_info(e: Game_Entity): rover_info {
-    if (e.entity_type != Entity_Type.ROVER) return;
+export function get_tram_info(e: Game_Entity): tram_info {
+    if (e.entity_type != Entity_Type.TRAM) return;
 
     return {
         freq: e.undoable.customized_slot_0.x,
@@ -361,8 +361,8 @@ export function get_rover_info(e: Game_Entity): rover_info {
     }
 }
 
-export function set_rover_info(e: Game_Entity, i: rover_info) {
-    if (e.entity_type != Entity_Type.ROVER) return;
+export function set_tram_info(e: Game_Entity, i: tram_info) {
+    if (e.entity_type != Entity_Type.TRAM) return;
 
     const slot = new Vec4(); // @Optimize
     slot.x = i.freq;

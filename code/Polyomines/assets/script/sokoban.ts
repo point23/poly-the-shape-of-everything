@@ -1,6 +1,6 @@
 import { Quat, TransformBit, Vec3, math, pseudoRandom } from "cc";
 import { Audio_Manager, Random_Audio_Group } from "./Audio_Manager";
-import { String_Builder, same_position, Const, Direction, $$, vec_add, vec_sub } from "./Const";
+import { String_Builder, same_position, Const, Direction, $$, vec_add, vec_sub, array_remove } from "./Const";
 import { Entity_Manager } from "./Entity_Manager";
 import { Gameplay_Timer, gameplay_time, time_to_string } from "./Gameplay_Timer";
 import {
@@ -15,8 +15,8 @@ import {
     Polyomino_Type,
     reversed_direction,
     DIRECTION_TO_WORLD_VEC3,
-    get_rover_info,
-    set_rover_info,
+    get_tram_info,
+    set_tram_info,
     note_entity_is_falling,
     note_entity_is_not_falling,
 } from "./Game_Entity";
@@ -31,7 +31,7 @@ export enum Move_Type {
     PUSH,
     SUPPORT,
     FALLING,
-    ROVER,
+    TRAM,
 }
 
 enum Move_Piorities {
@@ -43,7 +43,7 @@ enum Move_Piorities {
 
     CONTROLLER_PROC = 4,
 
-    ROVER = 8,
+    TRAM = 8,
 }
 
 export enum Move_Flags {
@@ -194,6 +194,23 @@ export class Move_Transaction {
         this.moves.set(move.target_entity_id, move);
         this.add_arc(move);
         this.piority += move.piority;
+    }
+
+    remove_move(move: Single_Move) {
+        // @Note There're some side effect inside this function! We add an arc from parent move to child move implicitly. 
+        this.moves.delete(move.target_entity_id);
+        this.remove_arc(move);
+        this.piority -= move.piority;
+    }
+
+    remove_arc(move: Single_Move) {
+        if (move.source_entity_id == null) return;
+
+        let arcs = this.arcs.get(move.source_entity_id);
+        if (arcs == null) return;
+
+        array_remove(arcs, move);
+        this.arcs.set(move.source_entity_id, arcs);
     }
 
     add_arc(move: Single_Move) {
@@ -376,8 +393,6 @@ export class Player_Move extends Single_Move {
         const entity = manager.find(this.target_entity_id);
 
         if (ratio >= 0.5) {
-            undo_end_frame(manager); // @Temporary
-
             this.execute_in_preorder(transaction);
         }
 
@@ -407,7 +422,6 @@ export class Player_Move extends Single_Move {
         }
 
         if (ratio == 1) {
-            $$.PLAYER_MOVE_NOT_YET_EXECUTED = false;
             const f = this.complete_in_preorder(transaction);
             if (is_dirty(f, Move_Completion_Flags.FALLING)) {
                 $$.SHOULD_DO_UNDO_AT += Const.FALLING_MOVE_DURATION;
@@ -567,7 +581,6 @@ class Support_Move extends Single_Move {
 }
 
 class Push_Move extends Single_Move {
-
     public constructor(mover: Game_Entity, entity: Game_Entity, direction: Direction, step: number = 1) {
         const move_info = new Move_Info();
         move_info.move_type = Move_Type.PUSH;
@@ -626,8 +639,11 @@ class Push_Move extends Single_Move {
     complete(transaction: Move_Transaction): number {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
+
         const fall_res = possible_falling(entity);
-        if (fall_res.fell && fall_res.fall_succeed) return Move_Completion_Flags.FALLING;
+        if (fall_res.fell && fall_res.fall_succeed) {
+            return Move_Completion_Flags.FALLING;
+        }
         return 0;
     }
 
@@ -655,15 +671,14 @@ class Push_Move extends Single_Move {
 
     debug_info(): string {
         let builder = new String_Builder();
-        builder.append('PUSHED#').append(this.id);
+        builder.append('PUSH#').append(this.id);
         log_target_entity(builder, this);
-        builder.append('\n-   pusher#').append(this.info.source_entity_id);
+        builder.append('\n-   mover#').append(this.info.source_entity_id);
         maybe_log_movement(builder, this);
         return builder.to_string();
     }
 }
 
-// @Note Falling move is a replacement of a Pushed_Move or a Controller_Proc_Move
 class Falling_Move extends Single_Move {
     constructor(entity: Game_Entity) {
         const move_info = new Move_Info();
@@ -761,122 +776,149 @@ class Falling_Move extends Single_Move {
 }
 
 // @Fixme Now we decide to name it as TRAM!
-class Rover_Move extends Single_Move {
-    public constructor(entity: Game_Entity) {
+class Tram_Move extends Single_Move {
+    public constructor(tram: Game_Entity) {
         const move_info = new Move_Info();
-        move_info.move_type = Move_Type.ROVER;
-        move_info.target_entity_id = entity.id;
-        move_info.start_direction = move_info.end_direction = entity.orientation;
-        move_info.start_position = move_info.end_position = entity.position;
+        move_info.move_type = Move_Type.TRAM;
+        move_info.target_entity_id = tram.id;
+        move_info.start_direction = move_info.end_direction = tram.orientation;
+        move_info.start_position = move_info.end_position = tram.position;
         super(move_info);
 
-        this.piority = Move_Piorities.ROVER;
+        this.piority = Move_Piorities.TRAM;
     }
 
     enact(transaction: Move_Transaction): boolean {
-        // function locate_track_ahead(r: Game_Entity, d: Direction): Game_Entity {
-        //     const supporters = manager.locate_future_supporters(r, d);
-        //     for (let supporter of supporters) {
-        //         if (supporter.entity_type == Entity_Type.TRACK) {
-        //             if (collinear_direction(supporter.rotation, rover.orientation)) {
-        //                 return supporter;
-        //             }
-        //         }
-        //     }
-        //     return null;
-        // }
-        // //#SCOPE
+        function locate_track_ahead(r: Game_Entity, d: Direction): Game_Entity {
+            const supporters = manager.locate_future_supporters(r, d);
+            for (let supporter of supporters) {
+                if (supporter.entity_type == Entity_Type.TRACK) {
+                    if (collinear_direction(supporter.rotation, tram.orientation)) {
+                        return supporter;
+                    }
+                }
+            }
+            return null;
+        }
+        //#SCOPE
 
-        // const manager = transaction.entity_manager;
-        // const rover = manager.find(this.info.target_entity_id);
+        const manager = transaction.entity_manager;
+        const tram = manager.find(this.info.target_entity_id);
 
-        // let direction = rover.orientation;
-        // let turned_around: boolean = false;
-        // let stucked: boolean = false;
+        let direction = tram.orientation;
+        let turned_around: boolean = false;
+        let stucked: boolean = false;
 
-        // let track = locate_track_ahead(rover, direction);
-        // if (track == null) { // There's no way ahead, we need to turn around
-        //     turned_around = true;
-        // } else {
-        //     if (collinear_direction(track.rotation, rover.orientation)) {
-        //         const push_res = try_push_others(rover, direction, transaction);
-        //         turned_around = push_res.pushed && !push_res.push_succeed;
-        //     } else {
-        //         // @ImplementMe Turning is a problem for now, we don't even have a suitable model...
-        //     }
-        // }
+        transaction.add_move(this);
 
-        // if (turned_around) {
-        //     direction = clacu_reversed_direction(rover.orientation);
-        //     let track = locate_track_ahead(rover, direction);
+        let track = locate_track_ahead(tram, direction); // @Note There might be some conflicts since the track might be moving?
+        if (track == null) { // There's no way ahead, we need to turn around
+            turned_around = true;
+        } else {
+            if (collinear_direction(track.rotation, tram.orientation)) {
+                const push_res = try_push_others(tram, direction, transaction);
+                turned_around = push_res.pushed && !push_res.push_succeed;
+            } else {
+                // @ImplementMe Turning is a problem for now, we don't even have a suitable model...
+            }
+        }
 
-        //     if (track == null) {
-        //         stucked = true;
-        //     } else {
-        //         if (collinear_direction(track.rotation, rover.orientation)) {
-        //             const push_res = try_push_others(rover, direction, transaction);
-        //             stucked = push_res.pushed && !push_res.push_succeed;
-        //         } else {
-        //             // @ImplementMe Turning is a problem for now, we don't even have a suitable model...
-        //         }
-        //     }
-        // }
+        if (turned_around) {
+            direction = clacu_reversed_direction(tram.orientation);
+            let track = locate_track_ahead(tram, direction);
 
-        // if (stucked) {
-        //     return false;
-        // }
+            if (track == null) {
+                stucked = true;
+            } else {
+                if (collinear_direction(track.rotation, tram.orientation)) {
+                    const push_res = try_push_others(tram, direction, transaction);
+                    stucked = push_res.pushed && !push_res.push_succeed;
+                } else {
+                    // @ImplementMe Turning is a problem for now, we don't even have a suitable model...
+                }
+            }
+        }
 
-        // this.info.end_direction = direction;
-        // this.info.end_position = calcu_entity_future_position(rover, this.end_direction);
-        // const position_delta = new Vec3(this.end_position).subtract(this.start_position);
-        // move_supportees(transaction, rover, position_delta, 0);
+        if (stucked) {
+            transaction.remove_move(this);
+            return false;
+        }
 
-        // if (!same_position(this.start_position, this.end_position))
-        //     set_dirty(this, Move_Flags.MOVED);
-        // if (this.start_direction != this.end_direction)
-        //     set_dirty(this, Move_Flags.ROTATED);
+        this.info.end_direction = direction;
+        this.info.end_position = calcu_entity_future_position(tram, this.end_direction);
 
-        // transaction.moves.push(this);
-        // transaction.piority += this.piority;
+        this.start_visual_position = manager.proximity_grid.local2world(this.start_position);
+        this.end_visual_position = manager.proximity_grid.local2world(this.end_position);
+
+        move_supportees(transaction, tram, this);
+
+        if (!same_position(this.start_position, this.end_position))
+            set_dirty(this, Move_Flags.MOVED);
+        if (this.start_direction != this.end_direction)
+            set_dirty(this, Move_Flags.ROTATED);
+
         return true;
     }
 
-    update(transaction: Move_Transaction) {
+    execute(transaction: Move_Transaction): void {
+        const manager = transaction.entity_manager;
+        const entity = manager.find(this.target_entity_id);
+        if (is_dirty(this.flags, Move_Flags.MOVED))
+            manager.logically_move_entity(entity, this.end_position);
+        if (is_dirty(this.flags, Move_Flags.ROTATED)) {
+            entity.logically_rotate_to(this.end_direction);
+            // @Note Rover doesn't visually rotate
+        }
+    }
+
+    complete(transaction: Move_Transaction): number {
         // const manager = transaction.entity_manager;
         // const entity = manager.find(this.target_entity_id);
-
-        // if (is_dirty(this, Move_Flags.MOVED)) {
-        //     const position = this.end_position;
-        //     const direction = this.end_direction;
-        //     const grid = manager.proximity_grid;
-
-        //     manager.logically_move_entity(entity, position);
-        //     {
-        //         const begin_at = Gameplay_Timer.get_gameplay_time();
-        //         const freq = get_rover_info(entity).freq;
-        //         const end_at = Gameplay_Timer.get_gameplay_time(freq);
-
-        //         const start_point = grid.local2world(this.start_position);
-        //         const end_point = grid.local2world(this.end_position);
-        //         const p_0 = Interpolation_Phase.movement(1, start_point, end_point);
-
-        //         const m_0 = new Interpolation_Message(Messgae_Tag.LOGICALLY_MOVEMENT, 0.5);
-        //         m_0.do = () => {
-        //         };
-
-        //         const i = new Visual_Interpolation(this, entity, begin_at, end_at, [p_0], [m_0]);
-        //     }
-        // }
-
-        // if (this.flags & Move_Flags.ROTATED) { // @Hack
-        //     entity.undoable.orientation = this.end_direction; // @ImplementMe Extract it to entity manager
-        //     entity.logically_rotate_to(this.end_direction);
-        // }
+        return 0;
     }
+
+    update(transaction: Move_Transaction, ratio: number) { // @Note The ratio param should been clamped by caller.'
+        const manager = transaction.entity_manager;
+        const entity = manager.find(this.target_entity_id);
+
+        if (ratio >= 0.5) {
+            this.execute_in_preorder(transaction);
+        }
+
+        { // Start visual interpolation stuff
+            let phases: Interpolation_Phase[] = [];
+
+            if (is_dirty(this.flags, Move_Flags.ROTATED)) {
+                // const r_start = entity.visual_rotation;
+                // const r_end = new Quat();
+                // Quat.lerp(r_end, this.start_visual_rotation, this.end_visual_rotation, ratio);
+                // const p_0 = Interpolation_Phase.rotation(0.2, r_start, r_end); // @ImplementMe We are not good at lerping quats, ignore this for now...?
+                // phases.push(p_0)
+            }
+
+            if (is_dirty(this.flags, Move_Flags.MOVED)) {
+                const p_start = entity.visual_position;
+                const p_end = new Vec3();
+                Vec3.lerp(p_end, this.start_visual_position, this.end_visual_position, ratio);
+                const p_1 = Interpolation_Phase.movement(1, p_start, p_end);
+                phases.push(p_1);
+            }
+
+            const t_start = Gameplay_Timer.get_gameplay_time();
+            const t_end = Gameplay_Timer.get_gameplay_time(1);
+            const v = new Visual_Interpolation(this, entity, t_start, t_end, phases);
+            // Set on_complete event?
+        }
+
+        if (ratio == 1) {
+            this.complete_in_preorder(transaction);
+        }
+    }
+
 
     debug_info(): string {
         let builder = new String_Builder();
-        builder.append('ROVER#').append(this.id);
+        builder.append('TRAM#').append(this.id);
         log_target_entity(builder, this);
         maybe_log_rotation(builder, this);
         maybe_log_movement(builder, this);
@@ -885,6 +927,32 @@ class Rover_Move extends Single_Move {
 }
 
 //#region PUBLIC
+export function detect_conflicts(transations: Move_Transaction[]): Set<Move_Transaction> {
+    // @Note side effects? transaction is directly changed.
+
+    function detect_conflicts_between(t_a: Move_Transaction, t_b: Move_Transaction): boolean {
+        return true;
+    }
+
+    const set_rejected = new Set<Move_Transaction>();
+
+    for (let i_checked = 0; i_checked < transations.length; i_checked++) {
+        const t = transations[i_checked];
+        if (set_rejected.has(t)) continue;
+
+        for (let i_rest = i_checked + 1; i_rest < transations.length; i_rest++) {
+            const o = transations[i_rest];
+            if (set_rejected.has(o)) continue;
+
+            if (!detect_conflicts_between(t, o)) {
+                set_rejected.add(o);
+            }
+        }
+    }
+    return set_rejected;
+}
+
+/* 
 export function detect_conflicts(transaction: Move_Transaction, move: Single_Move) {
     function remove_it() {
         const idx = transaction.all_moves.indexOf(move);
@@ -1018,7 +1086,7 @@ export function detect_conflicts(transaction: Move_Transaction, move: Single_Mov
             console.log(`SANITY CHECK: NO SUPPORTER, target: ${target.id}, move: ${move.info.move_type}`);
 
             if (move.info.move_type == Move_Type.ROVER) {
-                const slap_it = new Rover_Move(target);
+                const slap_it = new Tram_Move(target);
                 slap_it.enact(transaction);
             } else {
                 let direction = 0;
@@ -1057,8 +1125,8 @@ export function detect_conflicts(transaction: Move_Transaction, move: Single_Mov
     }
     return true;
 }
-
-export function maybe_move_rovers(transaction_manager: Transaction_Manager) {
+ */
+export function maybe_move_trams(transaction_manager: Transaction_Manager) {
     const entity_manager = transaction_manager.entity_manager;
     const audio = Audio_Manager.instance;
 
@@ -1066,13 +1134,13 @@ export function maybe_move_rovers(transaction_manager: Transaction_Manager) {
     if (!entity_manager.switch_turned_on) return;
 
     let at_least_one: boolean = false;
-    for (let rover of entity_manager.rovers) {
-        const info = get_rover_info(rover);
+    for (let tram of entity_manager.trams) {
+        const info = get_tram_info(tram);
 
         let failed_to_move = false;
         if (info.counter == info.freq - 1) {
-            const rover_move = new Rover_Move(rover);
-            if (transaction_manager.new_transaction(rover_move)) {
+            const tram_move = new Tram_Move(tram);
+            if (transaction_manager.new_transaction(tram_move, 1)) {
                 at_least_one = true;
             } else {
                 failed_to_move = true;
@@ -1080,11 +1148,11 @@ export function maybe_move_rovers(transaction_manager: Transaction_Manager) {
         }
 
         if (!failed_to_move) info.counter = (info.counter + 1) % info.freq;
-        set_rover_info(rover, info);
+        set_tram_info(tram, info);
     }
 
     if (at_least_one) {
-        audio.play_sfx(audio.rover_move);
+        audio.play_sfx(audio.tram_move); // @Deprecated NEW AUDIO API!!!
     }
 }
 
@@ -1118,7 +1186,7 @@ export function is_a_board_like_entity(e: Game_Entity): boolean {
 function possible_falling(e: Game_Entity): { fell: boolean, fall_succeed: boolean } {  // @V 0
     const res = {
         fell: false,
-        fall_succeed: true,
+        fall_succeed: false,
     };
 
     const manager = Entity_Manager.current;
@@ -1144,8 +1212,8 @@ function can_push(e_source: Game_Entity, e_target: Game_Entity): boolean { // @V
         || e_target.entity_type == Entity_Type.TRACK)
         return false;
 
-    if (e_source.entity_type != Entity_Type.ROVER
-        && e_target.entity_type == Entity_Type.ROVER)
+    if (e_source.entity_type != Entity_Type.TRAM
+        && e_target.entity_type == Entity_Type.TRAM)
         return false;
     return true;
 }
@@ -1208,7 +1276,8 @@ function move_supportees(transaction: Move_Transaction, supporter: Game_Entity, 
             }
         }
 
-        const d_delta = parent_move.end_direction - parent_move.start_direction;
+        let d_delta = parent_move.end_direction - parent_move.start_direction;
+        if (supporter.entity_type == Entity_Type.TRAM) d_delta = 0;
         const p_delta = vec_sub(parent_move.end_position, parent_move.start_position);
 
         const support = new Support_Move(supporter, supportee, d_delta, p_delta, d);

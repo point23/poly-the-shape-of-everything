@@ -1,5 +1,5 @@
 import { assert, Vec3 } from 'cc';
-import { $$, Const, Direction } from './Const';
+import { $$, Const, Direction, String_Builder } from './Const';
 import { Efx_Manager } from './Efx_Manager';
 import {
     Serializable_Entity_Data,
@@ -12,7 +12,7 @@ import {
     clone_undoable_data,
     set_entrance_id as set_entrance_idx,
     get_entrance_id as get_entrance_idx,
-    set_rover_info
+    set_tram_info
 } from './Game_Entity';
 import { debug_print_quad_tree, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
@@ -69,7 +69,7 @@ export class Entity_Manager {
         return res;
     }
 
-    rovers: Game_Entity[] = [];
+    trams: Game_Entity[] = [];
     switches: Game_Entity[] = [];
     hints: Game_Entity[] = [];
     entrances: Game_Entity[] = [];
@@ -179,15 +179,15 @@ export class Entity_Manager {
             this.heros.push(entity);
         }
 
-        if (entity.entity_type == Entity_Type.ROVER) {
-            this.rovers.push(entity);
-
-            if (entity.prefab == 'Rover#001') { // @Hack
-                set_rover_info(entity, { freq: Const.SLOW_ROVER_FREQ, counter: 0, })
+        if (entity.entity_type == Entity_Type.TRAM) {
+            this.trams.push(entity);
+            if (entity.prefab == 'Rover#001') { // @Hack We had already rename it as tram.
+                set_tram_info(entity, { freq: Const.SLOW_TRAM_FREQ, counter: 0, })
             } else {
-                set_rover_info(entity, { freq: Const.SPEED_ROVER_FREQ, counter: 0, })
+                set_tram_info(entity, { freq: Const.SPEED_TRAM_FREQ, counter: 0, })
             }
         }
+
         if (entity.entity_type == Entity_Type.SWITCH) this.switches.push(entity);
 
         if (entity.entity_type == Entity_Type.ENTRANCE) {
@@ -241,6 +241,14 @@ export class Entity_Manager {
         this.undo_handler.old_entity_state.delete(e.id);
         this.proximity_grid.remove_entity(e);
         e.node.destroy();
+    }
+
+    debug_log_target_entities(ids: number[]): string {
+        const builder = new String_Builder();
+        for (let id of ids) {
+            builder.append(` ${id}: `).append(this.find(id)?.position).append('\n');
+        }
+        return builder.to_string();
     }
 
     get_entities_info(): any {

@@ -1,5 +1,5 @@
 import { Component, math, _decorator } from 'cc';
-import { $$, Const, Stack } from './Const';
+import { $$, Const, Stack, array_remove } from './Const';
 import { Entity_Manager } from './Entity_Manager';
 import { Level_Editor } from './Level_Editor';
 import { debug_print_quad_tree } from './Proximity_Grid';
@@ -69,6 +69,13 @@ export class Transaction_Manager extends Component {
 
         const issued = this.issued_transactions;
         issued.sort((a, b) => b.piority - a.piority);
+
+        const rejected = detect_conflicts(issued);
+        for (let t of rejected) {
+            array_remove(issued, t);
+            // @ImplementMe Note rejected transactions...
+        }
+
         for (let t of issued) {
             /*  // @Deprecated
              function is_sanity(): boolean {
@@ -94,7 +101,6 @@ export class Transaction_Manager extends Component {
                      $$.HERO_VISUALLY_MOVING = true;
                  }
      
-                 move.update(t);
                  packed.moves.push(move);
              } 
             */
@@ -113,9 +119,4 @@ export class Transaction_Manager extends Component {
 
         this.control_flags = 0;
     }
-}
-
-function array_remove(arr: any[], item: any) {
-    const idx = arr.indexOf(item);
-    arr.splice(idx, 1);
 }

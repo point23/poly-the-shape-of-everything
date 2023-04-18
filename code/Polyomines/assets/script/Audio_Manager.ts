@@ -33,7 +33,7 @@ export class Audio_Manager extends Component {
     @property(AudioClip) rewind: AudioClip = null;
     @property(AudioClip) switch_hero: AudioClip = null;
     @property(AudioClip) switch_turned_on: AudioClip = null;
-    @property(AudioClip) rover_move: AudioClip = null;
+    @property(AudioClip) tram_move: AudioClip = null;
 
     @property(AudioClip) possible_win: AudioClip = null;
     @property(AudioClip) pending_win: AudioClip = null;

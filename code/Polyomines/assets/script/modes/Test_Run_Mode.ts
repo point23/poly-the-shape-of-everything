@@ -11,7 +11,7 @@ import { Virtual_Controller } from '../input/Virtual_Controller';
 import { Level_Editor } from '../Level_Editor';
 import {
     generate_player_move,
-    maybe_move_rovers,
+    maybe_move_trams,
 } from '../sokoban';
 
 import { Transaction_Manager } from '../Transaction_Manager';
@@ -158,8 +158,10 @@ function main_loop() {
     process_inputs();
 
     if (!$$.DOING_UNDO && !$$.RELOADING) {
-        maybe_move_rovers(transaction_manager);
+        maybe_move_trams(transaction_manager);
         transaction_manager.update_transactions();
+
+        // Level_Editor.instance.info(entity_manager.debug_log_target_entities([1, 26, 87]));
 
         if (entity_manager.pending_win) {
             Level_Editor.instance.load_succeed_level();
@@ -176,6 +178,7 @@ function main_loop() {
     }
 
     if ($$.SHOULD_DO_UNDO_AT == Gameplay_Timer.get_gameplay_time().round) {
+        $$.PLAYER_MOVE_NOT_YET_EXECUTED = false;
         undo_end_frame(entity_manager);
     }
 }
