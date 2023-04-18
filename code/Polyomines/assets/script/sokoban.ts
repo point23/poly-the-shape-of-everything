@@ -1,4 +1,4 @@
-import { Quat, TransformBit, Vec3, math, pseudoRandom } from "cc";
+import { Quat, Vec3, math } from "cc";
 import { Audio_Manager, Random_Audio_Group } from "./Audio_Manager";
 import { String_Builder, same_position, Const, Direction, $$, vec_add, vec_sub, array_remove } from "./Const";
 import { Entity_Manager } from "./Entity_Manager";
@@ -14,7 +14,6 @@ import {
     locate_entities_in_target_direction,
     Polyomino_Type,
     reversed_direction,
-    DIRECTION_TO_WORLD_VEC3,
     get_tram_info,
     set_tram_info,
     note_entity_is_falling,
