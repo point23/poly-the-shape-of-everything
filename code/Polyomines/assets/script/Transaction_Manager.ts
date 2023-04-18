@@ -47,7 +47,18 @@ export class Transaction_Manager extends Component {
     commited_stack: Stack<Move_Transaction> = new Stack<Move_Transaction>();
 
     issued_transactions: Move_Transaction[] = [];
-
+    /* @Temporary
+        get unenacted_moves(): Map<number, Single_Move> { // @Optimize Idxed by entity id, but for now, we can not generate any transaction with durtion more than 1... Sad...
+            const map: Map<number, Single_Move> = new Map();
+            for (let t of this.issued_transactions) {
+                for (let m of t.all_moves) {
+                    map.set(m.target_entity_id, m);
+                }
+            }
+    
+            return map;
+        }
+     */
     clear() {
         this.issued_transactions = [];
         this.commited_stack.clear();

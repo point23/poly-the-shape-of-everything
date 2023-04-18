@@ -157,6 +157,7 @@ AUDIO STUFF===
         1. Catch up & Jumped the gun?
 + ISSUE#019: LERPING QUATS
     ???
++ ISSUE#020: Wrong Supporting Moves Generated with poly type is Domino...
 
 @Optimize ###
 + Draw-Call is too high

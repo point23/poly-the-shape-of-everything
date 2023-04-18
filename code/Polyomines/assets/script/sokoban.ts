@@ -109,6 +109,8 @@ export class Single_Move {
 
     #executed: boolean = false;
     execute_in_preorder(transaction: Move_Transaction) {
+        if (!transaction.moves.has(this.target_entity_id)) return; // @Temporary
+
         if (this.#executed) return;
         this.#executed = true;
 
@@ -120,6 +122,7 @@ export class Single_Move {
     }
 
     complete_in_preorder(transaction: Move_Transaction): number {
+        if (!transaction.moves.has(this.target_entity_id)) return; // @Temporary
         let flag = 0;
 
         const manager = transaction.entity_manager;
@@ -197,8 +200,12 @@ export class Move_Transaction {
     }
 
     remove_move(move: Single_Move) {
-        // @Note There're some side effect inside this function! We add an arc from parent move to child move implicitly. 
+        const t = this;
+
         this.moves.delete(move.target_entity_id);
+        let arcs = this.arcs.get(move.target_entity_id);
+        if (arcs) arcs.forEach((it) => t.remove_move(it));
+
         this.remove_arc(move);
         this.piority -= move.piority;
     }
@@ -927,26 +934,66 @@ class Tram_Move extends Single_Move {
 }
 
 //#region PUBLIC
-export function detect_conflicts(transations: Move_Transaction[]): Set<Move_Transaction> {
-    // @Note side effects? transaction is directly changed.
-
-    function detect_conflicts_between(t_a: Move_Transaction, t_b: Move_Transaction): boolean {
-        return true;
-    }
+export function detect_conflicts(transations: Move_Transaction[]): Set<Move_Transaction> { // @V 1
+    // @Fixme We're create some side effects for now...
 
     const set_rejected = new Set<Move_Transaction>();
+    if (transations.length == 0) return set_rejected;
+
+    const manager = transations[0].entity_manager;
+    function detect_conflicts_between(t_a: Move_Transaction, t_b: Move_Transaction): Move_Transaction[] {
+        for (let m of t_a.all_moves) {
+            for (let o of t_b.all_moves) {
+                const e_m = manager.find(m.target_entity_id);
+                const e_o = manager.find(o.target_entity_id);
+                if (same_position(m.end_position, o.end_position)) {
+                    console.log(`[Detect Conflicts]: Collide!: ${e_m.id}, ${e_o.id}`);
+
+                    return [t_b];
+                }
+
+                if (e_m.entity_type == Entity_Type.TRAM && e_o.entity_type == Entity_Type.TRACK) {
+                    if (same_position(m.end_position, new Vec3(o.start_position).add(Vec3.UNIT_Z))) {
+                        // { // @Fixme Side effects...
+                        //     const info = get_tram_info(e_m);
+                        //     info.counter -= 1;
+                        //     set_tram_info(e_m, info);
+                        // }
+
+                        console.log(`[Detect Conflicts]: Track No Longer Exist!: ${e_m.id}, ${e_o.id}`);
+                        return [t_a];
+                    }
+                }
+
+                if (e_m.id == e_o.id && m.info.move_type == Move_Type.TRAM) {
+                    console.log(`[Detect Conflicts]: Moving Tram Can't be Supportee!: ${t_a.id}, ${t_b.id} `);
+
+                    // { // @Fixme Side effects...
+                    //     const info = get_tram_info(e_m);
+                    //     info.counter -= 1;
+                    //     set_tram_info(e_m, info);
+                    // }
+                    return [t_a];
+                    // t_b.remove_move(o); // @Note Since we execute and complete single moves by arcs, we can simply delete that node.
+                }
+            }
+        }
+
+        return [];
+    }
+    //#SCOPE
 
     for (let i_checked = 0; i_checked < transations.length; i_checked++) {
         const t = transations[i_checked];
         if (set_rejected.has(t)) continue;
 
-        for (let i_rest = i_checked + 1; i_rest < transations.length; i_rest++) {
+        for (let i_rest = 0; i_rest < transations.length; i_rest++) {
+            if (i_rest == i_checked) continue;
             const o = transations[i_rest];
             if (set_rejected.has(o)) continue;
 
-            if (!detect_conflicts_between(t, o)) {
-                set_rejected.add(o);
-            }
+            detect_conflicts_between(t, o).forEach((it) => set_rejected.add(it));
+
         }
     }
     return set_rejected;
@@ -958,74 +1005,74 @@ export function detect_conflicts(transaction: Move_Transaction, move: Single_Mov
         const idx = transaction.all_moves.indexOf(move);
         transaction.all_moves.splice(idx, 1)
     }
-
+ 
     function taken_by_incoming_entity_from_same_transaction(pos: Vec3): boolean {
         for (let another_move of transaction.all_moves) {
             if (another_move.target_entity_id == target.id) continue;
             if (another_move.id == move.id) continue;
             if (!is_dirty(another_move.flags, Move_Flags.MOVED)) continue;
-
+ 
             if (same_position(another_move.end_position, pos)) return true;
         }
-
+ 
         return false;
     }
-
+ 
     function exist_in_another_move(another: Game_Entity): boolean {
         for (let another_move of transaction.all_moves) {
             if (another_move.id == move.id) continue;
-
+ 
             if (another_move.target_entity_id == another.id
                 && is_dirty(another_move.flags, Move_Flags.MOVED))
                 return true;
         }
         return false;
     }
-
+ 
     function target_square_is_taken_by_entity_from_superior_transaction(): { is_taken: boolean, taken_by: Game_Entity } {
         const res = {
             is_taken: false,
             taken_by: null,
         };
-
+ 
         const others = manager.locate_entities(move.end_position);
         for (let other of others) {
             if (other.id == target.id) continue;
             if (exist_in_another_move(other)) continue;
             if (other.entity_type == Entity_Type.GATE || is_a_board_like_entity(other)) continue;
-
+ 
             res.is_taken = true;
             res.taken_by = other;
             return res;
         }
-
+ 
         return res;
     }
-
+ 
     function supporter_no_longer_exist() {
         const possible_supporters = manager.locate_supporters(move.end_position, 1);
         let at_least_one_supporter: boolean = false;
         for (let supporter of possible_supporters) {
             if (exist_in_another_move(supporter)) continue;
-
+ 
             at_least_one_supporter = true;
             break;
         }
-
+ 
         return !at_least_one_supporter;
     }
-
+ 
     function settle_new_landing_point(p: Vec3) {
-        console.log(`SANITY CHECK: NEW SUPPORTER, target: ${target.id}, landed: ${p.toString()}`);
+        console.log(`SANITY CHECK: NEW SUPPORTER, target: ${ target.id }, landed: ${ p.toString() } `);
         move.info.end_position = p;
     }
-
+ 
     function resolve_new_landing_point(): { succeed: boolean, pos: Vec3 } {
         const res = {
             succeed: false,
             pos: null,
         };
-
+ 
         let drop_point = new Vec3(target.position);
         const direction = move.end_direction;
         if (direction != Direction.DOWN) {
@@ -1033,7 +1080,7 @@ export function detect_conflicts(transaction: Move_Transaction, move: Single_Mov
         }
         const max_depth = 10; // @Hack
         let supporters = [];
-
+ 
         const p = new Vec3(drop_point);
         for (let depth = 1; depth <= max_depth; depth++) {
             p.z -= 1;
@@ -1041,30 +1088,30 @@ export function detect_conflicts(transaction: Move_Transaction, move: Single_Mov
                 res.succeed = true;
                 p.z += 1;
                 res.pos = p;
-
-                console.log(`SANITY CHECK: INCOMING_ENTITY depth: ${depth}, pos: ${p.toString()}`);
+ 
+                console.log(`SANITY CHECK: INCOMING_ENTITY depth: ${ depth }, pos: ${ p.toString() } `);
                 return res;
             }
-
+ 
             supporters = manager.locate_supporters(drop_point, depth);
             for (let supporter of supporters) {
                 if (exist_in_another_move(supporter)) continue;
-
+ 
                 res.succeed = true;
                 p.z += 1;
                 res.pos = p;
                 return res;
             }
         }
-
+ 
         return res;
     }
     //#SCOPE
-
+ 
     if (!is_dirty(move.flags, Move_Flags.MOVED)) return true;
     const manager = transaction.entity_manager;
     const target = manager.find(move.target_entity_id);
-
+ 
     if (move.info.move_type == Move_Type.FALLING) {
         const possible_taken = target_square_is_taken_by_entity_from_superior_transaction()
         if (possible_taken.is_taken || supporter_no_longer_exist()) {
@@ -1072,19 +1119,19 @@ export function detect_conflicts(transaction: Move_Transaction, move: Single_Mov
             if (!resolved.succeed) {
                 return false;
             }
-
+ 
             settle_new_landing_point(resolved.pos);
         }
         return true;
     }
-
+ 
     if (move.info.move_type != Move_Type.SUPPORT) {
         // It's only a rotate move
         if (!is_dirty(move.flags, Move_Flags.MOVED)) return true;
-
+ 
         if (supporter_no_longer_exist()) {
-            console.log(`SANITY CHECK: NO SUPPORTER, target: ${target.id}, move: ${move.info.move_type}`);
-
+            console.log(`SANITY CHECK: NO SUPPORTER, target: ${ target.id }, move: ${ move.info.move_type } `);
+ 
             if (move.info.move_type == Move_Type.ROVER) {
                 const slap_it = new Tram_Move(target);
                 slap_it.enact(transaction);
@@ -1092,20 +1139,20 @@ export function detect_conflicts(transaction: Move_Transaction, move: Single_Mov
                 let direction = 0;
                 if (move.info.move_type == Move_Type.PUSH) {
                     // @Fixme Don't pay attention to this kinda of special cases...
-
+ 
                     direction = move.reaction_direction;
                 } else {
                     direction = move.end_direction;
                 }
-
+ 
                 possible_falling(target); // @Hack
             }
-
+ 
             remove_it();
             return true;
         }
     }
-
+ 
     const possible_taken = target_square_is_taken_by_entity_from_superior_transaction();
     if (possible_taken.is_taken) {
         if (move.info.move_type == Move_Type.SUPPORT) {
@@ -1115,12 +1162,12 @@ export function detect_conflicts(transaction: Move_Transaction, move: Single_Mov
                 if (!resolved.succeed) {
                     return false;
                 }
-
+ 
                 settle_new_landing_point(resolved.pos);
                 return true;
             }
         }
-
+ 
         return false;
     }
     return true;
@@ -1267,6 +1314,10 @@ function move_supportees(transaction: Move_Transaction, supporter: Game_Entity, 
     for (let supportee of manager.locate_current_supportees(supporter)) {
         if (supportee.id == supporter.id) continue;
         if (has_other_supporter(supportee)) continue;
+        /*  if (Transaction_Manager.instance.unenacted_moves.has(supportee.id)) {
+             // @Note Do not move those that're already moving.
+             continue;
+         } */
 
         let d = parent_move.end_direction;
         { // @Hack
@@ -1349,7 +1400,7 @@ function no_supporter(m: Entity_Manager, p: Vec3): boolean {  // @V 1.1
     const max_depth = 10; // @Incomplete Maybe we should treat plane Z=0 as the ground?
     for (let d = 1; d <= max_depth; d++) {
         if (m.locate_availble_supporters(p, d).length != 0) {
-            // console.log(`resolved a supporter at ${ d }, from: ${ p }`);
+            // console.log(`resolved a supporter at ${ d }, from: ${ p } `);
             return false;
         }
     }
@@ -1362,7 +1413,7 @@ function resolve_new_landing_point(m: Entity_Manager, e: Game_Entity): Vec3 { //
 
     for (let d = 1; d <= max_depth; d++) {
         if (m.locate_availble_supporters(e.position, d).length != 0) {
-            // console.log(`resolved a supporter at ${ d }, from: ${ p }`);
+            // console.log(`resolved a supporter at ${ d }, from: ${ p } `);
             return p;
         }
         p.z -= 1;
