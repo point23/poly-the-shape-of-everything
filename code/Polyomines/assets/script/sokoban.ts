@@ -1175,7 +1175,7 @@ export function maybe_move_trams(transaction_manager: Transaction_Manager) {
     if (!entity_manager.switch_turned_on) return;
 
     let at_least_one: boolean = false;
-    for (let tram of entity_manager.trams) {
+    for (let tram of entity_manager.by_type.Tram) {
         const info = get_tram_info(tram);
 
         let failed_to_move = false;

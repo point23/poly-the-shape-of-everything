@@ -1,5 +1,5 @@
-import { assert, Vec3 } from 'cc';
-import { $$, Const, Direction, String_Builder } from './Const';
+import { assert, Game, Vec3 } from 'cc';
+import { $$, array_remove, Const, Direction, String_Builder } from './Const';
 import { Efx_Manager } from './Efx_Manager';
 import {
     Serializable_Entity_Data,
@@ -20,6 +20,15 @@ import { is_a_board_like_entity } from './sokoban';
 import { Undo_Handler } from './undo';
 import { animate } from './Character_Data';
 
+type entities_by_type = {
+    Hero: Game_Entity[];
+    Tram: Game_Entity[];
+    Switch: Game_Entity[];
+    Hint: Game_Entity[];
+    Entrance: Game_Entity[];
+    Checkpoint: Game_Entity[];
+}
+
 /* 
  @Note
   - Manage entity pools
@@ -34,11 +43,11 @@ export class Entity_Manager {
 
     // HERO STUFF
     get active_hero(): Game_Entity {
-        return this.heros[this.active_hero_idx];
+        return this.by_type.Hero[this.active_hero_idx];
     };
 
     active_hero_idx: number = 0;
-    get num_heros(): number { return this.heros.length; }
+    get num_heros(): number { return this.by_type.Hero.length; }
     switch_hero(i: number = -1) {
         let switched: boolean = true;
         let idx = this.active_hero_idx;
@@ -71,13 +80,62 @@ export class Entity_Manager {
         return res;
     }
 
-    // @Todo Replace it with ".by_type.Hero" ...
-    heros: Game_Entity[] = [];
-    trams: Game_Entity[] = [];
-    switches: Game_Entity[] = [];
-    hints: Game_Entity[] = [];
-    entrances: Game_Entity[] = [];
-    checkpoints: Game_Entity[] = [];
+    /* 
+        #dirty: boolean = false;
+        #by_type: entities_by_type = {
+            Hero: [],
+            Tram: [],
+            Switch: [],
+            Hint: [],
+            Entrance: [],
+            Checkpoint: [],
+        };
+     */
+    get by_type(): entities_by_type { // @Optimize
+        const res = {
+            Hero: [],
+            Tram: [],
+            Switch: [],
+            Hint: [],
+            Entrance: [],
+            Checkpoint: [],
+        };
+
+        for (let e of this.all_entities) {
+            switch (e.entity_type) {
+                case Entity_Type.HERO:
+                    res.Hero.push(e);
+                    break;
+                case Entity_Type.TRAM:
+                    res.Tram.push(e);
+                    break;
+                case Entity_Type.HINT:
+                    res.Hint.push(e);
+                    break;
+                case Entity_Type.SWITCH:
+                    res.Switch.push(e);
+                    break;
+                case Entity_Type.ENTRANCE:
+                    res.Entrance.push(e);
+                    break;
+                case Entity_Type.CHECKPOINT:
+                    res.Checkpoint.push(e);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return res;
+    }
+
+    // // @Todo Replace it with ".by_type.Hero" ...
+    // heros: Game_Entity[] = [];
+    // trams: Game_Entity[] = [];
+    // switches: Game_Entity[] = [];
+    // hints: Game_Entity[] = [];
+    // entrances: Game_Entity[] = [];
+    // checkpoints: Game_Entity[] = [];
 
     get entering_other_level(): { entering: boolean, idx: number } {
         let res = {
@@ -109,9 +167,9 @@ export class Entity_Manager {
         }
         //#SCOPE
 
-        if (this.checkpoints.length == 0) return false;
+        if (this.by_type.Checkpoint.length == 0) return false;
 
-        for (let c of this.checkpoints) {
+        for (let c of this.by_type.Checkpoint) {
             if (c.prefab == 'Checkpoint#001') {
                 if (hero_stands_on_it(c, this)) continue;
             } else if (c.prefab == 'Checkpoint#002') {
@@ -123,7 +181,7 @@ export class Entity_Manager {
     }
 
     get switch_turned_on(): boolean {
-        if (this.switches.length == 0) return false;
+        if (this.by_type.Switch.length == 0) return false;
         function gem_on_top(s: Game_Entity, manager: Entity_Manager) {
             for (let e of manager.locate_current_supportees(s)) {
                 if (e.entity_type == Entity_Type.GEM) return true;
@@ -131,7 +189,7 @@ export class Entity_Manager {
         }
         //#SCOPE
 
-        for (let s of this.switches) {
+        for (let s of this.by_type.Switch) {
             if (gem_on_top(s, this)) continue;
             return false;
         }
@@ -164,8 +222,6 @@ export class Entity_Manager {
         this.rotate_entity(entity, info.rotation);
 
         if (entity.entity_type == Entity_Type.HINT) {
-            this.hints.push(entity);
-
             if (!$$.HINTS_EDITABLE) {
                 this.proximity_grid.move_entity(entity, new Vec3(info.position));
                 entity.node.active = false;
@@ -180,13 +236,7 @@ export class Entity_Manager {
         this.undo_handler.old_entity_state.set(entity.id, clone);
 
         // @Note Handle entities with special types
-        if (entity.entity_type == Entity_Type.CHECKPOINT) this.checkpoints.push(entity);
-        if (entity.entity_type == Entity_Type.HERO) {
-            this.heros.push(entity);
-        }
-
         if (entity.entity_type == Entity_Type.TRAM) {
-            this.trams.push(entity);
             if (entity.prefab == 'Rover#001') { // @Hack We had already rename it as tram.
                 set_tram_info(entity, { freq: Const.SLOW_TRAM_FREQ, counter: 0, })
             } else {
@@ -194,10 +244,7 @@ export class Entity_Manager {
             }
         }
 
-        if (entity.entity_type == Entity_Type.SWITCH) this.switches.push(entity);
-
         if (entity.entity_type == Entity_Type.ENTRANCE) {
-            this.entrances.push(entity);
             if (info.derived_data != undefined && info.derived_data != null) {
                 set_entrance_idx(entity, Resource_Manager.instance.level_id_to_idx.get(info.derived_data.level_id));
             }
@@ -241,8 +288,7 @@ export class Entity_Manager {
     }
 
     reclaim(e: Game_Entity) { // @Optimize Object Pool?
-        const idx = this.all_entities.indexOf(e);
-        this.all_entities.splice(idx, 1);
+        array_remove(this.all_entities, e);
 
         this.undo_handler.old_entity_state.delete(e.id);
         this.proximity_grid.remove_entity(e);
@@ -267,7 +313,7 @@ export class Entity_Manager {
         }
 
         if (!$$.HINTS_EDITABLE) {
-            for (let e of this.hints) {
+            for (let e of this.by_type.Hint) {
                 entities_info.push(get_serializable(e));
             }
         }

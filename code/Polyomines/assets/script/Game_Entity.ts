@@ -77,6 +77,7 @@ export enum Entity_Type {
     SWITCH,
     GEM,
     ENTRANCE,
+    MONSTER,
 }
 
 export enum Polyomino_Type {
@@ -143,6 +144,7 @@ export class Serializable_Entity_Data {
         ...
     ]
 */
+
 export class Undoable_Entity_Data {
     static default: Undoable_Entity_Data = new Undoable_Entity_Data();
 

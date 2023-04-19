@@ -110,7 +110,7 @@ export class Main extends Component {
             hints.forEach(it => { it.node.active = false; });
         }
         //#SCOPE
-        const hints = this.entity_manager.hints;
+        const hints = this.entity_manager.by_type.Hint;
         const mat = this.hint_mat;
 
         play_sfx("click");

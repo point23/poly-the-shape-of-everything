@@ -14,7 +14,7 @@ import { Game_Entity } from './Game_Entity';
 
 export function init_animations() {
     const entity_manager = Entity_Manager.current;
-    for (let h of entity_manager.heros) {
+    for (let h of entity_manager.by_type.Hero) {
         init_animation_state(h, human_animation_graph);
     }
 

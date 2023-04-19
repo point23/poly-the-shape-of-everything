@@ -7,7 +7,6 @@ import {
     geometry,
     KeyCode,
     PhysicsSystem,
-    EventHandler
 } from 'cc';
 import { Const, Direction } from '../Const';
 import { Entity_Manager } from '../Entity_Manager';
@@ -25,7 +24,6 @@ import {
 import { Level_Editor } from '../Level_Editor';
 import { Resource_Manager } from '../Resource_Manager';
 import { note_entity_creation, note_entity_destruction, undo_end_frame, undo_mark_beginning } from '../undo';
-import { Navigator } from '../ui/Navigator';
 import { Game_Mode } from './Game_Mode_Base';
 
 const { ccclass, property } = _decorator;
