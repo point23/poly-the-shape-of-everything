@@ -19,7 +19,7 @@ import { Navigator } from '../ui/Navigator';
 import { do_one_undo, undo_end_frame, undo_mark_beginning } from '../undo';
 
 import { Game_Mode } from './Game_Mode_Base';
-import { human_animation_graph } from '../Hero_Entity_Data';
+import { animate, human_animation_graph, init_animation_state, per_round_animation_update } from '../Character_Data';
 
 const { ccclass, property } = _decorator;
 
@@ -51,7 +51,7 @@ export class Test_Run_Mode extends Game_Mode {
         this.input_handlers.push(this.vcontroller);
 
         $$.IS_RUNNING = false;
-        Gameplay_Timer.run(this, main_loop, [process_animations, update_inputs]);
+        Gameplay_Timer.run(this, main_loop, [update_inputs]);
     }
 
     on_enter() {
@@ -157,6 +157,8 @@ function main_loop() {
 
     process_inputs();
 
+    per_round_animation_update(entity_manager.active_hero);
+
     if (!$$.DOING_UNDO && !$$.RELOADING) {
         maybe_move_trams(transaction_manager);
         transaction_manager.update_transactions();
@@ -184,42 +186,16 @@ function main_loop() {
 }
 
 function init_animations() {
-    console.log(human_animation_graph);
+    const entity_manager = Entity_Manager.current;
+    for (let h of entity_manager.heros) {
+        init_animation_state(h, human_animation_graph);
+    }
 
-    // const entity_manager = Entity_Manager.current;
-    // entity_manager.heros.forEach((it) => { // @Hack 
-    //     const hero = it.getComponent(Hero_Entity_Data);
-    //     if (entity_manager.active_hero.id == it.id) {
-    //         hero.active();
-    //     } else {
-    //         hero.inactive();
-    //     }
-    // });
+    animate(entity_manager.active_hero, "activate");
 }
 
 function update_inputs() {
     Input_Manager.instance.update_inputs();
-}
-
-function process_animations() {
-    // if (!$$.IS_RUNNING) return;
-
-    // const entity_manager = Entity_Manager.current;
-    // const hero = entity_manager.active_hero.getComponent(Hero_Entity_Data);
-    // const input: Game_Input = Input_Manager.instance.game_input;
-
-    // let keep_pressing_moving_btn = false;
-    // { // Detect if user keep moving forward
-    //     for (let b of [Game_Button.MOVE_BACKWARD, Game_Button.MOVE_FORWARD, Game_Button.MOVE_LEFT, Game_Button.MOVE_RIGHT]) {
-    //         if (input.button_states.get(b).ended_down) {
-    //             keep_pressing_moving_btn = true;
-    //         }
-    //     }
-    // }
-
-    // if (!$$.HERO_VISUALLY_MOVING && !keep_pressing_moving_btn) { // @Hack
-    //     hero.active(2);
-    // }
 }
 
 function process_inputs() {

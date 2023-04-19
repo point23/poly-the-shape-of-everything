@@ -18,6 +18,7 @@ import { debug_print_quad_tree, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
 import { is_a_board_like_entity } from './sokoban';
 import { Undo_Handler } from './undo';
+import { animate } from './Character_Data';
 
 /* 
  @Note
@@ -37,7 +38,6 @@ export class Entity_Manager {
     };
 
     active_hero_idx: number = 0;
-    heros: Game_Entity[] = [];
     get num_heros(): number { return this.heros.length; }
     switch_hero(i: number = -1) {
         let switched: boolean = true;
@@ -49,9 +49,12 @@ export class Entity_Manager {
             idx = (idx + 1) % this.num_heros;
         }
 
-        this.active_hero_idx = idx;
-        if (switched)
+        if (switched) {
+            animate(this.active_hero, "inactivate");
+            this.active_hero_idx = idx;
+            animate(this.active_hero, "activate");
             Efx_Manager.instance.switch_hero_efx(this.active_hero)
+        }
     }
 
     proximity_grid: Proximity_Grid = null;
@@ -69,6 +72,8 @@ export class Entity_Manager {
         return res;
     }
 
+    // @Todo Replace it with ".by_type.Hero" ...
+    heros: Game_Entity[] = [];
     trams: Game_Entity[] = [];
     switches: Game_Entity[] = [];
     hints: Game_Entity[] = [];

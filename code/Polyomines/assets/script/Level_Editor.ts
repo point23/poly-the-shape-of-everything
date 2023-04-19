@@ -15,7 +15,7 @@ import { Entity_Edit_Mode } from './modes/Entity_Edit_Mode';
 import { Test_Run_Mode } from './modes/Test_Run_Mode';
 import { Audio_Manager } from './Audio_Manager';
 import { Efx_Manager } from './Efx_Manager';
-import { make_human_animation_graph } from './Hero_Entity_Data';
+import { make_human_animation_graph } from './Character_Data';
 
 const { ccclass, property } = _decorator;
 

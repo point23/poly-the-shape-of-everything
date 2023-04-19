@@ -20,10 +20,10 @@ import {
     note_entity_is_not_falling,
 } from "./Game_Entity";
 import { Transaction_Control_Flags, Transaction_Manager } from "./Transaction_Manager";
-import { Hero_Entity_Data } from "./Hero_Entity_Data";
 import { Interpolation_Phase, Visual_Interpolation } from "./interpolation";
 import { undo_end_frame } from "./undo";
 import { debug_print_quad_tree } from "./Proximity_Grid";
+import { animate } from "./Character_Data";
 
 export enum Move_Type {
     CONTROLLER_PROC,
@@ -120,15 +120,16 @@ export class Single_Move {
         this.execute(transaction);
     }
 
-    complete_in_preorder(transaction: Move_Transaction): number {
+    complete_in_postorder(transaction: Move_Transaction): number {
         if (!transaction.moves.has(this.target_entity_id)) return; // @Temporary
         let flag = 0;
+
+        flag |= this.complete(transaction);
 
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
         const children = transaction.arcs.get(entity.id);
-        children?.forEach((it) => { flag |= it.complete_in_preorder(transaction) });
-        flag |= this.complete(transaction);
+        children?.forEach((it) => { flag |= it.complete_in_postorder(transaction) });
         return flag;
     }
 
@@ -383,10 +384,30 @@ export class Player_Move extends Single_Move {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
         const fall_res = possible_falling(entity);
+        animate(entity, "run");
+
         if (!fall_res.fell) {
             { // @Deprecated
                 const audio = Audio_Manager.instance;
                 audio.play_sfx(audio.footstep);
+            }
+
+            { // @Note Check possible win
+                if (manager.pending_win) return;
+                if (!is_dirty(this.flags, Move_Flags.MOVED)) return;
+
+                let possible_win = false;
+                for (let s of manager.locate_current_supporters(entity)) {
+                    if (s.entity_type == Entity_Type.CHECKPOINT) possible_win = true;
+                }
+
+                if (possible_win) {
+                    animate(entity, "win");
+                    { // @Deprecated
+                        const audio = Audio_Manager.instance;
+                        audio.play_sfx(audio.possible_win);
+                    }
+                }
             }
             return 0;
         }
@@ -428,25 +449,9 @@ export class Player_Move extends Single_Move {
         }
 
         if (ratio == 1) {
-            const f = this.complete_in_preorder(transaction);
+            const f = this.complete_in_postorder(transaction);
             if (is_dirty(f, Move_Completion_Flags.FALLING)) {
                 $$.SHOULD_DO_UNDO_AT += Const.FALLING_MOVE_DURATION;
-            }
-
-            { // @Note Check possible win
-                // @Incomplete Handle it differently in test run mode?
-
-                // if (manager.pending_win) return;
-                // if (!is_dirty(this, Move_Flags.MOVED)) return;
-
-                // let possible_win = false;
-                // for (let s of manager.locate_current_supporters(entity)) {
-                //     if (s.entity_type == Entity_Type.CHECKPOINT) possible_win = true;
-                // }
-
-                // // if (possible_win) {
-                // //     audio.play_sfx(audio.possible_win);
-                // // }
             }
         }
     }
@@ -646,6 +651,9 @@ class Push_Move extends Single_Move {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
 
+        const mover = manager.find(this.source_entity_id);
+        animate(mover, "push");
+
         const fall_res = possible_falling(entity);
         if (fall_res.fell && fall_res.fall_succeed) {
             return Move_Completion_Flags.FALLING;
@@ -734,8 +742,9 @@ class Falling_Move extends Single_Move {
     }
 
     complete(transaction: Move_Transaction): number {
-        // const manager = transaction.entity_manager;
-        // const entity = manager.find(this.target_entity_id);
+        const manager = transaction.entity_manager;
+        const entity = manager.find(this.target_entity_id);
+        animate(entity, "fall");
         return 0;
     }
 
@@ -768,7 +777,7 @@ class Falling_Move extends Single_Move {
         }
 
         if (ratio == 1) {
-            this.complete_in_preorder(transaction);
+            this.complete_in_postorder(transaction);
         }
     }
 
@@ -917,7 +926,7 @@ class Tram_Move extends Single_Move {
         }
 
         if (ratio == 1) {
-            this.complete_in_preorder(transaction);
+            this.complete_in_postorder(transaction);
         }
     }
 
@@ -1207,6 +1216,7 @@ export function generate_player_move(transaction_manager: Transaction_Manager, e
     if (transaction_manager.new_transaction(new Player_Move(hero, direction, step), Const.PLAYER_MOVE_DURATION)) {
         $$.PLAYER_MOVE_NOT_YET_EXECUTED = true;
         $$.SHOULD_DO_UNDO_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_MOVE_DURATION;
+        animate(entity_manager.active_hero, "run");
 
         // console.log(time_to_string(Gameplay_Timer.get_gameplay_time()));
 

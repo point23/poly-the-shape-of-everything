@@ -1,5 +1,5 @@
 {
-    "entry": "active",
+    "entry": "inactive",
     "nodes": [
         {
             "name": "active",
@@ -56,13 +56,68 @@
             "to": "active"
         },
         {
+            "from": "inactive",
+            "on": "inactivate",
+            "to": "inactive"
+        },
+        {
             "from": "run",
             "on": "stop",
             "to": "active"
         },
         {
             "from": "run",
+            "on": "win",
+            "to": "victory"
+        },
+        {
+            "from": "run",
+            "on": "push",
+            "to": "push"
+        },
+        {
+            "from": "run",
+            "on": "inactivate",
+            "to": "inactive"
+        },
+        {
+            "from": "run",
+            "on": "fall",
+            "to": "landing"
+        },
+        {
+            "from": "push",
             "on": "stop",
+            "to": "active"
+        },
+        {
+            "from": "push",
+            "on": "win",
+            "to": "victory"
+        },
+        {
+            "from": "push",
+            "on": "inactivate",
+            "to": "inactive"
+        },
+        {
+            "from": "push",
+            "on": "run",
+            "to": "run"
+        },
+        {
+            "from": "push",
+            "on": "fall",
+            "to": "landing"
+        },
+        {
+            "from": "landing",
+            "on": "activate",
+            "to": "active"
+        },
+        {
+            "from": "victory",
+            "on": "activate",
             "to": "active"
         }
     ]

@@ -103,6 +103,16 @@ export class Game_Input {
 
         return false;
     }
+
+    keep_pressing_moving_btn(): boolean {
+        // Detect if user keep moving forward
+        for (let b of [Game_Button.MOVE_BACKWARD, Game_Button.MOVE_FORWARD, Game_Button.MOVE_LEFT, Game_Button.MOVE_RIGHT]) {
+            if (this.button_states.get(b).ended_down) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 @ccclass('Game_Input_Handler')

@@ -169,12 +169,12 @@
       ],
       "subMetas": {}
     },
-    "5dcbb": {
+    "126b9": {
       "importer": "gltf-animation",
-      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@5dcbb",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@126b9",
       "displayName": "",
-      "id": "5dcbb",
-      "name": "Active-Right.animation",
+      "id": "126b9",
+      "name": "Active.animation",
       "userData": {
         "gltfIndex": 0,
         "wrapMode": 2,
@@ -806,7 +806,7 @@
         "fps": 30,
         "splits": [
           {
-            "name": "Active-Right",
+            "name": "Active",
             "from": 0,
             "to": 1.9583333730697632,
             "wrapMode": 2
