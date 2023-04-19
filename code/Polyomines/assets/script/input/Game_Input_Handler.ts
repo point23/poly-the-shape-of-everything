@@ -35,6 +35,8 @@ export enum Game_Button {
     RESET,
 
     SWITCH_HERO,
+
+    ACTION,
 }
 
 export enum Action_Button {
@@ -63,17 +65,6 @@ export class Game_Input {
     buffered_player_moves: Queue<Game_Button> = new Queue();
     button_states: Map<number, Button_State> = new Map();
 
-    constructor() {
-        for (let button = Game_Button.NULL; button <= Game_Button.SWITCH_HERO; button++) {
-            const state = new Button_State();
-            state.button = button;
-            state.ended_down = false;
-            state.counter = 0;
-
-            this.button_states.set(button, state);
-        }
-    }
-
     reset() {
         for (let key of this.button_states.keys()) {
             this.release(key);
@@ -82,6 +73,14 @@ export class Game_Input {
 
     press(b: Game_Button) {
         if (!$$.IS_RUNNING) return;
+
+        if (!this.button_states.has(b)) {
+            const state = new Button_State();
+            state.button = b;
+            state.ended_down = false;
+            state.counter = 0;
+            this.button_states.set(b, state);
+        }
 
         const state = this.button_states.get(b);
 
@@ -93,14 +92,17 @@ export class Game_Input {
     }
 
     release(b: Game_Button) {
+        if (!this.button_states.has(b)) return;
+
         const state = this.button_states.get(b);
         state.ended_down = false;
         state.counter = 0;
     }
 
     pressed_long_enough(button: number): boolean {
-        const state = this.button_states.get(button);
+        if (!this.button_states.has(button)) return false;
 
+        const state = this.button_states.get(button);
         if (state.ended_down) {
             const t = state.counter;
             const duration = Gameplay_Timer.now() - state.pressed_at;
@@ -115,6 +117,7 @@ export class Game_Input {
     keep_pressing_moving_btn(): boolean {
         // Detect if user keep moving forward
         for (let b of [Game_Button.MOVE_BACKWARD, Game_Button.MOVE_FORWARD, Game_Button.MOVE_LEFT, Game_Button.MOVE_RIGHT]) {
+            if (!this.button_states.has(b)) continue;
             if (this.button_states.get(b).ended_down) {
                 return true;
             }

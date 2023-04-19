@@ -3,14 +3,12 @@ import { $$, Const, Stack, array_remove } from './Const';
 import { Entity_Manager } from './Entity_Manager';
 import { Level_Editor } from './Level_Editor';
 import { debug_print_quad_tree } from './Proximity_Grid';
-import { Move_Flags, Move_Transaction, Move_Type, Single_Move, detect_conflicts, is_dirty } from './sokoban';
-import { undo_end_frame } from './undo';
-import { Gameplay_Timer } from './Gameplay_Timer';
-const { ccclass, property } = _decorator;
+import { Move_Transaction, Single_Move, detect_conflicts } from './sokoban';
+const { ccclass, } = _decorator;
 
 export enum Transaction_Control_Flags {
-    CONTROLLER_ROTATE = 1 << 0,
-    CONTROLLER_MOVE = 1 << 1,
+    PLAYER_MOVE = 1 << 0,
+    ACTION_MOVE = 1 << 1,
 }
 
 @ccclass('Transaction_Manager')

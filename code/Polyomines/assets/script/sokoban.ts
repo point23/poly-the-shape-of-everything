@@ -243,50 +243,98 @@ export class Move_Transaction {
     }
 }
 
-/*
 export class Possess_Move extends Single_Move {
-    public constructor(entity: Game_Entity) {
+    public constructor(possessor: Game_Entity) {
         const move_info = new Move_Info();
-        move_info.source_entity_id = entity.id;
-        move_info.start_position = entity.position;
-        move_info.start_direction = entity.orientation;
-        move_info.end_direction = entity.orientation;
+        move_info.source_entity_id = possessor.id;
+        move_info.start_position = possessor.position;
+        move_info.reaction_direction = possessor.orientation;
+
         super(move_info);
     }
 
-    try_add_itself(transaction: Move_Transaction): boolean {
-        // const manager = transaction.entity_manager;
+    enact(transaction: Move_Transaction): boolean {
+        if (already_exist_one(Transaction_Control_Flags.ACTION_MOVE)) return false;
 
-        // let e_source = manager.find(this.move_info.source_entity_id);
-        // const direction = this.end_dir;
+        const manager = transaction.entity_manager;
+        const possessor = manager.find(this.source_entity_id);
+        const direction = this.end_direction;
 
-        // for (let step = 1, succeed = false; !succeed; step += 1) {
-        //     const futrue_pos = e_source.calcu_future_pos(direction, step);
+        for (let step = 1, succeed = false; !succeed; step += 1) {
+            const futrue_pos = calcu_entity_future_position(possessor, direction, step);
+            if (!manager.proximity_grid.verify_pos(futrue_pos)) {
+                return false;
+            }
 
-        //     if (!Game_Board.instance.verfify_pos(futrue_pos)) {
-        //         return false;
-        //     }
-
-        //     const other = Entity_Manager.instance.locate_entity(futrue_pos);
-        //     if (other != null) {
-        //         this.move_info.target_entity_id = other.entity_id;
-        //         succeed = true;
-        //     }
-        // }
-
-        // transaction.add_move(this);
-        // return true;
-
-        return false; // @Hack
+            const others = manager.locate_entities(futrue_pos);
+            for (let o of others) {
+                if (o.entity_type == Entity_Type.DYNAMIC) {
+                    this.info.target_entity_id = o.id;
+                    this.info.end_position = o.position;
+                    succeed = true;
+                }
+            }
+        }
+        transaction.add_move(this);
+        return true;
     }
 
-    update() {
-        // Entity_Manager.instance.reclaim(this.source_entity);
-        // this.target_entity.entity_type = Entity_Type.AVATAR;
-        // Entity_Manager.instance.current_character = this.target_entity;
+    execute(transaction: Move_Transaction): void {
+        const manager = transaction.entity_manager;
+        const possessor = manager.find(this.target_entity_id);
+        const possessed = manager.find(this.target_entity_id);
+
+        // manager.reclaim(possessor);
+        possessed.entity_type = Entity_Type.AVATAR;
+    }
+
+    complete(transaction: Move_Transaction): number {
+        const manager = transaction.entity_manager;
+        const possessor = manager.find(this.source_entity_id);
+        animate(possessor, "action");
+        // @ImplementMe Possessed VFX
+        return 0;
+    }
+
+    update(transaction: Move_Transaction, ratio: number) { // @Note The ratio param should been clamped by caller.'
+        const manager = transaction.entity_manager;
+        const possessor = manager.find(this.source_entity_id);
+        const possessed = manager.find(this.target_entity_id);
+
+        if (ratio >= 0.5) {
+            this.execute_in_preorder(transaction);
+        }
+
+        { // Start visual interpolation stuff
+            let phases: Interpolation_Phase[] = [];
+
+            this.start_visual_position = manager.proximity_grid.local2world(possessor.position);
+            this.end_visual_position = manager.proximity_grid.local2world(possessed.position);
+
+            const p_start = possessor.visual_position;
+            const p_end = new Vec3();
+            Vec3.lerp(p_end, this.start_visual_position, this.end_visual_position, ratio);
+            const p_1 = Interpolation_Phase.movement(0.3, p_start, p_end);
+            phases.push(p_1);
+
+            const t_start = Gameplay_Timer.get_gameplay_time();
+            const t_end = Gameplay_Timer.get_gameplay_time(1);
+            const v = new Visual_Interpolation(this, possessor, t_start, t_end, phases);
+        }
+
+        if (ratio == 1) {
+            const f = this.complete_in_postorder(transaction);
+        }
+    }
+
+    debug_info(): string {
+        let builder = new String_Builder();
+        builder.append('POSSESS#').append(this.id);
+        log_entity('possessor', builder, this.source_entity_id);
+        log_entity('possessed', builder, this.target_entity_id);
+        return builder.to_string();
     }
 }
-*/
 
 export class Player_Move extends Single_Move {
 
@@ -325,7 +373,7 @@ export class Player_Move extends Single_Move {
         // @Note DO NOT COMMENT THIS !!!
         //  Yes we do not want that *blocked* feeling, but things went wrong when we allow multiply controller_proc_move
         //  in a single transaction.
-        if (already_exist_one(Transaction_Control_Flags.CONTROLLER_MOVE)) return false;
+        if (already_exist_one(Transaction_Control_Flags.PLAYER_MOVE)) return false;
 
         const manager = transaction.entity_manager;
         const entity = manager.find(this.info.target_entity_id);
@@ -450,7 +498,7 @@ export class Player_Move extends Single_Move {
     debug_info(): string {
         let builder = new String_Builder();
         builder.append('PLAYER#').append(this.id);
-        log_target_entity(builder, this);
+        log_entity("target", builder, this.target_entity_id);
         maybe_log_movement(builder, this);
         maybe_log_rotation(builder, this);
         return builder.to_string();
@@ -574,8 +622,8 @@ class Support_Move extends Single_Move {
     debug_info(): string {
         let builder = new String_Builder();
         builder.append('SUPPORT#').append(this.id);
-        log_target_entity(builder, this);
-        builder.append('\n-   supporter#').append(this.info.source_entity_id);
+        log_entity("supportee", builder, this.target_entity_id);
+        log_entity("supporter", builder, this.source_entity_id);
         maybe_log_rotation(builder, this);
         maybe_log_movement(builder, this);
         return builder.to_string();
@@ -675,8 +723,8 @@ class Push_Move extends Single_Move {
     debug_info(): string {
         let builder = new String_Builder();
         builder.append('PUSH#').append(this.id);
-        log_target_entity(builder, this);
-        builder.append('\n-   mover#').append(this.info.source_entity_id);
+        log_entity("target", builder, this.target_entity_id);
+        log_entity("mover", builder, this.source_entity_id);
         maybe_log_movement(builder, this);
         return builder.to_string();
     }
@@ -771,7 +819,7 @@ class Falling_Move extends Single_Move {
     debug_info(): string {
         let builder = new String_Builder();
         builder.append('FALLING#').append(this.id);
-        log_target_entity(builder, this);
+        log_entity("entity", builder, this.target_entity_id);
         maybe_log_movement(builder, this);
         return builder.to_string();
     }
@@ -921,7 +969,7 @@ class Tram_Move extends Single_Move {
     debug_info(): string {
         let builder = new String_Builder();
         builder.append('TRAM#').append(this.id);
-        log_target_entity(builder, this);
+        log_entity("tram", builder, this.target_entity_id);
         maybe_log_rotation(builder, this);
         maybe_log_movement(builder, this);
         return builder.to_string();
@@ -1207,7 +1255,20 @@ export function generate_player_move(transaction_manager: Transaction_Manager, e
         // console.log(time_to_string(Gameplay_Timer.get_gameplay_time()));
 
         // Update transaction control flags
-        transaction_manager.control_flags |= Transaction_Control_Flags.CONTROLLER_MOVE;
+        transaction_manager.control_flags |= Transaction_Control_Flags.PLAYER_MOVE;
+    }
+}
+
+export function generate_player_action(transaction_manager: Transaction_Manager, entity_manager: Entity_Manager) {
+    const hero = entity_manager.active_hero;
+
+    // @Incomplete Now we only support the player elvis!!!
+
+    if (transaction_manager.new_transaction(new Possess_Move(hero))) {
+        $$.PLAYER_MOVE_NOT_YET_EXECUTED = true;
+        $$.SHOULD_DO_UNDO_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_MOVE_DURATION;
+        // Update transaction control flags
+        transaction_manager.control_flags |= Transaction_Control_Flags.ACTION_MOVE;
     }
 }
 
@@ -1453,8 +1514,8 @@ function downgrade_piority(p: Single_Move): number {
 }
 
 // === LOG STUFF ===
-function log_target_entity(builder: String_Builder, move: Single_Move) {
-    builder.append('\n-   entity#').append(move.info.target_entity_id);
+function log_entity(tag: string, builder: String_Builder, id: number) {
+    builder.append(`\n-   ${tag}#`).append(id);
 }
 
 function maybe_log_movement(builder: String_Builder, move: Single_Move) {

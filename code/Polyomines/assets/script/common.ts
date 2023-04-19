@@ -8,7 +8,7 @@ import { Main } from './Main';
 import { Transaction_Manager } from './Transaction_Manager';
 import { Game_Input, Game_Button, Button_State } from './input/Game_Input_Handler';
 import { Input_Manager } from './input/Input_Manager';
-import { generate_player_move } from './sokoban';
+import { generate_player_action, generate_player_move } from './sokoban';
 import { do_one_undo } from './undo';
 import { Game_Entity } from './Game_Entity';
 
@@ -75,7 +75,7 @@ export function process_inputs() {
     const input: Game_Input = Input_Manager.instance.game_input;
     const records = input.pending_records;
 
-    if (!(input.button_states.get(Game_Button.UNDO).ended_down)) {
+    if (!(input.button_states.get(Game_Button.UNDO)?.ended_down)) {
         $$.DOING_UNDO = false;
     }
 
@@ -137,18 +137,24 @@ export function process_inputs() {
             generate_player_move(transaction_manager, entity_manager, Direction.RIGHT, 1);
         }
 
-        // Rotate @Deprecated Should be pull?
-        if (button == Game_Button.FACE_BACKWARD) {
-            generate_player_move(transaction_manager, entity_manager, Direction.BACKWORD, 0);
+        if (button == Game_Button.ACTION) {
+            generate_player_action(transaction_manager, entity_manager);
         }
-        if (button == Game_Button.FACE_FORWARD) {
-            generate_player_move(transaction_manager, entity_manager, Direction.FORWARD, 0);
-        }
-        if (button == Game_Button.FACE_LEFT) {
-            generate_player_move(transaction_manager, entity_manager, Direction.LEFT, 0);
-        }
-        if (button == Game_Button.FACE_RIGHT) {
-            generate_player_move(transaction_manager, entity_manager, Direction.RIGHT, 0);
-        }
+
+        /* 
+                // Rotate @Deprecated Should be pull?
+                if (button == Game_Button.FACE_BACKWARD) {
+                    generate_player_move(transaction_manager, entity_manager, Direction.BACKWORD, 0);
+                }
+                if (button == Game_Button.FACE_FORWARD) {
+                    generate_player_move(transaction_manager, entity_manager, Direction.FORWARD, 0);
+                }
+                if (button == Game_Button.FACE_LEFT) {
+                    generate_player_move(transaction_manager, entity_manager, Direction.LEFT, 0);
+                }
+                if (button == Game_Button.FACE_RIGHT) {
+                    generate_player_move(transaction_manager, entity_manager, Direction.RIGHT, 0);
+                }
+         */
     }
 }

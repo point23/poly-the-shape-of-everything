@@ -329,6 +329,7 @@ export class Const {
         undo: [KeyCode.KEY_Z],
         reset: [KeyCode.KEY_R],
         switch: [KeyCode.TAB],
+        action: [KeyCode.ENTER],
 
         // Movement Buttons
         backward: [KeyCode.ARROW_UP, KeyCode.KEY_W],

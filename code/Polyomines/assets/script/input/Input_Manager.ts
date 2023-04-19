@@ -23,6 +23,7 @@ export type keymap = {
     undo: number[],
     reset: number[],
     switch: number[],
+    action: number[],
 
     backward: number[],
     forward: number[],
@@ -100,6 +101,7 @@ export class Input_Manager extends Component {
             [Game_Button.UNDO, new Key_Info(config.undo)],
             [Game_Button.RESET, new Key_Info(config.reset)],
             [Game_Button.SWITCH_HERO, new Key_Info(config.switch)],
+            [Game_Button.ACTION, new Key_Info(config.action)],
 
             [Game_Button.FACE_BACKWARD, new Key_Info(config.backward, true, config.command_rotate)],
             [Game_Button.FACE_FORWARD, new Key_Info(config.forward, true, config.command_rotate)],
@@ -123,7 +125,7 @@ export class Input_Manager extends Component {
             [Action_Button.X, Game_Button.SWITCH_HERO],
             [Action_Button.Y, Game_Button.RESET],
             [Action_Button.B, Game_Button.UNDO],
-            [Action_Button.A, Game_Button.NULL],
+            [Action_Button.A, Game_Button.ACTION],
         ])
     }
 
