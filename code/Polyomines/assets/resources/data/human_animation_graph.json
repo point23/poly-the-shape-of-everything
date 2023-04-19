@@ -32,6 +32,10 @@
         {
             "name": "victory",
             "anim": "Victory"
+        },
+        {
+            "name": "action",
+            "anim": "Action"
         }
     ],
     "arcs": [
@@ -51,6 +55,11 @@
             "to": "victory"
         },
         {
+            "from": "active",
+            "on": "action",
+            "to": "action"
+        },
+        {
             "from": "inactive",
             "on": "activate",
             "to": "active"
@@ -139,6 +148,16 @@
             "from": "victory",
             "on": "inactivate",
             "to": "inactive"
+        },
+        {
+            "from": "action",
+            "on": "inactivate",
+            "to": "inactive"
+        },
+        {
+            "from": "action",
+            "on": "activate",
+            "to": "active"
         }
     ]
 }

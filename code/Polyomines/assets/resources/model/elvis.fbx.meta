@@ -192,29 +192,6 @@
       ],
       "subMetas": {}
     },
-    "4d530": {
-      "importer": "gltf-animation",
-      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@4d530",
-      "displayName": "",
-      "id": "4d530",
-      "name": "Active-Left.animation",
-      "userData": {
-        "gltfIndex": 1,
-        "wrapMode": 2,
-        "sample": 30,
-        "span": {
-          "from": 0,
-          "to": 1.9583333730697632
-        },
-        "events": []
-      },
-      "ver": "1.0.16",
-      "imported": true,
-      "files": [
-        ".cconb"
-      ],
-      "subMetas": {}
-    },
     "8541f": {
       "importer": "gltf-animation",
       "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@8541f",
@@ -222,7 +199,7 @@
       "id": "8541f",
       "name": "Inactive.animation",
       "userData": {
-        "gltfIndex": 2,
+        "gltfIndex": 1,
         "wrapMode": 2,
         "sample": 30,
         "span": {
@@ -245,7 +222,7 @@
       "id": "b9330",
       "name": "Landing.animation",
       "userData": {
-        "gltfIndex": 3,
+        "gltfIndex": 2,
         "wrapMode": 2,
         "sample": 30,
         "span": {
@@ -268,7 +245,7 @@
       "id": "abdea",
       "name": "Pull.animation",
       "userData": {
-        "gltfIndex": 4,
+        "gltfIndex": 3,
         "wrapMode": 2,
         "sample": 30,
         "span": {
@@ -291,7 +268,7 @@
       "id": "cc737",
       "name": "Push.animation",
       "userData": {
-        "gltfIndex": 5,
+        "gltfIndex": 4,
         "wrapMode": 2,
         "sample": 30,
         "span": {
@@ -314,7 +291,7 @@
       "id": "9292d",
       "name": "Run.animation",
       "userData": {
-        "gltfIndex": 6,
+        "gltfIndex": 5,
         "wrapMode": 2,
         "speed": 1,
         "sample": 30,
@@ -338,7 +315,7 @@
       "id": "130ce",
       "name": "Dead.animation",
       "userData": {
-        "gltfIndex": 7,
+        "gltfIndex": 6,
         "wrapMode": 2,
         "sample": 30,
         "span": {
@@ -361,13 +338,36 @@
       "id": "e4391",
       "name": "Victory.animation",
       "userData": {
-        "gltfIndex": 8,
+        "gltfIndex": 7,
         "wrapMode": 2,
         "speed": 2,
         "sample": 30,
         "span": {
           "from": 0,
           "to": 1.875
+        },
+        "events": []
+      },
+      "ver": "1.0.16",
+      "imported": true,
+      "files": [
+        ".cconb"
+      ],
+      "subMetas": {}
+    },
+    "f39b2": {
+      "importer": "gltf-animation",
+      "uuid": "d05ab497-4af0-4e22-98ae-b7550663e4c9@f39b2",
+      "displayName": "",
+      "id": "f39b2",
+      "name": "Action.animation",
+      "userData": {
+        "gltfIndex": 8,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 2.2083332538604736
         },
         "events": []
       },
@@ -801,25 +801,12 @@
     },
     "animationImportSettings": [
       {
-        "name": "Active-Right",
-        "duration": 1.9583333730697632,
-        "fps": 30,
-        "splits": [
-          {
-            "name": "Active",
-            "from": 0,
-            "to": 1.9583333730697632,
-            "wrapMode": 2
-          }
-        ]
-      },
-      {
         "name": "Active-Left",
         "duration": 1.9583333730697632,
         "fps": 30,
         "splits": [
           {
-            "name": "Active-Left",
+            "name": "Active",
             "from": 0,
             "to": 1.9583333730697632,
             "wrapMode": 2
@@ -914,6 +901,19 @@
             "name": "Victory",
             "from": 0,
             "to": 1.875,
+            "wrapMode": 2
+          }
+        ]
+      },
+      {
+        "name": "Action",
+        "duration": 2.2083332538604736,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "Action",
+            "from": 0,
+            "to": 2.2083332538604736,
             "wrapMode": 2
           }
         ]

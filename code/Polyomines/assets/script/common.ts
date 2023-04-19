@@ -22,6 +22,7 @@ export function init_animations() {
 }
 
 export function per_round_animation_update(entity: Game_Entity) {
+    if (!human_animation_graph.available) return;
     const c = entity?.getComponent(Character_Data);
     if (!c) return;
 
@@ -31,8 +32,6 @@ export function per_round_animation_update(entity: Game_Entity) {
     if (state.contains_deferred_transition) {
         state.deferred_rounds -= 1;
         if (state.deferred_rounds == 0) {
-            console.log(state);
-
             state.contains_deferred_transition = false;
             animate(entity, state.deferred_msg, state.deferred_duration);
         }

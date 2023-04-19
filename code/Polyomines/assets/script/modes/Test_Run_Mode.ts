@@ -51,18 +51,20 @@ export class Test_Run_Mode extends Game_Mode {
     }
 
     on_enter() {
-        this.input_manager.init();
+        function dispose_inactive_handlers(mode: Test_Run_Mode) {
+            mode.current_handler_idx = 0;
+            mode.input_handlers.forEach(it => it.active = false);
+            mode.current_handler.active = true;
+        }
+        //#SCOPE
 
-        this.current_handler_idx = 0;
-        this.input_handlers.forEach((it) => {
-            it.active = false;
-        });
-        this.current_handler.active = true;
+        Level_Editor.instance.info("Test Run");
+        this.input_manager.init();
+        dispose_inactive_handlers(this);
 
         this.#init_ui();
 
         undo_mark_beginning(this.entity_manager);
-        Level_Editor.instance.info("Test Run");
 
         $$.IS_RUNNING = true;
         $$.RELOADING = false;
@@ -135,7 +137,7 @@ export class Test_Run_Mode extends Game_Mode {
     show_hints() {
         if (this.#showing_hints) return;
         // VFX?
-        for (let e of this.entity_manager.hints) {
+        for (let e of this.entity_manager.by_type.Hint) {
             e.node.active = true;
         }
         this.scheduleOnce(function () {
@@ -152,26 +154,25 @@ function main_loop() {
     const entity_manager = Entity_Manager.current;
 
     process_inputs();
-    per_round_animation_update(entity_manager?.active_hero);
+    if ($$.IS_RUNNING)
+        per_round_animation_update(entity_manager?.active_hero);
 
-    if (!$$.IS_RUNNING && !$$.DOING_UNDO && !$$.RELOADING) {
-        maybe_move_trams(transaction_manager);
-        transaction_manager.update_transactions();
-
-        // Level_Editor.instance.info(entity_manager.debug_log_target_entities([1, 26, 87]));
-
+    if ($$.IS_RUNNING && !$$.DOING_UNDO && !$$.RELOADING) {
         if (entity_manager.pending_win) {
-            Level_Editor.instance.load_succeed_level();
             $$.IS_RUNNING = false;
+            Level_Editor.instance.load_succeed_level();
             return;
         }
 
         const enter_res = entity_manager.entering_other_level;
         if (enter_res.entering) {
-            Level_Editor.instance.load_level(enter_res.idx);
             $$.IS_RUNNING = false;
+            Level_Editor.instance.load_level(enter_res.idx);
             return;
         }
+
+        maybe_move_trams(transaction_manager);
+        transaction_manager.update_transactions();
     }
 
     if ($$.SHOULD_DO_UNDO_AT == Gameplay_Timer.get_gameplay_time().round) {

@@ -75,6 +75,7 @@ export class Level_Editor extends Component {
 
         this.settle_singletons();
         init_ui(this);
+        make_human_animation_graph(); // @Note There're some aync? behaviour inside...
         Resource_Manager.instance.load_levels(this, init);
 
         $$.DURATION_IDX = Const.DEFAULT_DURATION_IDX;
@@ -331,8 +332,6 @@ function clear_ui(editor: Level_Editor) {
 }
 
 function init(editor: Level_Editor) {
-    make_human_animation_graph(); // @Note There're some aync? behaviour inside...
-
     update_ui(editor);
 
     const config = editor.resource_manager.current_level_config;
