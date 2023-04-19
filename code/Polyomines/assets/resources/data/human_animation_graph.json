@@ -1,0 +1,69 @@
+{
+    "entry": "active",
+    "nodes": [
+        {
+            "name": "active",
+            "anim": "Active"
+        },
+        {
+            "name": "inactive",
+            "anim": "Inactive"
+        },
+        {
+            "name": "run",
+            "anim": "Run"
+        },
+        {
+            "name": "push",
+            "anim": "Push"
+        },
+        {
+            "name": "landing",
+            "anim": "Landing"
+        },
+        {
+            "name": "pull",
+            "anim": "Pull"
+        },
+        {
+            "name": "dead",
+            "anim": "Dead"
+        },
+        {
+            "name": "victory",
+            "anim": "Victory"
+        }
+    ],
+    "arcs": [
+        {
+            "from": "active",
+            "on": "inactivate",
+            "to": "inactive"
+        },
+        {
+            "from": "active",
+            "on": "run",
+            "to": "run"
+        },
+        {
+            "from": "active",
+            "on": "win",
+            "to": "victory"
+        },
+        {
+            "from": "inactive",
+            "on": "activate",
+            "to": "active"
+        },
+        {
+            "from": "run",
+            "on": "stop",
+            "to": "active"
+        },
+        {
+            "from": "run",
+            "on": "stop",
+            "to": "active"
+        }
+    ]
+}

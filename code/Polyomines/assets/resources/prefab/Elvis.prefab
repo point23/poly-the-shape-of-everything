@@ -21,20 +21,20 @@
         "__id__": 2
       },
       {
-        "__id__": 26
+        "__id__": 28
       }
     ],
     "_active": true,
     "_components": [
       {
-        "__id__": 35
+        "__id__": 37
       },
       {
-        "__id__": 37
+        "__id__": 39
       }
     ],
     "_prefab": {
-      "__id__": 39
+      "__id__": 41
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -83,11 +83,11 @@
     "_active": true,
     "_components": [
       {
-        "__id__": 23
+        "__id__": 25
       }
     ],
     "_prefab": {
-      "__id__": 25
+      "__id__": 27
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -339,6 +339,9 @@
       },
       {
         "__id__": 22
+      },
+      {
+        "__id__": 23
       }
     ],
     "removedComponents": []
@@ -439,6 +442,22 @@
     }
   },
   {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 24
+    },
+    "propertyPath": [
+      "_defaultClip"
+    ],
+    "value": null
+  },
+  {
+    "__type__": "cc.TargetInfo",
+    "localID": [
+      "32aM/jeRlfIKL5S5Q4lZUA"
+    ]
+  },
+  {
     "__type__": "86e75yLURNFF5zvQWMJ4t5X",
     "_name": "",
     "_objFlags": 0,
@@ -447,7 +466,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 24
+      "__id__": 26
     },
     "_id": ""
   },
@@ -477,17 +496,17 @@
     },
     "_children": [
       {
-        "__id__": 27
+        "__id__": 29
       }
     ],
     "_active": false,
     "_components": [
       {
-        "__id__": 32
+        "__id__": 34
       }
     ],
     "_prefab": {
-      "__id__": 34
+      "__id__": 36
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -523,17 +542,17 @@
     "_name": "Sphere",
     "_objFlags": 0,
     "_parent": {
-      "__id__": 26
+      "__id__": 28
     },
     "_children": [],
     "_active": true,
     "_components": [
       {
-        "__id__": 28
+        "__id__": 30
       }
     ],
     "_prefab": {
-      "__id__": 31
+      "__id__": 33
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -569,11 +588,11 @@
     "_name": "Sphere<ModelComponent>",
     "_objFlags": 0,
     "node": {
-      "__id__": 27
+      "__id__": 29
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 29
+      "__id__": 31
     },
     "_materials": [
       {
@@ -583,7 +602,7 @@
     ],
     "_visFlags": 0,
     "bakeSettings": {
-      "__id__": 30
+      "__id__": 32
     },
     "_mesh": {
       "__uuid__": "1263d74c-8167-4928-91a6-4e2672411f47@17020",
@@ -639,11 +658,11 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 26
+      "__id__": 28
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 33
+      "__id__": 35
     },
     "_id": ""
   },
@@ -673,16 +692,16 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 36
+      "__id__": 38
     },
     "editing_cover": {
       "__id__": 4
     },
     "body": {
-      "__id__": 23
+      "__id__": 25
     },
     "indicator": {
-      "__id__": 32
+      "__id__": 34
     },
     "polyomino_type": 0,
     "entity_type": 2,
@@ -701,7 +720,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 38
+      "__id__": 40
     },
     "animation": null,
     "_id": ""
@@ -722,10 +741,10 @@
     "instance": null,
     "targetOverrides": [
       {
-        "__id__": 40
+        "__id__": 42
       },
       {
-        "__id__": 42
+        "__id__": 44
       }
     ],
     "nestedPrefabInstanceRoots": [
@@ -737,7 +756,7 @@
   {
     "__type__": "cc.TargetOverrideInfo",
     "source": {
-      "__id__": 35
+      "__id__": 37
     },
     "sourceInfo": null,
     "propertyPath": [
@@ -745,7 +764,7 @@
     ],
     "target": null,
     "targetInfo": {
-      "__id__": 41
+      "__id__": 43
     }
   },
   {
@@ -757,7 +776,7 @@
   {
     "__type__": "cc.TargetOverrideInfo",
     "source": {
-      "__id__": 37
+      "__id__": 39
     },
     "sourceInfo": null,
     "propertyPath": [
@@ -767,7 +786,7 @@
       "__id__": 12
     },
     "targetInfo": {
-      "__id__": 43
+      "__id__": 45
     }
   },
   {

@@ -19,7 +19,7 @@ import { Navigator } from '../ui/Navigator';
 import { do_one_undo, undo_end_frame, undo_mark_beginning } from '../undo';
 
 import { Game_Mode } from './Game_Mode_Base';
-import { HERO_ANIM_STATE, Hero_Entity_Data } from '../Hero_Entity_Data';
+import { human_animation_graph } from '../Hero_Entity_Data';
 
 const { ccclass, property } = _decorator;
 
@@ -184,6 +184,8 @@ function main_loop() {
 }
 
 function init_animations() {
+    console.log(human_animation_graph);
+
     // const entity_manager = Entity_Manager.current;
     // entity_manager.heros.forEach((it) => { // @Hack 
     //     const hero = it.getComponent(Hero_Entity_Data);

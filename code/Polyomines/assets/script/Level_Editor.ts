@@ -15,6 +15,7 @@ import { Entity_Edit_Mode } from './modes/Entity_Edit_Mode';
 import { Test_Run_Mode } from './modes/Test_Run_Mode';
 import { Audio_Manager } from './Audio_Manager';
 import { Efx_Manager } from './Efx_Manager';
+import { make_human_animation_graph } from './Hero_Entity_Data';
 
 const { ccclass, property } = _decorator;
 
@@ -71,9 +72,11 @@ export class Level_Editor extends Component {
     onLoad() {
         $$.HINTS_EDITABLE = true;
         $$.FOR_EDITING = true
+
         this.settle_singletons();
         init_ui(this);
         Resource_Manager.instance.load_levels(this, init);
+
         $$.DURATION_IDX = Const.DEFAULT_DURATION_IDX;
     }
 
@@ -328,6 +331,8 @@ function clear_ui(editor: Level_Editor) {
 }
 
 function init(editor: Level_Editor) {
+    make_human_animation_graph(); // @Note There're some aync? behaviour inside...
+
     update_ui(editor);
 
     const config = editor.resource_manager.current_level_config;
