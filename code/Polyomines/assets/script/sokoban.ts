@@ -389,17 +389,15 @@ export class Player_Move extends Single_Move {
         if (!fall_res.fell) {
             play_sfx("step");
             { // @Note Check possible win
-                if (manager.pending_win) return;
                 if (!is_dirty(this.flags, Move_Flags.MOVED)) return;
-
                 let possible_win = false;
                 for (let s of manager.locate_current_supporters(entity)) {
                     if (s.entity_type == Entity_Type.CHECKPOINT) possible_win = true;
                 }
 
                 if (possible_win) {
-                    animate(entity, "win");
-                    play_sfx("win?");
+                    if (!manager.pending_win) play_sfx("win?");
+                    animate(entity, "win", 20, 1);
                 }
             }
             return 0;
@@ -733,7 +731,7 @@ class Falling_Move extends Single_Move {
     complete(transaction: Move_Transaction): number {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
-        animate(entity, "fall");
+        animate(entity, "fall"); // @Hack Some tiny cute magic number...
         return 0;
     }
 

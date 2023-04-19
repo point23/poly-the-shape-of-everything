@@ -1,6 +1,6 @@
 import { _decorator, } from 'cc';
 import { play_sfx } from './Audio_Manager';
-import { init_animation_state, human_animation_graph, animate } from './Character_Data';
+import { init_animation_state, human_animation_graph, animate, Character_Data } from './Character_Data';
 import { $$, Const, Direction } from './Const';
 import { Entity_Manager } from './Entity_Manager';
 import { Level_Editor } from './Level_Editor';
@@ -10,6 +10,7 @@ import { Game_Input, Game_Button, Button_State } from './input/Game_Input_Handle
 import { Input_Manager } from './input/Input_Manager';
 import { generate_player_move } from './sokoban';
 import { do_one_undo } from './undo';
+import { Game_Entity } from './Game_Entity';
 
 export function init_animations() {
     const entity_manager = Entity_Manager.current;
@@ -18,6 +19,49 @@ export function init_animations() {
     }
 
     animate(entity_manager.active_hero, "activate");
+}
+
+export function per_round_animation_update(entity: Game_Entity) {
+    const c = entity?.getComponent(Character_Data);
+    if (!c) return;
+
+    const state = c.anim_state;
+    const node = c.anim_state.node;
+
+    if (state.contains_deferred_transition) {
+        state.deferred_rounds -= 1;
+        if (state.deferred_rounds == 0) {
+            console.log(state);
+
+            state.contains_deferred_transition = false;
+            animate(entity, state.deferred_msg, state.deferred_duration);
+        }
+        return;
+    }
+
+    const input: Game_Input = Input_Manager.instance.game_input;
+    state.elapsed += 1;
+    if (state.elapsed >= state.duration) {
+        if (node.name == "run" || node.name == "push") {
+            if (!input.keep_pressing_moving_btn()) {
+                animate(entity, "stop");
+            }
+        }
+
+        if (node.name == "landing") {
+            animate(entity, "activate");
+        }
+
+        if (node.name == "victory") {
+            animate(entity, "activate");
+        }
+    }
+
+    if (state.node.name == "active") {
+        if (input.keep_pressing_moving_btn() && input.buffered_player_moves.empty()) {
+            animate(entity, "run");
+        }
+    }
 }
 
 export function update_inputs() {

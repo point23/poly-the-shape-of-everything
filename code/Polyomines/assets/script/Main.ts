@@ -1,22 +1,20 @@
 import { _decorator, Component, Node, Label, tween, Color, Material, EventHandler, Button } from 'cc';
 import { Audio_Manager, end_music, end_sfx, play_music, play_sfx } from './Audio_Manager';
 import { Camera3D_Controller } from './Camera3D_Controller';
-import { $$, Const, Direction } from './Const';
+import { $$, Const } from './Const';
 import { Efx_Manager } from './Efx_Manager';
 import { Entity_Manager } from './Entity_Manager';
 import { Gameplay_Timer } from './Gameplay_Timer';
 import { Input_Manager } from './input/Input_Manager';
 import { Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
-import { generate_player_move, maybe_move_trams } from './sokoban';
+import { maybe_move_trams } from './sokoban';
 import { Transaction_Manager } from './Transaction_Manager';
 import { Game_Pause_Panel } from './ui/Game_Pause_Panel';
 import { Show_Hide_Type, UI_Manager } from './UI_Manager';
-import { Undo_Handler, do_one_undo, undo_end_frame } from './undo';
-import { animate, human_animation_graph, init_animation_state, make_human_animation_graph, per_round_animation_update } from './Character_Data';
-import { Button_State, Game_Button, Game_Input } from './input/Game_Input_Handler';
-import { Level_Editor } from './Level_Editor';
-import { init_animations, process_inputs, update_inputs } from './common';
+import { Undo_Handler, undo_end_frame } from './undo';
+import { make_human_animation_graph } from './Character_Data';
+import { init_animations, per_round_animation_update, process_inputs, update_inputs } from './common';
 const { ccclass, property } = _decorator;
 
 @ccclass('Main')
@@ -80,11 +78,9 @@ export class Main extends Component {
             hide_duration: 2,
             type: Show_Hide_Type.FADE,
             callback: () => {
-                Input_Manager.instance.init();
                 Gameplay_Timer.reset();
                 $$.IS_RUNNING = true;
                 $$.PLAYER_MOVE_NOT_YET_EXECUTED = false;
-                init_animations();
             }
         });
 
@@ -307,6 +303,7 @@ function init(game: Main) {
     //#SCOPE
 
     const ui = game.ui_manager;
+    const input = game.input_manager;
     const resource = game.resource_manager;
     const transaction = game.transaction_manager;
     const config = resource.current_level_config;
@@ -314,6 +311,8 @@ function init(game: Main) {
     init_ui();
     init_camera();
     init_entities();
+    init_animations();
+    input.init();
 
     $$.RELOADING = false;
 
@@ -328,12 +327,12 @@ function main_loop() {
     const game = Main.instance;
 
     process_inputs();
-    per_round_animation_update(entity_manager.active_hero);
+    per_round_animation_update(entity_manager?.active_hero);
 
-    if (!$$.DOING_UNDO && !$$.RELOADING) {
+    if ($$.IS_RUNNING && !$$.DOING_UNDO && !$$.RELOADING) {
         const pending_enter = entity_manager.entering_other_level;
         if (pending_enter.entering) {
-            play_music("win!"); // @Todo Maybe there should be another clip for entering?
+            play_sfx("win!"); // @Todo Maybe there should be another clip for entering?
             $$.IS_RUNNING = false;
             ui.show_and_hide({
                 target: game.dim,
@@ -349,7 +348,7 @@ function main_loop() {
         }
 
         if (entity_manager.pending_win) {
-            play_music("win!");
+            play_sfx("win!");
             $$.IS_RUNNING = false;
             ui.show_and_hide({
                 target: game.dim,

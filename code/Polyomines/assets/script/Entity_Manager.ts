@@ -60,7 +60,6 @@ export class Entity_Manager {
     proximity_grid: Proximity_Grid = null;
     undo_handler: Undo_Handler = null;
     all_entities: Game_Entity[] = [];
-    checkpoints: Game_Entity[] = [];
 
     get moving_entities(): Game_Entity[] { // @Hack
         const res = []
@@ -78,6 +77,7 @@ export class Entity_Manager {
     switches: Game_Entity[] = [];
     hints: Game_Entity[] = [];
     entrances: Game_Entity[] = [];
+    checkpoints: Game_Entity[] = [];
 
     get entering_other_level(): { entering: boolean, idx: number } {
         let res = {
@@ -101,6 +101,7 @@ export class Entity_Manager {
                 if (other.entity_type == Entity_Type.HERO) return true;
             }
         }
+
         function dynamic_stands_on_it(checkpoint: Game_Entity, manager: Entity_Manager) {
             for (let e of manager.locate_current_supportees(checkpoint)) {
                 if (e.entity_type == Entity_Type.DYNAMIC) return true;

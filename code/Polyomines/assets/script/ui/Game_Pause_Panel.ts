@@ -1,5 +1,5 @@
 import { _decorator, Component, Node, Button } from 'cc';
-import { Audio_Manager, play_music, play_sfx } from '../Audio_Manager';
+import { play_sfx } from '../Audio_Manager';
 import { $$ } from '../Const';
 import { load_succeed_level, Main } from '../Main';
 const { ccclass, property } = _decorator;

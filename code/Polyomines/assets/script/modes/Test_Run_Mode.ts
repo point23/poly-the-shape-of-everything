@@ -1,27 +1,21 @@
 import { _decorator, EventHandler, } from 'cc';
-import { Const, $$, Direction } from '../Const';
+import { Const, $$, } from '../Const';
 import { Contextual_Manager } from '../Contextual_Manager';
 import { Entity_Manager } from '../Entity_Manager';
 import { Gameplay_Timer } from '../Gameplay_Timer';
-import { Button_State, Game_Button, Game_Input, Game_Input_Handler, } from '../input/Game_Input_Handler';
+import { Game_Input_Handler, } from '../input/Game_Input_Handler';
 import { Input_Manager } from '../input/Input_Manager';
 import { Keyboard } from '../input/Keyboard';
 import { Virtual_Controller } from '../input/Virtual_Controller';
 import { Level_Editor } from '../Level_Editor';
-import {
-    generate_player_move,
-    maybe_move_trams,
-} from '../sokoban';
+import { maybe_move_trams, } from '../sokoban';
 
 import { Transaction_Manager } from '../Transaction_Manager';
 import { Navigator } from '../ui/Navigator';
-import { do_one_undo, undo_end_frame, undo_mark_beginning } from '../undo';
+import { undo_end_frame, undo_mark_beginning } from '../undo';
 
 import { Game_Mode } from './Game_Mode_Base';
-import { animate, human_animation_graph, init_animation_state, per_round_animation_update } from '../Character_Data';
-import { play_sfx } from '../Audio_Manager';
-import { Main } from '../Main';
-import { init_animations, process_inputs, update_inputs } from '../common';
+import { init_animations, per_round_animation_update, process_inputs, update_inputs } from '../common';
 
 const { ccclass, property } = _decorator;
 
@@ -158,10 +152,9 @@ function main_loop() {
     const entity_manager = Entity_Manager.current;
 
     process_inputs();
+    per_round_animation_update(entity_manager?.active_hero);
 
-    per_round_animation_update(entity_manager.active_hero);
-
-    if (!$$.DOING_UNDO && !$$.RELOADING) {
+    if (!$$.IS_RUNNING && !$$.DOING_UNDO && !$$.RELOADING) {
         maybe_move_trams(transaction_manager);
         transaction_manager.update_transactions();
 

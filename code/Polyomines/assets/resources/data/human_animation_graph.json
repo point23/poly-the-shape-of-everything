@@ -116,9 +116,29 @@
             "to": "active"
         },
         {
+            "from": "landing",
+            "on": "win",
+            "to": "victory"
+        },
+        {
             "from": "victory",
             "on": "activate",
             "to": "active"
+        },
+        {
+            "from": "victory",
+            "on": "run",
+            "to": "run"
+        },
+        {
+            "from": "victory",
+            "on": "push",
+            "to": "push"
+        },
+        {
+            "from": "victory",
+            "on": "inactivate",
+            "to": "inactive"
         }
     ]
 }

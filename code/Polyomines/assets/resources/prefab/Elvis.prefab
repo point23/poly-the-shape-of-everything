@@ -449,7 +449,10 @@
     "propertyPath": [
       "_defaultClip"
     ],
-    "value": null
+    "value": {
+      "__uuid__": "d05ab497-4af0-4e22-98ae-b7550663e4c9@8541f",
+      "__expectedType__": "cc.AnimationClip"
+    }
   },
   {
     "__type__": "cc.TargetInfo",

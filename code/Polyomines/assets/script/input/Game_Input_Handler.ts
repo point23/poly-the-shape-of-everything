@@ -143,6 +143,8 @@ export class Game_Input_Handler extends Component {
     update_input() {
         if (!this.active) return;
         const input = this.input;
+        if (!input) return;
+
         for (let button of input.button_states.keys()) {
             if (input.pressed_long_enough(button)) {
                 const state = input.button_states.get(button)

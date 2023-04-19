@@ -95,17 +95,17 @@ export class Gameplay_Timer {
             const ticks_per_round = Const.TICKS_PER_ROUND[$$.DURATION_IDX];
 
             if ((Gameplay_Timer.tick_idx == 0)) {
-                if ($$.IS_RUNNING) {
-                    Gameplay_Timer.running_idx = (Gameplay_Timer.running_idx + 1) % Gameplay_Timer.ROUND_BOUNDS;
-                    if (!$$.DOING_UNDO)
-                        Gameplay_Timer.round_idx = (Gameplay_Timer.round_idx + 1) % Gameplay_Timer.ROUND_BOUNDS;
+                // if ($$.IS_RUNNING) {
+                Gameplay_Timer.running_idx = (Gameplay_Timer.running_idx + 1) % Gameplay_Timer.ROUND_BOUNDS;
+                if (!$$.DOING_UNDO)
+                    Gameplay_Timer.round_idx = (Gameplay_Timer.round_idx + 1) % Gameplay_Timer.ROUND_BOUNDS;
 
-                    loop_callback();
-                }
+                loop_callback();
+                // }
             }
 
             if ($$.IS_RUNNING) {
-                tick_callbacks.forEach((it) => { it(); })
+                tick_callbacks.forEach(it => it());
                 for (let i of Visual_Interpolation.running_interpolations.values()) {
                     i.process();
                 }

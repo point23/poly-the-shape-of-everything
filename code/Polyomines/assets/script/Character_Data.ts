@@ -1,8 +1,6 @@
 import { _decorator, Component, JsonAsset, resources, SkeletalAnimation, } from 'cc';
 import { $$, Const } from './Const';
 import { Game_Entity } from './Game_Entity';
-import { Game_Input } from './input/Game_Input_Handler';
-import { Input_Manager } from './input/Input_Manager';
 const { ccclass, property } = _decorator;
 
 export enum Animation_Messsage {
@@ -14,6 +12,12 @@ class Animation_State {
     node: Animation_Node = null;
     duration: number = 0;
     elapsed: number = 0;
+
+    // Deferred Transition...
+    contains_deferred_transition: boolean = false;
+    deferred_rounds: number = 0;
+    deferred_duration: number = 0;
+    deferred_msg: string = "";
 }
 
 class Animation_Node {
@@ -43,7 +47,7 @@ export class Animation_Graph {
     nodes: Map<string, Animation_Node> = new Map();
 }
 
-const default_anim_duration: number = 3;
+const default_anim_duration: number = 4; // @Note 0.01 * 8 * 4 ≈ 0.32s 
 export const human_animation_graph: Animation_Graph = new Animation_Graph();
 
 export function make_human_animation_graph() {
@@ -71,41 +75,6 @@ export function make_human_animation_graph() {
     });
 }
 
-export function per_round_animation_update(entity: Game_Entity) {
-    if (!$$.IS_RUNNING) return;
-
-    const c = entity.getComponent(Character_Data);
-    if (!c) return;
-
-    const input: Game_Input = Input_Manager.instance.game_input;
-
-    const state = c.anim_state;
-    const node = c.anim_state.node;
-    state.elapsed += 1;
-
-    if (state.elapsed >= state.duration) {
-        if (node.name == "run" || node.name == "push") {
-            if (!input.keep_pressing_moving_btn()) {
-                animate(entity, "stop");
-            }
-        }
-
-        if (node.name == "landing") {
-            animate(entity, "activate");
-        }
-
-        if (node.name == "victory") {
-            animate(entity, "activate");
-        }
-    }
-
-    if (state.node.name == "active") {
-        if (input.keep_pressing_moving_btn() && input.buffered_player_moves.empty()) {
-            animate(entity, "run");
-        }
-    }
-}
-
 export function init_animation_state(entity: Game_Entity, graph: Animation_Graph) {
     const c = entity.getComponent(Character_Data);
     if (!c) return;
@@ -116,14 +85,21 @@ export function init_animation_state(entity: Game_Entity, graph: Animation_Graph
     c.animation.crossFade(anim);
 }
 
-export function animate(entity: Game_Entity, msg: string, duration: number = default_anim_duration) {
+export function animate(entity: Game_Entity, msg: string, duration: number = default_anim_duration, delay: number = 0) {
     const c = entity.getComponent(Character_Data);
     if (!c) return;
     if (!c.anim_state) return;
 
+    if (delay != 0) {
+        c.anim_state.contains_deferred_transition = true;
+        c.anim_state.deferred_rounds = delay;
+        c.anim_state.deferred_msg = msg;
+        c.anim_state.deferred_duration = duration;
+        return;
+    }
+
     const arc = c.anim_state.node.arcs.find((i) => i.on == msg);
     const dest = arc?.destination;
-
     if (!dest) return;
 
     const anim = dest.anim;
