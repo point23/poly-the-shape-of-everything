@@ -1,5 +1,5 @@
 import { _decorator, Component, Node, Button } from 'cc';
-import { Audio_Manager } from '../Audio_Manager';
+import { Audio_Manager, play_music, play_sfx } from '../Audio_Manager';
 import { $$ } from '../Const';
 import { load_succeed_level, Main } from '../Main';
 const { ccclass, property } = _decorator;
@@ -14,7 +14,7 @@ export class Game_Pause_Panel extends Component {
     start() {
         { // Resume Game
             this.btn_resume.node.on(Button.EventType.CLICK, () => {
-                Audio_Manager.instance.play_sfx(Audio_Manager.instance.click);
+                play_sfx("click");
                 $$.IS_RUNNING = true;
                 this.node.active = false;
             }, this);
@@ -22,7 +22,7 @@ export class Game_Pause_Panel extends Component {
 
         { // Exit Current Room
             this.btn_exit.node.on(Button.EventType.CLICK, () => {
-                Audio_Manager.instance.play_sfx(Audio_Manager.instance.click);
+                play_sfx("click");
                 this.node.active = false;
                 load_succeed_level(Main.instance);
             }, this);

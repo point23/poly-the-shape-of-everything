@@ -72,6 +72,8 @@ export function make_human_animation_graph() {
 }
 
 export function per_round_animation_update(entity: Game_Entity) {
+    if (!$$.IS_RUNNING) return;
+
     const c = entity.getComponent(Character_Data);
     if (!c) return;
 

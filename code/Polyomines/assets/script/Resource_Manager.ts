@@ -1,6 +1,6 @@
 import { _decorator, Prefab, resources, instantiate, Node, JsonAsset, sys, Component } from 'cc';
 import { Const } from './Const';
-import { Prefab_Pair } from './ui/Prefab_Pair';
+import { Prefab_Pair } from './TIny_Little_Components';
 
 const { ccclass, property } = _decorator;
 

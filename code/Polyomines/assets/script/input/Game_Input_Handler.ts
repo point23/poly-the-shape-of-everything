@@ -1,6 +1,14 @@
 import { _decorator, Component, Game } from 'cc';
-import { $$, clone_all_slots, Const, Queue } from '../Const';
-import { gameplay_time, Gameplay_Timer } from '../Gameplay_Timer';
+import { $$, clone_all_slots, Const, Direction, Queue } from '../Const';
+import { Gameplay_Timer } from '../Gameplay_Timer';
+import { play_sfx } from '../Audio_Manager';
+import { Entity_Manager } from '../Entity_Manager';
+import { Level_Editor } from '../Level_Editor';
+import { Transaction_Manager } from '../Transaction_Manager';
+import { generate_player_move } from '../sokoban';
+import { do_one_undo } from '../undo';
+import { Input_Manager } from './Input_Manager';
+import { Main } from '../Main';
 const { ccclass } = _decorator;
 
 export class Button_State {

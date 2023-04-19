@@ -1,20 +1,63 @@
 import { _decorator, Component, Node, AudioSource, AudioClip } from 'cc';
 import { random } from './Const';
+import { Audio_Clip_Group_Pair, Auido_Clip_Pair } from './TIny_Little_Components';
 const { ccclass, property } = _decorator;
 
-export enum Random_Audio_Group {
-    DROP,
-    PUSH,
+export function play_sfx(sfx_name: string) {
+    const audio = Audio_Manager.instance;
+
+    const clip = audio.sfx_map.get(sfx_name);
+    if (!clip) return;
+
+    audio.secondary.playOneShot(clip);
 }
 
-type random_audio_group = {
-    last_idx: number,
-    clips: AudioClip[],
+export function end_sfx() {
+    const audio = Audio_Manager.instance;
+    audio.secondary.stop();
 }
 
-// @ImplementMe The future AUDIO api format...
-function audio_play_sfx(sfx_name: string) {
+export function random_sfx(sfx_group_name: string) {
+    const audio = Audio_Manager.instance;
+    const group = audio.sfx_group_map.get(sfx_group_name);
+    if (!group) return;
 
+    audio.secondary.playOneShot(group.random_pick_one());
+}
+
+export function play_music(music_name: string, loop: boolean = false) {
+    const audio = Audio_Manager.instance;
+    const clip = audio.music_map.get(music_name);
+    if (!clip) return;
+
+    audio.primary.clip = clip;
+    audio.primary.play();
+}
+
+export function loop_music(music_name: string) {
+    play_music(music_name, true);
+}
+
+export function end_music() {
+    const audio = Audio_Manager.instance;
+    audio.primary.stop();
+}
+
+class Sfx_Group {
+    clips: AudioClip[] = null;
+    constructor(clips: AudioClip[]) {
+        this.clips = clips;
+    }
+
+    #last_pick: number = -1;
+    random_pick_one(): AudioClip {
+        let i = random(0, this.clips.length - 1);
+        if (i == this.#last_pick) {
+            i = random(0, this.clips.length - 1);
+        }
+        this.#last_pick = i;
+        return this.clips[i];
+    }
 }
 
 @ccclass('Audio_Manager')
@@ -24,69 +67,28 @@ export class Audio_Manager extends Component {
         Audio_Manager.instance = instance;
     }
 
-    // MUSIC
-    @property(AudioClip) main_theme: AudioClip = null;
+    @property(AudioSource) primary: AudioSource = null;
+    @property(AudioSource) secondary: AudioSource = null;
 
-    // SFX
-    @property(AudioClip) show_hints: AudioClip = null;
-    @property(AudioClip) footstep: AudioClip = null;
-    @property(AudioClip) rewind: AudioClip = null;
-    @property(AudioClip) switch_hero: AudioClip = null;
-    @property(AudioClip) switch_turned_on: AudioClip = null;
-    @property(AudioClip) tram_move: AudioClip = null;
+    @property([Auido_Clip_Pair]) sfx: Auido_Clip_Pair[] = [];
+    @property([Audio_Clip_Group_Pair]) sfx_group: Audio_Clip_Group_Pair[] = [];
+    @property([Auido_Clip_Pair]) music: Auido_Clip_Pair[] = [];
 
-    @property(AudioClip) possible_win: AudioClip = null;
-    @property(AudioClip) pending_win: AudioClip = null;
+    sfx_map: Map<string, AudioClip> = new Map();
+    music_map: Map<string, AudioClip> = new Map();
+    sfx_group_map: Map<string, Sfx_Group> = new Map();
 
-    @property(AudioClip) invalid: AudioClip = null;
-    @property(AudioClip) click: AudioClip = null;
-
-    @property([AudioClip]) drop_sfx: AudioClip[] = [];
-    @property([AudioClip]) push_sfx: AudioClip[] = [];
-
-    @property(AudioSource) primary_audio: AudioSource = null;
-    @property(AudioSource) secondary_audio: AudioSource = null;
-
-    clip_groups: Map<number, random_audio_group> = new Map();
-
-    start() {
-        this.clip_groups.set(Random_Audio_Group.DROP, {
-            last_idx: -1,
-            clips: this.drop_sfx,
-        });
-        this.clip_groups.set(Random_Audio_Group.PUSH, {
-            last_idx: -1,
-            clips: this.push_sfx,
-        });
-    }
-
-    random_play_one_sfx(group: Random_Audio_Group) {
-        const item = this.clip_groups.get(group);
-        const last_idx = item.last_idx;
-        const clips = item.clips;
-        let i = random(0, clips.length - 1);
-        if (i == last_idx) {
-            i = random(0, clips.length - 1);
+    protected onLoad(): void {
+        for (let s of this.sfx) {
+            this.sfx_map.set(s.name, s.clip);
         }
-        item.last_idx = i;
-        this.clip_groups.set(group, item);
-        this.play_sfx(clips[i]);
-    }
 
-    loop(clip: AudioClip) {
-        this.primary_audio.clip = clip;
-        this.primary_audio.play();
-    }
+        for (let m of this.music) {
+            this.music_map.set(m.name, m.clip);
+        }
 
-    end_loop() {
-        this.primary_audio.stop();
-    }
-
-    play_sfx(clip: AudioClip) {
-        this.secondary_audio.playOneShot(clip);
-    }
-
-    end_sfx() {
-        this.secondary_audio.stop();
+        for (let sg of this.sfx_group) {
+            this.sfx_group_map.set(sg.name, new Sfx_Group(sg.clips));
+        }
     }
 }

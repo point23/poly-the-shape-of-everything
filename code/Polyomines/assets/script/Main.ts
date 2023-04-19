@@ -1,11 +1,10 @@
-import { _decorator, Component, Node, Input, Label, tween, Color, Material, EventHandler, Button } from 'cc';
-import { Audio_Manager } from './Audio_Manager';
+import { _decorator, Component, Node, Label, tween, Color, Material, EventHandler, Button } from 'cc';
+import { Audio_Manager, end_music, end_sfx, play_music, play_sfx } from './Audio_Manager';
 import { Camera3D_Controller } from './Camera3D_Controller';
 import { $$, Const, Direction } from './Const';
 import { Efx_Manager } from './Efx_Manager';
 import { Entity_Manager } from './Entity_Manager';
 import { Gameplay_Timer } from './Gameplay_Timer';
-import { Button_State, Game_Button, Game_Input } from './input/Game_Input_Handler';
 import { Input_Manager } from './input/Input_Manager';
 import { Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
@@ -13,7 +12,11 @@ import { generate_player_move, maybe_move_trams } from './sokoban';
 import { Transaction_Manager } from './Transaction_Manager';
 import { Game_Pause_Panel } from './ui/Game_Pause_Panel';
 import { Show_Hide_Type, UI_Manager } from './UI_Manager';
-import { do_one_undo, Undo_Handler } from './undo';
+import { Undo_Handler, do_one_undo, undo_end_frame } from './undo';
+import { animate, human_animation_graph, init_animation_state, make_human_animation_graph, per_round_animation_update } from './Character_Data';
+import { Button_State, Game_Button, Game_Input } from './input/Game_Input_Handler';
+import { Level_Editor } from './Level_Editor';
+import { init_animations, process_inputs, update_inputs } from './common';
 const { ccclass, property } = _decorator;
 
 @ccclass('Main')
@@ -48,6 +51,7 @@ export class Main extends Component {
         this.settle_singletons();
         $$.DURATION_IDX = Const.DEFAULT_DURATION_IDX;
         Resource_Manager.instance.load_levels(this, init);
+        make_human_animation_graph(); // @Note There're some aync? behaviour inside...
     }
 
     start() {
@@ -66,7 +70,7 @@ export class Main extends Component {
             this.btn_hints.clickEvents.push(e);
         }
 
-        Gameplay_Timer.run(this, main_loop);
+        Gameplay_Timer.run(this, main_loop, [update_inputs]);
     }
 
     click_anywhere_to_start() {
@@ -79,43 +83,51 @@ export class Main extends Component {
                 Input_Manager.instance.init();
                 Gameplay_Timer.reset();
                 $$.IS_RUNNING = true;
+                $$.PLAYER_MOVE_NOT_YET_EXECUTED = false;
+                init_animations();
             }
         });
 
-        this.audio_manager.end_loop();
+        end_music();
         this.dummy_panel.clickEvents = [];
         this.dummy_panel.node.active = false;
         this.label_press_any_xx_to_start.node.active = false;
     }
 
     game_pause() {
-        Audio_Manager.instance.play_sfx(Audio_Manager.instance.click);
+        play_sfx("click");
         $$.IS_RUNNING = false;
         this.game_pause_panel.node.active = true;
+    }
+
+    reload_current_level() {
+        const game = this;
+
+        clear(game);
+        game.resource_manager.load_current_level(game, init);
     }
 
     show_and_hide_hints() {
         function stop_show_hints_immediately() {
             $$.SHOWING_HINTS = false;
-            audio.end_sfx();
+            end_sfx();
             hints.forEach(it => { it.node.active = false; });
         }
         //#SCOPE
         const hints = this.entity_manager.hints;
-        const audio = Audio_Manager.instance;
         const mat = this.hint_mat;
 
-        Audio_Manager.instance.play_sfx(Audio_Manager.instance.click);
+        play_sfx("click");
         if ($$.SHOWING_HINTS) return;
         $$.SHOWING_HINTS = true;
 
         if (hints.length == 0) {
-            audio.play_sfx(audio.invalid);
+            play_sfx("wrong");
             $$.SHOWING_HINTS = false;
             return;
         }
 
-        audio.play_sfx(audio.show_hints);
+        play_sfx("magic");
         hints.forEach(it => { it.node.active = true; });
         mat.setProperty('mainColor', Const.HINTS_HIDE_COLOR);
 
@@ -182,11 +194,6 @@ export function load_succeed_level(game: Main) {
     game.resource_manager.load_succeed_level(game, init);
 }
 
-function reload_current_level(game: Main) {
-    clear(game);
-    game.resource_manager.load_current_level(game, init);
-}
-
 function clear(game: Main) {
     $$.IS_RUNNING = false;
     $$.RELOADING = true;
@@ -202,7 +209,7 @@ function clear(game: Main) {
 function init(game: Main) {
     function init_ui() {
         if ($$.STARTUP) {
-            audio.loop(audio.main_theme);
+            play_music("intro");
             $$.STARTUP = false;
 
             ui.show_and_hide({
@@ -273,6 +280,8 @@ function init(game: Main) {
                     Input_Manager.instance.init();
                     Gameplay_Timer.reset();
                     $$.IS_RUNNING = true;
+                    $$.PLAYER_MOVE_NOT_YET_EXECUTED = false;
+                    init_animations();
                 }
             });
         }
@@ -299,7 +308,6 @@ function init(game: Main) {
 
     const ui = game.ui_manager;
     const resource = game.resource_manager;
-    const audio = game.audio_manager;
     const transaction = game.transaction_manager;
     const config = resource.current_level_config;
 
@@ -318,25 +326,14 @@ function main_loop() {
     const entity_manager = Entity_Manager.current;
     const ui = UI_Manager.instance;
     const game = Main.instance;
-    const audio = Audio_Manager.instance;
 
     process_inputs();
+    per_round_animation_update(entity_manager.active_hero);
+
     if (!$$.DOING_UNDO && !$$.RELOADING) {
-        maybe_move_trams(transaction_manager);
-        transaction_manager.update_transactions();
-
-        if (!$$.SWITCH_TURNED_ON) {
-            if (entity_manager.switch_turned_on) {
-                $$.SWITCH_TURNED_ON = true;
-                audio.play_sfx(Audio_Manager.instance.switch_turned_on);
-            }
-        } else {
-            $$.SWITCH_TURNED_ON = entity_manager.switch_turned_on;
-        }
-
         const pending_enter = entity_manager.entering_other_level;
         if (pending_enter.entering) {
-            audio.play_sfx(audio.pending_win);
+            play_music("win!"); // @Todo Maybe there should be another clip for entering?
             $$.IS_RUNNING = false;
             ui.show_and_hide({
                 target: game.dim,
@@ -352,7 +349,7 @@ function main_loop() {
         }
 
         if (entity_manager.pending_win) {
-            Audio_Manager.instance.play_sfx(Audio_Manager.instance.pending_win);
+            play_music("win!");
             $$.IS_RUNNING = false;
             ui.show_and_hide({
                 target: game.dim,
@@ -366,75 +363,22 @@ function main_loop() {
                 }
             });
         }
-    }
-}
 
-function process_inputs() {
-    if (!$$.IS_RUNNING) return;
+        maybe_move_trams(transaction_manager);
+        transaction_manager.update_transactions();
 
-    const entity_manager = Entity_Manager.current;
-    const transaction_manager = Transaction_Manager.instance;
-    const input: Game_Input = Input_Manager.instance.game_input;
-    const game = Main.instance;
-    const audio = Audio_Manager.instance;
-    const records = input.pending_records;
-
-    if (!(input.button_states.get(Game_Button.UNDO).ended_down)) {
-        $$.DOING_UNDO = false;
-    }
-
-    records.sort((a: Button_State, b: Button_State) => { return a.counter - b.counter });// @Note a > b if a - b < 0,
-
-    for (let record of input.pending_records) {
-        const button = record.button;
-
-        if (button == Game_Button.RESET) {
-            $$.RELOADING = true;
-            reload_current_level(game);
-        }
-
-        if (button == Game_Button.UNDO) {
-            $$.DOING_UNDO = true;
-            do_one_undo(entity_manager);
-        }
-
-        if (button == Game_Button.SWITCH_HERO) {
-            if (entity_manager.num_heros == 1) {
-                audio.play_sfx(audio.invalid);
-            } else {
-                entity_manager.switch_hero();
-                audio.play_sfx(audio.switch_hero);
+        if (!$$.SWITCH_TURNED_ON) {
+            if (entity_manager.switch_turned_on) {
+                $$.SWITCH_TURNED_ON = true;
+                play_sfx("power");
             }
-        }
-
-        // Move
-        if (button == Game_Button.MOVE_BACKWARD) {
-            generate_player_move(transaction_manager, entity_manager, Direction.BACKWORD, 1);
-        }
-        if (button == Game_Button.MOVE_FORWARD) {
-            generate_player_move(transaction_manager, entity_manager, Direction.FORWARD, 1);
-        }
-        if (button == Game_Button.MOVE_LEFT) {
-            generate_player_move(transaction_manager, entity_manager, Direction.LEFT, 1);
-        }
-        if (button == Game_Button.MOVE_RIGHT) {
-            generate_player_move(transaction_manager, entity_manager, Direction.RIGHT, 1);
-        }
-
-        // Rotate
-        if (button == Game_Button.FACE_BACKWARD) {
-            generate_player_move(transaction_manager, entity_manager, Direction.BACKWORD, 0);
-        }
-        if (button == Game_Button.FACE_FORWARD) {
-            generate_player_move(transaction_manager, entity_manager, Direction.FORWARD, 0);
-        }
-        if (button == Game_Button.FACE_LEFT) {
-            generate_player_move(transaction_manager, entity_manager, Direction.LEFT, 0);
-        }
-        if (button == Game_Button.FACE_RIGHT) {
-            generate_player_move(transaction_manager, entity_manager, Direction.RIGHT, 0);
+        } else {
+            $$.SWITCH_TURNED_ON = entity_manager.switch_turned_on;
         }
     }
 
-    input.pending_records = [];
+    if ($$.SHOULD_DO_UNDO_AT == Gameplay_Timer.get_gameplay_time().round) {
+        $$.PLAYER_MOVE_NOT_YET_EXECUTED = false;
+        undo_end_frame(entity_manager);
+    }
 }

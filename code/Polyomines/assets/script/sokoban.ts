@@ -1,5 +1,4 @@
 import { Quat, Vec3, math } from "cc";
-import { Audio_Manager, Random_Audio_Group } from "./Audio_Manager";
 import { String_Builder, same_position, Const, Direction, $$, vec_add, vec_sub, array_remove } from "./Const";
 import { Entity_Manager } from "./Entity_Manager";
 import { Gameplay_Timer, gameplay_time, time_to_string } from "./Gameplay_Timer";
@@ -24,6 +23,7 @@ import { Interpolation_Phase, Visual_Interpolation } from "./interpolation";
 import { undo_end_frame } from "./undo";
 import { debug_print_quad_tree } from "./Proximity_Grid";
 import { animate } from "./Character_Data";
+import { play_sfx, random_sfx } from "./Audio_Manager";
 
 export enum Move_Type {
     CONTROLLER_PROC,
@@ -387,11 +387,7 @@ export class Player_Move extends Single_Move {
         animate(entity, "run");
 
         if (!fall_res.fell) {
-            { // @Deprecated
-                const audio = Audio_Manager.instance;
-                audio.play_sfx(audio.footstep);
-            }
-
+            play_sfx("step");
             { // @Note Check possible win
                 if (manager.pending_win) return;
                 if (!is_dirty(this.flags, Move_Flags.MOVED)) return;
@@ -403,10 +399,7 @@ export class Player_Move extends Single_Move {
 
                 if (possible_win) {
                     animate(entity, "win");
-                    { // @Deprecated
-                        const audio = Audio_Manager.instance;
-                        audio.play_sfx(audio.possible_win);
-                    }
+                    play_sfx("win?");
                 }
             }
             return 0;
@@ -642,9 +635,7 @@ class Push_Move extends Single_Move {
             entity.visually_face_towards(this.end_direction); // @Hack We are not good at lerping quats, ignore this for now...?
         }
 
-        { // @Deprecated 
-            Audio_Manager.instance.random_play_one_sfx(Random_Audio_Group.PUSH);
-        }
+        random_sfx("push");
     }
 
     complete(transaction: Move_Transaction): number {
@@ -735,9 +726,7 @@ class Falling_Move extends Single_Move {
             entity.visually_face_towards(this.end_direction); // @Hack We are not good at lerping quats, ignore this for now...?
         }
 
-        { // @Deprecated 
-            Audio_Manager.instance.random_play_one_sfx(Random_Audio_Group.DROP);
-        }
+        random_sfx("drop");
         note_entity_is_not_falling(entity);
     }
 
@@ -1183,7 +1172,6 @@ export function detect_conflicts(transaction: Move_Transaction, move: Single_Mov
  */
 export function maybe_move_trams(transaction_manager: Transaction_Manager) {
     const entity_manager = transaction_manager.entity_manager;
-    const audio = Audio_Manager.instance;
 
     if (entity_manager.pending_win) return;
     if (!entity_manager.switch_turned_on) return;
@@ -1207,7 +1195,7 @@ export function maybe_move_trams(transaction_manager: Transaction_Manager) {
     }
 
     if (at_least_one) {
-        audio.play_sfx(audio.tram_move); // @Deprecated NEW AUDIO API!!!
+        play_sfx("tram");
     }
 }
 
