@@ -104,6 +104,7 @@ export class Entity_Manager {
         for (let e of this.all_entities) {
             switch (e.entity_type) {
                 case Entity_Type.HERO:
+                case Entity_Type.AVATAR:
                     res.Hero.push(e);
                     break;
                 case Entity_Type.TRAM:

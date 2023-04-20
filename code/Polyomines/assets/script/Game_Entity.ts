@@ -1,5 +1,5 @@
 import { _decorator, Component, Enum, MeshRenderer, Vec3, Vec4, Quat } from 'cc';
-import { Const, Direction, String_Builder } from './Const';
+import { Const, Direction, String_Builder, vec_add } from './Const';
 import { Entity_Manager } from './Entity_Manager';
 import { Polygon_Entity } from './Polygon_Entity';
 import { Resource_Manager } from './Resource_Manager';
@@ -448,11 +448,7 @@ export function locate_entities_in_target_direction(m: Entity_Manager, e: Game_E
 }
 
 export function calcu_entity_future_position(e: Game_Entity, dir: Direction, step: number = 1): Vec3 {
-    const delta = DIRECTION_TO_LOGIC_VEC3[dir];
-    let o = new Vec3(e.position);
-    for (let i = 0; i < step; i++)
-        o.add(delta);
-    return o;
+    return vec_add(e.position, new Vec3(DIRECTION_TO_LOGIC_VEC3[dir]).multiplyScalar(step));
 }
 
 export function calcu_entity_future_squares(e: Game_Entity, dir: Direction, step: number = 1): Vec3[] {
@@ -523,13 +519,13 @@ export function debug_validate_tiling(manager: Entity_Manager) {
         }
     }
 
-    for (let e of manager.checkpoints) {
+    for (let e of manager.by_type.Checkpoint) {
         if (manager.locate_entities(e.position).length == 1) {
             map.set(e.position.toString(), true);
         }
     }
 
-    for (let e of manager.switches) {
+    for (let e of manager.by_type.Switch) {
         if (manager.locate_entities(e.position).length == 1) {
             map.set(e.position.toString(), true);
         }

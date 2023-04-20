@@ -31,7 +31,7 @@
       }
     ],
     "_prefab": {
-      "__id__": 25
+      "__id__": 27
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -269,9 +269,7 @@
       },
       {
         "__id__": 21
-      }
-    ],
-    "sfx_group": [
+      },
       {
         "__id__": 22
       },
@@ -279,9 +277,17 @@
         "__id__": 23
       }
     ],
-    "music": [
+    "sfx_group": [
       {
         "__id__": 24
+      },
+      {
+        "__id__": 25
+      }
+    ],
+    "music": [
+      {
+        "__id__": 26
       }
     ],
     "_id": ""
@@ -367,6 +373,22 @@
     "name": "hero!",
     "clip": {
       "__uuid__": "6c1dd34d-0757-4931-b20b-41f1c97807f5",
+      "__expectedType__": "cc.AudioClip"
+    }
+  },
+  {
+    "__type__": "Audio_Clip_Pair",
+    "name": "possess",
+    "clip": {
+      "__uuid__": "bf23d1dc-348c-445c-85c1-adb1a35d50fc",
+      "__expectedType__": "cc.AudioClip"
+    }
+  },
+  {
+    "__type__": "Audio_Clip_Pair",
+    "name": "magical",
+    "clip": {
+      "__uuid__": "2fccce65-77e2-413b-bde7-ee21431b8b98",
       "__expectedType__": "cc.AudioClip"
     }
   },

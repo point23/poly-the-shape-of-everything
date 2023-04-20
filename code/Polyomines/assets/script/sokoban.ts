@@ -24,6 +24,7 @@ import { undo_end_frame } from "./undo";
 import { debug_print_quad_tree } from "./Proximity_Grid";
 import { animate } from "./Character_Data";
 import { play_sfx, random_sfx } from "./Audio_Manager";
+import { beam } from "./Efx_Manager";
 
 export enum Move_Type {
     CONTROLLER_PROC,
@@ -249,7 +250,6 @@ export class Possess_Move extends Single_Move {
         move_info.source_entity_id = possessor.id;
         move_info.start_position = possessor.position;
         move_info.reaction_direction = possessor.orientation;
-
         super(move_info);
     }
 
@@ -258,7 +258,7 @@ export class Possess_Move extends Single_Move {
 
         const manager = transaction.entity_manager;
         const possessor = manager.find(this.source_entity_id);
-        const direction = this.end_direction;
+        const direction = this.reaction_direction;
 
         for (let step = 1, succeed = false; !succeed; step += 1) {
             const futrue_pos = calcu_entity_future_position(possessor, direction, step);
@@ -275,6 +275,7 @@ export class Possess_Move extends Single_Move {
                 }
             }
         }
+
         transaction.add_move(this);
         return true;
     }
@@ -283,16 +284,17 @@ export class Possess_Move extends Single_Move {
         const manager = transaction.entity_manager;
         const possessor = manager.find(this.target_entity_id);
         const possessed = manager.find(this.target_entity_id);
-
-        // manager.reclaim(possessor);
         possessed.entity_type = Entity_Type.AVATAR;
     }
 
     complete(transaction: Move_Transaction): number {
         const manager = transaction.entity_manager;
         const possessor = manager.find(this.source_entity_id);
-        animate(possessor, "action");
-        // @ImplementMe Possessed VFX
+        animate(possessor, "action", 20, 1);
+        play_sfx("possess");
+        play_sfx("magical");
+        //@ImplementMe Possessed VFX
+
         return 0;
     }
 
@@ -305,25 +307,10 @@ export class Possess_Move extends Single_Move {
             this.execute_in_preorder(transaction);
         }
 
-        { // Start visual interpolation stuff
-            let phases: Interpolation_Phase[] = [];
-
-            this.start_visual_position = manager.proximity_grid.local2world(possessor.position);
-            this.end_visual_position = manager.proximity_grid.local2world(possessed.position);
-
-            const p_start = possessor.visual_position;
-            const p_end = new Vec3();
-            Vec3.lerp(p_end, this.start_visual_position, this.end_visual_position, ratio);
-            const p_1 = Interpolation_Phase.movement(0.3, p_start, p_end);
-            phases.push(p_1);
-
-            const t_start = Gameplay_Timer.get_gameplay_time();
-            const t_end = Gameplay_Timer.get_gameplay_time(1);
-            const v = new Visual_Interpolation(this, possessor, t_start, t_end, phases);
-        }
+        beam(manager.proximity_grid.local2world(possessor.position), manager.proximity_grid.local2world(possessed.position), Const.PLAYER_ACTION_DURATION);
 
         if (ratio == 1) {
-            const f = this.complete_in_postorder(transaction);
+            this.complete_in_postorder(transaction);
         }
     }
 
@@ -1250,7 +1237,7 @@ export function generate_player_move(transaction_manager: Transaction_Manager, e
     if (transaction_manager.new_transaction(new Player_Move(hero, direction, step), Const.PLAYER_MOVE_DURATION)) {
         $$.PLAYER_MOVE_NOT_YET_EXECUTED = true;
         $$.SHOULD_DO_UNDO_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_MOVE_DURATION;
-        animate(entity_manager.active_hero, "run");
+        // animate(entity_manager.active_hero, "run");
 
         // console.log(time_to_string(Gameplay_Timer.get_gameplay_time()));
 
@@ -1262,13 +1249,15 @@ export function generate_player_move(transaction_manager: Transaction_Manager, e
 export function generate_player_action(transaction_manager: Transaction_Manager, entity_manager: Entity_Manager) {
     const hero = entity_manager.active_hero;
 
-    // @Incomplete Now we only support the player elvis!!!
+    // @Incomplete Now we only support the character-elvis!!!
 
     if (transaction_manager.new_transaction(new Possess_Move(hero))) {
         $$.PLAYER_MOVE_NOT_YET_EXECUTED = true;
-        $$.SHOULD_DO_UNDO_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_MOVE_DURATION;
+        $$.SHOULD_DO_UNDO_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_ACTION_DURATION;
         // Update transaction control flags
         transaction_manager.control_flags |= Transaction_Control_Flags.ACTION_MOVE;
+    } else {
+        play_sfx("wrong");
     }
 }
 

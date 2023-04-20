@@ -159,9 +159,8 @@ export class Visual_Interpolation {
     }
 
     #last_phase_end_at = 0;
-    process() {
+    update() {
         const entity = this.entity;
-
         let ratio = 0;
         if (this.parent) {
             ratio = this.parent.current_ratio; // @Note Sync with the parent.

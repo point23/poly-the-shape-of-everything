@@ -7,7 +7,6 @@ export enum Direction {
     RIGHT,
     FORWARD,
     BACKWORD, // @FixmeHard coded order for now?
-
     UP,
     DOWN,
 }
@@ -284,6 +283,7 @@ export class Const {
     static SUPPORTEE_PIORITY_DOWNGRADE_FACTOR = 0.9;
 
     static PLAYER_MOVE_DURATION: number = 1;
+    static PLAYER_ACTION_DURATION: number = 10;
     static FALLING_MOVE_DURATION: number = 1;
 
     static JOYSTICK_DEADZONE = 0.05;

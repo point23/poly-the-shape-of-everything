@@ -1,6 +1,7 @@
 import { _decorator, Component, Game, Vec2 } from 'cc';
 import { $$, Const } from './Const';
 import { Visual_Interpolation } from './interpolation';
+import { Efx_Manager } from './Efx_Manager';
 
 export function time_to_string(t: gameplay_time) {
     return `${t.round}-${t.tick}`
@@ -25,13 +26,19 @@ export class Gameplay_Timer {
         });
 
         Visual_Interpolation.running_interpolations.clear(); // @Fixme Move it to somewhere else, maybe Entity_Manager?
+        Efx_Manager.instance.running_mechanisms = []; // @Fixme Move it to somewhere else, maybe Entity_Manager?
     }
 
     static now(): number {
         return Gameplay_Timer.running_idx;
     }
 
-    static compare(a: gameplay_time, b: gameplay_time): number {
+    static compare(a: gameplay_time, b: gameplay_time = Gameplay_Timer.get_gameplay_time()): number {
+        // @Note 
+        //  1: a > b
+        //  0: a = b
+        // -1: a < b 
+
         if (a.round > b.round) return 1;
         if (a.round < b.round) return -1;
         if (a.tick > b.tick) return 1;
@@ -53,7 +60,7 @@ export class Gameplay_Timer {
     }
 
     static calcu_delta_rounds(start: gameplay_time, end: gameplay_time = this.get_gameplay_time()): number {
-        if (start.round > end.round) { // @Incomplete We need to compare them.
+        if (this.compare(start, end) == 1) {
             return (Gameplay_Timer.ROUND_BOUNDS - start.round) + end.round;
         }
 
@@ -63,8 +70,8 @@ export class Gameplay_Timer {
     static calcu_delta_ticks(start: gameplay_time, end: gameplay_time = this.get_gameplay_time()): number {
         const ticks_per_round = Const.TICKS_PER_ROUND[$$.DURATION_IDX];
 
-        if (start.round > end.round) { // @Incomplete We need to compare them.
-            return 0;
+        if (this.compare(start, end) == 1) {
+            return -this.calcu_delta_ticks(end, start);
         }
 
         return (end.round - start.round - 1) * ticks_per_round + (ticks_per_round - start.tick) + end.tick;
@@ -107,7 +114,10 @@ export class Gameplay_Timer {
             if ($$.IS_RUNNING) {
                 tick_callbacks.forEach(it => it());
                 for (let i of Visual_Interpolation.running_interpolations.values()) {
-                    i.process();
+                    i.update();
+                }
+                for (let m of Efx_Manager.instance.running_mechanisms) {
+                    m.update();
                 }
             }
 

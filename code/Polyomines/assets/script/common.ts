@@ -54,6 +54,10 @@ export function per_round_animation_update(entity: Game_Entity) {
         if (node.name == "victory") {
             animate(entity, "activate");
         }
+
+        if (node.name == "action") {
+            animate(entity, "activate");
+        }
     }
 
     if (state.node.name == "active") {
