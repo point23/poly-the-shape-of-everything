@@ -11,7 +11,7 @@ import { Resource_Manager } from './Resource_Manager';
 import { maybe_move_trams } from './sokoban';
 import { Transaction_Manager } from './Transaction_Manager';
 import { Game_Pause_Panel } from './ui/Game_Pause_Panel';
-import { Show_Hide_Type, UI_Manager } from './UI_Manager';
+import { Show_Hide_Type, UI_Manager, type } from './UI_Manager';
 import { Undo_Handler, undo_end_frame } from './undo';
 import { make_human_animation_graph } from './Character_Data';
 import { init_animations, per_round_animation_update, process_inputs, update_inputs } from './common';
@@ -20,7 +20,6 @@ const { ccclass, property } = _decorator;
 @ccclass('Main')
 export class Main extends Component {
     static instance: Main;
-
     @property(Camera3D_Controller) camera3d_controller: Camera3D_Controller = null;
     @property(Resource_Manager) resource_manager: Resource_Manager = null;
     @property(Transaction_Manager) transaction_manager: Transaction_Manager = null;
@@ -208,6 +207,14 @@ function init(game: Main) {
             play_music("intro");
             $$.STARTUP = false;
 
+            { // Click to start
+                const e = new EventHandler();
+                e.target = game.node;
+                e.component = 'Main';
+                e.handler = 'click_anywhere_to_start';
+                game.dummy_panel.clickEvents.push(e);
+            }
+
             ui.show_and_hide({
                 target: game.dim,
                 show_delay: 0,
@@ -224,35 +231,11 @@ function init(game: Main) {
                 show_duration: 2,
                 type: Show_Hide_Type.FADE,
                 callback: () => {
-                    // @Todo Maybe i should chained them together?
-
-                    ui.typer({
-                        label: game.label_credit_in_title,
-                        content: "A game by point23",
-                        show_delay: 0,
-                        duration: 2,
-                        hide_delay: Infinity,
-                        callback: () => {
-
-                            ui.typer({
-                                label: game.label_press_any_xx_to_start,
-                                content: "Click anywhere to start",
-                                show_delay: 0,
-                                duration: 3,
-                                hide_delay: Infinity,
-                                callback: () => {
-                                    { // @Note Click the touch panel
-                                        const e = new EventHandler();
-                                        e.target = game.node;
-                                        e.component = 'Main';
-                                        e.handler = 'click_anywhere_to_start';
-                                        game.dummy_panel.clickEvents.push(e);
-                                        game.dummy_panel.node.active = true;
-                                    }
-                                },
-                            })
-                        },
-                    });
+                    const typer_0 = type(game.label_credit_in_title, "A game by point23.", 0, 2, Infinity);
+                    const typer_1 = type(game.label_press_any_xx_to_start, "Click anywhere to start", 0, 3, Infinity);
+                    typer_1.on_complete = () => { game.dummy_panel.node.active = true; };
+                    typer_0.successor = typer_1;
+                    typer_0.execute();
                 }
             });
         } else {
@@ -328,8 +311,10 @@ function main_loop() {
 
     process_inputs();
 
-    for (let e of entity_manager.by_type.Hero) {
-        per_round_animation_update(e);
+    if (entity_manager) {
+        for (let e of entity_manager?.by_type.Hero) {
+            per_round_animation_update(e);
+        }
     }
 
     if ($$.IS_RUNNING && !$$.DOING_UNDO && !$$.RELOADING) {

@@ -289,7 +289,8 @@ export class Possess_Move extends Single_Move {
         note_entity_is_in_control(possessed);
         note_entity_is_not_in_control(possessor);
 
-        beam(manager.proximity_grid.local2world(possessor.position), manager.proximity_grid.local2world(possessed.position), Const.PLAYER_ACTION_DURATION);
+        beam(manager.proximity_grid.local2world(possessor.position), manager.proximity_grid.local2world(possessed.position), 4);
+        // beam(manager.proximity_grid.local2world(possessor.position), manager.proximity_grid.local2world(possessed.position), Const.PLAYER_ACTION_DURATION);
     }
 
     complete(transaction: Move_Transaction): number {
@@ -298,7 +299,6 @@ export class Possess_Move extends Single_Move {
         animate(possessor, "action", 18, 1);
         animate(possessor, "inactivate", 3, 19);
         play_sfx("possess");
-        play_sfx("magical");
         return 0;
     }
 
@@ -1260,8 +1260,7 @@ export function generate_player_action(transaction_manager: Transaction_Manager,
             }
             note_entity_is_in_control(hero);
             animate(hero, "activate");
-            play_sfx("possess");
-            play_sfx("magical");
+            play_sfx("nopossess");
         } else if (transaction_manager.new_transaction(new Possess_Move(hero))) {
             $$.PLAYER_MOVE_NOT_YET_EXECUTED = true;
             $$.SHOULD_DO_UNDO_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_ACTION_DURATION;
@@ -1271,7 +1270,6 @@ export function generate_player_action(transaction_manager: Transaction_Manager,
             play_sfx("wrong");
         }
     }
-
 }
 
 export function is_a_board_like_entity(e: Game_Entity): boolean {

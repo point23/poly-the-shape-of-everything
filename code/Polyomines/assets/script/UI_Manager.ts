@@ -1,5 +1,99 @@
-import { _decorator, Component, tween, Node, Sprite, Color, sp, UITransform, Vec2, Vec3, Label, } from 'cc';
-const { ccclass, property } = _decorator;
+import { _decorator, Component, tween, Node, Sprite, Color, sp, UITransform, Vec2, Vec3, Label, Tween, } from 'cc';
+const { ccclass } = _decorator;
+
+export abstract class UI_Mechanism {
+    show_delay: number = 0;
+    duration: number;
+    hide_delay: number = 0;
+    successor: UI_Mechanism = null;
+    tween: Tween<any> = null;
+
+    execute(): void {
+        this.#begin();
+        const t = this.tween = this.post_execute();
+
+        if (t) {
+            t.call(() => {
+                this.#end();
+                this.successor?.execute();
+            });
+
+            t.start();
+        }
+    }
+
+    suspend() {
+        // @ImplementMe !!! 
+    }
+
+    terminate() {
+        this.tween.stop();
+    }
+
+    #begin() {
+        this.post_begin();
+        this.on_start();
+    }
+    #end() {
+        this.post_end();
+        this.on_complete();
+    }
+
+    // Type specific methods
+    post_begin(): void { }
+    post_end(): void { }
+    post_execute(): Tween<any> {
+        return null;
+    }
+
+    on_start(): void { }
+    on_complete(): void { }
+}
+
+type typer_tween = { idx: number };
+export class Typer extends UI_Mechanism {
+    label: Label = null;
+    content: string = "";
+    should_hide: boolean = true;
+
+    post_begin(): void {
+        this.label.node.active = true;
+    }
+    post_end(): void {
+        const should_hide = this.should_hide;
+        const label = this.label;
+
+        if (should_hide) {
+            label.string = "";
+            label.node.active = false;
+        } else {
+            label.string = label.string.substring(0, label.string.length - 1);
+        }
+    }
+
+    post_execute(): Tween<any> {
+        const label = this.label;
+        const duration = this.duration;
+        const show_delay = this.show_delay;
+        this.should_hide = this.hide_delay != Infinity;
+        const hide_delay = this.should_hide ? this.hide_delay : 0;
+        const content = this.content;
+
+        const i = { idx: 0 };
+        return tween(i)
+            .delay(show_delay)
+            .to(duration,
+                {
+                    idx: content.length,
+                },
+                {
+                    onUpdate(t: typer_tween) {
+                        label.string = content.substring(0, t.idx) + '|';
+                    }
+                })
+            .delay(hide_delay);
+    }
+}
 
 export enum Show_Hide_Type {
     FADE,
@@ -39,6 +133,17 @@ type typer_info = {
     duration: number,
     hide_delay: number,
     callback: () => void,
+}
+
+// === UI_MECHANISMS API === 
+export function type(target: Label, content: string, show_delay: number, duration: number, hide_delay: number): UI_Mechanism {
+    const t = new Typer();
+    t.label = target;
+    t.content = content;
+    t.show_delay = show_delay;
+    t.hide_delay = hide_delay;
+    t.duration = duration;
+    return t;
 }
 
 @ccclass('UI_Manager')
@@ -87,7 +192,6 @@ export class UI_Manager extends Component {
         switch (info.type) {
             case Show_Hide_Type.FADE: {
                 info.target.active = true;
-
                 // @Note Here we had asume that it's initial colored.
                 const sprite = info.target.getComponent(Sprite);
                 const show_color = new Color().set(sprite.color);

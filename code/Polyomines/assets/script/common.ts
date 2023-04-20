@@ -1,5 +1,4 @@
-import { EditBox, _decorator, } from 'cc';
-import { play_sfx } from './Audio_Manager';
+import { _decorator, } from 'cc';
 import { init_animation_state, human_animation_graph, animate, Character_Data } from './Character_Data';
 import { $$, Const, Direction, array_remove } from './Const';
 import { Entity_Manager } from './Entity_Manager';
@@ -37,11 +36,13 @@ export function per_round_animation_update(entity: Game_Entity) {
         }
     }
 
+    // @Note There're some input related animation update.
     const input: Game_Input = Input_Manager.instance.game_input;
+    if (!input) return;
+
     state.elapsed += 1;
     if (state.elapsed >= state.duration) {
         if (node.name == "run" || node.name == "push") {
-            // @Note Input related animation update
             if (!input.keep_pressing_moving_btn()) {
                 animate(entity, "stop");
             }

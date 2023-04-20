@@ -356,7 +356,7 @@
     "__type__": "Audio_Clip_Pair",
     "name": "win!",
     "clip": {
-      "__uuid__": "783c61bc-060f-41ee-9460-e35089a9e0d4",
+      "__uuid__": "781b991e-3a40-4cf9-9d48-17aa0bc6370a",
       "__expectedType__": "cc.AudioClip"
     }
   },
@@ -380,15 +380,15 @@
     "__type__": "Audio_Clip_Pair",
     "name": "possess",
     "clip": {
-      "__uuid__": "bf23d1dc-348c-445c-85c1-adb1a35d50fc",
+      "__uuid__": "989fd79d-e69b-444c-8534-d93583d85d42",
       "__expectedType__": "cc.AudioClip"
     }
   },
   {
     "__type__": "Audio_Clip_Pair",
-    "name": "magical",
+    "name": "nopossess",
     "clip": {
-      "__uuid__": "2fccce65-77e2-413b-bde7-ee21431b8b98",
+      "__uuid__": "ccc083e4-0ca0-46c3-b96a-ca680e515d8e",
       "__expectedType__": "cc.AudioClip"
     }
   },
