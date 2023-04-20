@@ -154,8 +154,11 @@ function main_loop() {
     const entity_manager = Entity_Manager.current;
 
     process_inputs();
-    if ($$.IS_RUNNING)
-        per_round_animation_update(entity_manager?.active_hero);
+    if ($$.IS_RUNNING) {
+        for (let e of entity_manager.by_type.Hero) {
+            per_round_animation_update(e);
+        }
+    }
 
     if ($$.IS_RUNNING && !$$.DOING_UNDO && !$$.RELOADING) {
         if (entity_manager.pending_win) {

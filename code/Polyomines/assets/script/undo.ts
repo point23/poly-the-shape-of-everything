@@ -12,8 +12,9 @@ import {
 } from "./Game_Entity";
 import { Level_Editor } from "./Level_Editor";
 import { debug_print_quad_tree } from "./Proximity_Grid";
-import { Vec2 } from "cc";
 import { Visual_Interpolation } from "./interpolation";
+import { Efx_Manager } from "./Efx_Manager";
+import { play_sfx } from "./Audio_Manager";
 
 export class Undo_Handler {
     manager: Entity_Manager = null;
@@ -32,7 +33,6 @@ export class Undo_Handler {
 export class Undo_Record {
     // checkpoint: boolean = false;
     gameplay_time: gameplay_time = null;
-    active_hero_idx: number = 0;
     transaction: string = '';
 }
 
@@ -64,7 +64,7 @@ export function undo_mark_beginning(manager: Entity_Manager) {
     }
 }
 
-export function undo_end_frame(manager: Entity_Manager) {
+export function undo_end_frame(manager: Entity_Manager, force: boolean = false) { // @Hack Maybe set active hero id as a flag?
     const undo = manager.undo_handler;
     if (!undo.enabled) return;
 
@@ -75,7 +75,6 @@ export function undo_end_frame(manager: Entity_Manager) {
     undo.redo_records.clear();
 
     const record = new Undo_Record();
-    record.active_hero_idx = manager.active_hero_idx;
     record.gameplay_time = Gameplay_Timer.get_gameplay_time();
     // record.checkpoint = $.take($.S_next_undo_record_is_checkpoint);
 
@@ -85,7 +84,8 @@ export function undo_end_frame(manager: Entity_Manager) {
 
     num_changes += undo.pending_creations.length;
     num_changes += undo.pending_destructions.length;
-    if (num_changes == 0)
+
+    if (num_changes == 0 && !force)
         return;
 
     undo.dirty = true;
@@ -119,17 +119,20 @@ export function undo_end_frame(manager: Entity_Manager) {
 }
 
 export function do_one_undo(manager: Entity_Manager) {
+    $$.DOING_UNDO = true;
+
     const undo = manager.undo_handler;
-    if (undo.undo_records.empty()) return;
+    if (undo.undo_records.empty()) {
+        play_sfx("wrong");
+        return;
+    }
+    play_sfx("undo");
 
     Visual_Interpolation.running_interpolations.clear(); // @Fixme Move it to somewhere else, maybe Entity_Manager?
+    Efx_Manager.instance.running_mechanisms = []; // @Fixme Move it to somewhere else, maybe Entity_Manager?
 
     const record = undo.undo_records.pop();
-    if (!$$.FOR_EDITING) {
-        Gameplay_Timer.set_gameplay_time(record.gameplay_time);
-        manager.switch_hero(record.active_hero_idx);
-    }
-
+    Gameplay_Timer.set_gameplay_time(record.gameplay_time);
     really_do_one_undo(manager, record, false);
     undo.redo_records.push(record);
 
@@ -141,10 +144,8 @@ export function do_one_redo(manager: Entity_Manager) {
     if (undo.redo_records.empty()) return;
 
     const record = undo.redo_records.pop();
-    if (!$$.FOR_EDITING) {
-        Gameplay_Timer.set_gameplay_time(record.gameplay_time);
-        manager.switch_hero(record.active_hero_idx);
-    }
+    Gameplay_Timer.set_gameplay_time(record.gameplay_time);
+
     really_do_one_undo(manager, record, true);
     undo.undo_records.push(record);
 

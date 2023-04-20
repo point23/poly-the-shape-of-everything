@@ -8,16 +8,19 @@ export enum Animation_Messsage {
     INACTIVATE = "inactivate",
 }
 
+type defered_transition = {
+    delay: number,
+    durtion: number,
+    msg: string,
+}
+
 class Animation_State {
     node: Animation_Node = null;
     duration: number = 0;
     elapsed: number = 0;
 
     // Deferred Transition...
-    contains_deferred_transition: boolean = false;
-    deferred_rounds: number = 0;
-    deferred_duration: number = 0;
-    deferred_msg: string = "";
+    defered_transitions: defered_transition[] = [];
 }
 
 class Animation_Node {
@@ -47,7 +50,7 @@ export class Animation_Graph {
     nodes: Map<string, Animation_Node> = new Map();
 }
 
-const default_anim_duration: number = 4; // @Note 0.01 * 8 * 4 ≈ 0.32s 
+const default_anim_duration: number = 3; // @Note 0.01 * 8 * 4 ≈ 0.32s 
 export const human_animation_graph: Animation_Graph = new Animation_Graph();
 
 export function make_human_animation_graph() {
@@ -91,10 +94,11 @@ export function animate(entity: Game_Entity, msg: string, duration: number = def
     if (!c.anim_state) return;
 
     if (delay != 0) {
-        c.anim_state.contains_deferred_transition = true;
-        c.anim_state.deferred_rounds = delay;
-        c.anim_state.deferred_msg = msg;
-        c.anim_state.deferred_duration = duration;
+        c.anim_state.defered_transitions.push({
+            delay: delay,
+            durtion: duration,
+            msg: msg,
+        })
         return;
     }
 

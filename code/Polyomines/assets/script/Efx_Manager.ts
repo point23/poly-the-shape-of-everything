@@ -1,4 +1,4 @@
-import { _decorator, Component, math, MeshRenderer, Node, Vec3 } from 'cc';
+import { _decorator, Component, math, Node, Vec3 } from 'cc';
 import { $$, array_remove, Const, vec_add, vec_sub } from './Const';
 import { Game_Entity } from './Game_Entity';
 import { gameplay_time, Gameplay_Timer } from './Gameplay_Timer';

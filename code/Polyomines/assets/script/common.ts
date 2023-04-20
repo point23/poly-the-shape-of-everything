@@ -1,7 +1,7 @@
-import { _decorator, } from 'cc';
+import { EditBox, _decorator, } from 'cc';
 import { play_sfx } from './Audio_Manager';
 import { init_animation_state, human_animation_graph, animate, Character_Data } from './Character_Data';
-import { $$, Const, Direction } from './Const';
+import { $$, Const, Direction, array_remove } from './Const';
 import { Entity_Manager } from './Entity_Manager';
 import { Level_Editor } from './Level_Editor';
 import { Main } from './Main';
@@ -9,8 +9,8 @@ import { Transaction_Manager } from './Transaction_Manager';
 import { Game_Input, Game_Button, Button_State } from './input/Game_Input_Handler';
 import { Input_Manager } from './input/Input_Manager';
 import { generate_player_action, generate_player_move } from './sokoban';
-import { do_one_undo } from './undo';
-import { Game_Entity } from './Game_Entity';
+import { do_one_undo, undo_end_frame } from './undo';
+import { Game_Entity, get_hero_info } from './Game_Entity';
 
 export function init_animations() {
     const entity_manager = Entity_Manager.current;
@@ -25,23 +25,23 @@ export function per_round_animation_update(entity: Game_Entity) {
     if (!human_animation_graph.available) return;
     const c = entity?.getComponent(Character_Data);
     if (!c) return;
-
     const state = c.anim_state;
     const node = c.anim_state.node;
 
-    if (state.contains_deferred_transition) {
-        state.deferred_rounds -= 1;
-        if (state.deferred_rounds == 0) {
-            state.contains_deferred_transition = false;
-            animate(entity, state.deferred_msg, state.deferred_duration);
+    for (let t of state.defered_transitions) {
+        t.delay -= 1;
+        if (t.delay == 0) {
+            array_remove(state.defered_transitions, t);
+            animate(entity, t.msg, t.durtion);
+            return;
         }
-        return;
     }
 
     const input: Game_Input = Input_Manager.instance.game_input;
     state.elapsed += 1;
     if (state.elapsed >= state.duration) {
         if (node.name == "run" || node.name == "push") {
+            // @Note Input related animation update
             if (!input.keep_pressing_moving_btn()) {
                 animate(entity, "stop");
             }
@@ -61,8 +61,18 @@ export function per_round_animation_update(entity: Game_Entity) {
     }
 
     if (state.node.name == "active") {
-        if (input.keep_pressing_moving_btn() && input.buffered_player_moves.empty()) {
+        if (entity.is_in_control && input.keep_pressing_moving_btn() && input.buffered_player_moves.empty()) {
             animate(entity, "run");
+        }
+
+        if (!get_hero_info(entity)?.is_active) {
+            animate(entity, "inactivate");
+        }
+    }
+
+    if (state.node.name == "inactive") {
+        if (entity.is_in_control && get_hero_info(entity)?.is_active) {
+            animate(entity, "activate");
         }
     }
 }
@@ -99,18 +109,7 @@ export function process_inputs() {
         }
 
         if (button == Game_Button.UNDO) {
-            $$.DOING_UNDO = true;
             do_one_undo(entity_manager);
-            play_sfx("undo");
-        }
-
-        if (button == Game_Button.SWITCH_HERO) {
-            if (entity_manager.num_heros == 1) {
-                play_sfx("wrong");
-            } else {
-                entity_manager.switch_hero();
-                play_sfx("hero!");
-            }
         }
 
         // @Fixme There might be other types of  buttons.
@@ -143,6 +142,11 @@ export function process_inputs() {
 
         if (button == Game_Button.ACTION) {
             generate_player_action(transaction_manager, entity_manager);
+        }
+
+        if (button == Game_Button.SWITCH_HERO) {
+            entity_manager.switch_hero();
+            undo_end_frame(entity_manager, true);
         }
 
         /* 

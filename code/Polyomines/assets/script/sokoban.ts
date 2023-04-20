@@ -17,11 +17,12 @@ import {
     set_tram_info,
     note_entity_is_falling,
     note_entity_is_not_falling,
+    note_entity_is_in_control,
+    note_entity_is_not_in_control,
 } from "./Game_Entity";
 import { Transaction_Control_Flags, Transaction_Manager } from "./Transaction_Manager";
 import { Interpolation_Phase, Visual_Interpolation } from "./interpolation";
 import { undo_end_frame } from "./undo";
-import { debug_print_quad_tree } from "./Proximity_Grid";
 import { animate } from "./Character_Data";
 import { play_sfx, random_sfx } from "./Audio_Manager";
 import { beam } from "./Efx_Manager";
@@ -282,32 +283,33 @@ export class Possess_Move extends Single_Move {
 
     execute(transaction: Move_Transaction): void {
         const manager = transaction.entity_manager;
-        const possessor = manager.find(this.target_entity_id);
+        const possessor = manager.find(this.source_entity_id);
         const possessed = manager.find(this.target_entity_id);
-        possessed.entity_type = Entity_Type.AVATAR;
+
+        note_entity_is_in_control(possessed);
+        note_entity_is_not_in_control(possessor);
+
+        beam(manager.proximity_grid.local2world(possessor.position), manager.proximity_grid.local2world(possessed.position), Const.PLAYER_ACTION_DURATION);
     }
 
     complete(transaction: Move_Transaction): number {
         const manager = transaction.entity_manager;
         const possessor = manager.find(this.source_entity_id);
-        animate(possessor, "action", 20, 1);
+        animate(possessor, "action", 18, 1);
+        animate(possessor, "inactivate", 3, 19);
         play_sfx("possess");
         play_sfx("magical");
-        //@ImplementMe Possessed VFX
-
         return 0;
     }
 
     update(transaction: Move_Transaction, ratio: number) { // @Note The ratio param should been clamped by caller.'
-        const manager = transaction.entity_manager;
-        const possessor = manager.find(this.source_entity_id);
-        const possessed = manager.find(this.target_entity_id);
+        // const manager = transaction.entity_manager;
+        // const possessor = manager.find(this.source_entity_id);
+        // const possessed = manager.find(this.target_entity_id);
 
         if (ratio >= 0.5) {
             this.execute_in_preorder(transaction);
         }
-
-        beam(manager.proximity_grid.local2world(possessor.position), manager.proximity_grid.local2world(possessed.position), Const.PLAYER_ACTION_DURATION);
 
         if (ratio == 1) {
             this.complete_in_postorder(transaction);
@@ -346,11 +348,11 @@ export class Player_Move extends Single_Move {
             if (same_direction(d_start, d_end)) return false;
             // @Incomplete Need some turn-left, turn-right animation?
 
-            set_dirty(move, Move_Flags.ROTATED);
-            if (entity.entity_type != Entity_Type.AVATAR) {
+            if (entity.entity_type == Entity_Type.HERO) {
+                set_dirty(move, Move_Flags.ROTATED);
             } else {
                 // @ImplementMe  Avators would only rotate it's indicator
-
+                return false;
             }
 
             return true;
@@ -427,7 +429,7 @@ export class Player_Move extends Single_Move {
                 if (!is_dirty(this.flags, Move_Flags.MOVED)) return;
                 let possible_win = false;
                 for (let s of manager.locate_current_supporters(entity)) {
-                    if (s.entity_type == Entity_Type.CHECKPOINT) possible_win = true;
+                    if (s.entity_type == Entity_Type.CHECKPOINT && s.prefab == "Checkpoint#001") possible_win = true;
                 }
 
                 if (possible_win) {
@@ -1233,32 +1235,43 @@ export function maybe_move_trams(transaction_manager: Transaction_Manager) {
 }
 
 export function generate_player_move(transaction_manager: Transaction_Manager, entity_manager: Entity_Manager, direction: Direction, step: number = 1) {
-    const hero = entity_manager.active_hero;
-    if (transaction_manager.new_transaction(new Player_Move(hero, direction, step), Const.PLAYER_MOVE_DURATION)) {
+    let at_least_one_move_enacted = false;
+    for (let e of entity_manager.entities_in_control) {
+        if (transaction_manager.new_transaction(new Player_Move(e, direction, step), Const.PLAYER_MOVE_DURATION)) {
+            at_least_one_move_enacted = true;
+        }
+    }
+
+    if (at_least_one_move_enacted) {
         $$.PLAYER_MOVE_NOT_YET_EXECUTED = true;
         $$.SHOULD_DO_UNDO_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_MOVE_DURATION;
-        // animate(entity_manager.active_hero, "run");
-
         // console.log(time_to_string(Gameplay_Timer.get_gameplay_time()));
-
-        // Update transaction control flags
         transaction_manager.control_flags |= Transaction_Control_Flags.PLAYER_MOVE;
     }
 }
 
 export function generate_player_action(transaction_manager: Transaction_Manager, entity_manager: Entity_Manager) {
     const hero = entity_manager.active_hero;
-
     // @Incomplete Now we only support the character-elvis!!!
-
-    if (transaction_manager.new_transaction(new Possess_Move(hero))) {
-        $$.PLAYER_MOVE_NOT_YET_EXECUTED = true;
-        $$.SHOULD_DO_UNDO_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_ACTION_DURATION;
-        // Update transaction control flags
-        transaction_manager.control_flags |= Transaction_Control_Flags.ACTION_MOVE;
-    } else {
-        play_sfx("wrong");
+    if (hero.prefab == "Elvis") {
+        if (!hero.is_in_control) {
+            for (let e of entity_manager.entities_in_control) {
+                note_entity_is_not_in_control(e);
+            }
+            note_entity_is_in_control(hero);
+            animate(hero, "activate");
+            play_sfx("possess");
+            play_sfx("magical");
+        } else if (transaction_manager.new_transaction(new Possess_Move(hero))) {
+            $$.PLAYER_MOVE_NOT_YET_EXECUTED = true;
+            $$.SHOULD_DO_UNDO_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_ACTION_DURATION;
+            // Update transaction control flags
+            transaction_manager.control_flags |= Transaction_Control_Flags.ACTION_MOVE;
+        } else {
+            play_sfx("wrong");
+        }
     }
+
 }
 
 export function is_a_board_like_entity(e: Game_Entity): boolean {

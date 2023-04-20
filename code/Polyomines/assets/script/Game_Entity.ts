@@ -1,4 +1,4 @@
-import { _decorator, Component, Enum, MeshRenderer, Vec3, Vec4, Quat } from 'cc';
+import { _decorator, Component, Enum, MeshRenderer, Vec3, Vec4, Quat, ShadowFlow } from 'cc';
 import { Const, Direction, String_Builder, vec_add } from './Const';
 import { Entity_Manager } from './Entity_Manager';
 import { Polygon_Entity } from './Polygon_Entity';
@@ -18,6 +18,7 @@ export enum Entity_Flags {
     SELECT = 1 << 1,
     DEAD = 1 << 3,
     FALLING = 1 << 4,
+    IN_CONTROL = 1 << 5,
 }
 
 export function same_direction(d1: Direction, d2: Direction) {
@@ -218,6 +219,7 @@ export class Game_Entity extends Component {
     get is_valid(): boolean { return (this.flags & Entity_Flags.INVALID) == 0; }
     get is_selected(): boolean { return (this.flags & Entity_Flags.SELECT) != 0; }
     get is_falling(): boolean { return (this.flags & Entity_Flags.FALLING) != 0; }
+    get is_in_control(): boolean { return (this.flags & Entity_Flags.IN_CONTROL) != 0; }
 
     visually_move_to(world_pos: Vec3) {
         this.node.setPosition(world_pos);
@@ -336,6 +338,18 @@ export function note_entity_is_deselected(e: Game_Entity) {
     mat.setProperty('mainColor', color);
 }
 
+export function note_entity_is_in_control(e: Game_Entity) {
+    if (!e.is_in_control) {
+        e.undoable.flags |= Entity_Flags.IN_CONTROL;
+    }
+}
+
+export function note_entity_is_not_in_control(e: Game_Entity) {
+    if (e.is_in_control) {
+        e.undoable.flags -= Entity_Flags.IN_CONTROL;
+    }
+}
+
 // === Derived Class ===
 export function get_entrance_id(e: Game_Entity): number {
     if (e.entity_type != Entity_Type.ENTRANCE) return;
@@ -370,6 +384,30 @@ export function set_tram_info(e: Game_Entity, i: tram_info) {
     slot.x = i.freq;
     slot.y = i.counter;
     e.undoable.customized_slot_0 = slot;
+}
+
+export type hero_info = {
+    is_active: boolean;
+}
+
+export function set_hero_info(e: Game_Entity, i: hero_info) {
+    if (e.entity_type != Entity_Type.HERO) return;
+
+    const slot = new Vec4(); // @Optimize
+    if (i.is_active) {
+        slot.x = 1;
+    } else {
+        // ...
+    }
+    e.undoable.customized_slot_0 = slot;
+}
+
+export function get_hero_info(e: Game_Entity): hero_info {
+    if (e.entity_type != Entity_Type.HERO) return;
+
+    return {  // @Optimize
+        is_active: e.undoable.customized_slot_0.x == 1,
+    }
 }
 
 // === Calculation === 

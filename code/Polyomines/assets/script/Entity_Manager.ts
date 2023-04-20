@@ -12,13 +12,18 @@ import {
     clone_undoable_data,
     set_entrance_id as set_entrance_idx,
     get_entrance_id as get_entrance_idx,
-    set_tram_info
+    set_tram_info,
+    note_entity_is_not_in_control,
+    note_entity_is_in_control,
+    get_hero_info,
+    set_hero_info
 } from './Game_Entity';
 import { debug_print_quad_tree, Proximity_Grid } from './Proximity_Grid';
 import { Resource_Manager } from './Resource_Manager';
 import { is_a_board_like_entity } from './sokoban';
 import { Undo_Handler } from './undo';
 import { animate } from './Character_Data';
+import { play_sfx } from './Audio_Manager';
 
 type entities_by_type = {
     Hero: Game_Entity[];
@@ -43,44 +48,61 @@ export class Entity_Manager {
 
     // HERO STUFF
     get active_hero(): Game_Entity {
-        return this.by_type.Hero[this.active_hero_idx];
+        for (let h of this.by_type.Hero) {
+            if (get_hero_info(h).is_active) {
+                return h;
+            }
+        }
+
+        return null;
     };
 
-    active_hero_idx: number = 0;
-    get num_heros(): number { return this.by_type.Hero.length; }
-    switch_hero(i: number = -1) {
-        let switched: boolean = true;
-        let idx = this.active_hero_idx;
-        if (i != -1) {
-            switched = i != idx;
-            idx = i;
-        } else {
-            idx = (idx + 1) % this.num_heros;
+    get entities_in_control(): Game_Entity[] { // @Optimize!!!
+        const res = [];
+        for (let e of this.all_entities) {
+            if (e.is_in_control) {
+                res.push(e);
+            }
+        }
+        return res;
+    }
+
+    switch_hero(id: number = -1) {
+        if (id == this.active_hero?.id) return;
+        const heros = this.by_type.Hero;
+        if (heros.length == 1) {
+            play_sfx("wrong");
+            return;
         }
 
-        if (switched) {
-            animate(this.active_hero, "inactivate");
-            this.active_hero_idx = idx;
-            animate(this.active_hero, "activate");
-            Efx_Manager.instance.switch_hero_efx(this.active_hero)
+        const old_hero = this.active_hero;
+        set_hero_info(old_hero, { is_active: false });
+        animate(old_hero, "inactivate");
+        for (let e of this.entities_in_control) {
+            note_entity_is_not_in_control(e);
         }
+
+        var new_hero_id = id;
+        if (id == -1) {
+            const idx = heros.indexOf(old_hero);
+            const new_idx = (idx + 1) % heros.length;
+            new_hero_id = heros[new_idx].id;
+        }
+
+        const new_hero = this.find(new_hero_id);
+        set_hero_info(new_hero, { is_active: true });
+        animate(new_hero, "activate");
+        note_entity_is_in_control(new_hero);
+
+        play_sfx("hero!");
+        Efx_Manager.instance.switch_hero_efx(this.active_hero)
     }
 
     proximity_grid: Proximity_Grid = null;
     undo_handler: Undo_Handler = null;
     all_entities: Game_Entity[] = [];
 
-    get moving_entities(): Game_Entity[] { // @Hack
-        const res = []
-        for (let e of this.all_entities) {
-            if (!e.interpolation) continue;
-
-            res.push(e);
-        }
-        return res;
-    }
-
-    /* 
+    /* // @Optimize
         #dirty: boolean = false;
         #by_type: entities_by_type = {
             Hero: [],
@@ -104,7 +126,6 @@ export class Entity_Manager {
         for (let e of this.all_entities) {
             switch (e.entity_type) {
                 case Entity_Type.HERO:
-                case Entity_Type.AVATAR:
                     res.Hero.push(e);
                     break;
                 case Entity_Type.TRAM:
@@ -236,21 +257,28 @@ export class Entity_Manager {
         const clone = clone_undoable_data(entity);
         this.undo_handler.old_entity_state.set(entity.id, clone);
 
-        // @Note Handle entities with special types
-        if (entity.entity_type == Entity_Type.TRAM) {
-            if (entity.prefab == 'Rover#001') { // @Hack We had already rename it as tram.
-                set_tram_info(entity, { freq: Const.SLOW_TRAM_FREQ, counter: 0, })
-            } else {
-                set_tram_info(entity, { freq: Const.SPEED_TRAM_FREQ, counter: 0, })
+        { // @Note Handle entities with special types
+            if (entity.entity_type == Entity_Type.TRAM) {
+                if (entity.prefab == 'Rover#001') { // @Hack We had already rename it as tram.
+                    set_tram_info(entity, { freq: Const.SLOW_TRAM_FREQ, counter: 0, })
+                } else {
+                    set_tram_info(entity, { freq: Const.SPEED_TRAM_FREQ, counter: 0, })
+                }
+            }
+
+            if (entity.entity_type == Entity_Type.ENTRANCE) {
+                if (info.derived_data != undefined && info.derived_data != null) {
+                    set_entrance_idx(entity, Resource_Manager.instance.level_id_to_idx.get(info.derived_data.level_id));
+                }
+            }
+
+            if (entity.entity_type == Entity_Type.HERO) {
+                if (!this.active_hero) {
+                    set_hero_info(entity, { is_active: true });
+                    note_entity_is_in_control(entity);
+                }
             }
         }
-
-        if (entity.entity_type == Entity_Type.ENTRANCE) {
-            if (info.derived_data != undefined && info.derived_data != null) {
-                set_entrance_idx(entity, Resource_Manager.instance.level_id_to_idx.get(info.derived_data.level_id));
-            }
-        }
-
         debug_print_quad_tree(this.proximity_grid.quad_tree);
         return entity;
     }

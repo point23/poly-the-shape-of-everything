@@ -327,7 +327,10 @@ function main_loop() {
     const game = Main.instance;
 
     process_inputs();
-    per_round_animation_update(entity_manager?.active_hero);
+
+    for (let e of entity_manager.by_type.Hero) {
+        per_round_animation_update(e);
+    }
 
     if ($$.IS_RUNNING && !$$.DOING_UNDO && !$$.RELOADING) {
         const pending_enter = entity_manager.entering_other_level;

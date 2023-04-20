@@ -39,7 +39,7 @@
     },
     "entities": [
         {
-            "prefab": "Ninja",
+            "prefab": "Elvis",
             "position": {
                 "x": 6,
                 "y": 8,
@@ -246,7 +246,7 @@
             "rotation": 0
         },
         {
-            "prefab": "Ninja",
+            "prefab": "Elvis",
             "position": {
                 "x": 11,
                 "y": 7,

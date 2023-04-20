@@ -24,7 +24,7 @@
       }
     ],
     "_prefab": {
-      "__id__": 34
+      "__id__": 36
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -156,6 +156,12 @@
       },
       {
         "__id__": 33
+      },
+      {
+        "__id__": 34
+      },
+      {
+        "__id__": 35
       }
     ],
     "entities_parent": null,
@@ -399,11 +405,21 @@
   },
   {
     "__type__": "Prefab_Pair",
-    "id": "Ninja",
+    "id": "Elvis",
     "prefab": {
       "__uuid__": "a514c82f-cf86-483d-bc2d-29f989f205f9",
       "__expectedType__": "cc.Prefab"
     }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "",
+    "prefab": null
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "",
+    "prefab": null
   },
   {
     "__type__": "cc.PrefabInfo",
