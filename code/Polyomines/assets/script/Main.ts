@@ -11,7 +11,7 @@ import { Resource_Manager } from './Resource_Manager';
 import { maybe_move_trams } from './sokoban';
 import { Transaction_Manager } from './Transaction_Manager';
 import { Game_Pause_Panel } from './ui/Game_Pause_Panel';
-import { Show_Hide_Type, UI_Manager, type } from './UI_Manager';
+import { UI_Manager, fade_in, fade_out, hide_blinds, show_blinds, type } from './UI_Manager';
 import { Undo_Handler, undo_end_frame } from './undo';
 import { make_human_animation_graph } from './Character_Data';
 import { init_animations, per_round_animation_update, process_inputs, update_inputs } from './common';
@@ -71,17 +71,13 @@ export class Main extends Component {
     }
 
     click_anywhere_to_start() {
-        this.ui_manager.hide({
-            target: this.title,
-            hide_delay: 0,
-            hide_duration: 2,
-            type: Show_Hide_Type.FADE,
-            callback: () => {
-                Gameplay_Timer.reset();
-                $$.IS_RUNNING = true;
-                $$.PLAYER_MOVE_NOT_YET_EXECUTED = false;
-            }
-        });
+        const fo = fade_out(this.title, 0, 2);
+        fo.on_complete = () => {
+            Gameplay_Timer.reset();
+            $$.IS_RUNNING = true;
+            $$.PLAYER_MOVE_NOT_YET_EXECUTED = false;
+        };
+        fo.execute();
 
         end_music();
         this.dummy_panel.clickEvents = [];
@@ -204,6 +200,7 @@ function clear(game: Main) {
 function init(game: Main) {
     function init_ui() {
         if ($$.STARTUP) {
+
             play_music("intro");
             $$.STARTUP = false;
 
@@ -215,54 +212,32 @@ function init(game: Main) {
                 game.dummy_panel.clickEvents.push(e);
             }
 
-            ui.show_and_hide({
-                target: game.dim,
-                show_delay: 0,
-                show_duration: 0,
-                hide_delay: 2,
-                hide_duration: 1,
-                type: Show_Hide_Type.BLINDS,
-                callback: () => { }
-            });
+            const hb = hide_blinds(game.dim, 2, 1);
+            hb.execute();
 
-            ui.show({
-                target: game.title,
-                show_delay: 3,
-                show_duration: 2,
-                type: Show_Hide_Type.FADE,
-                callback: () => {
-                    const typer_0 = type(game.label_credit_in_title, "A game by point23.", 0, 2, Infinity);
-                    const typer_1 = type(game.label_press_any_xx_to_start, "Click anywhere to start", 0, 3, Infinity);
-                    typer_1.on_complete = () => { game.dummy_panel.node.active = true; };
-                    typer_0.successor = typer_1;
-                    typer_0.execute();
-                }
-            });
+            const fi = fade_in(game.title, 3, 2);
+            const typer_0 = type(game.label_credit_in_title, "A game by point23.", 0, 2, Infinity);
+            const typer_1 = type(game.label_press_any_xx_to_start, "Click anywhere to start", 0, 3, Infinity);
+            typer_1.on_complete = () => { game.dummy_panel.node.active = true; };
+
+            fi.successor = typer_0;
+            typer_0.successor = typer_1;
+
+            fi.execute();
+
         } else {
-            ui.typer({
-                label: game.label_level_name,
-                content: resource.current_level.name,
-                show_delay: 0,
-                duration: 2,
-                hide_delay: 1,
-                callback: () => { },
-            });
+            const typer = type(game.label_level_name, resource.current_level.name, 0, 2, 1);
+            const hb = hide_blinds(game.dim, 3, 1);
+            hb.on_complete = () => {
+                Input_Manager.instance.init();
+                Gameplay_Timer.reset();
+                $$.IS_RUNNING = true;
+                $$.PLAYER_MOVE_NOT_YET_EXECUTED = false;
+                init_animations();
+            };
 
-            ui.show_and_hide({
-                target: game.dim,
-                show_delay: 0,
-                show_duration: 0,
-                hide_delay: 3,
-                hide_duration: 1,
-                type: Show_Hide_Type.BLINDS,
-                callback: () => {
-                    Input_Manager.instance.init();
-                    Gameplay_Timer.reset();
-                    $$.IS_RUNNING = true;
-                    $$.PLAYER_MOVE_NOT_YET_EXECUTED = false;
-                    init_animations();
-                }
-            });
+            typer.execute();
+            hb.execute();
         }
     }
 
@@ -285,7 +260,6 @@ function init(game: Main) {
     }
     //#SCOPE
 
-    const ui = game.ui_manager;
     const input = game.input_manager;
     const resource = game.resource_manager;
     const transaction = game.transaction_manager;
@@ -306,7 +280,6 @@ function init(game: Main) {
 function main_loop() {
     const transaction_manager = Transaction_Manager.instance;
     const entity_manager = Entity_Manager.current;
-    const ui = UI_Manager.instance;
     const game = Main.instance;
 
     process_inputs();
@@ -322,33 +295,21 @@ function main_loop() {
         if (pending_enter.entering) {
             play_sfx("win!"); // @Todo Maybe there should be another clip for entering?
             $$.IS_RUNNING = false;
-            ui.show_and_hide({
-                target: game.dim,
-                show_delay: 1,
-                show_duration: 1,
-                hide_delay: 0,
-                hide_duration: 0,
-                type: Show_Hide_Type.BLINDS,
-                callback: () => {
-                    load_level(game, pending_enter.idx);
-                }
-            });
+            const sb = show_blinds(game.dim, 1, 1);
+            sb.on_complete = () => {
+                load_level(game, pending_enter.idx);
+            };
+            sb.execute();
         }
 
         if (entity_manager.pending_win) {
             play_sfx("win!");
             $$.IS_RUNNING = false;
-            ui.show_and_hide({
-                target: game.dim,
-                show_delay: 1,
-                show_duration: 1,
-                hide_delay: 0,
-                hide_duration: 0,
-                type: Show_Hide_Type.BLINDS,
-                callback: () => {
-                    load_succeed_level(game);
-                }
-            });
+            const sb = show_blinds(game.dim, 1, 1);
+            sb.on_complete = () => {
+                load_succeed_level(game);
+            };
+            sb.execute();
         }
 
         maybe_move_trams(transaction_manager);

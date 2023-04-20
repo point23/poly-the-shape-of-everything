@@ -24,7 +24,7 @@ export class Game_Pause_Panel extends Component {
             this.btn_exit.node.on(Button.EventType.CLICK, () => {
                 play_sfx("click");
                 this.node.active = false;
-                load_succeed_level(Main.instance);
+                load_succeed_level(Main.instance); // @Fixme Save if user already solved that puzzle...
             }, this);
         }
     }

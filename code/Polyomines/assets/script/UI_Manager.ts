@@ -1,6 +1,7 @@
-import { _decorator, Component, tween, Node, Sprite, Color, sp, UITransform, Vec2, Vec3, Label, Tween, } from 'cc';
-const { ccclass } = _decorator;
-
+import { _decorator, Component, tween, Node, Sprite, Color, UITransform, Vec3, Label, Tween, } from 'cc';
+const { ccclass } = _decorator
+    ;
+// === UI_MECHANISMS API === 
 export abstract class UI_Mechanism {
     show_delay: number = 0;
     duration: number;
@@ -50,8 +51,51 @@ export abstract class UI_Mechanism {
     on_complete(): void { }
 }
 
+export function type(target: Label, content: string, show_delay: number, duration: number, hide_delay: number): UI_Mechanism {
+    const t = new Typer();
+    t.label = target;
+    t.content = content;
+    t.show_delay = show_delay;
+    t.hide_delay = hide_delay;
+    t.duration = duration;
+    return t;
+}
+
+export function show_blinds(blinds: Node, show_delay: number, duration: number): UI_Mechanism {
+    const sb = new Show_Blinds();
+    sb.blinds = blinds;
+    sb.show_delay = show_delay;
+    sb.duration = duration;
+    return sb;
+}
+
+export function hide_blinds(blinds: Node, hide_delay: number, duration: number): UI_Mechanism {
+    const hb = new Hide_Blinds();
+    hb.blinds = blinds;
+    hb.hide_delay = hide_delay;
+    hb.duration = duration;
+    return hb;
+}
+
+export function fade_in(item: Node, show_delay: number, duration: number): UI_Mechanism {
+    const fi = new Fade_In();
+    fi.sprite = item.getComponent(Sprite);
+    fi.show_delay = show_delay;
+    fi.duration = duration;
+    return fi;
+}
+
+export function fade_out(item: Node, hide_delay: number, duration: number): UI_Mechanism {
+    const fo = new Fade_Out();
+    fo.sprite = item.getComponent(Sprite);
+    fo.hide_delay = hide_delay;
+    fo.duration = duration;
+    return fo;
+}
+
+/// === PRIVATE === 
 type typer_tween = { idx: number };
-export class Typer extends UI_Mechanism {
+class Typer extends UI_Mechanism {
     label: Label = null;
     content: string = "";
     should_hide: boolean = true;
@@ -95,55 +139,91 @@ export class Typer extends UI_Mechanism {
     }
 }
 
-export enum Show_Hide_Type {
-    FADE,
-    BLINDS,
+const default_ui_show_position = new Vec3();
+class Show_Blinds extends UI_Mechanism {
+    // @Note There're some dependency that, binds must be in the hide-pos before we do this...
+    blinds: Node = null;
+    post_begin(): void {
+        this.blinds.active = true;
+    }
+    post_execute(): Tween<any> {
+        const blinds = this.blinds;
+        return tween(blinds)
+            .delay(this.show_delay)
+            .to(this.duration, { worldPosition: default_ui_show_position });
+    }
 }
 
-type show_info = {
-    target: Node,
-    show_delay: number,
-    show_duration: number,
-    type: Show_Hide_Type,
-    callback: () => void,
+class Hide_Blinds extends UI_Mechanism {
+    // @Note There're some dependency that, binds must be in the show-pos before we do this...
+    blinds: Node = null;
+    post_begin(): void {
+        default_ui_show_position.set(this.blinds.getWorldPosition());
+    }
+    post_end(): void {
+        this.blinds.active = false;
+    }
+    post_execute(): Tween<any> {
+        const blinds = this.blinds;
+        const height = blinds.getComponent(UITransform).height;
+        const hide_position = new Vec3(blinds.getWorldPosition());
+        hide_position.y += height;
+
+        return tween(blinds)
+            .delay(this.hide_delay)
+            .to(this.duration, { worldPosition: hide_position });
+    }
 }
 
-type hide_info = {
-    target: Node,
-    hide_delay: number,
-    hide_duration: number,
-    type: Show_Hide_Type,
-    callback: () => void,
+class Fade_In extends UI_Mechanism {
+    // @Note There're some dependency that, binds must be in the hide-pos before we do this...
+    sprite: Sprite = null;
+    show_color: Color = null;
+    hide_color: Color = null;
+
+    post_begin(): void {
+        const sprite = this.sprite;
+        this.show_color = new Color().set(sprite.color);
+        const hide_color = this.hide_color = new Color().set(sprite.color);
+
+        hide_color.a = 0;
+        sprite.color.set(hide_color);
+        sprite.node.active = true;
+    }
+
+    post_execute(): Tween<any> {
+        const sprite = this.sprite;
+        const show_color = this.show_color;
+
+        return tween(sprite)
+            .delay(this.show_delay)
+            .to(this.duration, { color: show_color });
+    }
 }
 
-type show_hide_info = {
-    target: Node,
-    show_delay: number,
-    show_duration: number,
-    hide_delay: number,
-    hide_duration: number,
-    type: Show_Hide_Type,
-    callback: () => void,
-}
+class Fade_Out extends UI_Mechanism {
+    // @Note There're some dependency that, binds must be in the hide-pos before we do this...
+    sprite: Sprite = null;
+    hide_color: Color = null;
 
-type typer_info = {
-    label: Label,
-    content: string,
-    show_delay: number
-    duration: number,
-    hide_delay: number,
-    callback: () => void,
-}
+    post_begin(): void {
+        const sprite = this.sprite;
+        const hide_color = this.hide_color = new Color().set(sprite.color);
+        hide_color.a = 0;
+    }
 
-// === UI_MECHANISMS API === 
-export function type(target: Label, content: string, show_delay: number, duration: number, hide_delay: number): UI_Mechanism {
-    const t = new Typer();
-    t.label = target;
-    t.content = content;
-    t.show_delay = show_delay;
-    t.hide_delay = hide_delay;
-    t.duration = duration;
-    return t;
+    post_end(): void {
+        this.sprite.node.active = false;
+    }
+
+    post_execute(): Tween<any> {
+        const sprite = this.sprite;
+        const hide_color = this.hide_color;
+
+        return tween(sprite)
+            .delay(this.hide_delay)
+            .to(this.duration, { color: hide_color });
+    }
 }
 
 @ccclass('UI_Manager')
@@ -151,188 +231,5 @@ export class UI_Manager extends Component {
     public static instance: UI_Manager = null;
     public static Settle(instance: UI_Manager) {
         UI_Manager.instance = instance;
-    }
-
-    typer(info: typer_info) {
-        const label = info.label;
-        label.node.active = true;
-
-        type bind_target = { idx: number };
-        let i = { idx: 0 };
-
-        const should_hide = Number.isFinite(info.hide_delay);
-        if (!should_hide) info.hide_delay = 0;
-
-        tween(i)
-            .delay(info.show_delay)
-            .to(info.duration,
-                {
-                    idx: info.content.length,
-                },
-                {
-                    onUpdate(t: bind_target) {
-                        label.string = info.content.substring(0, t.idx) + '|';
-                    }
-                })
-            .delay(info.hide_delay)
-            .call(() => {
-                if (should_hide) label.string = '';
-                else {
-                    label.string = label.string.substring(0, label.string.length - 1);
-                }
-                info.callback();
-            })
-            .start();
-    }
-
-    show(info: show_info) {
-        const target = info.target;
-        target.active = false;
-
-        switch (info.type) {
-            case Show_Hide_Type.FADE: {
-                info.target.active = true;
-                // @Note Here we had asume that it's initial colored.
-                const sprite = info.target.getComponent(Sprite);
-                const show_color = new Color().set(sprite.color);
-                const hide_color = new Color().set(sprite.color);
-                hide_color.a = 0;
-                sprite.color.set(hide_color);
-
-                tween(sprite)
-                    .delay(info.show_delay)
-                    .to(info.show_duration, { color: show_color })
-                    .call(() => {
-                        info.callback();
-                    })
-                    .start();
-            } break;
-
-            case Show_Hide_Type.BLINDS: {
-                info.target.active = true;
-
-                const height = info.target.getComponent(UITransform).height;
-                const show_pos = new Vec3().set(info.target.getWorldPosition());
-                const hide_pos = new Vec3(info.target.getWorldPosition());
-                hide_pos.y += height;
-                info.target.setWorldPosition(hide_pos);
-
-                if (info.show_delay || info.show_duration)
-                    info.target.setWorldPosition(hide_pos);
-
-                tween(info.target)
-                    .delay(info.show_delay)
-                    .to(info.show_duration, { worldPosition: show_pos })
-                    .call(() => {
-                        info.callback();
-                    })
-                    .start();
-            }
-        }
-    }
-
-    hide(info: hide_info) {
-        const target = info.target;
-        target.active = false;
-
-        switch (info.type) {
-            case Show_Hide_Type.FADE: {
-                info.target.active = true;
-
-                const sprite = info.target.getComponent(Sprite);
-                const show_color = new Color().set(sprite.color);
-                const hide_color = new Color().set(sprite.color);
-                hide_color.a = 0;
-
-                tween(sprite)
-                    .delay(info.hide_delay)
-                    .to(info.hide_duration, { color: hide_color })
-                    .call(() => {
-                        info.target.active = false;
-                        sprite.color.set(show_color);
-                        info.callback();
-                    })
-                    .start();
-            } break;
-
-            case Show_Hide_Type.BLINDS: {
-                info.target.active = true;
-
-                const height = info.target.getComponent(UITransform).height;
-                const show_pos = new Vec3().set(info.target.getWorldPosition());
-                const hide_pos = new Vec3(info.target.getWorldPosition());
-                hide_pos.y += height;
-
-                tween(info.target)
-                    .delay(info.hide_delay)
-                    .to(info.hide_duration, { worldPosition: hide_pos })
-                    .call(() => {
-                        info.target.active = false;
-                        info.target.setWorldPosition(show_pos);
-                        info.callback();
-                    })
-                    .start();
-            }
-        }
-    }
-
-
-    show_and_hide(info: show_hide_info) {
-        const target = info.target;
-        target.active = false;
-
-        const should_hide = Number.isFinite(info.hide_delay); // @Note Handling those weird special cases
-        if (!should_hide) info.hide_delay = 0;
-
-        switch (info.type) {
-            case Show_Hide_Type.FADE: {
-                info.target.active = true;
-
-                const sprite = info.target.getComponent(Sprite);
-                const show_color = new Color().set(sprite.color);
-                const hide_color = new Color().set(sprite.color);
-                if (should_hide) { hide_color.a = 0; }
-                sprite.color.set(hide_color);
-
-                tween(sprite)
-                    .delay(info.show_delay)
-                    .to(info.show_duration, { color: show_color })
-                    .delay(info.hide_delay)
-                    .to(info.hide_duration, { color: hide_color })
-                    .call(() => {
-                        if (should_hide) {
-                            info.target.active = false;
-                            sprite.color.set(show_color);
-                        }
-                        info.callback();
-                    })
-                    .start();
-            } break;
-
-            case Show_Hide_Type.BLINDS: {
-                info.target.active = true;
-
-                const height = info.target.getComponent(UITransform).height;
-                const show_pos = new Vec3().set(info.target.getWorldPosition());
-                const hide_pos = new Vec3(info.target.getWorldPosition());
-                if (should_hide) { hide_pos.y += height; }
-                if (info.show_delay || info.show_duration)
-                    info.target.setWorldPosition(hide_pos);
-
-                tween(info.target)
-                    .delay(info.show_delay)
-                    .to(info.show_duration, { worldPosition: show_pos })
-                    .delay(info.hide_delay)
-                    .to(info.hide_duration, { worldPosition: hide_pos })
-                    .call(() => {
-                        if (should_hide) {
-                            info.target.active = false;
-                            info.target.setWorldPosition(show_pos);
-                        }
-                        info.callback();
-                    })
-                    .start();
-            }
-        }
     }
 }
