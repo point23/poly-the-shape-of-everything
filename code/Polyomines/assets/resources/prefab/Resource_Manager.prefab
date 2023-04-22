@@ -413,8 +413,11 @@
   },
   {
     "__type__": "Prefab_Pair",
-    "id": "",
-    "prefab": null
+    "id": "Monster",
+    "prefab": {
+      "__uuid__": "2d144f2d-3852-400c-b41a-83b9d853ced3",
+      "__expectedType__": "cc.Prefab"
+    }
   },
   {
     "__type__": "Prefab_Pair",

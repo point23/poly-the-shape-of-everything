@@ -28,7 +28,7 @@ export class $$ {
 
     static PLAYER_MOVE_NOT_YET_EXECUTED: boolean = false;
 
-    static SHOULD_DO_UNDO_AT: number = -1;
+    static PLAYER_MOVE_FINISHED_AT: number = -1;
 
     static DURATION_IDX: number = 0;
 
@@ -285,6 +285,8 @@ export class Const {
     static PLAYER_MOVE_DURATION: number = 1;
     static PLAYER_ACTION_DURATION: number = 10;
     static FALLING_MOVE_DURATION: number = 1;
+
+    static DIST_MONSTER_WAKE_UP = 3;
 
     static JOYSTICK_DEADZONE = 0.05;
     static WEIRD_USER_INPUT_COUNTS = 3;

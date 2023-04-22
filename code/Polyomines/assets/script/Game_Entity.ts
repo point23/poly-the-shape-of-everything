@@ -351,6 +351,7 @@ export function note_entity_is_not_in_control(e: Game_Entity) {
 }
 
 // === Derived Class ===
+// @Todo Maybe we should just simply have some derived class ...
 export function get_entrance_id(e: Game_Entity): number {
     if (e.entity_type != Entity_Type.ENTRANCE) return;
     return e.undoable.customized_slot_0.x;
@@ -409,6 +410,31 @@ export function get_hero_info(e: Game_Entity): hero_info {
         is_active: e.undoable.customized_slot_0.x == 1,
     }
 }
+
+export type monster_info = {
+    is_active,
+};
+
+export function set_monster_info(e: Game_Entity, i: hero_info) {
+    if (e.entity_type != Entity_Type.MONSTER) return;
+
+    const slot = new Vec4(); // @Optimize
+    if (i.is_active) {
+        slot.x = 1;
+    } else {
+        // ...
+    }
+    e.undoable.customized_slot_0 = slot;
+}
+
+export function get_monster_info(e: Game_Entity): hero_info {
+    if (e.entity_type != Entity_Type.MONSTER) return;
+
+    return {  // @Optimize
+        is_active: e.undoable.customized_slot_0.x == 1,
+    }
+}
+
 
 // === Calculation === 
 // @Todo Support more types of entity

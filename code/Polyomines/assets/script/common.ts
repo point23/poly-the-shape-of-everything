@@ -1,5 +1,5 @@
 import { _decorator, } from 'cc';
-import { init_animation_state, human_animation_graph, animate, Character_Data } from './Character_Data';
+import { init_animation_state, human_animation_graph, animate, Character_Data, monster_animation_graph } from './Character_Data';
 import { $$, Const, Direction, array_remove } from './Const';
 import { Entity_Manager } from './Entity_Manager';
 import { Level_Editor } from './Level_Editor';
@@ -18,6 +18,10 @@ export function init_animations() {
     }
 
     animate(entity_manager.active_hero, "activate");
+
+    for (let m of entity_manager.by_type.Monster) {
+        init_animation_state(m, monster_animation_graph);
+    }
 }
 
 export function per_round_animation_update(entity: Game_Entity) {

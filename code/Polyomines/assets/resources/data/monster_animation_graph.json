@@ -1,0 +1,25 @@
+{
+    "entry": "inactive",
+    "nodes": [
+        {
+            "name": "active",
+            "anim": "Active"
+        },
+        {
+            "name": "inactive",
+            "anim": "Inactive"
+        }
+    ],
+    "arcs": [
+        {
+            "from": "active",
+            "on": "inactivate",
+            "to": "inactive"
+        },
+        {
+            "from": "inactive",
+            "on": "activate",
+            "to": "active"
+        }
+    ]
+}

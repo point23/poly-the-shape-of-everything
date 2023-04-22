@@ -15,7 +15,7 @@ import { Entity_Edit_Mode } from './modes/Entity_Edit_Mode';
 import { Test_Run_Mode } from './modes/Test_Run_Mode';
 import { Audio_Manager } from './Audio_Manager';
 import { Efx_Manager } from './Efx_Manager';
-import { make_human_animation_graph } from './Character_Data';
+import { make_human_animation_graph, make_monster_animation_graph } from './Character_Data';
 
 const { ccclass, property } = _decorator;
 
@@ -76,6 +76,8 @@ export class Level_Editor extends Component {
         this.settle_singletons();
         init_ui(this);
         make_human_animation_graph(); // @Note There're some aync? behaviour inside...
+        make_monster_animation_graph(); // @Note There're some aync? behaviour inside...
+
         Resource_Manager.instance.load_levels(this, init);
 
         $$.DURATION_IDX = Const.DEFAULT_DURATION_IDX;

@@ -52,30 +52,41 @@ export class Animation_Graph {
 
 const default_anim_duration: number = 3; // @Note 0.01 * 8 * 4 ≈ 0.32s 
 export const human_animation_graph: Animation_Graph = new Animation_Graph();
+export const monster_animation_graph: Animation_Graph = new Animation_Graph();
 
 export function make_human_animation_graph() {
     const file_path: string = `${Const.DATA_PATH}/human_animation_graph`;
     resources.load(file_path, JsonAsset, (e, asset) => {
-        const graph = human_animation_graph;
-        const g = asset.json;
-
-        for (let n of g.nodes) {
-            const node = new Animation_Node(n);
-            graph.nodes.set(node.name, node);
-        }
-
-        for (let a of g.arcs) {
-            const source = graph.nodes.get(a.from);
-            const dest = graph.nodes.get(a.to);
-            const message = a.on;
-
-            const arc = new Animation_Arc(dest, message);
-            source.arcs.push(arc);
-        }
-
-        graph.entry = graph.nodes.get(g.entry);
-        graph.available = true;
+        make_animation_graph(human_animation_graph, asset)
     });
+}
+
+export function make_monster_animation_graph() {
+    const file_path: string = `${Const.DATA_PATH}/monster_animation_graph`;
+    resources.load(file_path, JsonAsset, (e, asset) => {
+        make_animation_graph(monster_animation_graph, asset)
+    });
+}
+
+export function make_animation_graph(graph: Animation_Graph, json: JsonAsset) {
+    const g = json.json;
+
+    for (let n of g.nodes) {
+        const node = new Animation_Node(n);
+        graph.nodes.set(node.name, node);
+    }
+
+    for (let a of g.arcs) {
+        const source = graph.nodes.get(a.from);
+        const dest = graph.nodes.get(a.to);
+        const message = a.on;
+
+        const arc = new Animation_Arc(dest, message);
+        source.arcs.push(arc);
+    }
+
+    graph.entry = graph.nodes.get(g.entry);
+    graph.available = true;
 }
 
 export function init_animation_state(entity: Game_Entity, graph: Animation_Graph) {

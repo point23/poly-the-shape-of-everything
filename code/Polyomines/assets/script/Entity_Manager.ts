@@ -32,6 +32,7 @@ type entities_by_type = {
     Hint: Game_Entity[];
     Entrance: Game_Entity[];
     Checkpoint: Game_Entity[];
+    Monster: Game_Entity[];
 }
 
 /* 
@@ -121,6 +122,7 @@ export class Entity_Manager {
             Hint: [],
             Entrance: [],
             Checkpoint: [],
+            Monster: [],
         };
 
         for (let e of this.all_entities) {
@@ -143,6 +145,8 @@ export class Entity_Manager {
                 case Entity_Type.CHECKPOINT:
                     res.Checkpoint.push(e);
                     break;
+                case Entity_Type.MONSTER:
+                    res.Monster.push(e);
                 default:
                     break;
             }
@@ -254,9 +258,6 @@ export class Entity_Manager {
         this.move_entity(entity, new Vec3(info.position));
         this.all_entities.push(entity);
 
-        const clone = clone_undoable_data(entity);
-        this.undo_handler.old_entity_state.set(entity.id, clone);
-
         { // @Note Handle entities with special types
             if (entity.entity_type == Entity_Type.TRAM) {
                 if (entity.prefab == 'Rover#001') { // @Hack We had already rename it as tram.
@@ -279,6 +280,10 @@ export class Entity_Manager {
                 }
             }
         }
+
+        const clone = clone_undoable_data(entity);
+        this.undo_handler.old_entity_state.set(entity.id, clone); // @Note It must happend after we settled those flags about specific type of entities...
+
         debug_print_quad_tree(this.proximity_grid.quad_tree);
         return entity;
     }
@@ -310,7 +315,7 @@ export class Entity_Manager {
     }
 
     find(id: number): Game_Entity {
-        for (var e of this.all_entities) {
+        for (var e of this.all_entities) { // @Optimize
             if (e.id == id) return e;
         }
         return null;

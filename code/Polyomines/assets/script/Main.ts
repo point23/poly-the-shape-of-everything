@@ -13,7 +13,7 @@ import { Transaction_Manager } from './Transaction_Manager';
 import { Game_Pause_Panel } from './ui/Game_Pause_Panel';
 import { UI_Manager, fade_in, fade_out, hide_blinds, show_blinds, type } from './UI_Manager';
 import { Undo_Handler, undo_end_frame } from './undo';
-import { make_human_animation_graph } from './Character_Data';
+import { make_human_animation_graph, make_monster_animation_graph } from './Character_Data';
 import { init_animations, per_round_animation_update, process_inputs, update_inputs } from './common';
 const { ccclass, property } = _decorator;
 
@@ -49,6 +49,7 @@ export class Main extends Component {
         $$.DURATION_IDX = Const.DEFAULT_DURATION_IDX;
         Resource_Manager.instance.load_levels(this, init);
         make_human_animation_graph(); // @Note There're some aync? behaviour inside...
+        make_monster_animation_graph(); // @Note There're some aync? behaviour inside...
     }
 
     start() {
@@ -325,7 +326,7 @@ function main_loop() {
         }
     }
 
-    if ($$.SHOULD_DO_UNDO_AT == Gameplay_Timer.get_gameplay_time().round) {
+    if ($$.PLAYER_MOVE_FINISHED_AT == Gameplay_Timer.get_gameplay_time().round) {
         $$.PLAYER_MOVE_NOT_YET_EXECUTED = false;
         undo_end_frame(entity_manager);
     }

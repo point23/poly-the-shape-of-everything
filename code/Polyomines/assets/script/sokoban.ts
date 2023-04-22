@@ -1,4 +1,4 @@
-import { Quat, Vec3, math } from "cc";
+import { Game, Quat, Vec3, math } from "cc";
 import { String_Builder, same_position, Const, Direction, $$, vec_add, vec_sub, array_remove } from "./Const";
 import { Entity_Manager } from "./Entity_Manager";
 import { Gameplay_Timer, gameplay_time, time_to_string } from "./Gameplay_Timer";
@@ -19,20 +19,21 @@ import {
     note_entity_is_not_falling,
     note_entity_is_in_control,
     note_entity_is_not_in_control,
+    get_monster_info,
 } from "./Game_Entity";
 import { Transaction_Control_Flags, Transaction_Manager } from "./Transaction_Manager";
 import { Interpolation_Phase, Visual_Interpolation } from "./interpolation";
-import { undo_end_frame } from "./undo";
 import { animate } from "./Character_Data";
 import { play_sfx, random_sfx } from "./Audio_Manager";
 import { beam } from "./Efx_Manager";
 
 export enum Move_Type {
-    CONTROLLER_PROC,
+    PLAYER_MOVE,
     PUSH,
     SUPPORT,
     FALLING,
     TRAM,
+    MONSTER,
 }
 
 enum Move_Piorities {
@@ -42,9 +43,11 @@ enum Move_Piorities {
 
     PUSHED = 3,
 
-    CONTROLLER_PROC = 4,
+    PLAYER_MOVE = 4,
 
     TRAM = 8,
+
+    MONSTER = 10,
 }
 
 export enum Move_Flags {
@@ -325,11 +328,160 @@ export class Possess_Move extends Single_Move {
     }
 }
 
+export class Monster_Move extends Single_Move {
+    public constructor(monster: Game_Entity) {
+        const move_info = new Move_Info();
+        move_info.source_entity_id = monster.id;
+        move_info.move_type = Move_Type.MONSTER;
+        super(move_info);
+
+        this.piority = Move_Piorities.MONSTER;
+    }
+
+    enact(transaction: Move_Transaction): boolean {
+        const manager = transaction.entity_manager;
+        const monster = manager.find(this.source_entity_id);
+        const hero = manager.active_hero;
+        if (!hero) return false; // @Note Hero's like the Elvis might possessed some other Game Entity, so there's temporary no active hero.
+
+        const is_active = get_monster_info(monster).is_active;
+
+        const delta: Vec3 = vec_sub(hero.position, monster.position);
+        const distance = delta?.length();
+        if (!distance) {
+            console.log("Some thing went wrong");
+        }
+
+        if (distance <= Const.DIST_MONSTER_WAKE_UP) {
+            if (is_active) {
+                // @Note Moving towards hero...
+            } else {
+                animate(monster, "activate");
+                const vector: Vec3 = new Vec3(0, 0, 0);
+                // @Note Wake up and turn towards hero...
+                const abs_x = Math.abs(delta.x);
+                const abs_y = Math.abs(delta.y);
+                if (abs_x > abs_y) {
+                    vector.x = 1;
+                    if (delta.x < 0) vector.x = -1;
+                } else {
+                    vector.y = 1;
+                    if (delta.y < 0) vector.y = -1;
+                }
+
+                let direction = 0;
+                { // @Todo Extract this: vector2direction
+                    if (vector.x == 1) {
+                        direction = Direction.RIGHT;
+                    } else if (vector.x == -1) {
+                        direction = Direction.LEFT;
+                    } else if (vector.y == 1) {
+                        direction = Direction.BACKWORD;
+                    } else {
+                        direction = Direction.FORWARD;
+                    }
+                }
+
+                this.info.start_direction = monster.orientation;
+                this.info.end_direction = direction;
+                if (!same_direction(this.start_direction, this.end_direction)) {
+                    set_dirty(this, Move_Flags.ROTATED);
+                }
+            }
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
+    execute(transaction: Move_Transaction): void {
+        const manager = transaction.entity_manager;
+        const entity = manager.find(this.target_entity_id);
+        // if (is_dirty(this.flags, Move_Flags.MOVED))
+        // manager.logically_move_entity(entity, this.end_position);
+        if (is_dirty(this.flags, Move_Flags.ROTATED)) {
+            entity.logically_rotate_to(this.end_direction);
+            entity.visually_face_towards(this.end_direction); // @Hack We are not good at lerping quats, ignore this for now...?
+        }
+    }
+
+    complete(transaction: Move_Transaction): number {
+        const manager = transaction.entity_manager;
+        const entity = manager.find(this.target_entity_id);
+        // const fall_res = possible_falling(entity);
+        // animate(entity, "run");
+
+        // if (!fall_res.fell) {
+        // play_sfx("step");
+        // { // @Note Check possible win
+        //     if (!is_dirty(this.flags, Move_Flags.MOVED)) return;
+        //     let possible_win = false;
+        //     for (let s of manager.locate_current_supporters(entity)) {
+        //         if (s.entity_type == Entity_Type.CHECKPOINT && s.prefab == "Checkpoint#001") possible_win = true;
+        //     }
+
+        //     if (possible_win) {
+        //         if (!manager.pending_win) play_sfx("win?");
+        //         animate(entity, "win", 20, 1);
+        //     }
+        // }
+        // return 0;
+        // }
+
+        // return Move_Completion_Flags.FALLING;
+
+        return 0;
+    }
+
+    update(transaction: Move_Transaction, ratio: number) { // @Note The ratio param should been clamped by caller.'
+        const manager = transaction.entity_manager;
+        const entity = manager.find(this.target_entity_id);
+
+        if (ratio >= 0.5) {
+            this.execute_in_preorder(transaction);
+        }
+
+        // { // Start visual interpolation stuff
+        //     let phases: Interpolation_Phase[] = [];
+
+        //     if (is_dirty(this.flags, Move_Flags.ROTATED)) {
+        //         // const r_start = entity.visual_rotation;
+        //         // const r_end = new Quat();
+        //         // Quat.lerp(r_end, this.start_visual_rotation, this.end_visual_rotation, ratio);
+        //         // const p_0 = Interpolation_Phase.rotation(0.2, r_start, r_end); // @ImplementMe We are not good at lerping quats, ignore this for now...?
+        //         // phases.push(p_0)
+        //     }
+
+        //     if (is_dirty(this.flags, Move_Flags.MOVED)) {
+        //         const p_start = entity.visual_position;
+        //         const p_end = new Vec3();
+        //         Vec3.lerp(p_end, this.start_visual_position, this.end_visual_position, ratio);
+        //         const p_1 = Interpolation_Phase.movement(1, p_start, p_end);
+        //         phases.push(p_1);
+        //     }
+
+        //     const t_start = Gameplay_Timer.get_gameplay_time();
+        //     const t_end = Gameplay_Timer.get_gameplay_time(1);
+        //     const v = new Visual_Interpolation(this, entity, t_start, t_end, phases);
+        //     // Set on_complete event?
+        // }
+
+        if (ratio == 1) {
+            const f = this.complete_in_postorder(transaction);
+            // if (is_dirty(f, Move_Completion_Flags.FALLING)) {
+            //     $$.PLAYER_MOVE_FINISHED_AT += Const.FALLING_MOVE_DURATION;
+            // }
+        }
+    }
+
+}
+
 export class Player_Move extends Single_Move {
 
     public constructor(entity: Game_Entity, direction: Direction, step: number = 1) {
         const move_info = new Move_Info();
-        move_info.move_type = Move_Type.CONTROLLER_PROC;
+        move_info.move_type = Move_Type.PLAYER_MOVE;
         move_info.target_entity_id = entity.id;
 
         move_info.start_direction = entity.orientation;
@@ -339,7 +491,7 @@ export class Player_Move extends Single_Move {
         move_info.end_position = calcu_entity_future_position(entity, direction, step);
         super(move_info);
 
-        this.piority = Move_Piorities.CONTROLLER_PROC;
+        this.piority = Move_Piorities.PLAYER_MOVE;
     }
 
     enact(transaction: Move_Transaction): boolean {
@@ -479,7 +631,7 @@ export class Player_Move extends Single_Move {
         if (ratio == 1) {
             const f = this.complete_in_postorder(transaction);
             if (is_dirty(f, Move_Completion_Flags.FALLING)) {
-                $$.SHOULD_DO_UNDO_AT += Const.FALLING_MOVE_DURATION;
+                $$.PLAYER_MOVE_FINISHED_AT += Const.FALLING_MOVE_DURATION;
             }
         }
     }
@@ -1031,180 +1183,6 @@ export function detect_conflicts(transations: Move_Transaction[]): Set<Move_Tran
     return set_rejected;
 }
 
-/* 
-export function detect_conflicts(transaction: Move_Transaction, move: Single_Move) {
-    function remove_it() {
-        const idx = transaction.all_moves.indexOf(move);
-        transaction.all_moves.splice(idx, 1)
-    }
- 
-    function taken_by_incoming_entity_from_same_transaction(pos: Vec3): boolean {
-        for (let another_move of transaction.all_moves) {
-            if (another_move.target_entity_id == target.id) continue;
-            if (another_move.id == move.id) continue;
-            if (!is_dirty(another_move.flags, Move_Flags.MOVED)) continue;
- 
-            if (same_position(another_move.end_position, pos)) return true;
-        }
- 
-        return false;
-    }
- 
-    function exist_in_another_move(another: Game_Entity): boolean {
-        for (let another_move of transaction.all_moves) {
-            if (another_move.id == move.id) continue;
- 
-            if (another_move.target_entity_id == another.id
-                && is_dirty(another_move.flags, Move_Flags.MOVED))
-                return true;
-        }
-        return false;
-    }
- 
-    function target_square_is_taken_by_entity_from_superior_transaction(): { is_taken: boolean, taken_by: Game_Entity } {
-        const res = {
-            is_taken: false,
-            taken_by: null,
-        };
- 
-        const others = manager.locate_entities(move.end_position);
-        for (let other of others) {
-            if (other.id == target.id) continue;
-            if (exist_in_another_move(other)) continue;
-            if (other.entity_type == Entity_Type.GATE || is_a_board_like_entity(other)) continue;
- 
-            res.is_taken = true;
-            res.taken_by = other;
-            return res;
-        }
- 
-        return res;
-    }
- 
-    function supporter_no_longer_exist() {
-        const possible_supporters = manager.locate_supporters(move.end_position, 1);
-        let at_least_one_supporter: boolean = false;
-        for (let supporter of possible_supporters) {
-            if (exist_in_another_move(supporter)) continue;
- 
-            at_least_one_supporter = true;
-            break;
-        }
- 
-        return !at_least_one_supporter;
-    }
- 
-    function settle_new_landing_point(p: Vec3) {
-        console.log(`SANITY CHECK: NEW SUPPORTER, target: ${ target.id }, landed: ${ p.toString() } `);
-        move.info.end_position = p;
-    }
- 
-    function resolve_new_landing_point(): { succeed: boolean, pos: Vec3 } {
-        const res = {
-            succeed: false,
-            pos: null,
-        };
- 
-        let drop_point = new Vec3(target.position);
-        const direction = move.end_direction;
-        if (direction != Direction.DOWN) {
-            drop_point = calcu_entity_future_position(target, direction);
-        }
-        const max_depth = 10; // @Hack
-        let supporters = [];
- 
-        const p = new Vec3(drop_point);
-        for (let depth = 1; depth <= max_depth; depth++) {
-            p.z -= 1;
-            if (taken_by_incoming_entity_from_same_transaction(p)) {
-                res.succeed = true;
-                p.z += 1;
-                res.pos = p;
- 
-                console.log(`SANITY CHECK: INCOMING_ENTITY depth: ${ depth }, pos: ${ p.toString() } `);
-                return res;
-            }
- 
-            supporters = manager.locate_supporters(drop_point, depth);
-            for (let supporter of supporters) {
-                if (exist_in_another_move(supporter)) continue;
- 
-                res.succeed = true;
-                p.z += 1;
-                res.pos = p;
-                return res;
-            }
-        }
- 
-        return res;
-    }
-    //#SCOPE
- 
-    if (!is_dirty(move.flags, Move_Flags.MOVED)) return true;
-    const manager = transaction.entity_manager;
-    const target = manager.find(move.target_entity_id);
- 
-    if (move.info.move_type == Move_Type.FALLING) {
-        const possible_taken = target_square_is_taken_by_entity_from_superior_transaction()
-        if (possible_taken.is_taken || supporter_no_longer_exist()) {
-            const resolved = resolve_new_landing_point();
-            if (!resolved.succeed) {
-                return false;
-            }
- 
-            settle_new_landing_point(resolved.pos);
-        }
-        return true;
-    }
- 
-    if (move.info.move_type != Move_Type.SUPPORT) {
-        // It's only a rotate move
-        if (!is_dirty(move.flags, Move_Flags.MOVED)) return true;
- 
-        if (supporter_no_longer_exist()) {
-            console.log(`SANITY CHECK: NO SUPPORTER, target: ${ target.id }, move: ${ move.info.move_type } `);
- 
-            if (move.info.move_type == Move_Type.ROVER) {
-                const slap_it = new Tram_Move(target);
-                slap_it.enact(transaction);
-            } else {
-                let direction = 0;
-                if (move.info.move_type == Move_Type.PUSH) {
-                    // @Fixme Don't pay attention to this kinda of special cases...
- 
-                    direction = move.reaction_direction;
-                } else {
-                    direction = move.end_direction;
-                }
- 
-                possible_falling(target); // @Hack
-            }
- 
-            remove_it();
-            return true;
-        }
-    }
- 
-    const possible_taken = target_square_is_taken_by_entity_from_superior_transaction();
-    if (possible_taken.is_taken) {
-        if (move.info.move_type == Move_Type.SUPPORT) {
-            if (supporter_no_longer_exist()) {
-                move.info.end_direction = Direction.DOWN;
-                const resolved = resolve_new_landing_point();
-                if (!resolved.succeed) {
-                    return false;
-                }
- 
-                settle_new_landing_point(resolved.pos);
-                return true;
-            }
-        }
- 
-        return false;
-    }
-    return true;
-}
- */
 export function maybe_move_trams(transaction_manager: Transaction_Manager) {
     const entity_manager = transaction_manager.entity_manager;
 
@@ -1244,7 +1222,7 @@ export function generate_player_move(transaction_manager: Transaction_Manager, e
 
     if (at_least_one_move_enacted) {
         $$.PLAYER_MOVE_NOT_YET_EXECUTED = true;
-        $$.SHOULD_DO_UNDO_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_MOVE_DURATION;
+        $$.PLAYER_MOVE_FINISHED_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_MOVE_DURATION;
         // console.log(time_to_string(Gameplay_Timer.get_gameplay_time()));
         transaction_manager.control_flags |= Transaction_Control_Flags.PLAYER_MOVE;
     }
@@ -1263,7 +1241,7 @@ export function generate_player_action(transaction_manager: Transaction_Manager,
             play_sfx("nopossess");
         } else if (transaction_manager.new_transaction(new Possess_Move(hero))) {
             $$.PLAYER_MOVE_NOT_YET_EXECUTED = true;
-            $$.SHOULD_DO_UNDO_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_ACTION_DURATION;
+            $$.PLAYER_MOVE_FINISHED_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_ACTION_DURATION;
             // Update transaction control flags
             transaction_manager.control_flags |= Transaction_Control_Flags.ACTION_MOVE;
         } else {

@@ -48,6 +48,15 @@
             "rotation": 2
         },
         {
+            "prefab": "Monster",
+            "position": {
+                "x": 9,
+                "y": 7,
+                "z": 5
+            },
+            "rotation": 2
+        },
+        {
             "prefab": "Ground#001",
             "position": {
                 "x": 4,
