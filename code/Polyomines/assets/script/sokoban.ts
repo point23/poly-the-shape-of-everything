@@ -20,6 +20,7 @@ import {
     note_entity_is_in_control,
     note_entity_is_not_in_control,
     get_monster_info,
+    set_monster_info,
 } from "./Game_Entity";
 import { Transaction_Control_Flags, Transaction_Manager } from "./Transaction_Manager";
 import { Interpolation_Phase, Visual_Interpolation } from "./interpolation";
@@ -331,16 +332,16 @@ export class Possess_Move extends Single_Move {
 export class Monster_Move extends Single_Move {
     public constructor(monster: Game_Entity) {
         const move_info = new Move_Info();
-        move_info.source_entity_id = monster.id;
+        move_info.target_entity_id = monster.id;
         move_info.move_type = Move_Type.MONSTER;
+        move_info.start_position = move_info.end_position = monster.position;
         super(move_info);
-
         this.piority = Move_Piorities.MONSTER;
     }
 
     enact(transaction: Move_Transaction): boolean {
         const manager = transaction.entity_manager;
-        const monster = manager.find(this.source_entity_id);
+        const monster = manager.find(this.target_entity_id);
         const hero = manager.active_hero;
         if (!hero) return false; // @Note Hero's like the Elvis might possessed some other Game Entity, so there's temporary no active hero.
 
@@ -353,62 +354,70 @@ export class Monster_Move extends Single_Move {
         }
 
         if (distance <= Const.DIST_MONSTER_WAKE_UP) {
+            const vector: Vec3 = new Vec3(0, 0, 0);
+            // @Note Wake up and turn towards hero...
+            const abs_x = Math.abs(delta.x);
+            const abs_y = Math.abs(delta.y);
+            if (abs_x > abs_y) {
+                vector.x = 1;
+                if (delta.x < 0) vector.x = -1;
+            } else {
+                vector.y = 1;
+                if (delta.y < 0) vector.y = -1;
+            }
+
+            let direction = 0;
+            { // @Todo Extract this: vector2direction
+                if (vector.x == 1) {
+                    direction = Direction.RIGHT;
+                } else if (vector.x == -1) {
+                    direction = Direction.LEFT;
+                } else if (vector.y == 1) {
+                    direction = Direction.BACKWORD;
+                } else {
+                    direction = Direction.FORWARD;
+                }
+            }
+
+            this.info.start_direction = monster.orientation;
+            this.info.end_direction = direction;
+            if (!same_direction(this.start_direction, this.end_direction)) {
+                set_dirty(this, Move_Flags.ROTATED);
+            }
+
             if (is_active) {
                 // @Note Moving towards hero...
             } else {
-                animate(monster, "activate");
-                const vector: Vec3 = new Vec3(0, 0, 0);
-                // @Note Wake up and turn towards hero...
-                const abs_x = Math.abs(delta.x);
-                const abs_y = Math.abs(delta.y);
-                if (abs_x > abs_y) {
-                    vector.x = 1;
-                    if (delta.x < 0) vector.x = -1;
-                } else {
-                    vector.y = 1;
-                    if (delta.y < 0) vector.y = -1;
-                }
-
-                let direction = 0;
-                { // @Todo Extract this: vector2direction
-                    if (vector.x == 1) {
-                        direction = Direction.RIGHT;
-                    } else if (vector.x == -1) {
-                        direction = Direction.LEFT;
-                    } else if (vector.y == 1) {
-                        direction = Direction.BACKWORD;
-                    } else {
-                        direction = Direction.FORWARD;
-                    }
-                }
-
-                this.info.start_direction = monster.orientation;
-                this.info.end_direction = direction;
-                if (!same_direction(this.start_direction, this.end_direction)) {
-                    set_dirty(this, Move_Flags.ROTATED);
-                }
+                animate(monster, 'activate');
+                set_monster_info(monster, { is_active: true });
             }
         } else {
+            if (is_active) {
+                animate(monster, 'inactivate');
+                set_monster_info(monster, { is_active: false });
+            }
+
             return false;
         }
 
+        transaction.add_move(this);
         return true;
     }
 
     execute(transaction: Move_Transaction): void {
         const manager = transaction.entity_manager;
-        const entity = manager.find(this.target_entity_id);
+        const monster = manager.find(this.target_entity_id);
         // if (is_dirty(this.flags, Move_Flags.MOVED))
         // manager.logically_move_entity(entity, this.end_position);
         if (is_dirty(this.flags, Move_Flags.ROTATED)) {
-            entity.logically_rotate_to(this.end_direction);
-            entity.visually_face_towards(this.end_direction); // @Hack We are not good at lerping quats, ignore this for now...?
+            monster.logically_rotate_to(this.end_direction);
+            monster.visually_face_towards(this.end_direction); // @Hack We are not good at lerping quats, ignore this for now...?
         }
     }
 
     complete(transaction: Move_Transaction): number {
         const manager = transaction.entity_manager;
-        const entity = manager.find(this.target_entity_id);
+        const monster = manager.find(this.target_entity_id);
         // const fall_res = possible_falling(entity);
         // animate(entity, "run");
 
@@ -475,9 +484,17 @@ export class Monster_Move extends Single_Move {
         }
     }
 
+    debug_info(): string {
+        let builder = new String_Builder();
+        builder.append('MONSTER#').append(this.id);
+        log_entity("monster", builder, this.target_entity_id);
+        maybe_log_movement(builder, this);
+        maybe_log_rotation(builder, this);
+        return builder.to_string();
+    }
 }
 
-export class Player_Move extends Single_Move {
+export class Controller_Move extends Single_Move {
 
     public constructor(entity: Game_Entity, direction: Direction, step: number = 1) {
         const move_info = new Move_Info();
@@ -631,7 +648,7 @@ export class Player_Move extends Single_Move {
         if (ratio == 1) {
             const f = this.complete_in_postorder(transaction);
             if (is_dirty(f, Move_Completion_Flags.FALLING)) {
-                $$.PLAYER_MOVE_FINISHED_AT += Const.FALLING_MOVE_DURATION;
+                $$.SHOULD_DO_UNDO_AT += Const.FALLING_MOVE_DURATION;
             }
         }
     }
@@ -1215,14 +1232,15 @@ export function maybe_move_trams(transaction_manager: Transaction_Manager) {
 export function generate_player_move(transaction_manager: Transaction_Manager, entity_manager: Entity_Manager, direction: Direction, step: number = 1) {
     let at_least_one_move_enacted = false;
     for (let e of entity_manager.entities_in_control) {
-        if (transaction_manager.new_transaction(new Player_Move(e, direction, step), Const.PLAYER_MOVE_DURATION)) {
+        if (transaction_manager.new_transaction(new Controller_Move(e, direction, step), Const.PLAYER_MOVE_DURATION)) {
             at_least_one_move_enacted = true;
         }
     }
 
     if (at_least_one_move_enacted) {
         $$.PLAYER_MOVE_NOT_YET_EXECUTED = true;
-        $$.PLAYER_MOVE_FINISHED_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_MOVE_DURATION;
+        $$.SHOULD_GENERATE_MONSTER_MOVE_AT = $$.SHOULD_DO_UNDO_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_MOVE_DURATION;
+
         // console.log(time_to_string(Gameplay_Timer.get_gameplay_time()));
         transaction_manager.control_flags |= Transaction_Control_Flags.PLAYER_MOVE;
     }
@@ -1241,12 +1259,19 @@ export function generate_player_action(transaction_manager: Transaction_Manager,
             play_sfx("nopossess");
         } else if (transaction_manager.new_transaction(new Possess_Move(hero))) {
             $$.PLAYER_MOVE_NOT_YET_EXECUTED = true;
-            $$.PLAYER_MOVE_FINISHED_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_ACTION_DURATION;
+            $$.SHOULD_DO_UNDO_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_ACTION_DURATION;
             // Update transaction control flags
             transaction_manager.control_flags |= Transaction_Control_Flags.ACTION_MOVE;
         } else {
             play_sfx("wrong");
         }
+    }
+}
+
+export function generate_monster_moves(transaction_manager: Transaction_Manager, entity_manager: Entity_Manager) {
+    const monsters = entity_manager.by_type.Monster;
+    for (let m of monsters) {
+        transaction_manager.new_transaction(new Monster_Move(m));
     }
 }
 

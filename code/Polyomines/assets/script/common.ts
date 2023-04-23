@@ -9,7 +9,7 @@ import { Game_Input, Game_Button, Button_State } from './input/Game_Input_Handle
 import { Input_Manager } from './input/Input_Manager';
 import { generate_player_action, generate_player_move } from './sokoban';
 import { do_one_undo, undo_end_frame } from './undo';
-import { Game_Entity, get_hero_info } from './Game_Entity';
+import { Entity_Type, Game_Entity, get_hero_info } from './Game_Entity';
 
 export function init_animations() {
     const entity_manager = Entity_Manager.current;
@@ -40,45 +40,53 @@ export function per_round_animation_update(entity: Game_Entity) {
         }
     }
 
-    // @Note There're some input related animation update.
-    const input: Game_Input = Input_Manager.instance.game_input;
-    if (!input) return;
+    switch (entity.entity_type) {
+        case Entity_Type.HERO: {
+            // @Note There're some input related animation update.
+            const input: Game_Input = Input_Manager.instance.game_input;
+            if (!input) return;
 
-    state.elapsed += 1;
-    if (state.elapsed >= state.duration) {
-        if (node.name == "run" || node.name == "push") {
-            if (!input.keep_pressing_moving_btn()) {
-                animate(entity, "stop");
+            state.elapsed += 1;
+            if (state.elapsed >= state.duration) {
+                if (node.name == "run" || node.name == "push") {
+                    if (!input.keep_pressing_moving_btn()) {
+                        animate(entity, "stop");
+                    }
+                }
+
+                if (node.name == "landing") {
+                    animate(entity, "activate");
+                }
+
+                if (node.name == "victory") {
+                    animate(entity, "activate");
+                }
+
+                if (node.name == "action") {
+                    animate(entity, "activate");
+                }
             }
-        }
 
-        if (node.name == "landing") {
-            animate(entity, "activate");
-        }
+            if (state.node.name == "active") {
+                if (entity.is_in_control && input.keep_pressing_moving_btn() && input.buffered_player_moves.empty()) {
+                    animate(entity, "run");
+                }
 
-        if (node.name == "victory") {
-            animate(entity, "activate");
-        }
+                if (!get_hero_info(entity)?.is_active) {
+                    animate(entity, "inactivate");
+                }
+            }
 
-        if (node.name == "action") {
-            animate(entity, "activate");
-        }
-    }
+            if (state.node.name == "inactive") {
+                if (entity.is_in_control && get_hero_info(entity)?.is_active) {
+                    animate(entity, "activate");
+                }
+            }
+        } break;
 
-    if (state.node.name == "active") {
-        if (entity.is_in_control && input.keep_pressing_moving_btn() && input.buffered_player_moves.empty()) {
-            animate(entity, "run");
-        }
+        case Entity_Type.MONSTER: {
 
-        if (!get_hero_info(entity)?.is_active) {
-            animate(entity, "inactivate");
-        }
-    }
-
-    if (state.node.name == "inactive") {
-        if (entity.is_in_control && get_hero_info(entity)?.is_active) {
-            animate(entity, "activate");
-        }
+        } break;
     }
 }
 

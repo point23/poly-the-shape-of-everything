@@ -28,7 +28,9 @@ export class $$ {
 
     static PLAYER_MOVE_NOT_YET_EXECUTED: boolean = false;
 
-    static PLAYER_MOVE_FINISHED_AT: number = -1;
+    static SHOULD_DO_UNDO_AT: number = -1;
+
+    static SHOULD_GENERATE_MONSTER_MOVE_AT: number = -1;
 
     static DURATION_IDX: number = 0;
 

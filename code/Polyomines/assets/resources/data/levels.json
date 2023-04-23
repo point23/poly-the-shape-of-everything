@@ -40,6 +40,11 @@
             "id": "test#001",
             "name": "support & falling",
             "successor": "level#004"
+        },
+        {
+            "id": "test#002",
+            "name": "monsters",
+            "successor": "level#004"
         }
     ]
 }

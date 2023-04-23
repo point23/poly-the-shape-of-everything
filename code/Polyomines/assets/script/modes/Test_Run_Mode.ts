@@ -8,7 +8,7 @@ import { Input_Manager } from '../input/Input_Manager';
 import { Keyboard } from '../input/Keyboard';
 import { Virtual_Controller } from '../input/Virtual_Controller';
 import { Level_Editor } from '../Level_Editor';
-import { generate_player_action, maybe_move_trams, Monster_Move, } from '../sokoban';
+import { generate_monster_moves, generate_player_action, maybe_move_trams, Monster_Move, } from '../sokoban';
 
 import { Transaction_Manager } from '../Transaction_Manager';
 import { Navigator } from '../ui/Navigator';
@@ -178,14 +178,15 @@ function main_loop() {
         transaction_manager.update_transactions();
     }
 
-    if ($$.PLAYER_MOVE_FINISHED_AT == Gameplay_Timer.get_gameplay_time().round) {
+
+    const now = Gameplay_Timer.get_gameplay_time();
+
+    if ($$.SHOULD_DO_UNDO_AT == now.round) {
         $$.PLAYER_MOVE_NOT_YET_EXECUTED = false;
         undo_end_frame(entity_manager);
+    }
 
-        { // @Todo Generate monster move
-            for (let m of entity_manager.by_type.Monster) {
-                transaction_manager.new_transaction(new Monster_Move(m));
-            }
-        }
+    if ($$.SHOULD_GENERATE_MONSTER_MOVE_AT == now.round) {
+        generate_monster_moves(transaction_manager, entity_manager);
     }
 }
