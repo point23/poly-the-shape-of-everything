@@ -13,16 +13,19 @@ export enum Direction {
 
 /** Global Flags */
 export class $$ {
-    static FOR_EDITING: boolean;
-    static HINTS_EDITABLE: boolean;
+    static FOR_EDITING: boolean = false;
+    static HINTS_EDITABLE: boolean = false;
 
     static IS_RUNNING: boolean = false;
-    static DOING_UNDO: boolean;
-    static RELOADING: boolean;
-    static STARTUP: boolean;
+    static IS_RECORDING: boolean = false;
+    static IS_REPLAYING: boolean = false;
 
-    static SWITCH_TURNED_ON: boolean;
-    static SHOWING_HINTS: boolean;
+    static DOING_UNDO: boolean = false;
+    static RELOADING: boolean = false;
+    static STARTUP: boolean = true;
+
+    static SWITCH_TURNED_ON: boolean = false;
+    static SHOWING_HINTS: boolean = false;
 
     static HERO_VISUALLY_MOVING = false; // @Deprecated
 
@@ -33,19 +36,6 @@ export class $$ {
     static SHOULD_GENERATE_MONSTER_MOVE_AT: number = -1;
 
     static DURATION_IDX: number = 0;
-
-    // @Todo Remove it...
-    static {
-        $$.STARTUP = true;
-
-        $$.RELOADING = false;
-        $$.IS_RUNNING = false;
-        $$.DOING_UNDO = false;
-        $$.FOR_EDITING = false;
-        $$.HINTS_EDITABLE = false;
-        $$.SWITCH_TURNED_ON = false;
-        $$.SHOWING_HINTS = false;
-    }
 }
 
 export class String_Builder {

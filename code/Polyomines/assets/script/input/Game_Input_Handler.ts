@@ -1,14 +1,6 @@
 import { _decorator, Component, Game } from 'cc';
-import { $$, clone_all_slots, Const, Direction, Queue } from '../Const';
-import { Gameplay_Timer } from '../Gameplay_Timer';
-import { play_sfx } from '../Audio_Manager';
-import { Entity_Manager } from '../Entity_Manager';
-import { Level_Editor } from '../Level_Editor';
-import { Transaction_Manager } from '../Transaction_Manager';
-import { generate_player_move } from '../sokoban';
-import { do_one_undo } from '../undo';
-import { Input_Manager } from './Input_Manager';
-import { Main } from '../Main';
+import { $$, clone_all_slots, Const, Queue, String_Builder } from '../Const';
+import { gameplay_time, Gameplay_Timer, time_to_string } from '../Gameplay_Timer';
 const { ccclass } = _decorator;
 
 export class Button_State {
@@ -158,5 +150,68 @@ export class Game_Input_Handler extends Component {
                 input.pending_records.push(clone);
             }
         }
+    }
+}
+
+export class Game_Input_Recorder {
+    #records: Input_Record[] = [];
+
+    add(button: Game_Button, time: gameplay_time): void {
+        this.#records.push(new Input_Record(button, time));
+    }
+
+    #idx: number = 0;
+    consume(): { succeed: boolean, button: Game_Button } {
+        const res = {
+            succeed: false,
+            button: null,
+        }
+
+        if (this.completed()) return res;
+
+        const head = this.#records[this.#idx];
+        if (Gameplay_Timer.compare(head.time, Gameplay_Timer.get_gameplay_time())) {
+            res.succeed = true;
+            res.button = head.button;
+            this.#idx += 1;
+        }
+
+        return res;
+    }
+
+    completed(): boolean {
+        if (this.#idx == this.#records.length) {
+            return true;
+        }
+
+        return false;
+    }
+
+    clear(): void {
+        this.#records = [];
+        this.#idx = 0;
+    }
+
+    get records(): Input_Record[] {
+        return this.#records;
+    }
+
+    to_string(): string {
+        const builder = new String_Builder();
+        builder.append("{\n\trecords: [\n");
+        for (let r of this.#records) {
+            builder.append('\t\t').append(r.to_string()).append(',\n');
+        }
+        builder.append('\t]\n}');
+        return builder.to_string();
+    }
+}
+
+class Input_Record {
+    constructor(public button: Game_Button, public time: gameplay_time) { }
+    to_string(): string {
+        const b = this.button;
+        const t = time_to_string(this.time);
+        return `{button: ${b}, time: ${t}}`;
     }
 }

@@ -488,5 +488,203 @@
             },
             "rotation": 1
         }
+    ],
+    "records": [
+        {
+            "button": 2,
+            "time": {
+                "round": 119,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 122,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 124,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 126,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 128,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 131,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 133,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 136,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 138,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 140,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 142,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 144,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 146,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 148,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 150,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 152,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 156,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 158,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 170,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 173,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 175,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 177,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 179,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 181,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 183,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 185,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 187,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 189,
+                "tick": 0
+            }
+        }
     ]
 }

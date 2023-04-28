@@ -141,6 +141,7 @@ export class Input_Manager extends Component {
 
     update_inputs() {
         if (!$$.IS_RUNNING) return;
+        if ($$.IS_REPLAYING) return;
 
         this.input_handlers.forEach((it) => {
             it.update_input();

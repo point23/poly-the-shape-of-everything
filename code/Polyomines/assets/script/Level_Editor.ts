@@ -16,6 +16,7 @@ import { Test_Run_Mode } from './modes/Test_Run_Mode';
 import { Audio_Manager } from './Audio_Manager';
 import { Efx_Manager } from './Efx_Manager';
 import { make_human_animation_graph, make_monster_animation_graph } from './Character_Data';
+import { Game_Input_Recorder } from './input/Game_Input_Handler';
 
 const { ccclass, property } = _decorator;
 
@@ -68,6 +69,7 @@ export class Level_Editor extends Component {
 
     entity_manager: Entity_Manager = null;
     debug_grid: Node = null;
+    recorder: Game_Input_Recorder = new Game_Input_Recorder();
 
     onLoad() {
         $$.HINTS_EDITABLE = true;
