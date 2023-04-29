@@ -96,10 +96,6 @@ export function update_inputs() {
 }
 
 export function process_inputs(recorder?: Game_Input_Recorder) {
-    if (!$$.IS_RUNNING) return;
-
-    const entity_manager = Entity_Manager.current;
-    const transaction_manager = Transaction_Manager.instance;
     function process_single_button(button: Game_Button) {
         if (!button) return;
 
@@ -143,10 +139,13 @@ export function process_inputs(recorder?: Game_Input_Recorder) {
     }
     //#SCOPE
 
+    if (!$$.IS_RUNNING) return;
+    const entity_manager = Entity_Manager.current;
+    const transaction_manager = Transaction_Manager.instance;
     if ($$.IS_REPLAYING && recorder) {
         const res = recorder.consume();
         if (res.succeed) {
-            console.log(`b: ${res.button}, t: ${Gameplay_Timer.now()}`);
+            console.log(`b: ${res.button}, t: ${Gameplay_Timer.get_gameplay_time().round}`);
         }
 
         process_single_button(res.button);

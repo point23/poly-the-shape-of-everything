@@ -170,7 +170,7 @@ export class Game_Input_Recorder {
         if (this.completed()) return res;
 
         const head = this.#records[this.#idx];
-        if (Gameplay_Timer.compare(head.time, Gameplay_Timer.get_gameplay_time())) {
+        if (Gameplay_Timer.compare(head.time, Gameplay_Timer.get_gameplay_time()) == 0) {
             res.succeed = true;
             res.button = head.button;
             this.#idx += 1;

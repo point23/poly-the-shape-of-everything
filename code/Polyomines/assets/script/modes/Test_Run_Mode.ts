@@ -83,6 +83,7 @@ export class Test_Run_Mode extends Game_Mode {
     }
 
     on_enter() {
+        Gameplay_Timer.reset();
         Level_Editor.instance.info("Test Run");
         this.input_manager.init();
 
@@ -107,7 +108,6 @@ export class Test_Run_Mode extends Game_Mode {
         $$.IS_RUNNING = false;
         this.#clear_ui();
         this.input_manager.clear();
-        Gameplay_Timer.reset();
     }
 
     #init_ui() {
