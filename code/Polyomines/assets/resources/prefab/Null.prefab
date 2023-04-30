@@ -305,8 +305,8 @@
       "__uuid__": "1263d74c-8167-4928-91a6-4e2672411f47@a804a",
       "__expectedType__": "cc.Mesh"
     },
-    "_shadowCastingMode": 1,
-    "_shadowReceivingMode": 1,
+    "_shadowCastingMode": 0,
+    "_shadowReceivingMode": 0,
     "_shadowBias": 0,
     "_shadowNormalBias": 0,
     "_enableMorph": true,
@@ -618,7 +618,6 @@
     "__prefab": {
       "__id__": 28
     },
-    "animation": null,
     "editing_cover": {
       "__id__": 9
     },
