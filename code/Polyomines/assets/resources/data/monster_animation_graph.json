@@ -8,6 +8,10 @@
         {
             "name": "inactive",
             "anim": "Inactive"
+        },
+        {
+            "name": "run",
+            "anim": "Run"
         }
     ],
     "arcs": [
@@ -20,6 +24,16 @@
             "from": "inactive",
             "on": "activate",
             "to": "active"
+        },
+        {
+            "from": "run",
+            "on": "activate",
+            "to": "active"
+        },
+        {
+            "from": "run",
+            "on": "inactivate",
+            "to": "inactive"
         }
     ]
 }

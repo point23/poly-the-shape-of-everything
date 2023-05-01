@@ -386,7 +386,24 @@ export class Monster_Move extends Single_Move {
             }
 
             if (is_active) {
-                // @Note Moving towards hero...
+                const d_end = this.end_direction;
+                const p_start = this.start_position;
+                const p_end = this.info.end_position = calcu_entity_future_position(monster, direction, 1);
+
+                if (same_position(p_start, p_end)
+                    || blocked_by_barrier_in_current_squares(manager, monster, d_end)
+                    || blocked_by_barrier_in_target_squares(manager, monster, d_end)
+                    || !manager.proximity_grid.verify_pos(p_end)
+                    || no_supporter(manager, p_end)) {
+                    // @Note Several reasons that we can not move...
+                    this.info.end_position = p_start;
+                } else {
+                    const push_res = try_push_others(monster, d_end, transaction);
+                    if (!push_res.pushed || push_res.push_succeed) {
+                        move_supportees(transaction, monster, this);
+                        set_dirty(this, Move_Flags.MOVED);
+                    }
+                }
             } else {
                 animate(monster, 'activate');
                 set_monster_info(monster, { is_active: true });
@@ -400,6 +417,9 @@ export class Monster_Move extends Single_Move {
             return false;
         }
 
+        this.start_visual_position = manager.proximity_grid.local2world(this.start_position);
+        this.end_visual_position = manager.proximity_grid.local2world(this.end_position);
+
         transaction.add_move(this);
         return true;
     }
@@ -407,8 +427,9 @@ export class Monster_Move extends Single_Move {
     execute(transaction: Move_Transaction): void {
         const manager = transaction.entity_manager;
         const monster = manager.find(this.target_entity_id);
-        // if (is_dirty(this.flags, Move_Flags.MOVED))
-        // manager.logically_move_entity(entity, this.end_position);
+        if (is_dirty(this.flags, Move_Flags.MOVED))
+            manager.logically_move_entity(monster, this.end_position);
+
         if (is_dirty(this.flags, Move_Flags.ROTATED)) {
             monster.logically_rotate_to(this.end_direction);
             monster.visually_face_towards(this.end_direction); // @Hack We are not good at lerping quats, ignore this for now...?
@@ -418,29 +439,10 @@ export class Monster_Move extends Single_Move {
     complete(transaction: Move_Transaction): number {
         const manager = transaction.entity_manager;
         const monster = manager.find(this.target_entity_id);
-        // const fall_res = possible_falling(entity);
-        // animate(entity, "run");
-
-        // if (!fall_res.fell) {
-        // play_sfx("step");
-        // { // @Note Check possible win
-        //     if (!is_dirty(this.flags, Move_Flags.MOVED)) return;
-        //     let possible_win = false;
-        //     for (let s of manager.locate_current_supporters(entity)) {
-        //         if (s.entity_type == Entity_Type.CHECKPOINT && s.prefab == "Checkpoint#001") possible_win = true;
-        //     }
-
-        //     if (possible_win) {
-        //         if (!manager.pending_win) play_sfx("win?");
-        //         animate(entity, "win", 20, 1);
-        //     }
-        // }
-        // return 0;
-        // }
-
-        // return Move_Completion_Flags.FALLING;
-
-        return 0;
+        const fall_res = possible_falling(monster);
+        animate(monster, "run");
+        if (!fall_res.fell) { return 0; }
+        return Move_Completion_Flags.FALLING;
     }
 
     update(transaction: Move_Transaction, ratio: number) { // @Note The ratio param should been clamped by caller.'
@@ -451,30 +453,30 @@ export class Monster_Move extends Single_Move {
             this.execute_in_preorder(transaction);
         }
 
-        // { // Start visual interpolation stuff
-        //     let phases: Interpolation_Phase[] = [];
+        { // Start visual interpolation stuff
+            let phases: Interpolation_Phase[] = [];
 
-        //     if (is_dirty(this.flags, Move_Flags.ROTATED)) {
-        //         // const r_start = entity.visual_rotation;
-        //         // const r_end = new Quat();
-        //         // Quat.lerp(r_end, this.start_visual_rotation, this.end_visual_rotation, ratio);
-        //         // const p_0 = Interpolation_Phase.rotation(0.2, r_start, r_end); // @ImplementMe We are not good at lerping quats, ignore this for now...?
-        //         // phases.push(p_0)
-        //     }
+            if (is_dirty(this.flags, Move_Flags.ROTATED)) {
+                // const r_start = entity.visual_rotation;
+                // const r_end = new Quat();
+                // Quat.lerp(r_end, this.start_visual_rotation, this.end_visual_rotation, ratio);
+                // const p_0 = Interpolation_Phase.rotation(0.2, r_start, r_end); // @ImplementMe We are not good at lerping quats, ignore this for now...?
+                // phases.push(p_0)
+            }
 
-        //     if (is_dirty(this.flags, Move_Flags.MOVED)) {
-        //         const p_start = entity.visual_position;
-        //         const p_end = new Vec3();
-        //         Vec3.lerp(p_end, this.start_visual_position, this.end_visual_position, ratio);
-        //         const p_1 = Interpolation_Phase.movement(1, p_start, p_end);
-        //         phases.push(p_1);
-        //     }
+            if (is_dirty(this.flags, Move_Flags.MOVED)) {
+                const p_start = entity.visual_position;
+                const p_end = new Vec3();
+                Vec3.lerp(p_end, this.start_visual_position, this.end_visual_position, ratio);
+                const p_1 = Interpolation_Phase.movement(1, p_start, p_end);
+                phases.push(p_1);
+            }
 
-        //     const t_start = Gameplay_Timer.get_gameplay_time();
-        //     const t_end = Gameplay_Timer.get_gameplay_time(1);
-        //     const v = new Visual_Interpolation(this, entity, t_start, t_end, phases);
-        //     // Set on_complete event?
-        // }
+            const t_start = Gameplay_Timer.get_gameplay_time();
+            const t_end = Gameplay_Timer.get_gameplay_time(1);
+            const v = new Visual_Interpolation(this, entity, t_start, t_end, phases);
+            // Set on_complete event?
+        }
 
         if (ratio == 1) {
             const f = this.complete_in_postorder(transaction);
@@ -1280,6 +1282,7 @@ export function is_a_board_like_entity(e: Game_Entity): boolean {
         case Entity_Type.TRACK:
         case Entity_Type.BRIDGE:
         case Entity_Type.ENTRANCE:
+        case Entity_Type.CHECKPOINT:
         case Entity_Type.SWITCH:
             return true;
     }
@@ -1375,10 +1378,6 @@ function move_supportees(transaction: Move_Transaction, supporter: Game_Entity, 
         if (supportee.id == supporter.id) continue;
         if (supportee.entity_type == Entity_Type.FENCE) continue; // @Hack For now, we just assume that a Fence would never be attached to a dynamic entity...
         if (has_other_supporter(supportee)) continue;
-        /*  if (Transaction_Manager.instance.unenacted_moves.has(supportee.id)) {
-             // @Note Do not move those that're already moving.
-             continue;
-         } */
 
         let d = parent_move.end_direction;
         { // @Hack
