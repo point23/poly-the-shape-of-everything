@@ -1331,6 +1331,7 @@ function try_push_others(mover: Game_Entity, direction: Direction, transaction: 
     for (let other of locate_entities_in_target_direction(manager, mover, direction)) {
         if (other == null) continue;
         if (other.id == mover.id) continue;
+        if (other.entity_type == Entity_Type.FENCE) continue;
         // if (other.interpolation) continue; // @Note That's an important bug!!!
         if (is_a_board_like_entity(other)) continue;
 
@@ -1372,6 +1373,7 @@ function move_supportees(transaction: Move_Transaction, supporter: Game_Entity, 
     const manager = transaction.entity_manager;
     for (let supportee of manager.locate_current_supportees(supporter)) {
         if (supportee.id == supporter.id) continue;
+        if (supportee.entity_type == Entity_Type.FENCE) continue; // @Hack For now, we just assume that a Fence would never be attached to a dynamic entity...
         if (has_other_supporter(supportee)) continue;
         /*  if (Transaction_Manager.instance.unenacted_moves.has(supportee.id)) {
              // @Note Do not move those that're already moving.
