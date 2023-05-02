@@ -220,6 +220,7 @@ export class Game_Entity extends Component {
     get is_selected(): boolean { return (this.flags & Entity_Flags.SELECT) != 0; }
     get is_falling(): boolean { return (this.flags & Entity_Flags.FALLING) != 0; }
     get is_in_control(): boolean { return (this.flags & Entity_Flags.IN_CONTROL) != 0; }
+    get is_dead(): boolean { return (this.flags & Entity_Flags.DEAD) != 0; }
 
     visually_move_to(world_pos: Vec3) {
         this.node.setPosition(world_pos);
@@ -347,6 +348,18 @@ export function note_entity_is_in_control(e: Game_Entity) {
 export function note_entity_is_not_in_control(e: Game_Entity) {
     if (e.is_in_control) {
         e.undoable.flags -= Entity_Flags.IN_CONTROL;
+    }
+}
+
+export function note_entity_is_dead(e: Game_Entity) {
+    if (!e.is_dead) {
+        e.undoable.flags |= Entity_Flags.DEAD;
+    }
+}
+
+export function note_entity_is_revive(e: Game_Entity) {
+    if (e.is_dead) {
+        e.undoable.flags -= Entity_Flags.DEAD;
     }
 }
 

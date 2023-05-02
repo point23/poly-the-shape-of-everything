@@ -60,6 +60,11 @@
             "to": "action"
         },
         {
+            "from": "active",
+            "on": "dead",
+            "to": "dead"
+        },
+        {
             "from": "inactive",
             "on": "activate",
             "to": "active"
@@ -83,6 +88,11 @@
             "from": "run",
             "on": "push",
             "to": "push"
+        },
+        {
+            "from": "run",
+            "on": "dead",
+            "to": "dead"
         },
         {
             "from": "run",
@@ -156,6 +166,11 @@
         },
         {
             "from": "action",
+            "on": "activate",
+            "to": "active"
+        },
+        {
+            "from": "dead",
             "on": "activate",
             "to": "active"
         }

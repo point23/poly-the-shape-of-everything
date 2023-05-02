@@ -126,6 +126,20 @@ export function animate(entity: Game_Entity, msg: string, duration: number = def
     c.anim_state.elapsed = 0;
 }
 
+export function stop_anim(entity: Game_Entity) {
+    const c = entity.getComponent(Character_Data);
+    if (!c) return;
+    if (!c.anim_state) return;
+    c.animation.stop();
+}
+
+export function start_anim(entity: Game_Entity) {
+    const c = entity.getComponent(Character_Data);
+    if (!c) return;
+    if (!c.anim_state) return;
+    c.animation.start();
+}
+
 @ccclass('Character_Data')
 export class Character_Data extends Component {
     @property(SkeletalAnimation) animation: SkeletalAnimation = null;

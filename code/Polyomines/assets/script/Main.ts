@@ -290,6 +290,10 @@ function main_loop() {
         for (let e of entity_manager?.by_type.Hero) {
             per_round_animation_update(e);
         }
+
+        for (let e of entity_manager.by_type.Monster) {
+            per_round_animation_update(e);
+        }
     }
 
     if ($$.IS_RUNNING && !$$.DOING_UNDO && !$$.RELOADING) {

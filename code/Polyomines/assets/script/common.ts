@@ -1,5 +1,5 @@
 import { Game, _decorator, } from 'cc';
-import { init_animation_state, human_animation_graph, animate, Character_Data, monster_animation_graph } from './Character_Data';
+import { init_animation_state, human_animation_graph, animate, Character_Data, monster_animation_graph, stop_anim, start_anim } from './Character_Data';
 import { $$, Const, Direction, array_remove } from './Const';
 import { Entity_Manager } from './Entity_Manager';
 import { Level_Editor } from './Level_Editor';
@@ -46,7 +46,6 @@ export function per_round_animation_update(entity: Game_Entity) {
             // @Note There're some input related animation update.
             const input: Game_Input = Input_Manager.instance.game_input;
             if (!input) return;
-
             state.elapsed += 1;
             if (state.elapsed >= state.duration) {
                 if (node.name == "run" || node.name == "push") {
@@ -66,6 +65,10 @@ export function per_round_animation_update(entity: Game_Entity) {
                 if (node.name == "action") {
                     animate(entity, "activate");
                 }
+
+                if (node.name == "dead") {
+                    stop_anim(entity);
+                }
             }
 
             if (state.node.name == "active") {
@@ -83,10 +86,44 @@ export function per_round_animation_update(entity: Game_Entity) {
                     animate(entity, "activate");
                 }
             }
+
+            if (state.node.name == "dead") {
+                if (entity.is_in_control && get_hero_info(entity)?.is_active) {
+                    start_anim(entity);
+                    animate(entity, "activate");
+                }
+            }
         } break;
 
         case Entity_Type.MONSTER: {
+            state.elapsed += 1;
+            if (state.elapsed >= state.duration) {
+                if (node.name == "run" || node.name == "push") {
+                    animate(entity, "stop");
+                }
 
+                if (node.name == "landing") {
+                    animate(entity, "activate");
+                }
+
+                if (node.name == "victory") {
+                    animate(entity, "activate");
+                }
+
+                if (node.name == "action") {
+                    animate(entity, "activate");
+                }
+
+                if (node.name == "attack") {
+                    animate(entity, "activate");
+                }
+            }
+
+            if (state.node.name == "inactive") {
+                if (entity.is_in_control && get_hero_info(entity)?.is_active) {
+                    animate(entity, "activate");
+                }
+            }
         } break;
     }
 }

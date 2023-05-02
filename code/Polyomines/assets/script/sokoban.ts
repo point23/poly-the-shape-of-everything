@@ -1,4 +1,4 @@
-import { Game, Quat, Vec3, math } from "cc";
+import { DeferredPipelineBuilder, Game, Quat, Vec3, math } from "cc";
 import { String_Builder, same_position, Const, Direction, $$, vec_add, vec_sub, array_remove } from "./Const";
 import { Entity_Manager } from "./Entity_Manager";
 import { Gameplay_Timer, gameplay_time, time_to_string } from "./Gameplay_Timer";
@@ -21,6 +21,7 @@ import {
     note_entity_is_not_in_control,
     get_monster_info,
     set_monster_info,
+    note_entity_is_dead,
 } from "./Game_Entity";
 import { Transaction_Control_Flags, Transaction_Manager } from "./Transaction_Manager";
 import { Interpolation_Phase, Visual_Interpolation } from "./interpolation";
@@ -34,7 +35,7 @@ export enum Move_Type {
     SUPPORT,
     FALLING,
     TRAM,
-    MONSTER,
+    ATTACK,
 }
 
 enum Move_Piorities {
@@ -48,7 +49,7 @@ enum Move_Piorities {
 
     TRAM = 8,
 
-    MONSTER = 10,
+    ATTACK = 20,
 }
 
 export enum Move_Flags {
@@ -329,14 +330,12 @@ export class Possess_Move extends Single_Move {
     }
 }
 
-export class Monster_Move extends Single_Move {
+export class Monster_Move extends Single_Move { // @Note It would not actually being executed, but as a router to redirect to other moves.
     public constructor(monster: Game_Entity) {
         const move_info = new Move_Info();
         move_info.target_entity_id = monster.id;
-        move_info.move_type = Move_Type.MONSTER;
         move_info.start_position = move_info.end_position = monster.position;
         super(move_info);
-        this.piority = Move_Piorities.MONSTER;
     }
 
     enact(transaction: Move_Transaction): boolean {
@@ -348,7 +347,10 @@ export class Monster_Move extends Single_Move {
         const is_active = get_monster_info(monster).is_active;
 
         const delta: Vec3 = vec_sub(hero.position, monster.position);
-        const distance = delta?.length();
+        const distance = delta.length();
+        const abs_x = Math.abs(delta.x);
+        const abs_y = Math.abs(delta.y);
+
         if (!distance) {
             console.log("Some thing went wrong");
         }
@@ -356,8 +358,7 @@ export class Monster_Move extends Single_Move {
         if (distance <= Const.DIST_MONSTER_WAKE_UP) {
             const vector: Vec3 = new Vec3(0, 0, 0);
             // @Note Wake up and turn towards hero...
-            const abs_x = Math.abs(delta.x);
-            const abs_y = Math.abs(delta.y);
+
             if (abs_x > abs_y) {
                 vector.x = 1;
                 if (delta.x < 0) vector.x = -1;
@@ -383,26 +384,14 @@ export class Monster_Move extends Single_Move {
             this.info.end_direction = direction;
             if (!same_direction(this.start_direction, this.end_direction)) {
                 set_dirty(this, Move_Flags.ROTATED);
+                const controller = new Controller_Move(monster, direction, 0);
+                controller.enact(transaction);
             }
 
             if (is_active) {
-                const d_end = this.end_direction;
-                const p_start = this.start_position;
-                const p_end = this.info.end_position = calcu_entity_future_position(monster, direction, 1);
-
-                if (same_position(p_start, p_end)
-                    || blocked_by_barrier_in_current_squares(manager, monster, d_end)
-                    || blocked_by_barrier_in_target_squares(manager, monster, d_end)
-                    || !manager.proximity_grid.verify_pos(p_end)
-                    || no_supporter(manager, p_end)) {
-                    // @Note Several reasons that we can not move...
-                    this.info.end_position = p_start;
-                } else {
-                    const push_res = try_push_others(monster, d_end, transaction);
-                    if (!push_res.pushed || push_res.push_succeed) {
-                        move_supportees(transaction, monster, this);
-                        set_dirty(this, Move_Flags.MOVED);
-                    }
+                if (distance <= 1.2) {
+                    const attack = new Attack_Move(monster, hero);
+                    attack.enact(transaction);
                 }
             } else {
                 animate(monster, 'activate');
@@ -416,85 +405,66 @@ export class Monster_Move extends Single_Move {
 
             return false;
         }
+        return true;
+    }
+}
 
-        this.start_visual_position = manager.proximity_grid.local2world(this.start_position);
-        this.end_visual_position = manager.proximity_grid.local2world(this.end_position);
+export class Attack_Move extends Single_Move {
+    public constructor(attacker: Game_Entity, victim: Game_Entity) {
+        const move_info = new Move_Info();
+        move_info.move_type = Move_Type.ATTACK;
 
+        move_info.source_entity_id = attacker.id;
+        move_info.target_entity_id = victim.id;
+
+        move_info.start_position = attacker.position;
+        move_info.end_position = victim.position;
+        super(move_info);
+
+        this.piority = Move_Piorities.ATTACK;
+    }
+
+    enact(transaction: Move_Transaction): boolean {
         transaction.add_move(this);
         return true;
     }
 
     execute(transaction: Move_Transaction): void {
         const manager = transaction.entity_manager;
-        const monster = manager.find(this.target_entity_id);
-        if (is_dirty(this.flags, Move_Flags.MOVED))
-            manager.logically_move_entity(monster, this.end_position);
-
-        if (is_dirty(this.flags, Move_Flags.ROTATED)) {
-            monster.logically_rotate_to(this.end_direction);
-            monster.visually_face_towards(this.end_direction); // @Hack We are not good at lerping quats, ignore this for now...?
-        }
+        const attacker = manager.find(this.source_entity_id);
+        const victim = manager.find(this.target_entity_id);
+        note_entity_is_dead(victim);
+        note_entity_is_not_in_control(victim);
     }
 
     complete(transaction: Move_Transaction): number {
         const manager = transaction.entity_manager;
-        const monster = manager.find(this.target_entity_id);
-        const fall_res = possible_falling(monster);
-        animate(monster, "run");
-        if (!fall_res.fell) { return 0; }
-        return Move_Completion_Flags.FALLING;
+        const attacker = manager.find(this.source_entity_id);
+        const victim = manager.find(this.target_entity_id);
+        animate(attacker, "attack", 18);
+        animate(victim, "dead", 28, 4);
+        return 0;
     }
 
     update(transaction: Move_Transaction, ratio: number) { // @Note The ratio param should been clamped by caller.'
-        const manager = transaction.entity_manager;
-        const entity = manager.find(this.target_entity_id);
-
         if (ratio >= 0.5) {
             this.execute_in_preorder(transaction);
         }
 
-        { // Start visual interpolation stuff
-            let phases: Interpolation_Phase[] = [];
-
-            if (is_dirty(this.flags, Move_Flags.ROTATED)) {
-                // const r_start = entity.visual_rotation;
-                // const r_end = new Quat();
-                // Quat.lerp(r_end, this.start_visual_rotation, this.end_visual_rotation, ratio);
-                // const p_0 = Interpolation_Phase.rotation(0.2, r_start, r_end); // @ImplementMe We are not good at lerping quats, ignore this for now...?
-                // phases.push(p_0)
-            }
-
-            if (is_dirty(this.flags, Move_Flags.MOVED)) {
-                const p_start = entity.visual_position;
-                const p_end = new Vec3();
-                Vec3.lerp(p_end, this.start_visual_position, this.end_visual_position, ratio);
-                const p_1 = Interpolation_Phase.movement(1, p_start, p_end);
-                phases.push(p_1);
-            }
-
-            const t_start = Gameplay_Timer.get_gameplay_time();
-            const t_end = Gameplay_Timer.get_gameplay_time(1);
-            const v = new Visual_Interpolation(this, entity, t_start, t_end, phases);
-            // Set on_complete event?
-        }
-
         if (ratio == 1) {
-            const f = this.complete_in_postorder(transaction);
-            // if (is_dirty(f, Move_Completion_Flags.FALLING)) {
-            //     $$.PLAYER_MOVE_FINISHED_AT += Const.FALLING_MOVE_DURATION;
-            // }
+            this.complete_in_postorder(transaction);
         }
     }
 
     debug_info(): string {
         let builder = new String_Builder();
-        builder.append('MONSTER#').append(this.id);
-        log_entity("monster", builder, this.target_entity_id);
-        maybe_log_movement(builder, this);
-        maybe_log_rotation(builder, this);
+        builder.append('ATTACK#').append(this.id);
+        log_entity("attacker", builder, this.source_entity_id);
+        log_entity("victim", builder, this.target_entity_id);
         return builder.to_string();
     }
 }
+
 
 export class Controller_Move extends Single_Move {
 
@@ -519,7 +489,8 @@ export class Controller_Move extends Single_Move {
             if (same_direction(d_start, d_end)) return false;
             // @Incomplete Need some turn-left, turn-right animation?
 
-            if (entity.entity_type == Entity_Type.HERO) {
+            if (entity.entity_type == Entity_Type.HERO
+                || entity.entity_type == Entity_Type.MONSTER) {
                 set_dirty(move, Move_Flags.ROTATED);
             } else {
                 // @ImplementMe  Avators would only rotate it's indicator
@@ -592,7 +563,9 @@ export class Controller_Move extends Single_Move {
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
         const fall_res = possible_falling(entity);
-        animate(entity, "run");
+
+        if (is_dirty(this.flags, Move_Flags.MOVED))
+            animate(entity, "run");
 
         if (!fall_res.fell) {
             play_sfx("step");
@@ -657,7 +630,7 @@ export class Controller_Move extends Single_Move {
 
     debug_info(): string {
         let builder = new String_Builder();
-        builder.append('PLAYER#').append(this.id);
+        builder.append('CONTROLLER#').append(this.id);
         log_entity("target", builder, this.target_entity_id);
         maybe_log_movement(builder, this);
         maybe_log_rotation(builder, this);
@@ -1149,9 +1122,22 @@ export function detect_conflicts(transations: Move_Transaction[]): Set<Move_Tran
             for (let o of t_b.all_moves) {
                 const e_m = manager.find(m.target_entity_id);
                 const e_o = manager.find(o.target_entity_id);
+
+                if (m.info.move_type == Move_Type.ATTACK) {
+                    if (m.target_entity_id == o.source_entity_id
+                        || m.target_entity_id == o.target_entity_id) {
+                        console.log(`[Detect Conflicts]: Dead!`);
+
+                        if (o.info.move_type == Move_Type.PLAYER_MOVE) { // @Hack
+                            $$.SHOULD_DO_UNDO_AT = -1;
+                            $$.SHOULD_GENERATE_MONSTER_MOVE_AT = -1;
+                        }
+                        return [t_b];
+                    }
+                }
+
                 if (same_position(m.end_position, o.end_position)) {
                     console.log(`[Detect Conflicts]: Collide!: ${e_m.id}, ${e_o.id}`);
-
                     return [t_b];
                 }
 
@@ -1241,7 +1227,10 @@ export function generate_player_move(transaction_manager: Transaction_Manager, e
 
     if (at_least_one_move_enacted) {
         $$.PLAYER_MOVE_NOT_YET_EXECUTED = true;
-        $$.SHOULD_GENERATE_MONSTER_MOVE_AT = $$.SHOULD_DO_UNDO_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_MOVE_DURATION;
+        $$.SHOULD_DO_UNDO_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_MOVE_DURATION;
+        if (entity_manager.active_hero.is_in_control) { // @Note Monsters should not move when the hero is not actually moving.
+            $$.SHOULD_GENERATE_MONSTER_MOVE_AT = $$.SHOULD_DO_UNDO_AT;
+        }
 
         // console.log(time_to_string(Gameplay_Timer.get_gameplay_time()));
         transaction_manager.control_flags |= Transaction_Control_Flags.PLAYER_MOVE;

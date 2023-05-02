@@ -12,6 +12,14 @@
         {
             "name": "run",
             "anim": "Run"
+        },
+        {
+            "name": "push",
+            "anim": "Push"
+        },
+        {
+            "name": "attack",
+            "anim": "Attack"
         }
     ],
     "arcs": [
@@ -21,17 +29,62 @@
             "to": "inactive"
         },
         {
+            "from": "active",
+            "on": "run",
+            "to": "run"
+        },
+        {
+            "from": "active",
+            "on": "push",
+            "to": "push"
+        },
+        {
+            "from": "active",
+            "on": "attack",
+            "to": "attack"
+        },
+        {
+            "from": "active",
+            "on": "push",
+            "to": "push"
+        },
+        {
             "from": "inactive",
             "on": "activate",
             "to": "active"
         },
         {
             "from": "run",
-            "on": "activate",
+            "on": "stop",
             "to": "active"
         },
         {
             "from": "run",
+            "on": "inactivate",
+            "to": "inactive"
+        },
+        {
+            "from": "run",
+            "on": "attack",
+            "to": "attack"
+        },
+        {
+            "from": "push",
+            "on": "stop",
+            "to": "active"
+        },
+        {
+            "from": "push",
+            "on": "inactivate",
+            "to": "inactive"
+        },
+        {
+            "from": "attack",
+            "on": "activate",
+            "to": "active"
+        },
+        {
+            "from": "attack",
             "on": "inactivate",
             "to": "inactive"
         }
