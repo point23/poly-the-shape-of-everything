@@ -144,7 +144,12 @@ class Show_Blinds extends UI_Mechanism {
     // @Note There're some dependency that, binds must be in the hide-pos before we do this...
     blinds: Node = null;
     post_begin(): void {
+        // console.log(`show blinds start: ${this.blinds.position}`);
         this.blinds.active = true;
+    }
+
+    post_end(): void {
+        // console.log(`show blinds end: ${this.blinds.position}`);
     }
     post_execute(): Tween<any> {
         const blinds = this.blinds;
@@ -158,9 +163,11 @@ class Hide_Blinds extends UI_Mechanism {
     // @Note There're some dependency that, binds must be in the show-pos before we do this...
     blinds: Node = null;
     post_begin(): void {
+        // console.log(`hide blinds start: ${this.blinds.position}`);
         default_ui_show_position.set(this.blinds.getWorldPosition());
     }
     post_end(): void {
+        // console.log(`hide blinds end: ${this.blinds.position}`);
         this.blinds.active = false;
     }
     post_execute(): Tween<any> {

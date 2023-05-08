@@ -2,6 +2,7 @@ import { _decorator, Component, Node, Button } from 'cc';
 import { play_sfx } from '../Audio_Manager';
 import { $$ } from '../Const';
 import { load_succeed_level, Main } from '../Main';
+import { show_blinds } from '../UI_Manager';
 const { ccclass, property } = _decorator;
 
 @ccclass('Game_Pause_Panel')
@@ -23,8 +24,13 @@ export class Game_Pause_Panel extends Component {
         { // Exit Current Room
             this.btn_exit.node.on(Button.EventType.CLICK, () => {
                 play_sfx("click");
+                const game = Main.instance;
                 this.node.active = false;
-                load_succeed_level(Main.instance); // @Fixme Save if user already solved that puzzle...
+                const sb = show_blinds(game.dim, 1, 1);
+                sb.on_complete = () => {
+                    load_succeed_level(game);
+                };
+                sb.execute();
             }, this);
         }
     }
