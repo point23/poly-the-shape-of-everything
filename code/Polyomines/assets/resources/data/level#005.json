@@ -750,24 +750,6 @@
             "rotation": 0
         },
         {
-            "prefab": "Hint#001",
-            "position": {
-                "x": 5,
-                "y": 4,
-                "z": 1
-            },
-            "rotation": 1
-        },
-        {
-            "prefab": "Hint#001",
-            "position": {
-                "x": 15,
-                "y": 6,
-                "z": 1
-            },
-            "rotation": 1
-        },
-        {
             "prefab": "Ground#001",
             "position": {
                 "x": 14,
@@ -982,6 +964,372 @@
                 "z": 0
             },
             "rotation": 0
+        }
+    ],
+    "records": [
+        {
+            "button": 1,
+            "time": {
+                "round": 13,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 15,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 17,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 22,
+                "tick": 0
+            }
+        },
+        {
+            "button": 11,
+            "time": {
+                "round": 30,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 36,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 39,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 41,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 43,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 45,
+                "tick": 0
+            }
+        },
+        {
+            "button": 11,
+            "time": {
+                "round": 58,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 64,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 67,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 69,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 72,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 74,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 77,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 79,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 83,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 88,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 91,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 93,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 95,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 97,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 98,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 100,
+                "tick": 0
+            }
+        },
+        {
+            "button": 11,
+            "time": {
+                "round": 104,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 111,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 113,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 116,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 120,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 176,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 178,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 180,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 182,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 184,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 199,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 213,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 215,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 227,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 236,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 247,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 258,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 271,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 273,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 277,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 356,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 359,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 361,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 363,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 365,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 369,
+                "tick": 0
+            }
         }
     ]
 }

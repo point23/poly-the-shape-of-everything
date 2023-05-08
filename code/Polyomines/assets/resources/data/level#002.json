@@ -469,15 +469,148 @@
                 "z": 2
             },
             "rotation": 2
+        }
+    ],
+    "records": [
+        {
+            "button": 3,
+            "time": {
+                "round": 4,
+                "tick": 0
+            }
         },
         {
-            "prefab": "Hint#001",
-            "position": {
-                "x": 7,
-                "y": 5,
-                "z": 3
-            },
-            "rotation": 1
+            "button": 3,
+            "time": {
+                "round": 6,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 9,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 11,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 13,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 15,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 19,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 21,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 23,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 26,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 28,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 30,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 32,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 34,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 37,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 40,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 43,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 46,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 49,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 53,
+                "tick": 0
+            }
         }
     ]
 }

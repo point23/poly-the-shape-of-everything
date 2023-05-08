@@ -163,7 +163,7 @@ export class Game_Input_Recorder {
     #idx: number = 0;
 
     peek(): Input_Record {
-        if (this.completed()) {
+        if (this.#idx == this.#records.length) {
             return null;
         }
 
@@ -191,6 +191,10 @@ export class Game_Input_Recorder {
         if (this.#idx == this.#records.length) {
             return true;
         }
+
+        const head = this.peek();
+        if (Gameplay_Timer.compare(head.time, Gameplay_Timer.get_gameplay_time()) < 0)
+            return true;
 
         return false;
     }

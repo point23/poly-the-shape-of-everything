@@ -1,5 +1,5 @@
 import { _decorator, Component, math, Node, Vec3 } from 'cc';
-import { $$, array_remove, Const, vec_add, vec_sub } from './Const';
+import { $$, array_remove, Const, same_position, vec_add, vec_sub } from './Const';
 import { Game_Entity } from './Game_Entity';
 import { gameplay_time, Gameplay_Timer } from './Gameplay_Timer';
 const { ccclass, property } = _decorator;
@@ -65,6 +65,32 @@ class Beam implements Efx_Mechanism {
     }
 }
 
+class Halo implements Efx_Mechanism {
+    start_at: gameplay_time = null;
+    end_at: gameplay_time = null;
+    current_ratio: number = 0;
+    halo_item: Node = null;
+
+    update(): void {
+        if (Gameplay_Timer.compare(this.start_at) == 1) return;
+        this.halo_item.active = true;
+
+        let ratio = 0;
+        const duration = Gameplay_Timer.calcu_delta_ticks(this.start_at, this.end_at); // @Optimize
+        const passed = Gameplay_Timer.calcu_delta_ticks(this.start_at);                // @Optimize
+        ratio = math.clamp01(passed / duration);
+        if (ratio < this.current_ratio) { // @Note Incase duration changed.
+            ratio = this.current_ratio;
+        }
+        this.current_ratio = ratio;
+
+        if (ratio == 1 || Gameplay_Timer.compare(Gameplay_Timer.get_gameplay_time(), this.end_at) >= 0) {
+            this.halo_item.active = false;
+            destroy(this);
+        }
+    }
+}
+
 export function beam(from: Vec3, to: Vec3, duration: number = 1, delay: number = 0) {
     const manager = Efx_Manager.instance;
     const efx = new Beam();
@@ -73,6 +99,17 @@ export function beam(from: Vec3, to: Vec3, duration: number = 1, delay: number =
     efx.start_position = from;
     efx.end_position = to;
     efx.beam_item = manager.efx_beam;
+    manager.running_mechanisms.push(efx);
+}
+
+export function halo(pos: Vec3, duration: number = 1, delay: number = 0) {
+    const manager = Efx_Manager.instance;
+    const efx = new Halo();
+    efx.start_at = Gameplay_Timer.get_gameplay_time(delay);
+    efx.end_at = Gameplay_Timer.get_gameplay_time(delay + duration); efx.position = pos;
+    efx.halo_item = manager.efx_halo;
+
+    efx.halo_item.setWorldPosition(pos);
     manager.running_mechanisms.push(efx);
 }
 
@@ -85,26 +122,11 @@ export class Efx_Manager extends Component {
 
     running_mechanisms: Efx_Mechanism[] = [];
 
-    @property(Node) efx_switch_hero: Node = null;
+    @property(Node) efx_halo: Node = null;
     @property(Node) efx_beam: Node = null;
 
     protected onLoad(): void {
-        this.efx_switch_hero.active = false;
+        this.efx_halo.active = false;
         this.efx_beam.active = false;
-    }
-
-    public switch_hero_efx(entity: Game_Entity) {
-        const effect = this.efx_switch_hero;
-        effect.setWorldPosition(entity.node.getWorldPosition());
-        effect.setParent(entity.node);
-        effect.setPosition(Vec3.ZERO);
-        effect.active = true;
-        $$.IS_RUNNING = false;
-
-        this.scheduleOnce(() => {
-            effect.setParent(this.node);
-            effect.active = false;
-            $$.IS_RUNNING = true;
-        }, Const.SWITCH_HERO_DURATION)
     }
 }

@@ -48,24 +48,6 @@
             "rotation": 1
         },
         {
-            "prefab": "Hint#001",
-            "position": {
-                "x": 13,
-                "y": 8,
-                "z": 1
-            },
-            "rotation": 1
-        },
-        {
-            "prefab": "Hint#002",
-            "position": {
-                "x": 8,
-                "y": 7,
-                "z": 1
-            },
-            "rotation": 2
-        },
-        {
             "prefab": "Ruin#001",
             "position": {
                 "x": 12,
@@ -847,15 +829,183 @@
                 "z": 1
             },
             "rotation": 1
+        }
+    ],
+    "records": [
+        {
+            "button": 2,
+            "time": {
+                "round": 4,
+                "tick": 0
+            }
         },
         {
-            "prefab": "Hint#001",
-            "position": {
-                "x": 8,
-                "y": 5,
-                "z": 1
-            },
-            "rotation": 1
+            "button": 2,
+            "time": {
+                "round": 6,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 8,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 10,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 12,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 15,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 17,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 19,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 22,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 24,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 26,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 28,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 33,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 35,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 38,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 40,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 43,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 45,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 48,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 50,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 52,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 54,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 57,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 62,
+                "tick": 0
+            }
+        },
+        {
+            "button": 2,
+            "time": {
+                "round": 64,
+                "tick": 0
+            }
         }
     ]
 }

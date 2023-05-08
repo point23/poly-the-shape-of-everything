@@ -13,6 +13,9 @@ export enum Direction {
 
 /** Global Flags */
 export class $$ {
+    static AVAILABLE: boolean = false;
+    static AUTO_TEST: boolean = false;
+
     static FOR_EDITING: boolean = false;
     static HINTS_EDITABLE: boolean = false;
 
@@ -284,7 +287,7 @@ export class Const {
     static WEIRD_USER_INPUT_COUNTS = 3;
     static VALID_PRESSING_INTERVAL = 3; // For now there're some zigzag when it's not n times tick-interval(ms)
 
-    static SWITCH_HERO_DURATION = 0.5;
+    static SWITCH_HERO_DURATION = 2;
     static HINTS_DURATION = 3;
     static HINTS_SHOW_COLOR = new Color(247, 53, 153, 139);
     static HINTS_HIDE_COLOR = new Color(0, 0, 0, 0);

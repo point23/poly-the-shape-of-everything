@@ -182,7 +182,7 @@ export function process_inputs(recorder?: Game_Input_Recorder) {
     if ($$.IS_REPLAYING && recorder) {
         const res = recorder.consume();
         if (res.succeed) {
-            console.log(`b: ${res.button}, t: ${time_to_string(Gameplay_Timer.get_gameplay_time())}`);
+            // console.log(`b: ${res.button}, t: ${time_to_string(Gameplay_Timer.get_gameplay_time())}`);
         }
         process_single_button(res.button);
 

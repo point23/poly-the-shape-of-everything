@@ -957,15 +957,6 @@
             "rotation": 2
         },
         {
-            "prefab": "Hint#001",
-            "position": {
-                "x": 4,
-                "y": 4,
-                "z": 1
-            },
-            "rotation": 0
-        },
-        {
             "prefab": "Rock#002",
             "position": {
                 "x": 5,
@@ -1027,6 +1018,71 @@
                 "z": 0
             },
             "rotation": 0
+        }
+    ],
+    "records": [
+        {
+            "button": 2,
+            "time": {
+                "round": 9,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 11,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 13,
+                "tick": 0
+            }
+        },
+        {
+            "button": 3,
+            "time": {
+                "round": 15,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 22,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 171,
+                "tick": 0
+            }
+        },
+        {
+            "button": 4,
+            "time": {
+                "round": 174,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 294,
+                "tick": 0
+            }
+        },
+        {
+            "button": 1,
+            "time": {
+                "round": 318,
+                "tick": 0
+            }
         }
     ]
 }

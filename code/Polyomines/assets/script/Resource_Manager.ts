@@ -24,7 +24,8 @@ export class Resource_Manager extends Component {
 
     level_id_to_idx: Map<string, number> = new Map(); // @Note Level id is the json file name.
     level_idx_to_id: Map<number, string> = new Map(); // @Note Level id is the json file name.
-    levels: Level_Data[] = []
+    levels: Level_Data[] = [];
+    levels_to_test: string[] = [];
 
     current_level_idx = 0;
     current_level_config: any = null;
@@ -52,6 +53,7 @@ export class Resource_Manager extends Component {
         resources.load(file_path, JsonAsset, (e, asset) => {
             const result = asset.json;
             this.levels = result.levels;
+            this.levels_to_test = result.levels_to_test;
             this.mapping_levels();
 
             this.current_level_idx = this.level_id_to_idx.get(result.start);

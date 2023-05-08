@@ -1,6 +1,6 @@
 import { assert, Game, Vec3 } from 'cc';
 import { $$, array_remove, Const, Direction, String_Builder } from './Const';
-import { Efx_Manager } from './Efx_Manager';
+import { Efx_Manager, halo } from './Efx_Manager';
 import {
     Serializable_Entity_Data,
     Game_Entity,
@@ -96,7 +96,7 @@ export class Entity_Manager {
         note_entity_is_in_control(new_hero);
 
         play_sfx("hero!");
-        Efx_Manager.instance.switch_hero_efx(this.active_hero)
+        halo(this.active_hero.visual_position, Const.SWITCH_HERO_DURATION, 0);
     }
 
     proximity_grid: Proximity_Grid = null;
@@ -327,6 +327,13 @@ export class Entity_Manager {
         this.undo_handler.old_entity_state.delete(e.id);
         this.proximity_grid.remove_entity(e);
         e.node.destroy();
+    }
+
+    reclaim_all() {
+        for (let e of this.all_entities) {
+            e.node.destroy();
+        }
+        this.all_entities = [];
     }
 
     debug_log_target_entities(ids: number[]): string {

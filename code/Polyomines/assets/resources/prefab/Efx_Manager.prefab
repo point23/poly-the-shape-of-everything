@@ -64,7 +64,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Efx_Switch_Entity",
+    "_name": "Efx_Halo",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
@@ -1054,7 +1054,7 @@
     "__prefab": {
       "__id__": 70
     },
-    "efx_switch_hero": {
+    "efx_halo": {
       "__id__": 2
     },
     "efx_beam": {

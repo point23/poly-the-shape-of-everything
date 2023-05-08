@@ -7,7 +7,7 @@ import { Game_Input_Handler, Game_Input_Recorder, } from '../input/Game_Input_Ha
 import { Input_Manager } from '../input/Input_Manager';
 import { Keyboard } from '../input/Keyboard';
 import { Virtual_Controller } from '../input/Virtual_Controller';
-import { Level_Editor } from '../Level_Editor';
+import { Level_Editor, toggle_record, toggle_replay } from '../Level_Editor';
 import { generate_monster_moves, maybe_move_trams } from '../sokoban';
 
 import { Transaction_Manager } from '../Transaction_Manager';
@@ -37,22 +37,7 @@ export class Test_Run_Mode extends Game_Mode {
     input_handlers: Game_Input_Handler[] = [];
     get current_handler(): Game_Input_Handler { return this.input_handlers[this.current_handler_idx]; }
 
-    get ticks_per_loop(): number {
-        return Const.TICKS_PER_ROUND[$$.DURATION_IDX];
-    };
-
     start() {
-        const btn_record = Level_Editor.instance.btn_record;
-        const btn_replay = Level_Editor.instance.btn_replay;
-
-        btn_record.node.on(Button.EventType.CLICK, () => {
-            toggle_record();
-        }, this);
-
-        btn_replay.node.on(Button.EventType.CLICK, () => {
-            toggle_replay();
-        }, this);
-
         Input_Manager.Settle(this.input_manager);
 
         this.input_handlers.push(this.keyboard);
@@ -172,16 +157,6 @@ function main_loop() {
     const recorder = Level_Editor.instance.recorder;
     process_inputs(recorder);
 
-    if ($$.IS_REPLAYING && recorder.completed()) {
-        const btn_record = Level_Editor.instance.btn_record;
-        const btn_replay = Level_Editor.instance.btn_replay;
-        const label_replay = btn_replay.getComponentInChildren(Label);
-
-        btn_record.interactable = true;
-        label_replay.string = 'Replay';
-        toggle_replay();
-    }
-
     if ($$.IS_RUNNING) {
         for (let e of entity_manager.by_type.Hero) {
             per_round_animation_update(e);
@@ -194,26 +169,37 @@ function main_loop() {
 
     if ($$.IS_RUNNING && !$$.DOING_UNDO && !$$.RELOADING) {
         if (entity_manager.pending_win) {
-            if ($$.IS_RECORDING || $$.IS_REPLAYING) toggle_record();
+            if ($$.IS_RECORDING && !$$.AUTO_TEST) toggle_record();
 
             Level_Editor.instance.info("You Win");
             $$.RELOADING = true;
-            // Level_Editor.instance.load_succeed_level();
             return;
         }
 
         const enter_res = entity_manager.entering_other_level;
         if (enter_res.entering) {
-            if ($$.IS_RECORDING || $$.IS_REPLAYING) toggle_record();
+            if ($$.IS_RECORDING && !$$.AUTO_TEST) toggle_record();
 
             Level_Editor.instance.info(`Entering Level#${enter_res.idx}`);
             $$.RELOADING = true;
-            // Level_Editor.instance.load_level(enter_res.idx);
             return;
         }
 
         maybe_move_trams(transaction_manager);
         transaction_manager.update_transactions();
+    }
+
+    if ($$.IS_REPLAYING && recorder.completed()) {
+        if ($$.AUTO_TEST) {
+            if (entity_manager && entity_manager.pending_win) {
+                Level_Editor.instance.note_test_result(true);
+            } else {
+                Level_Editor.instance.note_test_result(false);
+            }
+            return;
+        } else {
+            toggle_replay();
+        }
     }
 
     const now = Gameplay_Timer.get_gameplay_time();
@@ -225,80 +211,5 @@ function main_loop() {
 
     if ($$.SHOULD_GENERATE_MONSTER_MOVE_AT == now.round) {
         generate_monster_moves(transaction_manager, entity_manager);
-    }
-}
-
-function toggle_record(): void {
-    const recorder = Level_Editor.instance.recorder;
-    const btn_record = Level_Editor.instance.btn_record;
-    const btn_replay = Level_Editor.instance.btn_replay;
-
-    const label_record = btn_record.getComponentInChildren(Label);
-    if ($$.IS_RECORDING) {
-        btn_replay.interactable = true;
-        label_record.string = 'Record';
-    } else {
-        btn_replay.interactable = false;
-        label_record.string = 'Recording';
-    }
-
-    if ($$.IS_RECORDING) {
-        $$.IS_RECORDING = false;
-        const resource = Resource_Manager.instance;
-        const updated = resource.current_level_config;
-
-        updated.records = recorder.records;
-        Resource_Manager.instance.save_level(updated);
-        Level_Editor.instance.info("Recorded!");
-
-        console.log(recorder.to_string());
-    } else {
-        $$.IS_RECORDING = true;
-        reload_current_level();
-        recorder.clear();
-    }
-}
-
-function toggle_replay(): void {
-    const recorder = Level_Editor.instance.recorder;
-    const btn_record = Level_Editor.instance.btn_record;
-    const btn_replay = Level_Editor.instance.btn_replay;
-
-    const label_replay = btn_replay.getComponentInChildren(Label);
-    if ($$.IS_REPLAYING) {
-        btn_record.interactable = true;
-        label_replay.string = 'Replay';
-    } else {
-        btn_record.interactable = false;
-        label_replay.string = 'Replaying';
-    }
-
-    if ($$.IS_REPLAYING) {
-        $$.IS_REPLAYING = false;
-    } else {
-        $$.IS_REPLAYING = true;
-
-        const resource = Resource_Manager.instance;
-        const records = resource.current_level_config.records;
-        const recorder = Level_Editor.instance.recorder;
-        recorder.clear();
-
-        if (records) {
-            for (let r of records) {
-                recorder.add(r.button, r.time);
-            }
-        }
-
-        console.log(recorder.to_string());
-        reload_current_level();
-    }
-}
-
-function reload_current_level(): void {
-    $$.IS_RUNNING = false;
-    $$.RELOADING = true;
-
-    if ($$.FOR_EDITING) {
-        Level_Editor.instance.reload_current_level();
     }
 }

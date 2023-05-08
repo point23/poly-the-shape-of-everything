@@ -1,5 +1,12 @@
 {
     "start": "level#004",
+    "levels_to_test": [
+        "level#001",
+        "level#002",
+        "level#003",
+        "level#005",
+        "level#006"
+    ],
     "levels": [
         {
             "id": "level#004",
