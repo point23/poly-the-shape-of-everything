@@ -114,7 +114,7 @@ export class Transaction_Manager extends Component {
              } 
             */
 
-            t.update_single_moves();
+            t.update_moves();
             if (t.closed) {
                 // undo_end_frame(this.entity_manager); // @Deprecated 
                 array_remove(issued, t);

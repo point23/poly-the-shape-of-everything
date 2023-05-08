@@ -1,0 +1,41 @@
+(undo-tree-save-format-version . 1)
+"4a85a83a647ffb1cf2cde3d070843ecac4263b58"
+[nil nil nil nil (25687 47874 16146 0) 0 nil]
+([nil current ((#("#+begin_src plantuml :file  Interpolation.png
+title Puzzle Game Visual Interpolation
+
+class Visual_Interpolation {
+  current_ration: number
+  caused_by: Single_Move
+  target_entity: Game_Entity
+  parent: Visual_Interpolation
+  start_at: Gameplay_Time
+  end_at: Gameplay_Time
+  current_phase_idx: number
+  phases: Stack<Interpolation_Phase>
+  update(): void
+  destroy(): void
+  on_start(): void
+  on_complete(): void
+}
+
+class Interpolation_Phase {
+  moving: boolean
+  rotating: boolean
+  end_at: number
+  start_point: Vec3
+  end_point: Vec3
+  start_rotation: Quat
+  end_rotation: Quat
+  {static} Rotation() :Interpolation_Phase
+  {static} Movement() :Interpolation_Phase
+}
+
+Single_Move -r-> Visual_Interpolation
+Visual_Interpolation o-r-> Interpolation_Phase : phases
+
+#+end_src
+
+" 0 45 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-begin-line org-reference 1) 45 46 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-begin-line) 46 104 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 104 140 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 140 216 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 216 319 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 319 337 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 337 338 (fontified nil rear-nonsticky t font-lock-fontified t src-block t font-lock-multiline t) 338 394 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 394 415 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 415 417 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 417 425 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 425 443 (font-lock-fontified t src-block t fontified nil font-lock-multiline t) 443 444 (rear-nonsticky t font-lock-fontified t src-block t fontified nil font-lock-multiline t) 444 480 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 480 484 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 484 499 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 499 500 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 500 502 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 502 503 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 503 504 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 504 505 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 505 506 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 506 507 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 507 508 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 508 509 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 509 510 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 510 511 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 511 512 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 512 513 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 513 514 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 514 515 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 515 516 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 516 517 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 517 518 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 518 519 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 519 520 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 520 521 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 521 522 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 522 523 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 523 524 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 524 525 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 525 526 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 526 527 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 527 528 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 528 529 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 529 530 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 530 531 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 531 532 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 532 533 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 533 534 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 534 535 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 535 536 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 536 537 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 537 595 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 595 605 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 605 606 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 606 607 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 607 625 (font-lock-fontified t src-block t fontified nil font-lock-multiline t) 625 626 (rear-nonsticky t font-lock-fontified t src-block t fontified nil font-lock-multiline t) 626 627 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 627 640 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 640 669 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 669 670 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 670 702 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 702 710 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 710 723 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 723 743 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 743 766 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 766 767 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 767 768 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 768 769 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-end-line) 769 770 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-end-line) 770 771 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-end-line) 771 772 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-end-line) 772 773 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-end-line) 773 774 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-end-line) 774 775 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-end-line) 775 776 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-end-line) 776 777 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-end-line) 777 778 (fontified nil face org-block-end-line) 778 779 (fontified nil)) . -1) (undo-tree-id0 . -777) (780 . 818) (#("
+" 0 1 (fontified nil)) . 780) (779 . 781) (nil org-reference nil 1 . 46) (t . 0) (1 . 779) (t . 0)) nil (25687 47874 16141 0) 0 nil])
+nil

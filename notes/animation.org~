@@ -1,0 +1,34 @@
+#+begin_src plantuml :file  Audio.png
+title Audio
+
+class Animation_State {
+    node: Animation_Node
+    duration: number
+    elapsed: number
+}
+
+class Animation_Arc {
+    destination: Animation_Node
+    on: string
+}
+
+class Animation_Node {
+    name: string
+    anim: string
+    arcs: Animation_Arc[]
+}
+
+class Animation_Graph {
+    entry: Animation_Node
+    nodes: Map<string, Animation_Node>
+}
+
+class Animation_Manager {
+    make_human_animation_graph(graph: Animation_Graph, json: JsonAsset)
+    make_monster_animation_graph(graph: Animation_Graph, json: JsonAsset)
+    init_animation_state(e: Game_Entity, g: Animation_Graph)
+    animate(e: Game_Entity, msg: string, duration: number, delay: number)
+    per_round_animation_update(e: Game_Entity)
+}
+
+#+end_src

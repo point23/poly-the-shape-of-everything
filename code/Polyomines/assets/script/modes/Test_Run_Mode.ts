@@ -22,9 +22,6 @@ const { ccclass, property } = _decorator;
 
 @ccclass('Test_Run_Mode')
 export class Test_Run_Mode extends Game_Mode {
-    @property(Button) btn_record: Button = null;
-    @property(Button) btn_replay: Button = null;
-
     @property(Navigator) inputs_navigator: Navigator = null;
     @property(Input_Manager) input_manager: Input_Manager = null;
 
@@ -45,31 +42,14 @@ export class Test_Run_Mode extends Game_Mode {
     };
 
     start() {
-        const btn_record = this.btn_record;
-        const btn_replay = this.btn_replay;
-        const label_record = this.btn_record.getComponentInChildren(Label);
-        btn_record.node.on(Button.EventType.CLICK, () => {
-            if ($$.IS_RECORDING) {
-                btn_replay.interactable = true;
-                label_record.string = 'Record';
-            } else {
-                btn_replay.interactable = false;
-                label_record.string = 'Recording';
-            }
+        const btn_record = Level_Editor.instance.btn_record;
+        const btn_replay = Level_Editor.instance.btn_replay;
 
+        btn_record.node.on(Button.EventType.CLICK, () => {
             toggle_record();
         }, this);
 
-        const label_replay = btn_replay.getComponentInChildren(Label);
-        this.btn_replay.node.on(Button.EventType.CLICK, () => {
-            if ($$.IS_REPLAYING) {
-                btn_record.interactable = true;
-                label_replay.string = 'Replay';
-            } else {
-                btn_record.interactable = false;
-                label_replay.string = 'Replaying';
-            }
-
+        btn_replay.node.on(Button.EventType.CLICK, () => {
             toggle_replay();
         }, this);
 
@@ -133,8 +113,8 @@ export class Test_Run_Mode extends Game_Mode {
         Level_Editor.instance.durations.node.active = true;
         Level_Editor.instance.transaction_panel.navigator.node.active = true;
 
-        this.btn_record.node.active = true;
-        this.btn_replay.node.active = true;
+        Level_Editor.instance.btn_record.node.active = true;
+        Level_Editor.instance.btn_replay.node.active = true;
     }
 
     #clear_ui() {
@@ -143,8 +123,8 @@ export class Test_Run_Mode extends Game_Mode {
         Level_Editor.instance.durations.node.active = false;
         Level_Editor.instance.transaction_panel.navigator.node.active = false;
 
-        this.btn_record.node.active = false;
-        this.btn_replay.node.active = false;
+        Level_Editor.instance.btn_record.node.active = false;
+        Level_Editor.instance.btn_replay.node.active = false;
     }
 
     switch_to_prev_input_handler() {
@@ -193,10 +173,8 @@ function main_loop() {
     process_inputs(recorder);
 
     if ($$.IS_REPLAYING && recorder.completed()) {
-        const mode = Contextual_Manager.instance.current_mode as Test_Run_Mode;
-
-        const btn_record = mode.btn_record;
-        const btn_replay = mode.btn_replay;
+        const btn_record = Level_Editor.instance.btn_record;
+        const btn_replay = Level_Editor.instance.btn_replay;
         const label_replay = btn_replay.getComponentInChildren(Label);
 
         btn_record.interactable = true;
@@ -209,26 +187,28 @@ function main_loop() {
             per_round_animation_update(e);
         }
 
-        for (let e of entity_manager.by_type.Monster) {
-            per_round_animation_update(e);
+        for (let m of entity_manager.by_type.Monster) {
+            per_round_animation_update(m);
         }
     }
 
     if ($$.IS_RUNNING && !$$.DOING_UNDO && !$$.RELOADING) {
         if (entity_manager.pending_win) {
-            toggle_record();
+            if ($$.IS_RECORDING || $$.IS_REPLAYING) toggle_record();
 
-            $$.IS_RUNNING = false;
-            Level_Editor.instance.load_succeed_level();
+            Level_Editor.instance.info("You Win");
+            $$.RELOADING = true;
+            // Level_Editor.instance.load_succeed_level();
             return;
         }
 
         const enter_res = entity_manager.entering_other_level;
         if (enter_res.entering) {
-            toggle_record();
+            if ($$.IS_RECORDING || $$.IS_REPLAYING) toggle_record();
 
-            $$.IS_RUNNING = false;
-            Level_Editor.instance.load_level(enter_res.idx);
+            Level_Editor.instance.info(`Entering Level#${enter_res.idx}`);
+            $$.RELOADING = true;
+            // Level_Editor.instance.load_level(enter_res.idx);
             return;
         }
 
@@ -236,10 +216,9 @@ function main_loop() {
         transaction_manager.update_transactions();
     }
 
-
     const now = Gameplay_Timer.get_gameplay_time();
 
-    if ($$.SHOULD_DO_UNDO_AT == now.round) {
+    if ($$.SHOULD_UNDO_AT == now.round) {
         $$.PLAYER_MOVE_NOT_YET_EXECUTED = false;
         undo_end_frame(entity_manager);
     }
@@ -251,6 +230,18 @@ function main_loop() {
 
 function toggle_record(): void {
     const recorder = Level_Editor.instance.recorder;
+    const btn_record = Level_Editor.instance.btn_record;
+    const btn_replay = Level_Editor.instance.btn_replay;
+
+    const label_record = btn_record.getComponentInChildren(Label);
+    if ($$.IS_RECORDING) {
+        btn_replay.interactable = true;
+        label_record.string = 'Record';
+    } else {
+        btn_replay.interactable = false;
+        label_record.string = 'Recording';
+    }
+
     if ($$.IS_RECORDING) {
         $$.IS_RECORDING = false;
         const resource = Resource_Manager.instance;
@@ -263,11 +254,25 @@ function toggle_record(): void {
         console.log(recorder.to_string());
     } else {
         $$.IS_RECORDING = true;
+        reload_current_level();
         recorder.clear();
     }
 }
 
 function toggle_replay(): void {
+    const recorder = Level_Editor.instance.recorder;
+    const btn_record = Level_Editor.instance.btn_record;
+    const btn_replay = Level_Editor.instance.btn_replay;
+
+    const label_replay = btn_replay.getComponentInChildren(Label);
+    if ($$.IS_REPLAYING) {
+        btn_record.interactable = true;
+        label_replay.string = 'Replay';
+    } else {
+        btn_record.interactable = false;
+        label_replay.string = 'Replaying';
+    }
+
     if ($$.IS_REPLAYING) {
         $$.IS_REPLAYING = false;
     } else {

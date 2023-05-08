@@ -54,6 +54,11 @@ export class Level_Editor extends Component {
     @property(Button) btn_save: Button = null;
     @property(Button) btn_download: Button = null;
 
+    @property(Button) btn_record: Button = null;
+    @property(Button) btn_replay: Button = null;
+
+    @property(Button) btn_test: Button = null;
+
     @property(Button_Group) modes: Button_Group = null;
 
     show_undo_changes(num: number) {

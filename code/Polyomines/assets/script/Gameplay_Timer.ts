@@ -48,6 +48,7 @@ export class Gameplay_Timer {
     }
 
     static set_gameplay_time(t: gameplay_time) {
+        // console.log(`Here we had done time travel: ${time_to_string(t)}`);
         Gameplay_Timer.tick_idx = t.tick;
         Gameplay_Timer.round_idx = t.round;
     }

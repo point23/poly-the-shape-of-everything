@@ -332,7 +332,7 @@ function main_loop() {
     }
 
     const now = Gameplay_Timer.get_gameplay_time();
-    if ($$.SHOULD_DO_UNDO_AT == now.round) {
+    if ($$.SHOULD_UNDO_AT == now.round) {
         $$.PLAYER_MOVE_NOT_YET_EXECUTED = false;
         undo_end_frame(entity_manager);
     }

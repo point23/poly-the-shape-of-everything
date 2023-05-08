@@ -1,0 +1,17 @@
+#+begin_src plantuml :file  Game_Recorder.png
+title Puzzle Game Recorder
+
+class Input_Record {
+  button: Game_Button
+  time: Gameplay_Time
+}
+
+class Game_Input_Recorder {
+  records: Input_Record[]  
+  add(button: Game_Button, time: Gameplay_Time): void
+  cosume(): {succeed: boolean, button: Game_Button}
+  completed(): boolean
+}
+
+Game_Input_Recorder o--> Input_Record : moves
+#+end_src

@@ -1,0 +1,65 @@
+#+begin_src plantuml :file  UI_Mechanism.png
+title UI_Mechanism
+
+class UI_Mananger {
+    type(target: Label, content: string, show_delay: number, duration: number, hide_delay: number): UI_Mechanism
+    show_blinds(blinds: Node, show_delay: number, duration: number): UI_Mechanism
+    hide_blinds(blinds: Node, hide_delay: number, duration: number): UI_Mechanism
+    fade_in(item: Node, show_delay: number, duration: number): UI_Mechanism 
+    fade_out(item: Node, hide_delay: number, duration: number): UI_Mechanism
+}
+
+Client -r-> UI_Mananger
+UI_Mananger -u-> Typer
+UI_Mananger -u-> Show_Blinds
+UI_Mananger -u-> Hide_Blinds
+UI_Mananger -u-> Fade_In
+UI_Mananger -u-> Fade_Out
+
+ abstract class UI_Mechanism {
+    show_delay: number
+    duration: number
+    hide_delay: number
+    successor: UI_Mechanism
+    tween: Tween<any>
+    execute(): void
+    suspend() 
+    terminate()
+    begin()
+    end()
+    post_begin(): void
+    post_end(): void
+    post_execute()
+    on_start(): void
+    on_complete(): void
+}
+
+UI_Mechanism o--> UI_Mechanism : successor
+
+class Typer extends UI_Mechanism {
+    label: Label
+    content: string
+    should_hide: boolean
+}
+
+class Show_Blinds extends UI_Mechanism {
+    blinds: Node
+}
+
+class Hide_Blinds extends UI_Mechanism {
+    blinds: Node
+}
+
+class Fade_In extends UI_Mechanism {
+    sprite: Sprite
+    show_color: Color
+    hide_color: Color 
+}
+
+class Fade_Out extends UI_Mechanism {
+    sprite: Sprite
+    show_color: Color
+    hide_color: Color 
+}
+
+#+end_src

@@ -10,7 +10,7 @@ import { Input_Manager } from './input/Input_Manager';
 import { generate_player_action, generate_player_move } from './sokoban';
 import { do_one_undo, undo_end_frame } from './undo';
 import { Entity_Type, Game_Entity, get_hero_info } from './Game_Entity';
-import { Gameplay_Timer } from './Gameplay_Timer';
+import { Gameplay_Timer, time_to_string } from './Gameplay_Timer';
 
 export function init_animations() {
     const entity_manager = Entity_Manager.current;
@@ -175,17 +175,24 @@ export function process_inputs(recorder?: Game_Input_Recorder) {
         }
     }
     //#SCOPE
-
     if (!$$.IS_RUNNING) return;
+
     const entity_manager = Entity_Manager.current;
     const transaction_manager = Transaction_Manager.instance;
     if ($$.IS_REPLAYING && recorder) {
         const res = recorder.consume();
         if (res.succeed) {
-            console.log(`b: ${res.button}, t: ${Gameplay_Timer.get_gameplay_time().round}`);
+            console.log(`b: ${res.button}, t: ${time_to_string(Gameplay_Timer.get_gameplay_time())}`);
         }
-
         process_single_button(res.button);
+
+        if (res.button == Game_Button.UNDO) {
+            const next = recorder.peek();
+            if (next) {
+                if (next.time.round != Gameplay_Timer.get_gameplay_time().round + 2) // @Hack
+                    $$.DOING_UNDO = false;
+            }
+        }
     } else {
         const input: Game_Input = Input_Manager.instance.game_input;
         if (!input) return;
@@ -193,9 +200,12 @@ export function process_inputs(recorder?: Game_Input_Recorder) {
         const records = input.pending_records;
         const t_now = Gameplay_Timer.get_gameplay_time();
 
-        if (!(input.button_states.get(Game_Button.UNDO)?.ended_down)) {
-            $$.DOING_UNDO = false;
-        }
+        if ($$.DOING_UNDO)
+            if (!(input.button_states.get(Game_Button.UNDO)?.ended_down))
+                $$.DOING_UNDO = false;
+        // else
+        // @Note Drop the old records...
+        // input.pending_records = [];
 
         records.sort((a: Button_State, b: Button_State) => {// @Note a > b if a - b < 0,
             return a.counter - b.counter
@@ -231,9 +241,7 @@ export function process_inputs(recorder?: Game_Input_Recorder) {
             button_to_process = input.buffered_player_moves.dequeue();
         }
 
-        if ($$.IS_RECORDING
-            && recorder
-            && button_to_process) {
+        if ($$.IS_RECORDING && recorder && button_to_process) {
             recorder.add(button_to_process, t_now);
         }
 

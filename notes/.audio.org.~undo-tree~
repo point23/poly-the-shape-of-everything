@@ -1,0 +1,38 @@
+(undo-tree-save-format-version . 1)
+"62ebdbf9825c7fb0995c72dc1cc3566aedad17a9"
+[nil nil nil nil (25688 35776 859481 0) 0 nil]
+([nil current ((#("#+begin_src plantuml :file  Audio.png
+title Audio
+
+class Audio_Clip_Pair {
+    name: string
+    clip: AudioClip
+}
+
+class Audio_Clip_Group_Pair {
+    name: string
+    clips: AudioClip[]
+}
+
+class Audio_Manager {
+    primary: AudioSource
+    secondary: AudioSource
+    sfx: Audio_Clip_Pair[]
+    music: Audio_Clip_Pair[]
+    sfx_group: Audio_Clip_Group_Pair[]
+    play_sfx(name: string)
+    end_sfx()
+    random_sfx(name: string)
+    play_music(name: string, loop: boolean)
+    loop_music(name: string)
+    end_music()
+}
+
+Audio_Manager -d-> Audio_Clip_Pair : sfx, music
+Audio_Manager -d-> Audio_Clip_Group_Pair : sfx_group
+
+#+end_src
+
+" 0 37 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-begin-line org-reference 1) 37 38 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-begin-line) 38 500 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 500 621 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 621 630 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-end-line) 630 631 (fontified nil) 631 632 (fontified nil)) . -1) (undo-tree-id0 . -630) (633 . 663) (#("
+" 0 1 (fontified nil)) . 633) (631 . 634) (nil org-reference nil 1 . 38) (t . 0) (1 . 631) (t . 0)) nil (25688 35776 859477 0) 0 nil])
+nil

@@ -30,7 +30,7 @@ import { play_sfx, random_sfx } from "./Audio_Manager";
 import { beam } from "./Efx_Manager";
 
 export enum Move_Type {
-    PLAYER_MOVE,
+    CONTROLLER,
     PUSH,
     SUPPORT,
     FALLING,
@@ -45,7 +45,7 @@ enum Move_Piorities {
 
     PUSHED = 3,
 
-    PLAYER_MOVE = 4,
+    CONTROLLER = 4,
 
     TRAM = 8,
 
@@ -189,7 +189,7 @@ export class Move_Transaction {
         this.issue_time = Gameplay_Timer.get_gameplay_time();
     }
 
-    update_single_moves() {
+    update_moves() {
         this.elapsed += 1;
         const ratio = math.clamp01((this.elapsed / this.duration));
         for (let move of this.sorted_moves) {
@@ -470,7 +470,7 @@ export class Controller_Move extends Single_Move {
 
     public constructor(entity: Game_Entity, direction: Direction, step: number = 1) {
         const move_info = new Move_Info();
-        move_info.move_type = Move_Type.PLAYER_MOVE;
+        move_info.move_type = Move_Type.CONTROLLER;
         move_info.target_entity_id = entity.id;
 
         move_info.start_direction = entity.orientation;
@@ -480,7 +480,7 @@ export class Controller_Move extends Single_Move {
         move_info.end_position = calcu_entity_future_position(entity, direction, step);
         super(move_info);
 
-        this.piority = Move_Piorities.PLAYER_MOVE;
+        this.piority = Move_Piorities.CONTROLLER;
     }
 
     enact(transaction: Move_Transaction): boolean {
@@ -623,7 +623,7 @@ export class Controller_Move extends Single_Move {
         if (ratio == 1) {
             const f = this.complete_in_postorder(transaction);
             if (is_dirty(f, Move_Completion_Flags.FALLING)) {
-                $$.SHOULD_DO_UNDO_AT += Const.FALLING_MOVE_DURATION;
+                $$.SHOULD_UNDO_AT += Const.FALLING_MOVE_DURATION;
             }
         }
     }
@@ -1128,8 +1128,8 @@ export function detect_conflicts(transations: Move_Transaction[]): Set<Move_Tran
                         || m.target_entity_id == o.target_entity_id) {
                         console.log(`[Detect Conflicts]: Dead!`);
 
-                        if (o.info.move_type == Move_Type.PLAYER_MOVE) { // @Hack
-                            $$.SHOULD_DO_UNDO_AT = -1;
+                        if (o.info.move_type == Move_Type.CONTROLLER) { // @Hack
+                            $$.SHOULD_UNDO_AT = -1;
                             $$.SHOULD_GENERATE_MONSTER_MOVE_AT = -1;
                         }
                         return [t_b];
@@ -1227,9 +1227,9 @@ export function generate_player_move(transaction_manager: Transaction_Manager, e
 
     if (at_least_one_move_enacted) {
         $$.PLAYER_MOVE_NOT_YET_EXECUTED = true;
-        $$.SHOULD_DO_UNDO_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_MOVE_DURATION;
+        $$.SHOULD_UNDO_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_MOVE_DURATION;
         if (entity_manager.active_hero.is_in_control) { // @Note Monsters should not move when the hero is not actually moving.
-            $$.SHOULD_GENERATE_MONSTER_MOVE_AT = $$.SHOULD_DO_UNDO_AT;
+            $$.SHOULD_GENERATE_MONSTER_MOVE_AT = $$.SHOULD_UNDO_AT;
         }
 
         // console.log(time_to_string(Gameplay_Timer.get_gameplay_time()));
@@ -1250,7 +1250,7 @@ export function generate_player_action(transaction_manager: Transaction_Manager,
             play_sfx("nopossess");
         } else if (transaction_manager.new_transaction(new Possess_Move(hero))) {
             $$.PLAYER_MOVE_NOT_YET_EXECUTED = true;
-            $$.SHOULD_DO_UNDO_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_ACTION_DURATION;
+            $$.SHOULD_UNDO_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_ACTION_DURATION;
             // Update transaction control flags
             transaction_manager.control_flags |= Transaction_Control_Flags.ACTION_MOVE;
         } else {

@@ -1,0 +1,39 @@
+(undo-tree-save-format-version . 1)
+"a0200b2485cdc2cf19033b22bbe670b6685b334c"
+[nil nil nil nil (25688 32656 476079 0) 0 nil]
+([nil current ((#("#+begin_src plantuml :file  UI_Component.png
+title UI_Component
+
+class Navigator extends Component {
+    label: Label 
+    label_current: Label 
+    btn_label: Button 
+    btn_prev: Button 
+    btn_current: Button 
+    btn_next: Button 
+    initialized: boolean
+    clear()
+}
+
+class Rating extends Component {
+    label: Label 
+    layout: Layout 
+    max: number
+    val: number
+    star_0: Toggle
+    stars: Toggle[]
+    on_rated: EventHandler[]
+    on_rate(event: Event, v: number)
+}
+
+class Button_Group extends Component {
+    btns: Button[]
+    on_cliked: Event_Handler[]
+    on_btn_click(idx: any)    
+}
+
+#+end_src
+
+" 0 44 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-begin-line org-reference 1) 44 45 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-begin-line) 45 500 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 500 527 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 527 611 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 611 620 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-end-line) 620 621 (fontified nil) 621 622 (fontified nil)) . -1) (undo-tree-id0 . -620) (623 . 660) (#("
+" 0 1 (fontified nil)) . 623) (621 . 624) (nil org-reference nil 1 . 45) (t . 0) (1 . 621) (t . 0)) nil (25688 32656 476073 0) 0 nil])
+nil

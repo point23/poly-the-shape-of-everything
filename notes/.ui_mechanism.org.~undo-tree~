@@ -1,0 +1,72 @@
+(undo-tree-save-format-version . 1)
+"485ca999710ea02eca7ecbd93984cfc331df9fc5"
+[nil nil nil nil (25688 34407 367311 0) 0 nil]
+([nil current ((#("#+begin_src plantuml :file  UI_Mechanism.png
+title UI_Mechanism
+
+class UI_Mananger {
+    type(target: Label, content: string, show_delay: number, duration: number, hide_delay: number): UI_Mechanism
+    show_blinds(blinds: Node, show_delay: number, duration: number): UI_Mechanism
+    hide_blinds(blinds: Node, hide_delay: number, duration: number): UI_Mechanism
+    fade_in(item: Node, show_delay: number, duration: number): UI_Mechanism 
+    fade_out(item: Node, hide_delay: number, duration: number): UI_Mechanism
+}
+
+Client -r-> UI_Mananger
+UI_Mananger -u-> Typer
+UI_Mananger -u-> Show_Blinds
+UI_Mananger -u-> Hide_Blinds
+UI_Mananger -u-> Fade_In
+UI_Mananger -u-> Fade_Out
+
+ abstract class UI_Mechanism {
+    show_delay: number
+    duration: number
+    hide_delay: number
+    successor: UI_Mechanism
+    tween: Tween<any>
+    execute(): void
+    suspend() 
+    terminate()
+    begin()
+    end()
+    post_begin(): void
+    post_end(): void
+    post_execute()
+    on_start(): void
+    on_complete(): void
+}
+
+UI_Mechanism o--> UI_Mechanism : successor
+
+class Typer extends UI_Mechanism {
+    label: Label
+    content: string
+    should_hide: boolean
+}
+
+class Show_Blinds extends UI_Mechanism {
+    blinds: Node
+}
+
+class Hide_Blinds extends UI_Mechanism {
+    blinds: Node
+}
+
+class Fade_In extends UI_Mechanism {
+    sprite: Sprite
+    show_color: Color
+    hide_color: Color 
+}
+
+class Fade_Out extends UI_Mechanism {
+    sprite: Sprite
+    show_color: Color
+    hide_color: Color 
+}
+
+#+end_src
+
+" 0 44 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-begin-line org-reference 1) 44 45 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-begin-line) 45 500 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 500 516 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 516 1017 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 1017 1483 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 1483 1492 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-end-line) 1492 1493 (fontified nil face org-block-end-line) 1493 1494 (fontified nil)) . -1) (undo-tree-id0 . -1492) (1495 . 1532) (#("
+" 0 1 (fontified nil)) . 1495) (1494 . 1496) (nil org-reference nil 1 . 45) (t . 0) (1 . 1494) (t . 0)) nil (25688 34407 367307 0) 0 nil])
+nil

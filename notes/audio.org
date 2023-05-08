@@ -1,0 +1,31 @@
+#+begin_src plantuml :file  Audio.png
+title Audio
+
+class Audio_Clip_Pair {
+    name: string
+    clip: AudioClip
+}
+
+class Audio_Clip_Group_Pair {
+    name: string
+    clips: AudioClip[]
+}
+
+class Audio_Manager {
+    primary: AudioSource
+    secondary: AudioSource
+    sfx: Audio_Clip_Pair[]
+    music: Audio_Clip_Pair[]
+    sfx_group: Audio_Clip_Group_Pair[]
+    play_sfx(name: string)
+    end_sfx()
+    random_sfx(name: string)
+    play_music(name: string, loop: boolean)
+    loop_music(name: string)
+    end_music()
+}
+
+Audio_Manager -d-> Audio_Clip_Pair : sfx, music
+Audio_Manager -d-> Audio_Clip_Group_Pair : sfx_group
+
+#+end_src

@@ -1,5 +1,5 @@
-#+begin_src plantuml :file Game_Input.png
-title Game Input Handler
+#+begin_src plantuml :file Game_Input_Module.png
+title Game Input Module
 
 class Button_State {
     button: Game_Button
@@ -9,9 +9,11 @@ class Button_State {
 }
 
 class Game_Input {
-    pending_records: Game_Button[]
+    buffered_player_actions: Queue<Game_Button>
+    pending_records: Button_State[]
     button_states: Map<number, button_state>
     press(b: Game_Button)
+    reset()
     increase_count(b: Game_Button)
     release(b: Game_Button)
 }
@@ -68,27 +70,15 @@ class Contextual_Manager <<Context>> {
   game_modes: Game_Mode[]
   current_mode: Game_Mode
   current_mode_idx: number
-  is_enabled: boolean
-  enable();
-  dispose();
   register_events();
   unregister_events();
   switch_mode();
   save_level();
-   on_key_up(event: EventKeyboard) 
-    on_mouse_down(event: EventMouse)
-    on_mouse_move(event: EventMouse)
-    on_mouse_scroll(event: EventMouse)
-    on_touch_start(event: EventTouch)
-    on_touch_move(event: EventTouch)
-    on_touch_end(event: EventTouch)
   {static} Settle(i: Contextual_Manager);
 }
 
 class Entity_Edit_Mode <<ConcreteStateA>> {
-   camera: Camera
-  ray: geoMetry.Ray
-  copied_entities: Serialize_Entity_Data
+  camera: Camera
   copy_selected_entities()
   paste_copied_entities()
   delete_selected_entities()
@@ -97,14 +87,12 @@ class Entity_Edit_Mode <<ConcreteStateA>> {
   select_all()
   deselect_all()
   move_selected_entities()
-  roatte_selected_entities()
+  rotate_selected_entities()
 }
 
 class Test_Run_Mode <<ConcreteStateB>> {
   inputs_navigatar: Navigatar
   input_manager: Input_Manager 
-  switch_to_prev_input_handler()
-  switch_to_next_input_handler()
   show_hints()
   init_ui()
   clear_ui()
@@ -130,8 +118,8 @@ Level_Editor --> Contextual_Manager
 
 #+end_src
 
-#+begin_src plantuml :file  Game_Entity_System.png
-title Puzzle Game Entity System
+#+begin_src plantuml :file  Game_Entity_Module.png
+title Puzzle Game Entity Module
 enum Entity_Type
 enum Polyomino_Type
 enum Direction
@@ -174,31 +162,14 @@ class Game_Entity {
   editing_cover: MeshRenderer
   body: Polygon_Entity
   indicator: Polygon_Entity
-  get_position()
-  get_rotation()
-  get_flags()
-  get_is_valid()
-  get_is_selected()
-  physically_move_to(world_pos: Vec3)
-  physically_rotate_to(dir: Direction)
-  face_towards(dir: Direction)
-  logically_rotate_to()
 }
 
 class Entity_Manager {
   all_entities: Game_Entity[]
   proximity_grid: Proximity_Grid
   undo_handler: Undo_Handler
-  checkpoints: Game_Entity[]
-  rovers: Game_Entity[]
-  heroes: Game_Entity[]
-  switches: Game_Entity[]
-  hints: Game_Entity[]
-  entrances: Game_Entity[]
   load_entities(entities_info: any)
   load_entity(info: any, id: number = null): Game_Entity
-  move_entity(e: Game_Entity, p: Vec3)
-  rotate_entity(e: Game_Entity, d: Direction)
   find(id: number)
   reclaim(e: Game_Entity)
   locate_entities(p: Vec3): Game_Entity[]
@@ -207,11 +178,6 @@ class Entity_Manager {
   locate_current_supporters(e: Game_Entity): Game_Entity[]
   locate_future_supporters(e: Game_Entity, d: Direction): Game_Entity[]
   locate_current_supportees(e: Game_Entity): Game_Entity[]
-  get_entities_info(): any
-  get_active_hero(): Game_Entity
-  get_is_entering_other_level(): {entering: boolean, idx: number}
-  get_pending_win(): boolean
-  get_switch_turned_on(): boolean
 }
 
 Proximity_Grid --> Tree_Node
@@ -229,68 +195,45 @@ Game_Entity --> Polyomino_Type
 
 #+end_src
 
-#+begin_src plantuml :file  Game_Undo_System.png
-title Puzzle Game Undo System
-
-enum Undo_Action_Type
-
-class Undo_Handler {
-    manager: Entity_Manager
-    pending_creations: CD_Action[]
-    pending_destructions: CD_Action[]
-    undo_records: Stack<Undo_Record>
-    redo_records: Stack<Undo_Record>
-    old_entity_state: Map<number, Undoable_Entity_Data>
-    dirty: boolean
-    enabled: boolean
-}
-
-class CD_Action {
-  entity_id: number
-  serialized_data: string
-}
-note top of CD_Action : creation or destruction action
-
-class Undo_Record {
-  gameplay_time: number
-  active_hero_idx: number
-  transaction: string
-}
-
-CD_Action <--o Undo_Handler : pending_creations,pending_destructions
-Undo_Handler o- Undo_Record: undo_records >
-Undo_Handler --> Undo_Action_Type
-
-Undo_Handler <--o Entity_Manager
-Entity_Manager o- Game_Entity: all_entities >
-Game_Entity o--> Undoable_Entity_Data
-#+end_src
-
-#+begin_src plantuml :file  Game_Movement_System.png
-title Puzzle Game Movement System
-
-enum Move_Type
-enum Move_Flags
+#+begin_src plantuml :file  Game_Movement_Module.png
+title Puzzle Game Movement Module
 
 class Transaction_Manager {
-  {static} instance: Transaction_Manager
   control_flags: number
-  commited_stack: Stack<Move_Transaction>
-  issued_stack: Stack<Move_Transaction>
-  execute()
+  issued_transactions: Move_Transaction[]
   clear()
-  try_add_new_move(move: Single_Move)
-  {static} settle(i: Transaction_Manager)
+  new_transaction(move: Single_Move, duration: number): boolean
+  update_transactions(): void
 }
 
 class Move_Transaction {
   id: number
-  moves: Single_Move[]
+  moves: Map<number, Single_Move>
+  arcs: Map<number, Singe_Move[]>
   entity_manager: Entity_Manager
   piority: number
-  issue_time: number
-  commit_time: number
-  add_move(move: Single_Move)
+  issue_time: Gameplay_Time
+  commit_time: Gameplay_Time
+  sorted_moves(): Single_Move[]
+  add_move(move: Single_Move): void
+  add_arc(move: Single_Move): void
+  debug_info(): string
+}
+Transaction_Manager o--> Move_Transaction : issued_transactions
+Move_Transaction --> Entity_Manager
+
+together {
+abstract class Single_Move {
+  id: number
+  info: Move_Info
+  flags: number
+  piority: number
+  execute_in_preorder(transaction: Move_Transaction)
+  complete_in_postorder(transaction: Move_Transaction)
+  enact(transaction: Move_Transaction): boolean
+  execute(transaction: Move_Transaction)
+  complete(transaction: Move_Transaction)
+  update(transaction: Move_Transaction, ratio: number)  
   debug_info(): string
 }
 
@@ -298,34 +241,68 @@ class Move_Info {
   move_type: Move_Type;
   source_entity_id: number
   target_entity_id: number
+  start_position: Vec3
+  end_position: Vec3
   start_direction: Direction
   end_direction: Direction
   reaction_direction: Direction
 }
 
-abstract class Single_Move {
-  id: number
-  info: Move_Info
-  flags: number
-  piority: number
-  execute(transaction: Move_Transaction)
-  try_add_it_self(transaction: Move_Transaction): boolean
-  debug_info(): string
+enum Move_Type
+enum Move_Flags
+enum Move_Priorities
 }
 
 Single_Move o--> Move_Info
 Single_Move --> Move_Flags
+Single_Move --> Move_Priorities
 Move_Info --> Move_Type
 
-class Controller_Proc_Move extends Single_Move
-class Support_Move extends Single_Move
-class Pushed_Move extends Single_Move
-class Falling_Move extends Single_Move
-class Rover_Move extends Single_Move
-class Posses_Move extends Single_Move
-
 Move_Transaction o--> Single_Move : moves
-Move_Transaction --> Entity_Manager
 
-Transaction_Manager o--> Move_Transaction : issued_stack,commit_stack
+
+#+end_src
+
+#+begin_src plantuml :file  Gameplay_Time.png
+title Puzzle Gameplay Timer
+
+class Gameplay_Time {
+  round: number
+  tick: number
+}
+
+class Gameplay_Timer {
+  tick_idx: number
+  round_idx: number
+  running_idx: number
+
+  reset(): void
+  now(): number
+  compare(a: Gameplay_Time, b: Gameplay_Time): number
+  set_gameplay_time(t: Gameplay_Time)
+  get_gameplay_time(): Gameplay_Time
+  run(caller: Component, loop_callback: (()=>{}), tick_callbacks: (()=>{})[])
+  stop()  
+}
+
+Gameplay_Timer --> Gameplay_Time
+
+#+end_src
+
+#+begin_src plantuml :file  Game_Recorder.png
+title Puzzle Game Recorder
+
+class Input_Record {
+  button: Game_Button
+  time: Gameplay_Time
+}
+
+class Game_Input_Recorder {
+  records: Input_Record[]  
+  add(button: Game_Button, time: Gameplay_Time): void
+  cosume(): {succeed: boolean, button: Game_Button}
+  completed(): boolean
+}
+
+Game_Input_Recorder o--> Input_Record : moves
 #+end_src

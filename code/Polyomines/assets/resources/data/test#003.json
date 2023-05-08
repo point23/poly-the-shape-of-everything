@@ -2,15 +2,15 @@
     "difficulty": 2,
     "camera": {
         "position": {
-            "x": -7.5,
-            "y": 6,
-            "z": 11.5
+            "x": -4.5,
+            "y": 7,
+            "z": 9.5
         },
         "rotation": {
-            "x": -0.09229595564126016,
-            "y": -0.7010573846499837,
-            "z": -0.0922959556412604,
-            "w": 0.7010573846499829
+            "x": -0.12278780396897548,
+            "y": -0.6963642403200244,
+            "z": -0.12278780396897558,
+            "w": 0.6963642403200238
         }
     },
     "light": {
@@ -1504,6 +1504,96 @@
                 "z": 4
             },
             "rotation": 1
+        },
+        {
+            "prefab": "Rock#002",
+            "position": {
+                "x": 13,
+                "y": 4,
+                "z": 1
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Rock#002",
+            "position": {
+                "x": 11,
+                "y": 4,
+                "z": 1
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Rock#002",
+            "position": {
+                "x": 10,
+                "y": 4,
+                "z": 1
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Rock#003",
+            "position": {
+                "x": 12,
+                "y": 4,
+                "z": 1
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Rock#003",
+            "position": {
+                "x": 14,
+                "y": 4,
+                "z": 1
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Rock#003",
+            "position": {
+                "x": 15,
+                "y": 5,
+                "z": 1
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Ruin#001",
+            "position": {
+                "x": 5,
+                "y": 4,
+                "z": 5
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Board",
+            "position": {
+                "x": 6,
+                "y": 8,
+                "z": 1
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Board",
+            "position": {
+                "x": 14,
+                "y": 4,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Board",
+            "position": {
+                "x": 15,
+                "y": 4,
+                "z": 1
+            },
+            "rotation": 3
         }
     ],
     "records": []

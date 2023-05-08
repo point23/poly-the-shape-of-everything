@@ -1,0 +1,49 @@
+(undo-tree-save-format-version . 1)
+"bf04703b69f7ce6fb4c0ab8eaa4321d161ffba11"
+[nil nil nil nil (25688 37112 260337 0) 0 nil]
+([nil current ((#("#+begin_src plantuml :file  Animation.png
+title Animation
+
+class Animation_State {
+    node: Animation_Node
+    duration: number
+    elapsed: number
+}
+
+class Animation_Arc {
+    destination: Animation_Node
+    on: string
+}
+
+class Animation_Node {
+    name: string
+    anim: string
+    arcs: Animation_Arc[]
+}
+
+class Animation_Graph {
+    entry: Animation_Node
+    nodes: Map<string, Animation_Node>
+}
+
+class Animation_Manager {
+    human_animation_graph: Animation_Graph
+    monster_animation_graph: Animation_Graph
+    make_human_animation_graph(graph: Animation_Graph, json: JsonAsset)
+    make_monster_animation_graph(graph: Animation_Graph, json: JsonAsset)
+    init_animation_state(e: Game_Entity, g: Animation_Graph)
+    animate(e: Game_Entity, msg: string, duration: number, delay: number)
+    per_round_animation_update(e: Game_Entity)
+}
+
+client -r-> Animation_Manager
+Animation_Manager o-r-> Animation_Graph
+Animation_Graph o-u-> Animation_Node
+Animation_Node o-u-> Animation_Arc
+Animation_State -u-> Animation_Node
+Game_Entity -l-> Animation_State
+#+end_src
+
+" 0 41 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-begin-line org-reference 1) 41 42 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-begin-line) 42 500 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 500 516 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 516 1016 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 1016 1058 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 1058 1067 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-end-line) 1067 1068 (fontified nil face org-block-end-line) 1068 1069 (fontified nil)) . -1) (undo-tree-id0 . -1067) (1070 . 1104) (#("
+" 0 1 (fontified nil)) . 1070) (1069 . 1071) (nil org-reference nil 1 . 42) (t . 0) (1 . 1069) (t . 0)) nil (25688 37112 260332 0) 0 nil])
+nil

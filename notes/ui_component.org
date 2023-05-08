@@ -1,0 +1,32 @@
+#+begin_src plantuml :file  UI_Component.png
+title UI_Component
+
+class Navigator extends Component {
+    label: Label 
+    label_current: Label 
+    btn_label: Button 
+    btn_prev: Button 
+    btn_current: Button 
+    btn_next: Button 
+    initialized: boolean
+    clear()
+}
+
+class Rating extends Component {
+    label: Label 
+    layout: Layout 
+    max: number
+    val: number
+    star_0: Toggle
+    stars: Toggle[]
+    on_rated: EventHandler[]
+    on_rate(event: Event, v: number)
+}
+
+class Button_Group extends Component {
+    btns: Button[]
+    on_cliked: Event_Handler[]
+    on_btn_click(idx: any)    
+}
+
+#+end_src

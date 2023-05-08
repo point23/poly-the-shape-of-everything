@@ -1,4 +1,4 @@
-import { _decorator, Component, Game } from 'cc';
+import { _decorator, Component, Game, Input } from 'cc';
 import { $$, clone_all_slots, Const, Queue, String_Builder } from '../Const';
 import { gameplay_time, Gameplay_Timer, time_to_string } from '../Gameplay_Timer';
 const { ccclass } = _decorator;
@@ -161,6 +161,15 @@ export class Game_Input_Recorder {
     }
 
     #idx: number = 0;
+
+    peek(): Input_Record {
+        if (this.completed()) {
+            return null;
+        }
+
+        return this.#records[this.#idx];
+    }
+
     consume(): { succeed: boolean, button: Game_Button } {
         const res = {
             succeed: false,
@@ -168,8 +177,7 @@ export class Game_Input_Recorder {
         }
 
         if (this.completed()) return res;
-
-        const head = this.#records[this.#idx];
+        const head = this.peek();
         if (Gameplay_Timer.compare(head.time, Gameplay_Timer.get_gameplay_time()) == 0) {
             res.succeed = true;
             res.button = head.button;

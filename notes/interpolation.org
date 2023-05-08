@@ -1,0 +1,34 @@
+#+begin_src plantuml :file  Interpolation.png
+title Puzzle Game Visual Interpolation
+
+class Visual_Interpolation {
+  current_ration: number
+  caused_by: Single_Move
+  target_entity: Game_Entity
+  parent: Visual_Interpolation
+  start_at: Gameplay_Time
+  end_at: Gameplay_Time
+  current_phase_idx: number
+  phases: Stack<Interpolation_Phase>
+  update(): void
+  destroy(): void
+  on_start(): void
+  on_complete(): void
+}
+
+class Interpolation_Phase {
+  moving: boolean
+  rotating: boolean
+  end_at: number
+  start_point: Vec3
+  end_point: Vec3
+  start_rotation: Quat
+  end_rotation: Quat
+  {static} Rotation() :Interpolation_Phase
+  {static} Movement() :Interpolation_Phase
+}
+
+Single_Move -r-> Visual_Interpolation
+Visual_Interpolation o-r-> Interpolation_Phase : phases
+
+#+end_src

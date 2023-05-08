@@ -31,7 +31,7 @@ export class $$ {
 
     static PLAYER_MOVE_NOT_YET_EXECUTED: boolean = false;
 
-    static SHOULD_DO_UNDO_AT: number = -1;
+    static SHOULD_UNDO_AT: number = -1;
 
     static SHOULD_GENERATE_MONSTER_MOVE_AT: number = -1;
 

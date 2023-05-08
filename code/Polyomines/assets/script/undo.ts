@@ -76,7 +76,6 @@ export function undo_end_frame(manager: Entity_Manager, force: boolean = false) 
 
     const record = new Undo_Record();
     record.gameplay_time = Gameplay_Timer.get_gameplay_time();
-    // record.checkpoint = $.take($.S_next_undo_record_is_checkpoint);
 
     // Count changes
     let num_changes = Number(builder.get(1));
@@ -128,9 +127,10 @@ export function do_one_undo(manager: Entity_Manager) {
     }
     play_sfx("undo");
 
-    Visual_Interpolation.running_interpolations.clear(); // @Fixme Move it to somewhere else, maybe Entity_Manager?
-    Efx_Manager.instance.running_mechanisms = []; // @Fixme Move it to somewhere else, maybe Entity_Manager?
-
+    { // Drop all running visual interpolations and efx's...
+        Visual_Interpolation.running_interpolations.clear(); // @Fixme Move it to somewhere else, maybe Entity_Manager?
+        Efx_Manager.instance.running_mechanisms = []; // @Fixme Move it to somewhere else, maybe Entity_Manager?
+    }
     const record = undo.undo_records.pop();
     Gameplay_Timer.set_gameplay_time(record.gameplay_time);
     really_do_one_undo(manager, record, false);
