@@ -421,8 +421,11 @@
   },
   {
     "__type__": "Prefab_Pair",
-    "id": "",
-    "prefab": null
+    "id": "Selena",
+    "prefab": {
+      "__uuid__": "2e1f5845-0407-4e56-a523-80422803d12a",
+      "__expectedType__": "cc.Prefab"
+    }
   },
   {
     "__type__": "cc.PrefabInfo",

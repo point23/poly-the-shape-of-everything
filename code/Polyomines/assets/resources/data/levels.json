@@ -57,6 +57,11 @@
             "id": "test#003",
             "name": "platformer",
             "successor": "level#004"
+        },
+        {
+            "id": "test#004",
+            "name": "charm",
+            "successor": "level#004"
         }
     ]
 }

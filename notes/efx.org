@@ -1,0 +1,34 @@
+#+begin_src plantuml :file  Efx_Mechanism.png
+title Efx_Mechanism
+
+class Efx_Mananger {
+    halo(pos: Vec3, duration: number, delay: number): void
+    beam(form: Vec3, to: Vec3, duration: number, delay: number): void
+    efx_halo: Node
+    efx_beam: Node
+}
+
+Client -r-> Efx_Mananger
+Efx_Mananger -u-> Beam
+Efx_Mananger -u-> Halo
+
+ interface Efx_Mechanism {
+    start_at: Gameplay_Time
+    end_at: Gameplay_Time
+    current_ratio: number
+    update(): void
+    destroy(): void
+}
+
+class Beam implements Efx_Mechanism {
+    start_pos: Vec3
+    end_pos: Vec3
+    beam_item: Node
+}
+
+class Halo implements Efx_Mechanism {
+    pos: Vec3
+    beam_item: Node
+}
+
+#+end_src

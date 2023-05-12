@@ -1,0 +1,41 @@
+(undo-tree-save-format-version . 1)
+"180defff526324f3e9f0c254ecb4550a20c7fee7"
+[nil nil nil nil (25691 6067 695994 0) 0 nil]
+([nil current ((#("#+begin_src plantuml :file  Efx_Mechanism.png
+title Efx_Mechanism
+
+class Efx_Mananger {
+    halo(pos: Vec3, duration: number, delay: number): void
+    beam(form: Vec3, to: Vec3, duration: number, delay: number): void
+    efx_halo: Node
+    efx_beam: Node
+}
+
+Client -r-> Efx_Mananger
+Efx_Mananger -u-> Beam
+Efx_Mananger -u-> Halo
+
+ interface Efx_Mechanism {
+    start_at: Gameplay_Time
+    end_at: Gameplay_Time
+    current_ratio: number
+    update(): void
+    destroy(): void
+}
+
+class Beam implements Efx_Mechanism {
+    start_pos: Vec3
+    end_pos: Vec3
+    beam_item: Node
+}
+
+class Halo implements Efx_Mechanism {
+    pos: Vec3
+    beam_item: Node
+}
+
+#+end_src
+
+" 0 45 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-begin-line org-reference 1) 45 46 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-begin-line) 46 500 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 500 517 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 517 653 (fontified nil font-lock-fontified t src-block t font-lock-multiline t) 653 662 (fontified nil font-lock-fontified t font-lock-multiline t face org-block-end-line) 662 663 (fontified nil face org-block-end-line) 663 664 (fontified nil)) . -1) (undo-tree-id0 . -662) (665 . 703) (#("
+" 0 1 (fontified nil)) . 665) (664 . 666) (nil org-reference nil 1 . 46) (t . 0) (1 . 664) (t . 0)) nil (25691 6067 695990 0) 0 nil])
+nil

@@ -1,4 +1,4 @@
-import { _decorator, Component, math, Node, Vec3 } from 'cc';
+import { _decorator, Component, instantiate, math, Node, Prefab, Vec3 } from 'cc';
 import { $$, array_remove, Const, same_position, vec_add, vec_sub } from './Const';
 import { Game_Entity } from './Game_Entity';
 import { gameplay_time, Gameplay_Timer } from './Gameplay_Timer';
@@ -59,7 +59,7 @@ class Beam implements Efx_Mechanism {
         // @Todo Enforce the color strength...
 
         if (ratio == 1 || Gameplay_Timer.compare(Gameplay_Timer.get_gameplay_time(), this.end_at) >= 0) {
-            this.beam_item.active = false;
+            this.beam_item.destroy();
             destroy(this);
         }
     }
@@ -85,7 +85,7 @@ class Halo implements Efx_Mechanism {
         this.current_ratio = ratio;
 
         if (ratio == 1 || Gameplay_Timer.compare(Gameplay_Timer.get_gameplay_time(), this.end_at) >= 0) {
-            this.halo_item.active = false;
+            this.halo_item.destroy();
             destroy(this);
         }
     }
@@ -98,7 +98,8 @@ export function beam(from: Vec3, to: Vec3, duration: number = 1, delay: number =
     efx.end_at = Gameplay_Timer.get_gameplay_time(delay + duration);
     efx.start_position = from;
     efx.end_position = to;
-    efx.beam_item = manager.efx_beam;
+    efx.beam_item = manager.beam_item;
+
     manager.running_mechanisms.push(efx);
 }
 
@@ -106,10 +107,10 @@ export function halo(pos: Vec3, duration: number = 1, delay: number = 0) {
     const manager = Efx_Manager.instance;
     const efx = new Halo();
     efx.start_at = Gameplay_Timer.get_gameplay_time(delay);
-    efx.end_at = Gameplay_Timer.get_gameplay_time(delay + duration); efx.position = pos;
-    efx.halo_item = manager.efx_halo;
-
+    efx.end_at = Gameplay_Timer.get_gameplay_time(delay + duration);
+    efx.halo_item = manager.halo_item;
     efx.halo_item.setWorldPosition(pos);
+
     manager.running_mechanisms.push(efx);
 }
 
@@ -120,13 +121,21 @@ export class Efx_Manager extends Component {
         Efx_Manager.instance = instance;
     }
 
+    @property(Node) parent_node: Node = null;
     running_mechanisms: Efx_Mechanism[] = [];
 
-    @property(Node) efx_halo: Node = null;
-    @property(Node) efx_beam: Node = null;
+    @property(Prefab) pfb_halo: Prefab = null;
+    @property(Prefab) pfb_beam: Prefab = null;
 
-    protected onLoad(): void {
-        this.efx_halo.active = false;
-        this.efx_beam.active = false;
+    get halo_item(): Node {
+        const n = instantiate(this.pfb_halo);
+        n.setParent(this.parent_node);
+        return n;
+    }
+
+    get beam_item(): Node {
+        const n = instantiate(this.pfb_beam);
+        n.setParent(this.parent_node);
+        return n;
     }
 }

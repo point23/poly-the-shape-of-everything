@@ -22,12 +22,15 @@ import {
     get_monster_info,
     set_monster_info,
     note_entity_is_dead,
+    calcu_end_position,
+    note_entity_is_selected,
+    note_entity_is_deselected,
 } from "./Game_Entity";
 import { Transaction_Control_Flags, Transaction_Manager } from "./Transaction_Manager";
 import { Interpolation_Phase, Visual_Interpolation } from "./interpolation";
-import { animate } from "./Character_Data";
+import { animate, make_animation_graph } from "./Character_Data";
 import { play_sfx, random_sfx } from "./Audio_Manager";
-import { beam } from "./Efx_Manager";
+import { beam, halo } from "./Efx_Manager";
 
 export enum Move_Type {
     CONTROLLER,
@@ -36,6 +39,7 @@ export enum Move_Type {
     FALLING,
     TRAM,
     ATTACK,
+    CHARM,
 }
 
 enum Move_Piorities {
@@ -122,7 +126,7 @@ export class Single_Move {
 
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
-        const children = transaction.arcs.get(entity.id);
+        const children = transaction.arcs.get(entity?.id);
         children?.forEach((it) => it.execute_in_preorder(transaction));
         this.execute(transaction);
     }
@@ -135,7 +139,7 @@ export class Single_Move {
 
         const manager = transaction.entity_manager;
         const entity = manager.find(this.target_entity_id);
-        const children = transaction.arcs.get(entity.id);
+        const children = transaction.arcs.get(entity?.id);
         children?.forEach((it) => { flag |= it.complete_in_postorder(transaction) });
         return flag;
     }
@@ -246,6 +250,90 @@ export class Move_Transaction {
         for (let move of this.all_moves) {
             builder.append('\t- ').append(move.debug_info()).append('\n');
         }
+        return builder.to_string();
+    }
+}
+
+
+export class Charm_Move extends Single_Move {
+    charmed: Game_Entity[] = [];
+
+    public constructor(killa: Game_Entity) {
+        const move_info = new Move_Info();
+        move_info.source_entity_id = killa.id;
+        move_info.target_entity_id = null;
+
+        move_info.move_type = Move_Type.CHARM;
+        move_info.start_position = killa.position;
+        move_info.reaction_direction = killa.orientation;
+        super(move_info);
+    }
+
+    enact(transaction: Move_Transaction): boolean {
+        if (already_exist_one(Transaction_Control_Flags.ACTION_MOVE)) return false;
+
+        const manager = transaction.entity_manager;
+        const killa = manager.find(this.source_entity_id);
+
+        const entities = manager.proximity_grid.region_search(killa.position, 2);
+        for (let e of entities) {
+            if (e.id == killa.id) continue;
+            this.charmed.push(e);
+        }
+
+        transaction.add_move(this);
+        return true;
+    }
+
+    execute(transaction: Move_Transaction): void {
+        const manager = transaction.entity_manager;
+        const killa = manager.find(this.source_entity_id);
+
+        for (let e of this.charmed) {
+            note_entity_is_in_control(e);
+            halo(e.visual_position, Const.SWITCH_HERO_DURATION, 0);
+        }
+
+        { // @Temporary Replace it with sth like 
+            const center = manager.proximity_grid.local2world(killa.position);
+            const p0 = manager.proximity_grid.local2world(calcu_end_position(killa.position, Direction.BACKWORD, 2));
+            const p1 = manager.proximity_grid.local2world(calcu_end_position(killa.position, Direction.FORWARD, 2));
+            const p2 = manager.proximity_grid.local2world(calcu_end_position(killa.position, Direction.LEFT, 2));
+            const p3 = manager.proximity_grid.local2world(calcu_end_position(killa.position, Direction.RIGHT, 2));
+            beam(center, p0, 2);
+            beam(center, p1, 2);
+            beam(center, p2, 2);
+            beam(center, p3, 2);
+        }
+    }
+
+    complete(transaction: Move_Transaction): number {
+        const manager = transaction.entity_manager;
+        // const possessor = manager.find(this.source_entity_id);
+        // animate(possessor, "action", 18, 1);
+        // animate(possessor, "inactivate", 3, 19);
+        play_sfx("possess");
+        return 0;
+    }
+
+    update(transaction: Move_Transaction, ratio: number) { // @Note The ratio param should been clamped by caller.'
+        // const manager = transaction.entity_manager;
+        // const possessor = manager.find(this.source_entity_id);
+        // const possessed = manager.find(this.target_entity_id);
+
+        if (ratio >= 0.5) {
+            this.execute_in_preorder(transaction);
+        }
+
+        if (ratio == 1) {
+            this.complete_in_postorder(transaction);
+        }
+    }
+
+    debug_info(): string {
+        let builder = new String_Builder();
+        builder.append('CHARM#').append(this.id);
+        log_entity('killa', builder, this.source_entity_id);
         return builder.to_string();
     }
 }
@@ -1120,6 +1208,8 @@ export function detect_conflicts(transations: Move_Transaction[]): Set<Move_Tran
     function detect_conflicts_between(t_a: Move_Transaction, t_b: Move_Transaction): Move_Transaction[] {
         for (let m of t_a.all_moves) {
             for (let o of t_b.all_moves) {
+                if (m.info.move_type == Move_Type.CHARM || o.info.move_type == Move_Type.CHARM) continue; // @Fixme Also got some conflicts...
+
                 const e_m = manager.find(m.target_entity_id);
                 const e_o = manager.find(o.target_entity_id);
 
@@ -1255,6 +1345,22 @@ export function generate_player_action(transaction_manager: Transaction_Manager,
             transaction_manager.control_flags |= Transaction_Control_Flags.ACTION_MOVE;
         } else {
             play_sfx("wrong");
+        }
+    } else if (hero.prefab == "Selena") {
+        if (entity_manager.entities_in_control.length == 1) {
+            if (transaction_manager.new_transaction(new Charm_Move(hero))) {
+                $$.PLAYER_MOVE_NOT_YET_EXECUTED = true;
+                $$.SHOULD_UNDO_AT = Gameplay_Timer.get_gameplay_time().round + Const.PLAYER_ACTION_DURATION;
+                transaction_manager.control_flags |= Transaction_Control_Flags.ACTION_MOVE;
+            } else {
+                play_sfx('wrong');
+            }
+        } else {
+            for (let e of entity_manager.entities_in_control) {
+                if (e.entity_type == Entity_Type.HERO) continue; // @Incomplete
+
+                note_entity_is_not_in_control(e);
+            }
         }
     }
 }

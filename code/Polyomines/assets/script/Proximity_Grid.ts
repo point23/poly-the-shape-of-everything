@@ -135,58 +135,61 @@ function point_search(r: Tree_Node, p: Vec3): Tree_Node {
     return null;
 }
 
-/* 
-    // @ImplementMe
-    class Region {
-        bounds: [number, number, number, number];
-        get l(): number { return this.bounds[0]; }
-        get r(): number { return this.bounds[1]; }
-        get b(): number { return this.bounds[2]; }
-        get t(): number { return this.bounds[3]; }
+class Region {
+    bounds: [number, number, number, number];
+    get l(): number { return this.bounds[0]; }
+    get r(): number { return this.bounds[1]; }
+    get b(): number { return this.bounds[2]; }
+    get t(): number { return this.bounds[3]; }
 
-        constructor(l: number, r: number, b: number, t: number) {
-            this.bounds = [l, r, b, t];
-        }
+    constructor(l: number, r: number, b: number, t: number) {
+        this.bounds = [l, r, b, t];
     }
+}
 
-    function region_search(region: Region): Tree_Node[] {
-        function search_until(p: Tree_Node, l: number, r: number, b: number, t: number) {
-            function found() {
-                search_result.push(p);
-            }
-            function in_region(xc: number, yc: number): boolean {
-                return (l <= xc && xc <= r) && (b <= yc && yc <= t);
-            }
-            function overlaps(lp: number, rp: number, bp: number, tp: number): boolean {
-                return (l <= rp) && (r >= lp) && (b <= tp) && (t >= bp);
-            }
-            //#SCOPE
-
-            const x = p.x;
-            const y = p.y;
-            if (in_region(x, y)) found();
-            //       ___ ___   t
-            //      |NW |NE |
-            //      |___!___|  y
-            //      |SW |SE |
-            //      |___|___|  b
-            //      l   x   r
-            if (p.children[Quadrant.NE] != null && overlaps(x, r, y, t))
-                search_until(p.children[Quadrant.NE], x, r, y, t);
-            if (p.children[Quadrant.NW] != null && overlaps(l, x, y, t))
-                search_until(p.children[Quadrant.NW], l, x, y, t);
-            if (p.children[Quadrant.SW] != null && overlaps(l, x, b, y))
-                search_until(p.children[Quadrant.SW], l, x, b, y);
-            if (p.children[Quadrant.SE] != null && overlaps(x, r, b, y))
-                search_until(p.children[Quadrant.SE], x, r, b, y);
+function region_search(node: Tree_Node, region: Region): Tree_Node[] {
+    function in_region(xc: number, yc: number): boolean {
+        return (region.l <= xc && xc <= region.r) && (region.b <= yc && yc <= region.t);
+    }
+    function overlaps(l: number, r: number, b: number, t: number): boolean {
+        return (region.l <= r) && (region.r >= l) && (region.b <= t) && (region.t >= b);
+    }
+    function search_until(p: Tree_Node, l: number, r: number, b: number, t: number, dp: number = 1) {
+        function found() {
+            search_result.add(p);
         }
         //#SCOPE
 
-        let search_result: Tree_Node[] = [];
-        search_until(this, region.l, region.r, region.b, region.t);
-        return search_result;
+        const x = p.x;
+        const y = p.y;
+
+        if (in_region(x, y))
+            found();
+        //       ___ ___   t
+        //      |NW |NE |
+        //      |___!___|  y
+        //      |SW |SE |
+        //      |___|___|  b
+        //      l   x   r
+        if (p.children[Quadrant.NE] != null && overlaps(x, r, y, t))
+            search_until(p.children[Quadrant.NE], x, r, y, t, dp + 1);
+        if (p.children[Quadrant.NW] != null && overlaps(l, x, y, t))
+            search_until(p.children[Quadrant.NW], l, x, y, t, dp + 1);
+        if (p.children[Quadrant.SW] != null && overlaps(l, x, b, y))
+            search_until(p.children[Quadrant.SW], l, x, b, y, dp + 1);
+        if (p.children[Quadrant.SE] != null && overlaps(x, r, b, y))
+            search_until(p.children[Quadrant.SE], x, r, b, y, dp + 1);
     }
-*/
+    //#SCOPE
+
+    const search_result: Set<Tree_Node> = new Set();
+    search_until(node, region.l, region.r, region.b, region.t);
+    const res = [];
+    for (let v of search_result.values()) {
+        res.push(v);
+    }
+    return res;
+}
 
 function insert(n: Tree_Node, k: Game_Entity) {
     function insert_once(r: Tree_Node, kx: number, ky: number) {
@@ -282,17 +285,24 @@ export class Proximity_Grid {
         return result;
     }
 
-    /* 
-        region_search(r: Region): Game_Entity[] {
-            let res = [];
-            const nodes = this.quad_tree.region_search(r);
-            for (let node of nodes) {
-                res.concat(node.values);
+    region_search(center: Vec3, radius: number): Game_Entity[] {
+        let res = [];
+        const r = new Region(center.x - radius, center.x + radius, center.y - radius, center.y + radius);
+
+        // console.log("+++++++RS+++++++");
+        // console.log(center);
+        // console.log(r);
+
+        const nodes = region_search(this.quad_tree, r);
+
+        for (let node of nodes) {
+            for (let v of node.values) {
+                // if (v.position.z == center.z)
+                res.push(v);
             }
-            return res;
         }
-    
-     */
+        return res;
+    }
 
     local2world(local_pos: Vec3): Vec3 {
         // let type = arguments.callee.caller.name;

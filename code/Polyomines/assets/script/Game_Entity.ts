@@ -528,6 +528,10 @@ export function calcu_entity_future_position(e: Game_Entity, dir: Direction, ste
     return vec_add(e.position, new Vec3(DIRECTION_TO_LOGIC_VEC3[dir]).multiplyScalar(step));
 }
 
+export function calcu_end_position(p: Vec3, dir: Direction, step: number = 1): Vec3 {
+    return vec_add(p, new Vec3(DIRECTION_TO_LOGIC_VEC3[dir]).multiplyScalar(step));
+}
+
 export function calcu_entity_future_squares(e: Game_Entity, dir: Direction, step: number = 1): Vec3[] {
     const future_pos = calcu_entity_future_position(e, dir, step);
     let squares = [future_pos];
