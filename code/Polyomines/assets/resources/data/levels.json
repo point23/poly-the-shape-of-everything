@@ -11,57 +11,68 @@
         {
             "id": "level#004",
             "name": "begin again",
-            "successor": "level#004"
+            "successor": "level#004",
+            "unlock": ""
         },
         {
             "id": "level#001",
             "name": "islands",
-            "successor": "level#004"
+            "successor": "level#004",
+            "unlock": "level#006"
         },
         {
             "id": "level#002",
             "name": "don't look up",
-            "successor": "level#004"
+            "successor": "level#004",
+            "unlock": "level#001"
         },
         {
             "id": "level#003",
             "name": "harmonic",
-            "successor": "level#004"
+            "successor": "level#004",
+            "unlock": ""
         },
         {
             "id": "level#005",
             "name": "it takes two",
-            "successor": "level#004"
+            "successor": "level#004",
+            "unlock": "level#003"
         },
         {
             "id": "level#006",
             "name": "don't be afraid",
-            "successor": "level#004"
+            "successor": "level#004",
+            "unlock": "level#005"
         },
         {
             "id": "level#007",
             "name": "entities",
-            "successor": "level#004"
+            "successor": "level#004",
+            "unlock": ""
         },
         {
             "id": "test#001",
             "name": "support & falling",
-            "successor": "level#004"
+            "successor": "level#004",
+            "unlock": ""
         },
         {
             "id": "test#002",
             "name": "monsters",
-            "successor": "level#004"
+            "successor": "level#004",
+            "unlock": ""
         },
         {
             "id": "test#003",
             "name": "platformer",
-            "successor": "level#004"
+            "successor": "level#004",
+            "unlock": ""
         },
         {
             "id": "test#004",
             "name": "charm",
-            "successor": "level#004"
+            "successor": "level#004",
+            "unlock": ""
         }
     ]
 }

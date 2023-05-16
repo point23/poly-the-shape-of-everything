@@ -1,5 +1,5 @@
-import { assert, Game, Vec3 } from 'cc';
-import { $$, array_remove, Const, Direction, String_Builder } from './Const';
+import { assert, Game, sys, Vec3 } from 'cc';
+import { $$, array_remove, clone_all_slots, Const, Direction, String_Builder } from './Const';
 import { Efx_Manager, halo } from './Efx_Manager';
 import {
     Serializable_Entity_Data,
@@ -233,6 +233,9 @@ export class Entity_Manager {
     }
 
     load_entity(info: any, id: number = null): Game_Entity {
+        const userData = JSON.parse(sys.localStorage.getItem('userData'));
+        const unlocked: string[] = userData.unlocked;
+
         const prefab: string = info.prefab;
         const node = Resource_Manager.instance.instantiate_prefab(prefab);
         assert(node != null, `Failed to instantiate prefab: ${prefab}`);
@@ -255,9 +258,6 @@ export class Entity_Manager {
             }
         }
 
-        this.move_entity(entity, new Vec3(info.position));
-        this.all_entities.push(entity);
-
         { // @Note Handle entities with special types
             if (entity.entity_type == Entity_Type.TRAM) {
                 if (entity.prefab == 'Rover#001') { // @Hack We had already rename it as tram.
@@ -268,8 +268,24 @@ export class Entity_Manager {
             }
 
             if (entity.entity_type == Entity_Type.ENTRANCE) {
+
                 if (info.derived_data != undefined && info.derived_data != null) {
-                    set_entrance_idx(entity, Resource_Manager.instance.level_id_to_idx.get(info.derived_data.level_id));
+                    const level_id = String(info.derived_data.level_id);
+                    const level_idx = Resource_Manager.instance.level_id_to_idx.get(level_id);
+
+                    if (!$$.FOR_EDITING && (!unlocked.length || unlocked.indexOf(level_id) == -1)) {
+                        const pos = { x: 0, y: 0, z: 0 };
+                        clone_all_slots(info.position, pos);
+                        pos.z += 1;
+                        this.load_entity({
+                            prefab: "Lock",
+                            position: pos,
+                            rotation: "0",
+                        });
+                    }
+                    set_entrance_idx(entity, level_idx);
+                } else {
+                    return entity;
                 }
             }
 
@@ -280,6 +296,9 @@ export class Entity_Manager {
                 }
             }
         }
+
+        this.move_entity(entity, new Vec3(info.position));
+        this.all_entities.push(entity);
 
         const clone = clone_undoable_data(entity);
         this.undo_handler.old_entity_state.set(entity.id, clone); // @Note It must happend after we settled those flags about specific type of entities...

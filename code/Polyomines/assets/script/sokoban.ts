@@ -278,7 +278,8 @@ export class Charm_Move extends Single_Move {
         const entities = manager.proximity_grid.region_search(killa.position, 2);
         for (let e of entities) {
             if (e.id == killa.id) continue;
-            this.charmed.push(e);
+            if (e.entity_type == Entity_Type.MONSTER)
+                this.charmed.push(e);
         }
 
         transaction.add_move(this);

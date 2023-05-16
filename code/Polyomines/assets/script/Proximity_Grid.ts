@@ -297,8 +297,8 @@ export class Proximity_Grid {
 
         for (let node of nodes) {
             for (let v of node.values) {
-                // if (v.position.z == center.z)
-                res.push(v);
+                if (v.position.z == center.z)
+                    res.push(v);
             }
         }
         return res;

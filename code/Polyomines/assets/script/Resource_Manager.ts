@@ -1,5 +1,5 @@
-import { _decorator, Prefab, resources, instantiate, Node, JsonAsset, sys, Component } from 'cc';
-import { Const } from './Const';
+import { _decorator, Prefab, resources, instantiate, Node, JsonAsset, sys, Component, TiledUserNodeData } from 'cc';
+import { $$, Const } from './Const';
 import { Prefab_Pair } from './TIny_Little_Components';
 
 const { ccclass, property } = _decorator;
@@ -8,6 +8,7 @@ type Level_Data = {
     id: string,
     name: string,
     successor: string,
+    unlock: string,
 }
 
 @ccclass('Resource_Manager')
@@ -29,7 +30,7 @@ export class Resource_Manager extends Component {
 
     current_level_idx = 0;
     current_level_config: any = null;
-    get current_level(): any { return this.levels[this.current_level_idx]; }
+    get current_level(): Level_Data { return this.levels[this.current_level_idx]; }
 
     set_level_difficulty(d: any) {
         this.current_level_config.difficulty = Number(d);
@@ -50,11 +51,26 @@ export class Resource_Manager extends Component {
 
     load_levels(caller: any, callback: (any) => void) {
         const file_path: string = `${Const.DATA_PATH}/levels`;
+
+        var userData = JSON.parse(sys.localStorage.getItem('userData'));
+        { // @Temporary Get user data.
+            if (!userData || $$.FOR_EDITING) {
+                userData = {
+                    current_level: null,
+                    unlocked: ['level#002'],
+                };
+                sys.localStorage.setItem('userData', JSON.stringify(userData));
+            }
+        }
+
         resources.load(file_path, JsonAsset, (e, asset) => {
             const result = asset.json;
             this.levels = result.levels;
             this.levels_to_test = result.levels_to_test;
             this.mapping_levels();
+
+            var init_level = userData.current_level;
+            if (!init_level) init_level = result.start;
 
             this.current_level_idx = this.level_id_to_idx.get(result.start);
             this.load_current_level(caller, callback);
@@ -93,6 +109,15 @@ export class Resource_Manager extends Component {
 
     load_level(idx: number, caller: any, callback: (any) => void) {
         this.current_level_idx = idx;
+
+        { // @Note Save user config.
+            if (!$$.FOR_EDITING) {
+                var userData = JSON.parse(sys.localStorage.getItem('userData'));
+                userData.current_level = idx;
+                sys.localStorage.setItem('userData', JSON.stringify(userData));
+            }
+        }
+
         this.load_current_level(caller, callback);
     }
 

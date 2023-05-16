@@ -24,7 +24,7 @@
       }
     ],
     "_prefab": {
-      "__id__": 36
+      "__id__": 37
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -162,6 +162,9 @@
       },
       {
         "__id__": 35
+      },
+      {
+        "__id__": 36
       }
     ],
     "entities_parent": null,
@@ -424,6 +427,14 @@
     "id": "Selena",
     "prefab": {
       "__uuid__": "2e1f5845-0407-4e56-a523-80422803d12a",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Lock",
+    "prefab": {
+      "__uuid__": "5a8fa1b8-1087-45be-8196-51f4c2fbbbae",
       "__expectedType__": "cc.Prefab"
     }
   },

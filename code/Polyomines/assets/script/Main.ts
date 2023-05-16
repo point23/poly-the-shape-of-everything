@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Label, tween, Color, Material, EventHandler, Button } from 'cc';
+import { _decorator, Component, Node, Label, tween, Color, Material, EventHandler, Button, sys } from 'cc';
 import { Audio_Manager, end_music, end_sfx, play_music, play_sfx } from './Audio_Manager';
 import { Camera3D_Controller } from './Camera3D_Controller';
 import { $$, Const } from './Const';
@@ -311,6 +311,18 @@ function main_loop() {
         if (entity_manager.pending_win) {
             play_sfx("win!");
             $$.IS_RUNNING = false;
+
+
+            { // @Note Save user config.
+                if (!$$.FOR_EDITING) {
+                    var userData = JSON.parse(sys.localStorage.getItem('userData'));
+                    const unlock = Resource_Manager.instance.current_level.unlock;
+                    if (unlock != "")
+                        userData.unlocked.push(unlock);
+                    sys.localStorage.setItem('userData', JSON.stringify(userData));
+                }
+            }
+
             const sb = show_blinds(game.dim, 1, 1);
             sb.on_complete = () => {
                 load_succeed_level(game);

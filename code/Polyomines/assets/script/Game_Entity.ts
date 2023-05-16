@@ -79,6 +79,7 @@ export enum Entity_Type {
     GEM,
     ENTRANCE,
     MONSTER,
+    LOCK,
 }
 
 export enum Polyomino_Type {
