@@ -312,7 +312,6 @@ function main_loop() {
             play_sfx("win!");
             $$.IS_RUNNING = false;
 
-
             { // @Note Save user config.
                 if (!$$.FOR_EDITING) {
                     var userData = JSON.parse(sys.localStorage.getItem('userData'));

@@ -1,0 +1,138 @@
+{
+  "ver": "2.3.3",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "d9741100-9011-482c-9ab3-bf0a4174391b",
+  "files": [],
+  "subMetas": {
+    "99380": {
+      "importer": "gltf-material",
+      "uuid": "d9741100-9011-482c-9ab3-bf0a4174391b@99380",
+      "displayName": "",
+      "id": "99380",
+      "name": "Material.001.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e10e4": {
+      "importer": "gltf-mesh",
+      "uuid": "d9741100-9011-482c-9ab3-bf0a4174391b@e10e4",
+      "displayName": "",
+      "id": "e10e4",
+      "name": "立方体.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "6cc0d": {
+      "importer": "gltf-scene",
+      "uuid": "d9741100-9011-482c-9ab3-bf0a4174391b@6cc0d",
+      "displayName": "",
+      "id": "6cc0d",
+      "name": "Sand_Wall.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "redirect": "d9741100-9011-482c-9ab3-bf0a4174391b@6cc0d",
+    "assetFinder": {
+      "meshes": [
+        "d9741100-9011-482c-9ab3-bf0a4174391b@e10e4"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "d9741100-9011-482c-9ab3-bf0a4174391b@99380"
+      ],
+      "scenes": [
+        "d9741100-9011-482c-9ab3-bf0a4174391b@6cc0d"
+      ]
+    },
+    "materials": {
+      "d9741100-9011-482c-9ab3-bf0a4174391b@99380": {
+        "__type__": "cc.Material",
+        "_name": "",
+        "_objFlags": 0,
+        "_native": "",
+        "_effectAsset": {
+          "__uuid__": "1baf0fc9-befa-459c-8bdd-af1a450a0319",
+          "__expectedType__": "cc.EffectAsset"
+        },
+        "_techIdx": 0,
+        "_defines": [
+          {},
+          {},
+          {}
+        ],
+        "_states": [
+          {
+            "rasterizerState": {
+              "cullMode": 0
+            },
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          },
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          },
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          }
+        ],
+        "_props": [
+          {
+            "mainColor": {
+              "__type__": "cc.Color",
+              "r": 195,
+              "g": 165,
+              "b": 135,
+              "a": 255
+            },
+            "roughness": 1
+          },
+          {},
+          {}
+        ]
+      }
+    }
+  }
+}

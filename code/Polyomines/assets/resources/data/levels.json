@@ -10,42 +10,66 @@
     "levels": [
         {
             "id": "level#004",
-            "name": "begin again",
+            "name": "Good Morning",
             "successor": "level#004",
             "unlock": ""
         },
         {
-            "id": "level#001",
-            "name": "islands",
-            "successor": "level#004",
-            "unlock": "level#006"
-        },
-        {
             "id": "level#002",
-            "name": "don't look up",
+            "name": "Champion",
             "successor": "level#004",
             "unlock": "level#001"
         },
         {
-            "id": "level#003",
-            "name": "harmonic",
+            "id": "level#001",
+            "name": "Stronger",
             "successor": "level#004",
-            "unlock": ""
-        },
-        {
-            "id": "level#005",
-            "name": "it takes two",
-            "successor": "level#004",
-            "unlock": "level#003"
+            "unlock": "level#006"
         },
         {
             "id": "level#006",
-            "name": "don't be afraid",
+            "name": "I Wonder",
             "successor": "level#004",
             "unlock": "level#005"
         },
         {
+            "id": "level#005",
+            "name": "Good Life",
+            "successor": "level#004",
+            "unlock": "level#003"
+        },
+        {
+            "id": "level#003",
+            "name": "Can't Tell Me Nothing",
+            "successor": "level#004",
+            "unlock": ""
+        },
+        {
             "id": "level#007",
+            "name": "Barry Bonds",
+            "successor": "level#004",
+            "unlock": ""
+        },
+        {
+            "id": "level#008",
+            "name": "Drunk and Hot Girls",
+            "successor": "level#004",
+            "unlock": ""
+        },
+        {
+            "id": "level#009",
+            "name": "Flashing Lights",
+            "successor": "level#004",
+            "unlock": ""
+        },
+        {
+            "id": "level#010",
+            "name": "Everything I Am",
+            "successor": "level#004",
+            "unlock": ""
+        },
+        {
+            "id": "entities",
             "name": "entities",
             "successor": "level#004",
             "unlock": ""

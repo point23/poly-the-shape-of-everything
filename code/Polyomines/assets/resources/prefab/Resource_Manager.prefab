@@ -24,7 +24,7 @@
       }
     ],
     "_prefab": {
-      "__id__": 37
+      "__id__": 64
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -165,6 +165,87 @@
       },
       {
         "__id__": 36
+      },
+      {
+        "__id__": 37
+      },
+      {
+        "__id__": 38
+      },
+      {
+        "__id__": 39
+      },
+      {
+        "__id__": 40
+      },
+      {
+        "__id__": 41
+      },
+      {
+        "__id__": 42
+      },
+      {
+        "__id__": 43
+      },
+      {
+        "__id__": 44
+      },
+      {
+        "__id__": 45
+      },
+      {
+        "__id__": 46
+      },
+      {
+        "__id__": 47
+      },
+      {
+        "__id__": 48
+      },
+      {
+        "__id__": 49
+      },
+      {
+        "__id__": 50
+      },
+      {
+        "__id__": 51
+      },
+      {
+        "__id__": 52
+      },
+      {
+        "__id__": 53
+      },
+      {
+        "__id__": 54
+      },
+      {
+        "__id__": 55
+      },
+      {
+        "__id__": 56
+      },
+      {
+        "__id__": 57
+      },
+      {
+        "__id__": 58
+      },
+      {
+        "__id__": 59
+      },
+      {
+        "__id__": 60
+      },
+      {
+        "__id__": 61
+      },
+      {
+        "__id__": 62
+      },
+      {
+        "__id__": 63
       }
     ],
     "entities_parent": null,
@@ -179,14 +260,6 @@
     "id": "Domino",
     "prefab": {
       "__uuid__": "5aa2d6ab-3c8f-4247-adaf-d1f16c858afa",
-      "__expectedType__": "cc.Prefab"
-    }
-  },
-  {
-    "__type__": "Prefab_Pair",
-    "id": "Fox",
-    "prefab": {
-      "__uuid__": "c7c70a89-faa5-479a-84a8-3f35417b54eb",
       "__expectedType__": "cc.Prefab"
     }
   },
@@ -437,6 +510,224 @@
       "__uuid__": "5a8fa1b8-1087-45be-8196-51f4c2fbbbae",
       "__expectedType__": "cc.Prefab"
     }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Ground#002",
+    "prefab": {
+      "__uuid__": "cd244b21-8a12-470a-9e43-3f042494f313",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Ground#003",
+    "prefab": {
+      "__uuid__": "b4bbff98-55eb-4eab-8d1c-25b1907f538d",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Ground#004",
+    "prefab": {
+      "__uuid__": "cc3d0a20-fd18-4eaf-8609-65fef7be08c6",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Ground#005",
+    "prefab": {
+      "__uuid__": "cf254cc0-7b14-4f4b-868a-e9841850548b",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Ground#006",
+    "prefab": {
+      "__uuid__": "954216f6-3649-48dd-8531-4a6ddc204e80",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Coffin",
+    "prefab": {
+      "__uuid__": "3211a0f3-62ad-4da9-9c12-720886566ccb",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Chair",
+    "prefab": {
+      "__uuid__": "a3e58e52-7e33-478d-85af-0cffec499a00",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Bookshelf#01",
+    "prefab": {
+      "__uuid__": "e75f0819-c40c-4a3e-90cb-692169cfef6c",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Bookshelf#02",
+    "prefab": {
+      "__uuid__": "193ad6bb-ef3b-46a0-9e9a-624634a89de6",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Bookshelf#03",
+    "prefab": {
+      "__uuid__": "7098bce8-1847-4715-a664-68e8061db05b",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Bookshelf#04",
+    "prefab": {
+      "__uuid__": "8f3971be-d402-41ab-816b-8701ac19cd1a",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Books#01",
+    "prefab": {
+      "__uuid__": "d5f702c5-a63c-41d1-a243-498bb13e5522",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Books#02",
+    "prefab": {
+      "__uuid__": "e98032f4-0c72-4729-97ad-ac6cc3a01385",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Books#03",
+    "prefab": {
+      "__uuid__": "a0875838-c166-4bce-8cd2-85076d3adf58",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Books#04",
+    "prefab": {
+      "__uuid__": "a0cd764a-4b85-4bbb-aef6-a33c96929972",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Barrel#01",
+    "prefab": {
+      "__uuid__": "3771b670-00b3-44ef-ac1d-d2832eef6b27",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Barrel#02",
+    "prefab": {
+      "__uuid__": "1bb289ed-7e4f-4489-8743-281b0292ad67",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Tent#01",
+    "prefab": {
+      "__uuid__": "be792072-564f-46a3-880d-3d3290ad9845",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Tent#02",
+    "prefab": {
+      "__uuid__": "16bd52dd-e005-4fac-9976-7195dd8282c9",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Wall_Sand",
+    "prefab": {
+      "__uuid__": "8b5fd19b-7361-46cd-b23f-b078b3a8a579",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Wall_Track_D",
+    "prefab": {
+      "__uuid__": "326fff3a-ac20-448b-9354-a4b6c82d79e3",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Wall_Track_M",
+    "prefab": {
+      "__uuid__": "c12e4768-23ad-4836-9e8a-711e66d7bd9d",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Wall_Track_D_B",
+    "prefab": {
+      "__uuid__": "313b6989-df4e-4e43-993a-ea7fb33936cd",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Wall_Track_M_D",
+    "prefab": {
+      "__uuid__": "c5f62ff9-9f32-41cd-8a44-af5c87101f0a",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Fence#002",
+    "prefab": {
+      "__uuid__": "3653d3be-6078-43e7-96bd-bae1f053fcdd",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Fence#003",
+    "prefab": {
+      "__uuid__": "14a3b492-1a11-4f16-8ae7-f8120e26afb5",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "",
+    "prefab": null
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "",
+    "prefab": null
   },
   {
     "__type__": "cc.PrefabInfo",

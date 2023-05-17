@@ -1,0 +1,214 @@
+{
+  "ver": "2.3.3",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "3d7e5360-b946-454e-9247-023507098b18",
+  "files": [],
+  "subMetas": {
+    "08c68": {
+      "importer": "gltf-mesh",
+      "uuid": "3d7e5360-b946-454e-9247-023507098b18@08c68",
+      "displayName": "",
+      "id": "08c68",
+      "name": "Plane.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "7059e": {
+      "importer": "gltf-material",
+      "uuid": "3d7e5360-b946-454e-9247-023507098b18@7059e",
+      "displayName": "",
+      "id": "7059e",
+      "name": "base.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e2f03": {
+      "importer": "gltf-material",
+      "uuid": "3d7e5360-b946-454e-9247-023507098b18@e2f03",
+      "displayName": "",
+      "id": "e2f03",
+      "name": "tile.material",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "fa22a": {
+      "importer": "gltf-scene",
+      "uuid": "3d7e5360-b946-454e-9247-023507098b18@fa22a",
+      "displayName": "",
+      "id": "fa22a",
+      "name": "Square_Tile.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "redirect": "3d7e5360-b946-454e-9247-023507098b18@fa22a",
+    "assetFinder": {
+      "meshes": [
+        "3d7e5360-b946-454e-9247-023507098b18@08c68"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "3d7e5360-b946-454e-9247-023507098b18@7059e",
+        "3d7e5360-b946-454e-9247-023507098b18@e2f03"
+      ],
+      "scenes": [
+        "3d7e5360-b946-454e-9247-023507098b18@fa22a"
+      ]
+    },
+    "materials": {
+      "3d7e5360-b946-454e-9247-023507098b18@7059e": {
+        "__type__": "cc.Material",
+        "_name": "",
+        "_objFlags": 0,
+        "_native": "",
+        "_effectAsset": {
+          "__uuid__": "1baf0fc9-befa-459c-8bdd-af1a450a0319",
+          "__expectedType__": "cc.EffectAsset"
+        },
+        "_techIdx": 0,
+        "_defines": [
+          {},
+          {},
+          {}
+        ],
+        "_states": [
+          {
+            "rasterizerState": {
+              "cullMode": 0
+            },
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          },
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          },
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          }
+        ],
+        "_props": [
+          {
+            "mainColor": {
+              "__type__": "cc.Color",
+              "r": 116,
+              "g": 110,
+              "b": 102,
+              "a": 255
+            }
+          },
+          {},
+          {}
+        ]
+      },
+      "3d7e5360-b946-454e-9247-023507098b18@e2f03": {
+        "__type__": "cc.Material",
+        "_name": "",
+        "_objFlags": 0,
+        "_native": "",
+        "_effectAsset": {
+          "__uuid__": "1baf0fc9-befa-459c-8bdd-af1a450a0319",
+          "__expectedType__": "cc.EffectAsset"
+        },
+        "_techIdx": 0,
+        "_defines": [
+          {},
+          {},
+          {}
+        ],
+        "_states": [
+          {
+            "rasterizerState": {
+              "cullMode": 0
+            },
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          },
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          },
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          }
+        ],
+        "_props": [
+          {
+            "mainColor": {
+              "__type__": "cc.Color",
+              "r": 177,
+              "g": 164,
+              "b": 149,
+              "a": 255
+            }
+          },
+          {},
+          {}
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "ver": "2.3.3",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "fb1fc820-d90e-4cdd-a76b-25cd3d1fa616",
+  "files": [],
+  "subMetas": {
+    "11950": {
+      "importer": "gltf-scene",
+      "uuid": "fb1fc820-d90e-4cdd-a76b-25cd3d1fa616@11950",
+      "displayName": "",
+      "id": "11950",
+      "name": "fountain.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "17464": {
+      "importer": "gltf-material",
+      "uuid": "fb1fc820-d90e-4cdd-a76b-25cd3d1fa616@17464",
+      "displayName": "",
+      "id": "17464",
+      "name": "Stone.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f9595": {
+      "importer": "gltf-mesh",
+      "uuid": "fb1fc820-d90e-4cdd-a76b-25cd3d1fa616@f9595",
+      "displayName": "",
+      "id": "f9595",
+      "name": "fountain.002.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "773be": {
+      "importer": "gltf-embeded-image",
+      "uuid": "fb1fc820-d90e-4cdd-a76b-25cd3d1fa616@773be",
+      "displayName": "",
+      "id": "773be",
+      "name": "Stone.image",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".jpg",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e39f7": {
+      "importer": "texture",
+      "uuid": "fb1fc820-d90e-4cdd-a76b-25cd3d1fa616@e39f7",
+      "displayName": "",
+      "id": "e39f7",
+      "name": "UnnamedTexture.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "fb1fc820-d90e-4cdd-a76b-25cd3d1fa616@773be"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "dfbe1": {
+      "importer": "gltf-material",
+      "uuid": "fb1fc820-d90e-4cdd-a76b-25cd3d1fa616@dfbe1",
+      "displayName": "",
+      "id": "dfbe1",
+      "name": "Water.material",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [
+      {
+        "name": "Stone",
+        "uri": "fb1fc820-d90e-4cdd-a76b-25cd3d1fa616@773be"
+      }
+    ],
+    "redirect": "fb1fc820-d90e-4cdd-a76b-25cd3d1fa616@11950",
+    "assetFinder": {
+      "meshes": [
+        "fb1fc820-d90e-4cdd-a76b-25cd3d1fa616@f9595"
+      ],
+      "skeletons": [],
+      "textures": [
+        "fb1fc820-d90e-4cdd-a76b-25cd3d1fa616@e39f7"
+      ],
+      "materials": [
+        "fb1fc820-d90e-4cdd-a76b-25cd3d1fa616@17464",
+        "fb1fc820-d90e-4cdd-a76b-25cd3d1fa616@dfbe1"
+      ],
+      "scenes": [
+        "fb1fc820-d90e-4cdd-a76b-25cd3d1fa616@11950"
+      ]
+    }
+  }
+}

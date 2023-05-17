@@ -1083,6 +1083,18 @@ class Tram_Move extends Single_Move {
 
         transaction.add_move(this);
 
+        const supporters = manager.locate_current_supporters(tram);
+        var on_track: boolean = false;
+        for (let s of supporters) {
+            if (s.entity_type == Entity_Type.TRACK) {
+                on_track = true;
+            }
+        }
+
+        if (!on_track) {
+            return false;
+        }
+
         let track = locate_track_ahead(tram, direction); // @Note There might be some conflicts since the track might be moving?
         if (track == null) { // There's no way ahead, we need to turn around
             turned_around = true;

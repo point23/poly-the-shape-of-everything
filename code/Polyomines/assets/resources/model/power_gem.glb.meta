@@ -1,0 +1,135 @@
+{
+  "ver": "2.3.3",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "3ff8ea4c-6f68-49ff-8f9b-54c80430a449",
+  "files": [],
+  "subMetas": {
+    "6a58a": {
+      "importer": "gltf-mesh",
+      "uuid": "3ff8ea4c-6f68-49ff-8f9b-54c80430a449@6a58a",
+      "displayName": "",
+      "id": "6a58a",
+      "name": "dmesh.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "a0bb2": {
+      "importer": "gltf-material",
+      "uuid": "3ff8ea4c-6f68-49ff-8f9b-54c80430a449@a0bb2",
+      "displayName": "",
+      "id": "a0bb2",
+      "name": "GemStone Shader.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "62f09": {
+      "importer": "gltf-scene",
+      "uuid": "3ff8ea4c-6f68-49ff-8f9b-54c80430a449@62f09",
+      "displayName": "",
+      "id": "62f09",
+      "name": "power_gem.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "redirect": "3ff8ea4c-6f68-49ff-8f9b-54c80430a449@62f09",
+    "assetFinder": {
+      "meshes": [
+        "3ff8ea4c-6f68-49ff-8f9b-54c80430a449@6a58a"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "3ff8ea4c-6f68-49ff-8f9b-54c80430a449@a0bb2"
+      ],
+      "scenes": [
+        "3ff8ea4c-6f68-49ff-8f9b-54c80430a449@62f09"
+      ]
+    },
+    "materials": {
+      "3ff8ea4c-6f68-49ff-8f9b-54c80430a449@a0bb2": {
+        "__type__": "cc.Material",
+        "_name": "",
+        "_objFlags": 0,
+        "_native": "",
+        "_effectAsset": {
+          "__uuid__": "1baf0fc9-befa-459c-8bdd-af1a450a0319",
+          "__expectedType__": "cc.EffectAsset"
+        },
+        "_techIdx": 1,
+        "_defines": [
+          {},
+          {},
+          {}
+        ],
+        "_states": [
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          },
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          },
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          }
+        ],
+        "_props": [
+          {
+            "mainColor": {
+              "__type__": "cc.Color",
+              "r": 173,
+              "g": 45,
+              "b": 45,
+              "a": 194
+            }
+          },
+          {},
+          {}
+        ]
+      }
+    }
+  }
+}

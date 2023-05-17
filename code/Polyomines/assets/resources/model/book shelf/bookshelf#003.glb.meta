@@ -1,0 +1,152 @@
+{
+  "ver": "2.3.3",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "c1370d88-298c-4e82-8eb2-8aa3d9620f39",
+  "files": [],
+  "subMetas": {
+    "fd4a2": {
+      "importer": "gltf-mesh",
+      "uuid": "c1370d88-298c-4e82-8eb2-8aa3d9620f39@fd4a2",
+      "displayName": "",
+      "id": "fd4a2",
+      "name": "Cube.004.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4e48d": {
+      "importer": "gltf-material",
+      "uuid": "c1370d88-298c-4e82-8eb2-8aa3d9620f39@4e48d",
+      "displayName": "",
+      "id": "4e48d",
+      "name": "mat_bookshelf_wood.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "2675b": {
+      "importer": "gltf-scene",
+      "uuid": "c1370d88-298c-4e82-8eb2-8aa3d9620f39@2675b",
+      "displayName": "",
+      "id": "2675b",
+      "name": "bookshelf#003.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "redirect": "c1370d88-298c-4e82-8eb2-8aa3d9620f39@2675b",
+    "assetFinder": {
+      "meshes": [
+        "c1370d88-298c-4e82-8eb2-8aa3d9620f39@fd4a2"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "c1370d88-298c-4e82-8eb2-8aa3d9620f39@4e48d"
+      ],
+      "scenes": [
+        "c1370d88-298c-4e82-8eb2-8aa3d9620f39@2675b"
+      ]
+    },
+    "materials": {
+      "c1370d88-298c-4e82-8eb2-8aa3d9620f39@4e48d": {
+        "__type__": "cc.Material",
+        "_name": "",
+        "_objFlags": 0,
+        "_native": "",
+        "_effectAsset": {
+          "__uuid__": "1baf0fc9-befa-459c-8bdd-af1a450a0319",
+          "__expectedType__": "cc.EffectAsset"
+        },
+        "_techIdx": 0,
+        "_defines": [
+          {
+            "USE_NORMAL_MAP": true,
+            "USE_ALBEDO_MAP": true,
+            "USE_EMISSIVE_MAP": true
+          },
+          {},
+          {}
+        ],
+        "_states": [
+          {
+            "rasterizerState": {
+              "cullMode": 0
+            },
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          },
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          },
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          }
+        ],
+        "_props": [
+          {
+            "albedoScale": {
+              "__type__": "cc.Vec3",
+              "x": 0.6399999856948853,
+              "y": 0.6399999856948853,
+              "z": 0.6399999856948853
+            },
+            "mainTexture": {
+              "__uuid__": "82da619e-ed4d-46ea-a8bf-0175d5baa5bc@6c48a",
+              "__expectedType__": "cc.Texture2D"
+            },
+            "normalMap": {
+              "__uuid__": "6de9ffac-1ebc-4021-b8cc-1f95b6dcfcc2@6c48a",
+              "__expectedType__": "cc.Texture2D"
+            },
+            "emissiveMap": {
+              "__uuid__": "fadecc3a-9fcf-49f3-98e5-4b043d759735@6c48a",
+              "__expectedType__": "cc.Texture2D"
+            }
+          },
+          {},
+          {}
+        ]
+      }
+    }
+  }
+}

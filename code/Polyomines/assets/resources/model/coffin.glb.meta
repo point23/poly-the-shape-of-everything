@@ -1,0 +1,122 @@
+{
+  "ver": "2.3.3",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "6f3ec759-fe98-4778-acb5-615c600085d5",
+  "files": [],
+  "subMetas": {
+    "344db": {
+      "importer": "gltf-mesh",
+      "uuid": "6f3ec759-fe98-4778-acb5-615c600085d5@344db",
+      "displayName": "",
+      "id": "344db",
+      "name": "Plane.003.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "dd7f1": {
+      "importer": "gltf-embeded-image",
+      "uuid": "6f3ec759-fe98-4778-acb5-615c600085d5@dd7f1",
+      "displayName": "",
+      "id": "dd7f1",
+      "name": "coffin_001_d.png.image",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".png"
+      ],
+      "subMetas": {}
+    },
+    "e39f7": {
+      "importer": "texture",
+      "uuid": "6f3ec759-fe98-4778-acb5-615c600085d5@e39f7",
+      "displayName": "",
+      "id": "e39f7",
+      "name": "UnnamedTexture.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "6f3ec759-fe98-4778-acb5-615c600085d5@dd7f1"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "b4e6b": {
+      "importer": "gltf-material",
+      "uuid": "6f3ec759-fe98-4778-acb5-615c600085d5@b4e6b",
+      "displayName": "",
+      "id": "b4e6b",
+      "name": "Material.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4c41b": {
+      "importer": "gltf-scene",
+      "uuid": "6f3ec759-fe98-4778-acb5-615c600085d5@4c41b",
+      "displayName": "",
+      "id": "4c41b",
+      "name": "coffin.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [
+      {
+        "name": "coffin_001_d.png",
+        "uri": "6f3ec759-fe98-4778-acb5-615c600085d5@dd7f1"
+      }
+    ],
+    "redirect": "6f3ec759-fe98-4778-acb5-615c600085d5@4c41b",
+    "assetFinder": {
+      "meshes": [
+        "6f3ec759-fe98-4778-acb5-615c600085d5@344db"
+      ],
+      "skeletons": [],
+      "textures": [
+        "6f3ec759-fe98-4778-acb5-615c600085d5@e39f7"
+      ],
+      "materials": [
+        "6f3ec759-fe98-4778-acb5-615c600085d5@b4e6b"
+      ],
+      "scenes": [
+        "6f3ec759-fe98-4778-acb5-615c600085d5@4c41b"
+      ]
+    }
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "ver": "2.3.3",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "cc9ccc01-b475-4f43-855d-9d703ca1bfe8",
+  "files": [],
+  "subMetas": {
+    "2f6d1": {
+      "importer": "gltf-mesh",
+      "uuid": "cc9ccc01-b475-4f43-855d-9d703ca1bfe8@2f6d1",
+      "displayName": "",
+      "id": "2f6d1",
+      "name": "Cube.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "b4e6b": {
+      "importer": "gltf-material",
+      "uuid": "cc9ccc01-b475-4f43-855d-9d703ca1bfe8@b4e6b",
+      "displayName": "",
+      "id": "b4e6b",
+      "name": "Material.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "847fe": {
+      "importer": "gltf-scene",
+      "uuid": "cc9ccc01-b475-4f43-855d-9d703ca1bfe8@847fe",
+      "displayName": "",
+      "id": "847fe",
+      "name": "lighthouse.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "redirect": "cc9ccc01-b475-4f43-855d-9d703ca1bfe8@847fe",
+    "assetFinder": {
+      "meshes": [
+        "cc9ccc01-b475-4f43-855d-9d703ca1bfe8@2f6d1"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "cc9ccc01-b475-4f43-855d-9d703ca1bfe8@b4e6b"
+      ],
+      "scenes": [
+        "cc9ccc01-b475-4f43-855d-9d703ca1bfe8@847fe"
+      ]
+    },
+    "materials": {
+      "cc9ccc01-b475-4f43-855d-9d703ca1bfe8@b4e6b": {
+        "__type__": "cc.Material",
+        "_name": "",
+        "_objFlags": 0,
+        "_native": "",
+        "_effectAsset": {
+          "__uuid__": "1baf0fc9-befa-459c-8bdd-af1a450a0319",
+          "__expectedType__": "cc.EffectAsset"
+        },
+        "_techIdx": 0,
+        "_defines": [
+          {
+            "USE_ALBEDO_MAP": true
+          },
+          {},
+          {}
+        ],
+        "_states": [
+          {
+            "rasterizerState": {
+              "cullMode": 0
+            },
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          },
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          },
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          }
+        ],
+        "_props": [
+          {
+            "albedoScale": {
+              "__type__": "cc.Vec3",
+              "x": 0.800000011920929,
+              "y": 0.800000011920929,
+              "z": 0.800000011920929
+            },
+            "mainTexture": {
+              "__uuid__": "9a7d546b-0a78-4ca3-9486-eb3dd0de910b@6c48a",
+              "__expectedType__": "cc.Texture2D"
+            }
+          },
+          {},
+          {}
+        ]
+      }
+    }
+  }
+}

@@ -52,13 +52,15 @@ export class Resource_Manager extends Component {
     load_levels(caller: any, callback: (any) => void) {
         const file_path: string = `${Const.DATA_PATH}/levels`;
 
-        var userData = JSON.parse(sys.localStorage.getItem('userData'));
+        var userData = {
+            current_level: null,
+            unlocked: ['level#002'],
+        };
         { // @Temporary Get user data.
-            if (!userData || $$.FOR_EDITING) {
-                userData = {
-                    current_level: null,
-                    unlocked: ['level#002'],
-                };
+            const i = sys.localStorage.getItem('userData');
+            if (i) {
+                userData = JSON.parse(i);
+            } else {
                 sys.localStorage.setItem('userData', JSON.stringify(userData));
             }
         }

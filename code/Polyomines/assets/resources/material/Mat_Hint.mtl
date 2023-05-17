@@ -9,7 +9,9 @@
   },
   "_techIdx": 1,
   "_defines": [
-    {},
+    {
+      "USE_ALBEDO_MAP": true
+    },
     {},
     {}
   ],
@@ -50,6 +52,10 @@
         "g": 53,
         "b": 153,
         "a": 139
+      },
+      "mainTexture": {
+        "__uuid__": "fee4e765-ae5d-4542-8e65-f569b9713c4e@6c48a",
+        "__expectedType__": "cc.Texture2D"
       }
     },
     {},
