@@ -48,14 +48,18 @@
     {
       "mainColor": {
         "__type__": "cc.Color",
-        "r": 184,
-        "g": 171,
-        "b": 105,
+        "r": 73,
+        "g": 114,
+        "b": 138,
         "a": 255
       },
       "roughness": 1,
       "mainTexture": {
-        "__uuid__": "fee4e765-ae5d-4542-8e65-f569b9713c4e@6c48a",
+        "__uuid__": "3d94f1a9-a6e3-4bb6-a5ff-ad24e9d174c2@6c48a",
+        "__expectedType__": "cc.Texture2D"
+      },
+      "normalMap": {
+        "__uuid__": "3d94f1a9-a6e3-4bb6-a5ff-ad24e9d174c2@6c48a",
         "__expectedType__": "cc.Texture2D"
       }
     },

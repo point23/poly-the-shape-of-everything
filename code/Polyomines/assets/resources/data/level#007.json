@@ -1,5 +1,5 @@
 {
-    "difficulty": 2,
+    "difficulty": 3,
     "light": {
         "position": {
             "x": -0.5,
@@ -7,10 +7,10 @@
             "z": 9.5
         },
         "rotation": {
-            "x": -0.35355339059327445,
-            "y": -0.6123724356958016,
-            "z": -0.3535533905932748,
-            "w": 0.6123724356958014
+            "x": -0.6492755984857763,
+            "y": -0.23286282536148903,
+            "z": -0.5728878047163803,
+            "w": 0.442736563864862
         }
     },
     "camera": {
@@ -20,10 +20,10 @@
             "z": 9.5
         },
         "rotation": {
-            "x": -0.35355339059327445,
-            "y": -0.6123724356958016,
-            "z": -0.3535533905932748,
-            "w": 0.6123724356958014
+            "x": -0.3265055756219777,
+            "y": -0.6272113751262569,
+            "z": -0.3265055756219781,
+            "w": 0.6272113751262567
         }
     },
     "grid": {
@@ -39,454 +39,2182 @@
     },
     "entities": [
         {
-            "prefab": "Elvis",
+            "prefab": "Track#001",
             "position": {
-                "x": 7,
-                "y": 8,
+                "x": 6,
+                "y": 12,
+                "z": 0
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Tent#01",
+            "position": {
+                "x": 11,
+                "y": 6,
                 "z": 1
             },
             "rotation": 2
         },
         {
-            "prefab": "Checkpoint#002",
-            "position": {
-                "x": 7,
-                "y": 7,
-                "z": 0
-            },
-            "rotation": 3
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 6,
-                "y": 6,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 6,
-                "y": 7,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 6,
-                "y": 8,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 6,
-                "y": 5,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 8,
-                "y": 6,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 7,
-                "y": 6,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 8,
-                "y": 7,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 7,
-                "y": 7,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 8,
-                "y": 8,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 7,
-                "y": 8,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 8,
-                "y": 5,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 7,
-                "y": 5,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 10,
-                "y": 6,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
+            "prefab": "Tent#02",
             "position": {
                 "x": 9,
                 "y": 6,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 10,
-                "y": 7,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 9,
-                "y": 7,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 10,
-                "y": 8,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 9,
-                "y": 8,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 10,
-                "y": 5,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 9,
-                "y": 5,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 12,
-                "y": 6,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 11,
-                "y": 6,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 12,
-                "y": 7,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 11,
-                "y": 7,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 12,
-                "y": 8,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 11,
-                "y": 8,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 12,
-                "y": 5,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 11,
-                "y": 5,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 13,
-                "y": 6,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 13,
-                "y": 7,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 13,
-                "y": 8,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 13,
-                "y": 5,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 6,
-                "y": 4,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 8,
-                "y": 4,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 7,
-                "y": 4,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 10,
-                "y": 4,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 9,
-                "y": 4,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 12,
-                "y": 4,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 11,
-                "y": 4,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 13,
-                "y": 4,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Checkpoint#002",
-            "position": {
-                "x": 12,
-                "y": 6,
-                "z": 0
-            },
-            "rotation": 3
-        },
-        {
-            "prefab": "Rock#001",
-            "position": {
-                "x": 9,
-                "y": 5,
-                "z": 1
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Stump#002",
-            "position": {
-                "x": 10,
-                "y": 7,
-                "z": 1
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Checkpoint#002",
-            "position": {
-                "x": 13,
-                "y": 6,
-                "z": 0
-            },
-            "rotation": 3
-        },
-        {
-            "prefab": "Checkpoint#002",
-            "position": {
-                "x": 11,
-                "y": 6,
-                "z": 0
-            },
-            "rotation": 3
-        },
-        {
-            "prefab": "Checkpoint#002",
-            "position": {
-                "x": 13,
-                "y": 7,
-                "z": 0
-            },
-            "rotation": 3
-        },
-        {
-            "prefab": "Rock#003",
-            "position": {
-                "x": 13,
-                "y": 5,
                 "z": 1
             },
             "rotation": 2
         },
         {
-            "prefab": "Rock#003",
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 10,
+                "y": 6,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 7,
+                "y": 4,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 6,
+                "y": 7,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 6,
+                "y": 5,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 7,
+                "y": 8,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
             "position": {
                 "x": 8,
+                "y": 7,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 9,
+                "y": 8,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 10,
+                "y": 7,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 11,
+                "y": 8,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 9,
+                "y": 4,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 8,
+                "y": 5,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 6,
+                "y": 6,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 7,
+                "y": 6,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 10,
+                "y": 6,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 10,
+                "y": 5,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 11,
+                "y": 4,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 13,
+                "y": 4,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 12,
+                "y": 7,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 12,
+                "y": 5,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 13,
+                "y": 8,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 12,
+                "y": 6,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 13,
+                "y": 6,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 6,
+                "y": 3,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 8,
+                "y": 3,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 10,
+                "y": 3,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 12,
+                "y": 3,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 8,
+                "y": 9,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 10,
+                "y": 9,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 12,
+                "y": 9,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 5,
+                "y": 8,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 5,
+                "y": 6,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 14,
+                "y": 7,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 14,
+                "y": 5,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 14,
+                "y": 6,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 14,
+                "y": 3,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 14,
+                "y": 9,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Track#001",
+            "position": {
+                "x": 6,
+                "y": 11,
+                "z": 0
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Track#001",
+            "position": {
+                "x": 6,
+                "y": 10,
+                "z": 0
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 7,
+                "y": 12,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 7,
+                "y": 11,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 5,
+                "y": 12,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 5,
+                "y": 11,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 7,
+                "y": 11,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 8,
+                "y": 11,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 9,
+                "y": 11,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 12,
+                "y": 11,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 7,
+                "y": 12,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 9,
+                "y": 12,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 10,
+                "y": 12,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 5,
+                "y": 11,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 5,
+                "y": 12,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 14,
+                "y": 11,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 7,
+                "y": 10,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 9,
+                "y": 10,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 11,
+                "y": 10,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 13,
+                "y": 10,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 5,
+                "y": 10,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Track#001",
+            "position": {
+                "x": 6,
+                "y": 9,
+                "z": 0
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Track#001",
+            "position": {
+                "x": 6,
+                "y": 8,
+                "z": 0
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Barrel#02",
+            "position": {
+                "x": 6,
+                "y": 13,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Tent#02",
+            "position": {
+                "x": 8,
+                "y": 6,
+                "z": 1
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 7,
+                "y": 6,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 6,
+                "y": 6,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 5,
+                "y": 6,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 12,
+                "y": 6,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 13,
+                "y": 6,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 14,
+                "y": 6,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 6,
+                "y": 2,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 5,
+                "y": 2,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 2,
+                "z": 1
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 12,
+                "y": 2,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 13,
+                "y": 2,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 14,
+                "y": 2,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 8,
+                "y": 2,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 7,
+                "y": 2,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 11,
+                "y": 2,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 10,
+                "y": 2,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 9,
+                "y": 2,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 4,
+                "z": 1
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
                 "y": 5,
                 "z": 1
             },
             "rotation": 1
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 6,
+                "z": 1
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 7,
+                "z": 1
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 15,
+                "y": 2,
+                "z": 1
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 15,
+                "y": 3,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 15,
+                "y": 4,
+                "z": 1
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 15,
+                "y": 5,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 15,
+                "y": 6,
+                "z": 1
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 15,
+                "y": 7,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Monster",
+            "position": {
+                "x": 13,
+                "y": 5,
+                "z": 1
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Selena",
+            "position": {
+                "x": 13,
+                "y": 8,
+                "z": 1
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 8,
+                "z": 1
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 9,
+                "z": 1
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 10,
+                "z": 1
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 11,
+                "z": 1
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 12,
+                "z": 1
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 13,
+                "z": 1
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 5,
+                "y": 13,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 15,
+                "y": 12,
+                "z": 1
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 12,
+                "y": 13,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 13,
+                "y": 13,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 14,
+                "y": 13,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 8,
+                "y": 13,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 7,
+                "y": 13,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 11,
+                "y": 13,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 10,
+                "y": 13,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 9,
+                "y": 13,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 15,
+                "y": 13,
+                "z": 1
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 15,
+                "y": 10,
+                "z": 1
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 15,
+                "y": 11,
+                "z": 1
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 15,
+                "y": 8,
+                "z": 1
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 15,
+                "y": 9,
+                "z": 1
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Tent#02",
+            "position": {
+                "x": 11,
+                "y": 12,
+                "z": 1
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 9,
+                "y": 9,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 10,
+                "y": 12,
+                "z": 1
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 8,
+                "y": 12,
+                "z": 1
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 15,
+                "y": 10,
+                "z": 2
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 15,
+                "y": 8,
+                "z": 2
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 15,
+                "y": 9,
+                "z": 2
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 13,
+                "z": 2
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 6,
+                "y": 14,
+                "z": 2
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 5,
+                "y": 14,
+                "z": 2
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 12,
+                "y": 14,
+                "z": 2
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 13,
+                "y": 14,
+                "z": 2
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 14,
+                "y": 14,
+                "z": 2
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 8,
+                "y": 14,
+                "z": 2
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 7,
+                "y": 14,
+                "z": 2
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 11,
+                "y": 13,
+                "z": 2
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 10,
+                "y": 13,
+                "z": 2
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 9,
+                "y": 14,
+                "z": 2
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 4,
+                "z": 2
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 5,
+                "y": 2,
+                "z": 2
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 2,
+                "z": 2
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 7,
+                "z": 2
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 8,
+                "z": 2
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 9,
+                "z": 2
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 10,
+                "z": 2
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 11,
+                "z": 2
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 12,
+                "z": 2
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 15,
+                "y": 3,
+                "z": 2
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 15,
+                "y": 4,
+                "z": 2
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 15,
+                "y": 5,
+                "z": 2
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Tent#01",
+            "position": {
+                "x": 12,
+                "y": 12,
+                "z": 1
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Tent#01",
+            "position": {
+                "x": 13,
+                "y": 12,
+                "z": 1
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Tent#02",
+            "position": {
+                "x": 14,
+                "y": 12,
+                "z": 1
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Tent#02",
+            "position": {
+                "x": 5,
+                "y": 5,
+                "z": 1
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 8,
+                "y": 6,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 9,
+                "y": 6,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 11,
+                "y": 6,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 5,
+                "y": 5,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 12,
+                "y": 12,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 13,
+                "y": 12,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 14,
+                "y": 12,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 11,
+                "y": 12,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 13,
+                "y": 9,
+                "z": 0
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 14,
+                "y": 8,
+                "z": 0
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Tent#01",
+            "position": {
+                "x": 5,
+                "y": 4,
+                "z": 1
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 5,
+                "y": 4,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 7,
+                "y": 5,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 6,
+                "y": 4,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 7,
+                "y": 3,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 8,
+                "y": 4,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 5,
+                "y": 3,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 9,
+                "y": 5,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 9,
+                "y": 3,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 10,
+                "y": 4,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 11,
+                "y": 5,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 12,
+                "y": 4,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 11,
+                "y": 3,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 13,
+                "y": 3,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 14,
+                "y": 4,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 13,
+                "y": 5,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 8,
+                "y": 12,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 8,
+                "y": 10,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 7,
+                "y": 9,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 8,
+                "y": 8,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 7,
+                "y": 7,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 5,
+                "y": 7,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 5,
+                "y": 9,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 13,
+                "y": 11,
+                "z": 0
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 12,
+                "y": 10,
+                "z": 0
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 10,
+                "y": 10,
+                "z": 0
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 11,
+                "y": 9,
+                "z": 0
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 10,
+                "y": 8,
+                "z": 0
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 12,
+                "y": 8,
+                "z": 0
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 11,
+                "y": 7,
+                "z": 0
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 13,
+                "y": 7,
+                "z": 0
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 14,
+                "y": 10,
+                "z": 0
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 12,
+                "y": 2,
+                "z": 2
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 11,
+                "y": 2,
+                "z": 2
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 10,
+                "z": 3
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 11,
+                "z": 3
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Wall_Track_M_D",
+            "position": {
+                "x": 6,
+                "y": 10,
+                "z": 0
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Track_M_D",
+            "position": {
+                "x": 6,
+                "y": 11,
+                "z": 0
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Track_M_D",
+            "position": {
+                "x": 6,
+                "y": 8,
+                "z": 0
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Track_M_D",
+            "position": {
+                "x": 6,
+                "y": 9,
+                "z": 0
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Track_M_D",
+            "position": {
+                "x": 6,
+                "y": 12,
+                "z": 0
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Track_M_D",
+            "position": {
+                "x": 6,
+                "y": 13,
+                "z": 0
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Track_M_D",
+            "position": {
+                "x": 6,
+                "y": 14,
+                "z": 0
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Track#001",
+            "position": {
+                "x": 6,
+                "y": 14,
+                "z": 0
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Track#001",
+            "position": {
+                "x": 6,
+                "y": 13,
+                "z": 0
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Rover#001",
+            "position": {
+                "x": 6,
+                "y": 14,
+                "z": 1
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 9,
+                "y": 7,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 15,
+                "y": 6,
+                "z": 2
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 12,
+                "y": 7,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 11,
+                "y": 7,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 10,
+                "y": 7,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 9,
+                "y": 7,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 7,
+                "y": 10,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 3,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 3,
+                "y": 3,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 3,
+                "z": 2
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 4,
+                "y": 3,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 7,
+                "y": 5,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 11,
+                "y": 4,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 11,
+                "y": 3,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Gem#001",
+            "position": {
+                "x": 8,
+                "y": 4,
+                "z": 1
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Switch#001",
+            "position": {
+                "x": 6,
+                "y": 5,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 15,
+                "y": 14,
+                "z": 2
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Tent#01",
+            "position": {
+                "x": 12,
+                "y": 13,
+                "z": 2
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Tent#02",
+            "position": {
+                "x": 13,
+                "y": 13,
+                "z": 2
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Barrel#01",
+            "position": {
+                "x": 11,
+                "y": 5,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Rock#003",
+            "position": {
+                "x": 11,
+                "y": 11,
+                "z": 0
+            },
+            "rotation": 1
+        },
+        {
+            "prefab": "Fence#001",
+            "position": {
+                "x": 11,
+                "y": 11,
+                "z": 0
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 5,
+                "y": 14,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 6,
+                "y": 15,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 6,
+                "y": 16,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 6,
+                "y": 15,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 6,
+                "y": 16,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 8,
+                "y": 11,
+                "z": 1
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Sand",
+            "position": {
+                "x": 15,
+                "y": 13,
+                "z": 2
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Tent#02",
+            "position": {
+                "x": 14,
+                "y": 13,
+                "z": 2
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Fence#001",
+            "position": {
+                "x": 9,
+                "y": 11,
+                "z": 0
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Fence#001",
+            "position": {
+                "x": 13,
+                "y": 11,
+                "z": 0
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Fence#001",
+            "position": {
+                "x": 14,
+                "y": 11,
+                "z": 0
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Checkpoint#002",
+            "position": {
+                "x": 11,
+                "y": 11,
+                "z": 0
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Monster",
+            "position": {
+                "x": 14,
+                "y": 11,
+                "z": 1
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Fence#001",
+            "position": {
+                "x": 12,
+                "y": 11,
+                "z": 0
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Ground#005",
+            "position": {
+                "x": 10,
+                "y": 11,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Checkpoint#002",
+            "position": {
+                "x": 8,
+                "y": 5,
+                "z": 0
+            },
+            "rotation": 3
         }
     ],
     "records": [

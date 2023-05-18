@@ -16,14 +16,14 @@
     "camera": {
         "position": {
             "x": -3.5,
-            "y": 9,
-            "z": 7.5
+            "y": 10,
+            "z": 8.5
         },
         "rotation": {
-            "x": -0.27059805007309945,
-            "y": -0.653281482438194,
-            "z": -0.27059805007309956,
-            "w": 0.6532814824381941
+            "x": -0.29883623873012083,
+            "y": -0.6408563820557942,
+            "z": -0.29883623873012105,
+            "w": 0.6408563820557943
         }
     },
     "grid": {
@@ -1605,16 +1605,13 @@
             "rotation": 2
         },
         {
-            "prefab": "Entrance#001",
+            "prefab": "Checkpoint#001",
             "position": {
                 "x": 5,
                 "y": 11,
                 "z": 0
             },
-            "rotation": 0,
-            "derived_data": {
-                "level_id": "level#003"
-            }
+            "rotation": 0
         },
         {
             "prefab": "Wall_Track_M",
@@ -2893,6 +2890,285 @@
                 "z": 2
             },
             "rotation": 0
+        },
+        {
+            "prefab": "Wall_Track_M",
+            "position": {
+                "x": 3,
+                "y": -1,
+                "z": 2
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Track_D",
+            "position": {
+                "x": 15,
+                "y": 0,
+                "z": 1
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Track_M",
+            "position": {
+                "x": 15,
+                "y": -1,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Track_D",
+            "position": {
+                "x": 15,
+                "y": 2,
+                "z": 1
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Track_D",
+            "position": {
+                "x": 15,
+                "y": 4,
+                "z": 1
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Track_D",
+            "position": {
+                "x": 15,
+                "y": 6,
+                "z": 1
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Track_D",
+            "position": {
+                "x": 15,
+                "y": 8,
+                "z": 1
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Track_D",
+            "position": {
+                "x": 15,
+                "y": 10,
+                "z": 1
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Track_M",
+            "position": {
+                "x": 15,
+                "y": 12,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Track_D",
+            "position": {
+                "x": 15,
+                "y": 11,
+                "z": 2
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Track_D",
+            "position": {
+                "x": 15,
+                "y": 9,
+                "z": 2
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Track_D",
+            "position": {
+                "x": 15,
+                "y": 7,
+                "z": 2
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Track_D",
+            "position": {
+                "x": 15,
+                "y": 5,
+                "z": 2
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Track_D",
+            "position": {
+                "x": 15,
+                "y": 3,
+                "z": 2
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Track_D",
+            "position": {
+                "x": 15,
+                "y": 1,
+                "z": 2
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Track_D",
+            "position": {
+                "x": 15,
+                "y": -1,
+                "z": 2
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Track_D",
+            "position": {
+                "x": 15,
+                "y": 0,
+                "z": 3
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Track_M",
+            "position": {
+                "x": 15,
+                "y": -1,
+                "z": 3
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Track_D",
+            "position": {
+                "x": 15,
+                "y": 2,
+                "z": 3
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Track_D",
+            "position": {
+                "x": 15,
+                "y": 4,
+                "z": 3
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Track_D",
+            "position": {
+                "x": 15,
+                "y": 6,
+                "z": 3
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Track_D",
+            "position": {
+                "x": 15,
+                "y": 8,
+                "z": 3
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Track_D",
+            "position": {
+                "x": 15,
+                "y": 10,
+                "z": 3
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Wall_Track_M",
+            "position": {
+                "x": 15,
+                "y": 12,
+                "z": 3
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Wall_Track_D_B",
+            "position": {
+                "x": 15,
+                "y": 12,
+                "z": 4
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Track_D_B",
+            "position": {
+                "x": 15,
+                "y": 10,
+                "z": 4
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Track_D_B",
+            "position": {
+                "x": 15,
+                "y": 8,
+                "z": 4
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Track_D_B",
+            "position": {
+                "x": 15,
+                "y": 6,
+                "z": 4
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Track_D_B",
+            "position": {
+                "x": 15,
+                "y": 4,
+                "z": 4
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Track_D_B",
+            "position": {
+                "x": 15,
+                "y": 2,
+                "z": 4
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Wall_Track_D_B",
+            "position": {
+                "x": 15,
+                "y": 0,
+                "z": 4
+            },
+            "rotation": 2
         }
     ],
     "records": [

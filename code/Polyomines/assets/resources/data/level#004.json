@@ -1,5 +1,5 @@
 {
-    "difficulty": 1,
+    "difficulty": 3,
     "camera": {
         "position": {
             "x": -1.5,
@@ -20,10 +20,10 @@
             "z": 9.5
         },
         "rotation": {
-            "x": -0.03361264487178255,
-            "y": -0.8740490783049463,
-            "z": -0.3724731936790307,
-            "w": -0.3101162988453867
+            "x": 0.29233799988190734,
+            "y": -0.5048194373150736,
+            "z": -0.3142997256342686,
+            "w": -0.7489402592998862
         }
     },
     "grid": {
@@ -45,7 +45,7 @@
                 "y": 6,
                 "z": 1
             },
-            "rotation": 2
+            "rotation": 3
         },
         {
             "prefab": "Ground#004",
@@ -335,9 +335,9 @@
         {
             "prefab": "Entrance#001",
             "position": {
-                "x": 9,
-                "y": 10,
-                "z": 1
+                "x": 10,
+                "y": 3,
+                "z": 0
             },
             "rotation": 0,
             "derived_data": {
@@ -1394,13 +1394,13 @@
         {
             "prefab": "Entrance#001",
             "position": {
-                "x": 10,
-                "y": 3,
-                "z": 0
+                "x": 9,
+                "y": 10,
+                "z": 1
             },
             "rotation": 0,
             "derived_data": {
-                "level_id": "level#005"
+                "level_id": "level#006"
             }
         },
         {
@@ -1516,9 +1516,9 @@
             "position": {
                 "x": 10,
                 "y": 7,
-                "z": 0
+                "z": 1
             },
-            "rotation": 2
+            "rotation": 3
         },
         {
             "prefab": "Ruin#002",
@@ -1762,6 +1762,42 @@
                 "z": 4
             },
             "rotation": 0
+        },
+        {
+            "prefab": "Ground#004",
+            "position": {
+                "x": 11,
+                "y": 7,
+                "z": -1
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Ground#004",
+            "position": {
+                "x": 10,
+                "y": 7,
+                "z": 0
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Ground#004",
+            "position": {
+                "x": 9,
+                "y": 7,
+                "z": -1
+            },
+            "rotation": 3
+        },
+        {
+            "prefab": "Ground#004",
+            "position": {
+                "x": 10,
+                "y": 6,
+                "z": -1
+            },
+            "rotation": 3
         }
     ]
 }

@@ -15,15 +15,15 @@
     },
     "camera": {
         "position": {
-            "x": -0.5,
+            "x": 1.5,
             "y": 11,
             "z": 10.5
         },
         "rotation": {
-            "x": -0.35355339059327406,
-            "y": -0.6123724356958018,
-            "z": -0.3535533905932746,
-            "w": 0.6123724356958018
+            "x": -0.4055797876726388,
+            "y": -0.5792279653395771,
+            "z": -0.40557978767263936,
+            "w": 0.5792279653395771
         }
     },
     "grid": {
@@ -55,15 +55,6 @@
                 "z": 1
             },
             "rotation": 3
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 8,
-                "y": 8,
-                "z": 1
-            },
-            "rotation": 0
         },
         {
             "prefab": "Ground#001",
@@ -107,15 +98,6 @@
                 "x": 6,
                 "y": 8,
                 "z": 1
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Rock#001",
-            "position": {
-                "x": 5,
-                "y": 6,
-                "z": 2
             },
             "rotation": 0
         },
@@ -257,15 +239,6 @@
         {
             "prefab": "Ground#001",
             "position": {
-                "x": 16,
-                "y": 6,
-                "z": 1
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
                 "x": 6,
                 "y": 6,
                 "z": 0
@@ -384,7 +357,7 @@
             "prefab": "Ground#001",
             "position": {
                 "x": 8,
-                "y": 5,
+                "y": 4,
                 "z": 0
             },
             "rotation": 0
@@ -430,24 +403,6 @@
             "position": {
                 "x": 9,
                 "y": 7,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 10,
-                "y": 5,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 9,
-                "y": 5,
                 "z": 0
             },
             "rotation": 0
@@ -624,151 +579,124 @@
             "rotation": 0
         },
         {
-            "prefab": "Rock#001",
+            "prefab": "Ground#001",
             "position": {
-                "x": 11,
+                "x": 8,
+                "y": 6,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 7,
+                "y": 6,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 13,
+                "y": 6,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 12,
+                "y": 6,
+                "z": 1
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 14,
+                "y": 5,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 14,
+                "y": 7,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 15,
+                "y": 7,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 15,
+                "y": 8,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 16,
+                "y": 7,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Rock#003",
+            "position": {
+                "x": 7,
+                "y": 8,
+                "z": 1
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Rock#003",
+            "position": {
+                "x": 7,
+                "y": 5,
+                "z": 1
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Rock#003",
+            "position": {
+                "x": 6,
+                "y": 5,
+                "z": 1
+            },
+            "rotation": 2
+        },
+        {
+            "prefab": "Rock#002",
+            "position": {
+                "x": 5,
                 "y": 6,
                 "z": 2
             },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 8,
-                "y": 6,
-                "z": 1
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 7,
-                "y": 6,
-                "z": 1
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 13,
-                "y": 6,
-                "z": 1
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 12,
-                "y": 6,
-                "z": 1
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 14,
-                "y": 5,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 14,
-                "y": 7,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 15,
-                "y": 7,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 15,
-                "y": 8,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Ground#001",
-            "position": {
-                "x": 16,
-                "y": 7,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Rock#002",
-            "position": {
-                "x": 7,
-                "y": 8,
-                "z": 1
-            },
-            "rotation": 2
-        },
-        {
-            "prefab": "Rock#002",
-            "position": {
-                "x": 7,
-                "y": 5,
-                "z": 1
-            },
-            "rotation": 2
-        },
-        {
-            "prefab": "Rock#002",
-            "position": {
-                "x": 6,
-                "y": 5,
-                "z": 1
-            },
-            "rotation": 2
-        },
-        {
-            "prefab": "Rock#003",
-            "position": {
-                "x": 6,
-                "y": 4,
-                "z": 1
-            },
             "rotation": 1
         },
         {
             "prefab": "Rock#003",
-            "position": {
-                "x": 16,
-                "y": 7,
-                "z": 1
-            },
-            "rotation": 1
-        },
-        {
-            "prefab": "Ruin#001",
-            "position": {
-                "x": 11,
-                "y": 4,
-                "z": 0
-            },
-            "rotation": 1
-        },
-        {
-            "prefab": "Rock#002",
             "position": {
                 "x": 9,
                 "y": 5,
@@ -777,119 +705,110 @@
             "rotation": 2
         },
         {
-            "prefab": "Rock#002",
+            "prefab": "Null",
+            "position": {
+                "x": 6,
+                "y": 7,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 13,
+                "y": 5,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 15,
+                "y": 5,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 5,
+                "y": 5,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 5,
+                "y": 4,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
             "position": {
                 "x": 8,
                 "y": 5,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 10,
+                "y": 5,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Ground#001",
+            "position": {
+                "x": 9,
+                "y": 5,
+                "z": 0
+            },
+            "rotation": 0
+        },
+        {
+            "prefab": "Rock#002",
+            "position": {
+                "x": 10,
+                "y": 6,
                 "z": 2
             },
+            "rotation": 1
+        },
+        {
+            "prefab": "Rock#003",
+            "position": {
+                "x": 6,
+                "y": 4,
+                "z": 1
+            },
             "rotation": 2
         },
         {
-            "prefab": "Null",
-            "position": {
-                "x": 13,
-                "y": 5,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Null",
-            "position": {
-                "x": 6,
-                "y": 7,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Null",
-            "position": {
-                "x": 15,
-                "y": 4,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Null",
-            "position": {
-                "x": 15,
-                "y": 5,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Null",
-            "position": {
-                "x": 9,
-                "y": 8,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Null",
-            "position": {
-                "x": 10,
-                "y": 8,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Null",
-            "position": {
-                "x": 16,
-                "y": 8,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Null",
-            "position": {
-                "x": 5,
-                "y": 5,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Null",
-            "position": {
-                "x": 5,
-                "y": 4,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Null",
+            "prefab": "Ground#004",
             "position": {
                 "x": 8,
-                "y": 4,
-                "z": 0
+                "y": 8,
+                "z": 1
             },
             "rotation": 0
         },
         {
-            "prefab": "Null",
+            "prefab": "Ground#004",
             "position": {
-                "x": 9,
-                "y": 4,
-                "z": 0
-            },
-            "rotation": 0
-        },
-        {
-            "prefab": "Null",
-            "position": {
-                "x": 10,
-                "y": 4,
-                "z": 0
+                "x": 16,
+                "y": 6,
+                "z": 1
             },
             "rotation": 0
         },
@@ -900,7 +819,7 @@
                 "y": 5,
                 "z": 1
             },
-            "rotation": 1
+            "rotation": 2
         }
     ],
     "records": [

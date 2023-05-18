@@ -1443,7 +1443,7 @@ function try_push_others(mover: Game_Entity, direction: Direction, transaction: 
         if (other == null) continue;
         if (other.id == mover.id) continue;
         if (other.entity_type == Entity_Type.FENCE) continue;
-        // if (other.interpolation) continue; // @Note That's an important bug!!!
+        if (other.entity_type == Entity_Type.LOCK) continue;
         if (is_a_board_like_entity(other)) continue;
 
         if (other.entity_type == Entity_Type.GATE) {

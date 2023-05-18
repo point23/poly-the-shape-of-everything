@@ -24,7 +24,7 @@
       }
     ],
     "_prefab": {
-      "__id__": 64
+      "__id__": 65
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -246,6 +246,9 @@
       },
       {
         "__id__": 63
+      },
+      {
+        "__id__": 64
       }
     ],
     "entities_parent": null,
@@ -721,13 +724,27 @@
   },
   {
     "__type__": "Prefab_Pair",
-    "id": "",
-    "prefab": null
+    "id": "Rover#003",
+    "prefab": {
+      "__uuid__": "c81734f2-4f53-48ed-b88d-2424dfdef7b8",
+      "__expectedType__": "cc.Prefab"
+    }
   },
   {
     "__type__": "Prefab_Pair",
-    "id": "",
-    "prefab": null
+    "id": "Track#002",
+    "prefab": {
+      "__uuid__": "60d8e72a-a4bb-4187-a55c-b0ec497e4baf",
+      "__expectedType__": "cc.Prefab"
+    }
+  },
+  {
+    "__type__": "Prefab_Pair",
+    "id": "Tree",
+    "prefab": {
+      "__uuid__": "27989605-baf5-44fd-b9f8-b403c287420b",
+      "__expectedType__": "cc.Prefab"
+    }
   },
   {
     "__type__": "cc.PrefabInfo",

@@ -54,11 +54,11 @@ export class Resource_Manager extends Component {
 
         var userData = {
             current_level: null,
-            unlocked: ['level#002'],
+            unlocked: ['level#001', 'level#002', 'level#004', 'level#007', 'level#008', 'level#009', 'level#010'],
         };
         { // @Temporary Get user data.
             const i = sys.localStorage.getItem('userData');
-            if (i) {
+            if (i && !$$.FOR_EDITING) {
                 userData = JSON.parse(i);
             } else {
                 sys.localStorage.setItem('userData', JSON.stringify(userData));
